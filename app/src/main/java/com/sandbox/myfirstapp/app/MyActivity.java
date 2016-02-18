@@ -2,15 +2,24 @@ package com.sandbox.myfirstapp.app;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Environment;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.VideoView;
+import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
+import org.json.JSONException;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 
 public class MyActivity extends AppCompatActivity {
 
@@ -20,6 +29,13 @@ public class MyActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
+
+        String dataDir = Environment.getDataDirectory().getAbsolutePath();
+        String packageDir = getExternalFilesDir(null).getAbsolutePath();
+        File picturesDir = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_PICTURES);
+        String filesDir = getFilesDir().getAbsolutePath();
+//        Log.d("MARIO", dataDir);
     }
 
 
@@ -46,6 +62,18 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void sendMessage(View view) {
+        String packageDir = getExternalFilesDir(null).getAbsolutePath() + "/names.json";
+        ArrayList<String> names = new ArrayList<String>();
+        names.add("roger");
+        names.add("dasani");
+        try {
+            new CustomJSONSerializer(getApplicationContext(),packageDir).save(names);
+        } catch (JSONException e) {
+            Log.e("MARIO",Log.getStackTraceString(e));
+        } catch (IOException e) {
+            Log.e("MARIO",Log.getStackTraceString(e));
+        }
+
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText editText = (EditText) findViewById(R.id.edit_message);
         String message = editText.getText().toString();
