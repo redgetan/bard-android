@@ -24,6 +24,8 @@ import org.w3c.dom.Text;
 
 import java.io.*;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.ProtocolException;
 import java.net.URL;
 import java.util.ArrayList;
 
@@ -31,16 +33,20 @@ public class MyActivity extends AppCompatActivity {
 
     public static final String EXTRA_MESSAGE = "com.sandbox.myfirstapp.MESSAGE";
     private TextView debugView;
+    private VideoView videoView;
+    private String packageDir;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
 
+        packageDir = getExternalFilesDir(null).getAbsolutePath();
         debugView = (TextView) findViewById(R.id.display_debug);
+        videoView = (VideoView) findViewById(R.id.video_view);
+        videoView.setMediaController(new MediaController(this));
 
         String dataDir = Environment.getDataDirectory().getAbsolutePath();
-        String packageDir = getExternalFilesDir(null).getAbsolutePath();
         File picturesDir = Environment.getExternalStoragePublicDirectory(
                 Environment.DIRECTORY_PICTURES);
         String filesDir = getFilesDir().getAbsolutePath();
@@ -76,8 +82,9 @@ public class MyActivity extends AppCompatActivity {
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
-            String stringUrl = "http://www.indeed.ca";
-            new DownloadWebpageTask().execute(stringUrl);
+            //String stringUrl = "http://www.indeed.ca";
+            String stringUrl = "http://192.168.1.77:3000/repos/im_gonna_make_him_an_offers_he_cant_reject_1455179387.mp4";
+            new DownloadVideoTask().execute(stringUrl);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -92,28 +99,90 @@ public class MyActivity extends AppCompatActivity {
     }
 
     public void playLocalVideo(View view) {
-        VideoView mVideoView = (VideoView) findViewById(R.id.video_view);
-        mVideoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kevin_hart_booty));
-        mVideoView.setMediaController(new MediaController(this));
-        mVideoView.requestFocus();
-        mVideoView.start();
+        //videoView.setVideoURI(Uri.parse("http://192.168.1.77:3000/repos/im_gonna_make_him_an_offers_he_cant_reject_1455179387.mp4"));
+        videoView.setVideoPath(packageDir + "/mydownloadmovie.mp4");
+        // videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kevin_hart_booty));
+        videoView.requestFocus();
+        videoView.start();
     }
 
-    private class DownloadWebpageTask extends AsyncTask<String, Void, String> {
+    private class DownloadVideoTask extends AsyncTask<String, Integer, String> {
         @Override
         protected String doInBackground(String... urls) {
 
             // params comes from the execute() call: params[0] is the url.
             try {
-                return downloadUrl(urls[0]);
+                downloadFile(urls[0], this);
+                return "success";
             } catch (IOException e) {
-                return "Unable to retrieve web page. URL may be invalid.";
+                return "failure";
             }
         }
         // onPostExecute displays the results of the AsyncTask.
         @Override
         protected void onPostExecute(String result) {
-            debugView.setText(result);
+            if (result.equals("success")) {
+                videoView.setVideoPath(packageDir + "/mydownloadmovie.mp4");
+                videoView.requestFocus();
+                videoView.start();
+            } else {
+                debugView.setText("Unable to retrieve video");
+            }
+        }
+
+        public void doProgress(int value){
+            publishProgress(value);
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer[] progress) {
+            super.onProgressUpdate(progress);
+            debugView.setText(progress[0]);
+        }
+    }
+
+    // http://stackoverflow.com/questions/20235553/download-the-video-before-play-it-on-android-videoview
+    void downloadFile(String sourceUrl, DownloadVideoTask downloadVideoTask) throws IOException {
+
+        try {
+            URL url = new URL(sourceUrl);
+            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+
+            urlConnection.setRequestMethod("GET");
+
+            //connect
+            urlConnection.connect();
+
+            //create a new file, to save the downloaded file
+            File file = new File(packageDir,"mydownloadmovie.mp4");
+
+            FileOutputStream fileOutput = new FileOutputStream(file);
+
+            //Stream used for reading the data from the internet
+            InputStream inputStream = urlConnection.getInputStream();
+
+            //this is the total size of the file which we are downloading
+            int totalSize = urlConnection.getContentLength();
+
+
+            //create a buffer...
+            byte[] buffer = new byte[1024];
+            int bufferLength = 0;
+            int downloadedSize = 0;
+            int progress;
+
+            while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
+                fileOutput.write(buffer, 0, bufferLength);
+                downloadedSize += bufferLength;
+                progress = (downloadedSize * 100 / totalSize);
+                downloadVideoTask.doProgress(5);
+            }
+            //close the output stream when complete //
+            fileOutput.close();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+            debugView.setText("Unable to retrive video. malformed url");
         }
     }
 
