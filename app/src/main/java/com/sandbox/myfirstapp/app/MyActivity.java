@@ -83,7 +83,7 @@ public class MyActivity extends AppCompatActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             // fetch data
             //String stringUrl = "http://www.indeed.ca";
-            String stringUrl = "http://192.168.1.77:3000/repos/im_gonna_make_him_an_offers_he_cant_reject_1455179387.mp4";
+            String stringUrl = "http://192.168.1.77:3000/repos/f7S1nWvY4V3dgEw.mp4";
             new DownloadVideoTask().execute(stringUrl);
         } else {
             // display error
@@ -122,6 +122,7 @@ public class MyActivity extends AppCompatActivity {
         @Override
         protected void onPostExecute(String result) {
             if (result.equals("success")) {
+                debugView.setText("");
                 videoView.setVideoPath(packageDir + "/mydownloadmovie.mp4");
                 videoView.requestFocus();
                 videoView.start();
@@ -136,8 +137,7 @@ public class MyActivity extends AppCompatActivity {
 
         @Override
         protected void onProgressUpdate(Integer[] progress) {
-            super.onProgressUpdate(progress);
-            debugView.setText(progress[0]);
+            debugView.setText("progress:" + progress[0] + " %");
         }
     }
 
@@ -154,7 +154,7 @@ public class MyActivity extends AppCompatActivity {
             urlConnection.connect();
 
             //create a new file, to save the downloaded file
-            File file = new File(packageDir,"mydownloadmovie.mp4");
+            File file = new File(packageDir, getSourceFileName(url));
 
             FileOutputStream fileOutput = new FileOutputStream(file);
 
@@ -175,7 +175,7 @@ public class MyActivity extends AppCompatActivity {
                 fileOutput.write(buffer, 0, bufferLength);
                 downloadedSize += bufferLength;
                 progress = (downloadedSize * 100 / totalSize);
-                downloadVideoTask.doProgress(5);
+                downloadVideoTask.doProgress(progress);
             }
             //close the output stream when complete //
             fileOutput.close();
@@ -184,6 +184,11 @@ public class MyActivity extends AppCompatActivity {
             e.printStackTrace();
             debugView.setText("Unable to retrive video. malformed url");
         }
+    }
+
+    private String getSourceFileName(URL url) {
+        int slashIndex = url.getPath().lastIndexOf("/");
+        return url.getPath().substring(slashIndex + 1);
     }
 
     private String downloadUrl(String myurl) throws IOException {
@@ -198,7 +203,6 @@ public class MyActivity extends AppCompatActivity {
             conn.setReadTimeout(10000 /* milliseconds */);
             conn.setConnectTimeout(15000 /* milliseconds */);
             conn.setRequestMethod("GET");
-            conn.setDoInput(true);
             // Starts the query
             conn.connect();
             int response = conn.getResponseCode();
