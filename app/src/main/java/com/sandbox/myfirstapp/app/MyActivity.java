@@ -161,7 +161,7 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void onVideoQueryEvent(VideoQueryEvent event){
+    public void onEvent(VideoQueryEvent event){
         videoView.setVideoURI(Uri.parse(event.videoUrl));
         videoView.requestFocus();
         videoView.start();
