@@ -18,7 +18,11 @@ import android.widget.EditText;
 import android.widget.MediaController;
 import android.widget.TextView;
 import android.widget.VideoView;
+import com.sandbox.myfirstapp.app.api.MadchatClient;
+import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.w3c.dom.Text;
 
@@ -53,7 +57,6 @@ public class MyActivity extends AppCompatActivity {
 //        Log.d("MARIO", dataDir);
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -76,15 +79,19 @@ public class MyActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void sendMessage(View view) {
+    public void sendMessage(View view) throws IOException {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
         if (networkInfo != null && networkInfo.isConnected()) {
+
+            EditText editText = (EditText) findViewById(R.id.edit_message);
+            String message = editText.getText().toString();
+            MadchatClient.getQuery(message);
             // fetch data
             //String stringUrl = "http://www.indeed.ca";
-            String stringUrl = "http://192.168.1.77:3000/repos/f7S1nWvY4V3dgEw.mp4";
-            new DownloadVideoTask().execute(stringUrl);
+//            String stringUrl = "http://192.168.1.77:3000/repos/Y32OEovQHi4FHp8.mp4";
+//            new DownloadVideoTask().execute(stringUrl);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -139,6 +146,25 @@ public class MyActivity extends AppCompatActivity {
         protected void onProgressUpdate(Integer[] progress) {
             debugView.setText("progress:" + progress[0] + " %");
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Subscribe
+    public void onVideoQueryEvent(VideoQueryEvent event){
+        videoView.setVideoURI(Uri.parse(event.videoUrl));
+        videoView.requestFocus();
+        videoView.start();
     }
 
     // http://stackoverflow.com/questions/20235553/download-the-video-before-play-it-on-android-videoview
