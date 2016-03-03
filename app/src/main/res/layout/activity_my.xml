@@ -35,13 +35,6 @@
                   android:layout_height="wrap_content"/>
 
 
-        <Button android:text="@string/button_play_video"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="playLocalVideo"
-                android:hint="@string/button_play_video" android:layout_gravity="center_horizontal"/>
-
-
         <VideoView android:id="@+id/video_view"
                    android:layout_width="wrap_content"
                    android:layout_height="wrap_content"
