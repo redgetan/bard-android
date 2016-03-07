@@ -14,10 +14,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.EditText;
-import android.widget.MediaController;
-import android.widget.TextView;
-import android.widget.VideoView;
+import android.widget.*;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
@@ -39,6 +36,7 @@ public class MyActivity extends AppCompatActivity {
     private TextView debugView;
     private VideoView videoView;
     private String packageDir;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +46,7 @@ public class MyActivity extends AppCompatActivity {
         packageDir = getExternalFilesDir(null).getAbsolutePath();
         debugView = (TextView) findViewById(R.id.display_debug);
         videoView = (VideoView) findViewById(R.id.video_view);
+        progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         videoView.setMediaController(new MediaController(this));
 
         String dataDir = Environment.getDataDirectory().getAbsolutePath();
@@ -83,11 +82,22 @@ public class MyActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        progressBar.setVisibility(View.VISIBLE);
+
+        new android.os.Handler().postDelayed(
+            new Runnable() {
+                public void run() {
+                    progressBar.setVisibility(View.GONE);
+                }
+            },
+        3000);
+
         if (networkInfo != null && networkInfo.isConnected()) {
 
-            EditText editText = (EditText) findViewById(R.id.edit_message);
-            String message = editText.getText().toString();
-            MadchatClient.getQuery(message);
+//            EditText editText = (EditText) findViewById(R.id.edit_message);
+//            String message = editText.getText().toString();
+//            MadchatClient.getQuery(message);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
