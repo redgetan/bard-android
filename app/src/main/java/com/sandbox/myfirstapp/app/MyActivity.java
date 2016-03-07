@@ -88,10 +88,6 @@ public class MyActivity extends AppCompatActivity {
             EditText editText = (EditText) findViewById(R.id.edit_message);
             String message = editText.getText().toString();
             MadchatClient.getQuery(message);
-            // fetch data
-            //String stringUrl = "http://www.indeed.ca";
-//            String stringUrl = "http://192.168.1.77:3000/repos/Y32OEovQHi4FHp8.mp4";
-//            new DownloadVideoTask().execute(stringUrl);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -113,41 +109,6 @@ public class MyActivity extends AppCompatActivity {
         videoView.start();
     }
 
-    private class DownloadVideoTask extends AsyncTask<String, Integer, String> {
-        @Override
-        protected String doInBackground(String... urls) {
-
-            // params comes from the execute() call: params[0] is the url.
-            try {
-                downloadFile(urls[0], this);
-                return "success";
-            } catch (IOException e) {
-                return "failure";
-            }
-        }
-        // onPostExecute displays the results of the AsyncTask.
-        @Override
-        protected void onPostExecute(String result) {
-            if (result.equals("success")) {
-                debugView.setText("");
-                videoView.setVideoPath(packageDir + "/mydownloadmovie.mp4");
-                videoView.requestFocus();
-                videoView.start();
-            } else {
-                debugView.setText("Unable to retrieve video");
-            }
-        }
-
-        public void doProgress(int value){
-            publishProgress(value);
-        }
-
-        @Override
-        protected void onProgressUpdate(Integer[] progress) {
-            debugView.setText("progress:" + progress[0] + " %");
-        }
-    }
-
     @Override
     public void onStart() {
         super.onStart();
@@ -167,92 +128,4 @@ public class MyActivity extends AppCompatActivity {
         videoView.start();
     }
 
-    // http://stackoverflow.com/questions/20235553/download-the-video-before-play-it-on-android-videoview
-    void downloadFile(String sourceUrl, DownloadVideoTask downloadVideoTask) throws IOException {
-
-        try {
-            URL url = new URL(sourceUrl);
-            HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-
-            urlConnection.setRequestMethod("GET");
-
-            //connect
-            urlConnection.connect();
-
-            //create a new file, to save the downloaded file
-            File file = new File(packageDir, getSourceFileName(url));
-
-            FileOutputStream fileOutput = new FileOutputStream(file);
-
-            //Stream used for reading the data from the internet
-            InputStream inputStream = urlConnection.getInputStream();
-
-            //this is the total size of the file which we are downloading
-            int totalSize = urlConnection.getContentLength();
-
-
-            //create a buffer...
-            byte[] buffer = new byte[1024];
-            int bufferLength = 0;
-            int downloadedSize = 0;
-            int progress;
-
-            while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
-                fileOutput.write(buffer, 0, bufferLength);
-                downloadedSize += bufferLength;
-                progress = (downloadedSize * 100 / totalSize);
-                downloadVideoTask.doProgress(progress);
-            }
-            //close the output stream when complete //
-            fileOutput.close();
-
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-            debugView.setText("Unable to retrive video. malformed url");
-        }
-    }
-
-    private String getSourceFileName(URL url) {
-        int slashIndex = url.getPath().lastIndexOf("/");
-        return url.getPath().substring(slashIndex + 1);
-    }
-
-    private String downloadUrl(String myurl) throws IOException {
-        InputStream is = null;
-        // Only display the first 500 characters of the retrieved
-        // web page content.
-        int len = 500;
-
-        try {
-            URL url = new URL(myurl);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setReadTimeout(10000 /* milliseconds */);
-            conn.setConnectTimeout(15000 /* milliseconds */);
-            conn.setRequestMethod("GET");
-            // Starts the query
-            conn.connect();
-            int response = conn.getResponseCode();
-            Log.d("MARIO", "The response is: " + response);
-            is = conn.getInputStream();
-
-            // Convert the InputStream into a string
-            String contentAsString = readIt(is, len);
-            return contentAsString;
-
-            // Makes sure that the InputStream is closed after the app is
-            // finished using it.
-        } finally {
-            if (is != null) {
-                is.close();
-            }
-        }
-    }
-
-    public String readIt(InputStream stream, int len) throws IOException, UnsupportedEncodingException {
-        Reader reader = null;
-        reader = new InputStreamReader(stream, "UTF-8");
-        char[] buffer = new char[len];
-        reader.read(buffer);
-        return new String(buffer);
-    }
 }
