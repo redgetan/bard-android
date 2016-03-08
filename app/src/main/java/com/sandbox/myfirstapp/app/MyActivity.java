@@ -15,8 +15,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.*;
+import com.danikula.videocache.HttpProxyCacheServer;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
+import com.sandbox.myfirstapp.app.models.VideoCacheProxy;
 import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -24,6 +26,8 @@ import org.json.JSONException;
 import org.w3c.dom.Text;
 
 import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -85,19 +89,19 @@ public class MyActivity extends AppCompatActivity {
 
         progressBar.setVisibility(View.VISIBLE);
 
-        new android.os.Handler().postDelayed(
-            new Runnable() {
-                public void run() {
-                    progressBar.setVisibility(View.GONE);
-                }
-            },
-        3000);
+//        new android.os.Handler().postDelayed(
+//            new Runnable() {
+//                public void run() {
+//                    progressBar.setVisibility(View.GONE);
+//                }
+//            },
+//        3000);
 
         if (networkInfo != null && networkInfo.isConnected()) {
 
-//            EditText editText = (EditText) findViewById(R.id.edit_message);
-//            String message = editText.getText().toString();
-//            MadchatClient.getQuery(message);
+            EditText editText = (EditText) findViewById(R.id.edit_message);
+            String message = editText.getText().toString();
+            MadchatClient.getQuery(message);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -132,10 +136,18 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Subscribe
-    public void onEvent(VideoQueryEvent event){
-        videoView.setVideoURI(Uri.parse(event.videoUrl));
+    public void onEvent(VideoQueryEvent event) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+        progressBar.setVisibility(View.GONE);
+
+//        HttpProxyCacheServer proxy = VideoCacheProxy.getProxy(this);
+//        String proxyUrl = proxy.getProxyUrl(event.videoUrl);
+        videoView.setVideoPath(event.videoUrl);
         videoView.requestFocus();
         videoView.start();
+
+//        Method method = HttpProxyCacheServer.class.getDeclaredMethod("getClients", String.class);
+//        method.setAccessible(true);
+//        method.invoke(proxy, event.videoUrl);
     }
 
 }
