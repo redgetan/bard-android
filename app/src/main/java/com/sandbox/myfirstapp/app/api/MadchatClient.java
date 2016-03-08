@@ -1,5 +1,6 @@
 package com.sandbox.myfirstapp.app.api;
 
+import android.util.Log;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Repo;
 import okhttp3.ResponseBody;
@@ -30,13 +31,14 @@ public class MadchatClient {
         call.enqueue(new Callback<Repo>() {
             @Override
             public void onResponse(Call<Repo> call, Response<Repo> response) {
-                String url = response.body().getUrl();
-                EventBus.getDefault().post(new VideoQueryEvent(url));
+                Repo repo = response.body();
+                EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getError()));
             }
 
             @Override
             public void onFailure(Call<Repo> call, Throwable throwable) {
-
+                Log.d("MyActivity", "failure on getQuery ");
+                EventBus.getDefault().post(new VideoQueryEvent(null,"timeout"));
             }
         });
     }

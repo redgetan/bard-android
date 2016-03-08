@@ -7,6 +7,7 @@ public class Repo {
 
     private String url;
     private String wordList;
+    private String error;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     /**
@@ -27,6 +28,23 @@ public class Repo {
         this.url = url;
     }
 
+    /**
+     *
+     * @return
+     * The error
+     */
+    public String getError() {
+        return error;
+    }
+
+    /**
+     *
+     * @param error
+     * The error
+     */
+    public void setError(String error) {
+        this.error = error;
+    }
     /**
      *
      * @return
