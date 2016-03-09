@@ -1,4 +1,4 @@
-package com.sandbox.myfirstapp.app;
+package com.sandbox.myfirstapp.app.ui;
 
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -7,6 +7,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.sandbox.myfirstapp.app.R;
 
 public class DisplayMessageActivity extends AppCompatActivity {
 

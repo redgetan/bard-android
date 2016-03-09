@@ -1,46 +1,37 @@
-package com.sandbox.myfirstapp.app;
+package com.sandbox.myfirstapp.app.ui;
 
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
-import android.os.AsyncTask;
-import android.os.Environment;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.danikula.videocache.HttpProxyCacheServer;
+import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
-import com.sandbox.myfirstapp.app.models.VideoCacheProxy;
-import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import org.json.JSONException;
-import org.w3c.dom.Text;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
-import java.net.URL;
-import java.util.ArrayList;
 
-public class MyActivity extends AppCompatActivity {
+public class MyActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
 
     public static final String EXTRA_MESSAGE = "com.sandbox.myfirstapp.MESSAGE";
+
+    private Context mContext;
 
     private EditText editText;
     private TextView debugView;
@@ -48,10 +39,17 @@ public class MyActivity extends AppCompatActivity {
     private String packageDir;
     private ProgressBar progressBar;
 
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerList;
+    private String[] mDrawerItems;
+    private ActionBarDrawerToggle mDrawerToggle;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
+        mContext = this;
+
 
         editText = (EditText) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
@@ -60,13 +58,59 @@ public class MyActivity extends AppCompatActivity {
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         videoView.setMediaController(new MediaController(this));
 
-        String dataDir = Environment.getDataDirectory().getAbsolutePath();
-        File picturesDir = Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES);
-        String filesDir = getFilesDir().getAbsolutePath();
-//        Log.d("MARIO", dataDir);
+        initNavigationDrawer();
+    }
 
-//        initializeListeners();
+    private void initNavigationDrawer() {
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerItems = getResources().getStringArray(R.array.drawer_items);
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDrawerItems));
+        mDrawerList.setOnItemClickListener(this);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
+                R.string.drawer_open, R.string.drawer_close) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setHomeButtonEnabled(true);
+
+    }
+
+    /* Called whenever we call invalidateOptionsMenu() */
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        // If the nav drawer is open, hide action items related to the content view
+        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
+//        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     // http://stackoverflow.com/a/28939113
@@ -89,24 +133,20 @@ public class MyActivity extends AppCompatActivity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_my, menu);
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+//        if (item.getItemId() == R.id.action_setting) {
+//            Intent intent = new Intent(mContext, SettingActivity.class);
+//            startActivity(intent);
+//            return true;
+//        }
+        if (item.getItemId() == android.R.id.home) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
+                mDrawerLayout.closeDrawers();
+            else {
+                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
+            }
             return true;
         }
-
         return super.onOptionsItemSelected(item);
     }
 
@@ -116,14 +156,6 @@ public class MyActivity extends AppCompatActivity {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-//        new android.os.Handler().postDelayed(
-//            new Runnable() {
-//                public void run() {
-//                    progressBar.setVisibility(View.GONE);
-//                }
-//            },
-//        3000);
 
         if (networkInfo != null && networkInfo.isConnected()) {
             progressBar.setVisibility(View.VISIBLE);
@@ -197,5 +229,18 @@ public class MyActivity extends AppCompatActivity {
 
     }
 
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        //selectItem(position);
+
+        String title = ((TextView) view.findViewById(R.id.item_name)).getText().toString();
+        if (title.equals("My Projects")) {
+            Intent intent = new Intent(mContext, ProjectListActivity.class);
+            startActivity(intent);
+
+            mDrawerLayout.closeDrawer(mDrawerList);
+        }
+    }
 
 }

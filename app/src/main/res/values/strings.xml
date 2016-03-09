@@ -6,6 +6,16 @@
     <string name="edit_message">Enter a Message</string>
     <string name="button_send">Send</string>
     <string name="title_activity_display_message">My Message</string>
+    <string name="title_project_list">My Projects</string>
     <string name="button_play_video">Play Video</string>
     <string name="no_network_connection">No network connection. Unable to send message</string>
+    <string-array name="drawer_items">
+        <item>Create</item>
+        <item>Explore</item>
+        <item>My Projects</item>
+        <item>Favorites</item>
+        <item>About</item>
+    </string-array>
+    <string name="drawer_open">Open navigation drawer</string>
+    <string name="drawer_close">Close navigation drawer</string>
 </resources>

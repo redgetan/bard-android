@@ -13,7 +13,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".MyActivity"
+            android:name=".ui.MyActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
@@ -23,12 +23,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".DisplayMessageActivity"
+            android:name=".ui.DisplayMessageActivity"
             android:label="@string/title_activity_display_message"
-            android:parentActivityName=".MyActivity" >
+            android:parentActivityName=".ui.MyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.sandbox.myfirstapp.app.MyActivity" />
+                android:value=".ui.MyActivity" />
+        </activity>
+        <activity
+                android:name=".ui.ProjectListActivity"
+                android:label="@string/title_project_list"
+                android:parentActivityName=".ui.MyActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.MyActivity" />
         </activity>
     </application>
 
