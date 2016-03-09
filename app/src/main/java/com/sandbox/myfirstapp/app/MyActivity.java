@@ -20,6 +20,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
+import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.VideoCacheProxy;
 import com.sandbox.myfirstapp.app.util.CustomJSONSerializer;
@@ -181,5 +182,20 @@ public class MyActivity extends AppCompatActivity {
 //        method.setAccessible(true);
 //        method.invoke(proxy, event.videoUrl);
     }
+
+    @Subscribe
+    public void onEvent(VideoDownloadEvent event) {
+        progressBar.setVisibility(View.GONE);
+
+        if (event.error != null) {
+            debugView.setText(event.error);
+        } else {
+            videoView.setVideoPath(event.videoPath);
+            videoView.requestFocus();
+            videoView.start();
+        }
+
+    }
+
 
 }

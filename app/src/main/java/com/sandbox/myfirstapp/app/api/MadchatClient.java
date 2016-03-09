@@ -3,6 +3,7 @@ package com.sandbox.myfirstapp.app.api;
 import android.util.Log;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Repo;
+import com.sandbox.myfirstapp.app.models.VideoDownloader;
 import okhttp3.ResponseBody;
 import org.greenrobot.eventbus.EventBus;
 import retrofit2.Call;
@@ -32,7 +33,8 @@ public class MadchatClient {
             @Override
             public void onResponse(Call<Repo> call, Response<Repo> response) {
                 Repo repo = response.body();
-                EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getError()));
+                VideoDownloader.downloadVideo(repo.getUrl());
+                //EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getError()));
             }
 
             @Override
