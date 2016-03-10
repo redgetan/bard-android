@@ -1,15 +1,25 @@
 package com.sandbox.myfirstapp.app.models;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Repo {
 
     private String url;
+    private String filePath;
     private String wordList;
     private String error;
+    private Date createdAt;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFilePath() {
+        return filePath;
+    }
     /**
      *
      * @return
@@ -25,7 +35,26 @@ public class Repo {
      * The url
      */
     public void setUrl(String url) {
-        this.url = url;
+
+    }
+
+    /**
+     *
+     * @return createdAt
+     * The url
+     */
+    public Date getCreatedAt() {
+        return createdAt;
+    }
+
+    /**
+     *
+     * @param createdAt
+     * The url
+     */
+    public void setCreatedAt(Date createdAt) {
+
+        this.createdAt = createdAt;
     }
 
     /**

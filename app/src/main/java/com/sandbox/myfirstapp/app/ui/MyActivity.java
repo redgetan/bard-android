@@ -1,13 +1,11 @@
 package com.sandbox.myfirstapp.app.ui;
 
-import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -236,7 +234,7 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
 
         String title = ((TextView) view.findViewById(R.id.item_name)).getText().toString();
         if (title.equals("My Projects")) {
-            Intent intent = new Intent(mContext, ProjectListActivity.class);
+            Intent intent = new Intent(mContext, UserRepoListActivity.class);
             startActivity(intent);
 
             mDrawerLayout.closeDrawer(mDrawerList);

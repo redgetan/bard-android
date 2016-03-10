@@ -57,10 +57,12 @@ public class VideoDownloader {
 
                 //create a new file, to save the downloaded file
 
-                String packageDir = Environment.getExternalStorageDirectory().getAbsolutePath();
-                File file = new File(packageDir, getSourceFileName(url));
+                String packageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                                               .getAbsolutePath();
 
+                File file = new File(packageDir + "/MadChat/", getSourceFileName(url));
                 FileOutputStream fileOutput = new FileOutputStream(file);
+
 
                 //Stream used for reading the data from the internet
                 InputStream inputStream = urlConnection.getInputStream();
@@ -97,6 +99,24 @@ public class VideoDownloader {
                 result.put("videoPath", null);
                 result.put("error", e.getMessage());
                 return result;
+            }
+        }
+
+        protected FileOutputStream getSafeOutputStream(String directory,String filename) {
+            String filepath;
+            if(directory.lastIndexOf(File.separator) != directory.length() - 1){
+                directory += File.separator;
+            }
+            File dir = new File(directory);
+            dir.mkdirs();
+            filepath = directory + filename;
+            File file = new File(filepath);
+            try{
+                file.createNewFile();
+                return new FileOutputStream(file.getCanonicalFile().toString());
+            }catch (Exception e){
+                e.printStackTrace();
+                throw new Error("Can not get an valid output stream");
             }
         }
 

@@ -31,12 +31,19 @@
                 android:value=".ui.MyActivity" />
         </activity>
         <activity
-                android:name=".ui.ProjectListActivity"
+                android:name=".ui.UserRepoListActivity"
                 android:label="@string/title_project_list"
                 android:parentActivityName=".ui.MyActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".ui.MyActivity" />
+        </activity>
+        <activity
+                android:name=".ui.VideoPlayerActivity"
+                android:parentActivityName=".ui.UserRepoListActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.UserRepoListActivity" />
         </activity>
     </application>
 

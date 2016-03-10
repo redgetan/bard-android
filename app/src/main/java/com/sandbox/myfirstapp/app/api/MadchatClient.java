@@ -25,7 +25,7 @@ interface MadchatService {
 
 public class MadchatClient {
     static MadchatService service;
-    public static final String BASE_URL = "http://192.168.1.77:3000/";
+    public static final String BASE_URL = "http://192.168.1.78:3000/";
 
     public static void getQuery(String text) throws IOException {
         Call<Repo> call = getService().query(text);
