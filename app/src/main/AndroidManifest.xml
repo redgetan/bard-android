@@ -40,6 +40,7 @@
         </activity>
         <activity
                 android:name=".ui.VideoPlayerActivity"
+                android:configChanges="orientation|screenSize"
                 android:parentActivityName=".ui.UserRepoListActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
