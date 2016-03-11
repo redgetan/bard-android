@@ -42,6 +42,8 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private String videoLocation;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -220,7 +222,8 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         if (event.error != null) {
             debugView.setText(event.error);
         } else {
-            videoView.setVideoPath(event.videoPath);
+            this.videoLocation = event.videoPath;
+            videoView.setVideoPath(this.videoLocation);
             videoView.requestFocus();
             videoView.start();
         }
