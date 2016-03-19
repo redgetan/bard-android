@@ -34,13 +34,13 @@ public class MadchatClient {
             public void onResponse(Call<Repo> call, Response<Repo> response) {
                 Repo repo = response.body();
                 VideoDownloader.downloadVideo(repo.getUrl());
-                //EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getError()));
+                EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getWordList(),repo.getError()));
             }
 
             @Override
             public void onFailure(Call<Repo> call, Throwable throwable) {
                 Log.d("MyActivity", "failure on getQuery ");
-                EventBus.getDefault().post(new VideoQueryEvent(null,"timeout"));
+                EventBus.getDefault().post(new VideoQueryEvent(null,null,"timeout"));
             }
         });
     }

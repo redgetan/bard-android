@@ -11,6 +11,8 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
     />
 
     <Button
@@ -18,8 +20,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:onClick="viewRepo"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
             android:textSize="12sp"
     />
 

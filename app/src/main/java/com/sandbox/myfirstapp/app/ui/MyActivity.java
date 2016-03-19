@@ -16,18 +16,26 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.orm.SugarRecord;
 import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
+import com.sandbox.myfirstapp.app.models.Repo;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import android.support.v7.widget.Toolbar;
 
 import java.io.*;
+import java.util.Calendar;
+import java.util.Date;
 
-public class MyActivity extends AppCompatActivity implements AdapterView.OnItemClickListener {
+public class MyActivity extends BaseActivity implements AdapterView.OnItemClickListener {
 
     public static final String EXTRA_MESSAGE = "com.sandbox.myfirstapp.MESSAGE";
+    public static final String EXTRA_VIDEO_URL = "com.sandbox.myfirstapp.VIDEO_URL";
+    public static final String EXTRA_VIDEO_PATH = "com.sandbox.myfirstapp.VIDEO_PATH";
+    public static final String EXTRA_WORD_LIST = "com.sandbox.myfirstapp.WORD_LIST";
 
     private Context mContext;
 
@@ -42,14 +50,15 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
 
-    private String videoLocation;
+    private String videoUrl;  // original url of video
+    private String videoPath; // filepath of saved video
+    private String wordList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my);
         mContext = this;
-
 
         editText = (EditText) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
@@ -86,9 +95,6 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         };
 
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeButtonEnabled(true);
-
     }
 
     /* Called whenever we call invalidateOptionsMenu() */
@@ -132,13 +138,17 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         return super.dispatchTouchEvent( event );
     }
 
+    // http://developer.android.com/guide/topics/ui/menus.html
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == R.id.action_setting) {
-//            Intent intent = new Intent(mContext, SettingActivity.class);
-//            startActivity(intent);
-//            return true;
-//        }
+        if (item.getItemId() == R.id.action_save) {
+            Intent intent = new Intent(mContext, SaveActivity.class);
+            intent.putExtra(EXTRA_VIDEO_URL, this.videoUrl);
+            intent.putExtra(EXTRA_VIDEO_PATH, this.videoPath);
+            intent.putExtra(EXTRA_WORD_LIST, this.wordList);
+            startActivity(intent);
+            return true;
+        }
         if (item.getItemId() == android.R.id.home) {
             if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
                 mDrawerLayout.closeDrawers();
@@ -197,22 +207,8 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
-        progressBar.setVisibility(View.GONE);
-
-//        HttpProxyCacheServer proxy = VideoCacheProxy.getProxy(this);
-//        String proxyUrl = proxy.getProxyUrl(event.videoUrl);
-
-        if (event.error != null) {
-            debugView.setText(event.error);
-        } else {
-            videoView.setVideoPath(event.videoUrl);
-            videoView.requestFocus();
-            videoView.start();
-        }
-
-//        Method method = HttpProxyCacheServer.class.getDeclaredMethod("getClients", String.class);
-//        method.setAccessible(true);
-//        method.invoke(proxy, event.videoUrl);
+        this.wordList = event.wordList;
+        this.videoUrl = event.videoUrl;
     }
 
     @Subscribe
@@ -222,12 +218,19 @@ public class MyActivity extends AppCompatActivity implements AdapterView.OnItemC
         if (event.error != null) {
             debugView.setText(event.error);
         } else {
-            this.videoLocation = event.videoPath;
-            videoView.setVideoPath(this.videoLocation);
+            this.videoPath = event.videoPath;
+            videoView.setVideoPath(this.videoPath);
             videoView.requestFocus();
             videoView.start();
         }
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_my, menu);
+        return true;
     }
 
 

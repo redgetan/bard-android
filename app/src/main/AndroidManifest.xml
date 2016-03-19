@@ -28,8 +28,8 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.DisplayMessageActivity"
-            android:label="@string/title_activity_display_message"
+            android:name=".ui.SaveActivity"
+            android:label="@string/title_activity_save"
             android:parentActivityName=".ui.MyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"

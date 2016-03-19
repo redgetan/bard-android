@@ -1,9 +1,14 @@
 package com.sandbox.myfirstapp.app.models;
 
+import com.orm.SugarRecord;
+import com.orm.dsl.Ignore;
+import com.orm.dsl.Table;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+@Table
 public class Repo {
 
     private String url;
@@ -11,7 +16,21 @@ public class Repo {
     private String wordList;
     private String error;
     private Date createdAt;
+    private Long id;
+
+    @Ignore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public Repo(){
+
+    }
+
+    public Repo(String url, String filePath, String wordList, Date createdAt){
+        this.url = url;
+        this.filePath = filePath;
+        this.wordList = wordList;
+        this.createdAt = createdAt;
+    }
 
     public void setFilePath(String filePath) {
         this.filePath = filePath;
@@ -93,11 +112,15 @@ public class Repo {
     }
 
     public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+       return this.additionalProperties;
     }
 
     public void setAdditionalProperty(String name, Object value) {
         this.additionalProperties.put(name, value);
+    }
+
+    public Long getId() {
+        return id;
     }
 
 }

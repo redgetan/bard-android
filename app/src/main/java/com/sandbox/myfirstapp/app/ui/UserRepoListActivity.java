@@ -7,12 +7,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import com.orm.query.Select;
 import com.sandbox.myfirstapp.app.R;
+import com.sandbox.myfirstapp.app.models.DividerItemDecoration;
 import com.sandbox.myfirstapp.app.models.Repo;
 import com.sandbox.myfirstapp.app.ui.adapter.RepoListAdapter;
 import com.sandbox.myfirstapp.app.util.ItemClickSupport;
@@ -27,22 +30,24 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepoListActivity extends AppCompatActivity {
+public class UserRepoListActivity extends BaseActivity {
 
     public static final String VIDEO_LOCATION_MESSAGE = "com.sandbox.myfirstapp.VIDEO_URL";
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_list);
 
         final Context mContext = this;
-        final List<Repo> repos = getUserRepoList();
+        final List<Repo> repos = getUserRepo();
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_projects);
         RepoListAdapter adapter = new RepoListAdapter(repos);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // http://stackoverflow.com/a/27037230
+        recyclerView.addItemDecoration(new DividerItemDecoration(this));
 
         ItemClickSupport.addTo(recyclerView).setOnItemClickListener(
             new ItemClickSupport.OnItemClickListener() {
@@ -56,6 +61,12 @@ public class UserRepoListActivity extends AppCompatActivity {
                 }
             }
         );
+    }
+
+
+    public List<Repo> getUserRepo() {
+        ArrayList<Repo> repos = new ArrayList<Repo>();
+        return Select.from(Repo.class).list();
     }
 
     public List<Repo> getUserRepoList() {
