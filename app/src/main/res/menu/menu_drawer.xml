@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+                android:id="@+id/create"
+                android:checked="false"
+                android:icon="@drawable/ic_create_black_24dp"
+                android:title="@string/create_string" />
+
+        <item
+                android:id="@+id/my_projects"
+                android:checked="false"
+                android:icon="@drawable/ic_inbox_black_24dp"
+                android:title="@string/my_projects_string" />
+        <item
+                android:id="@+id/settings"
+                android:checked="false"
+                android:icon="@drawable/ic_settings_black_24dp"
+                android:title="@string/settings_string" />
+
+    </group>
+</menu>

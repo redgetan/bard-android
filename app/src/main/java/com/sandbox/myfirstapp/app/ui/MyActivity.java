@@ -6,6 +6,7 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -30,7 +31,7 @@ import java.io.*;
 import java.util.Calendar;
 import java.util.Date;
 
-public class MyActivity extends BaseActivity implements AdapterView.OnItemClickListener {
+public class MyActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "com.sandbox.myfirstapp.MESSAGE";
     public static final String EXTRA_VIDEO_URL = "com.sandbox.myfirstapp.VIDEO_URL";
@@ -45,6 +46,7 @@ public class MyActivity extends BaseActivity implements AdapterView.OnItemClickL
     private String packageDir;
     private ProgressBar progressBar;
 
+    private NavigationView navigationView;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private String[] mDrawerItems;
@@ -67,34 +69,75 @@ public class MyActivity extends BaseActivity implements AdapterView.OnItemClickL
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         videoView.setMediaController(new MediaController(this));
 
-        initNavigationDrawer();
+        initNavigationViewDrawer();
     }
 
-    private void initNavigationDrawer() {
+    private void initNavigationViewDrawer() {
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+
+        //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+            // This method will trigger on item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+
+                //Checking if the item is in checked state or not, if not make it in checked state
+                if(menuItem.isChecked()) menuItem.setChecked(false);
+                else menuItem.setChecked(true);
+
+                //Closing drawer on item click
+                mDrawerLayout.closeDrawers();
+
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()){
+
+
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.create:
+                        Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
+                        return true;
+                    case R.id.my_projects:
+                        Intent intent = new Intent(mContext, UserRepoListActivity.class);
+                        startActivity(intent);
+
+                        return true;
+                    case R.id.settings:
+                        Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+                        return true;
+                    default:
+                        Toast.makeText(getApplicationContext(),"Somethings Wrong",Toast.LENGTH_SHORT).show();
+                        return true;
+
+                }
+            }
+        });
+
+        // Initializing Drawer Layout and ActionBarToggle
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerItems = getResources().getStringArray(R.array.drawer_items);
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mDrawerItems));
-        mDrawerList.setOnItemClickListener(this);
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,mDrawerLayout,toolbar,R.string.drawer_open, R.string.drawer_close){
 
-        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout,
-                R.string.drawer_open, R.string.drawer_close) {
-
-            /** Called when a drawer has settled in a completely closed state. */
-            public void onDrawerClosed(View view) {
-                super.onDrawerClosed(view);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                super.onDrawerClosed(drawerView);
             }
 
-            /** Called when a drawer has settled in a completely open state. */
+            @Override
             public void onDrawerOpened(View drawerView) {
+                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
+
                 super.onDrawerOpened(drawerView);
-                invalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
 
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        //Setting the actionbarToggle to drawer layout
+        mDrawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        //calling sync state is necessay or else your hamburger icon wont show up
+        actionBarDrawerToggle.syncState();
+
     }
 
     /* Called whenever we call invalidateOptionsMenu() */
@@ -233,18 +276,5 @@ public class MyActivity extends BaseActivity implements AdapterView.OnItemClickL
         return true;
     }
 
-
-    @Override
-    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-        //selectItem(position);
-
-        String title = ((TextView) view.findViewById(R.id.item_name)).getText().toString();
-        if (title.equals("My Projects")) {
-            Intent intent = new Intent(mContext, UserRepoListActivity.class);
-            startActivity(intent);
-
-            mDrawerLayout.closeDrawer(mDrawerList);
-        }
-    }
 
 }
