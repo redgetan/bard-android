@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_save">Save</string>
-    <string name="edit_message">Enter a Message</string>
+    <string name="edit_message">Message</string>
     <string name="button_send">Send</string>
     <string name="title_activity_save">Share</string>
     <string name="title_project_list">My Projects</string>

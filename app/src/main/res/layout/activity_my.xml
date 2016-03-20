@@ -13,19 +13,25 @@
                     xmlns:tools="http://schemas.android.com/tools"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:padding="18dp"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal"
     >
-        <EditText android:id="@+id/edit_message"
+        <MultiAutoCompleteTextView android:id="@+id/edit_message"
                   android:layout_width="0dp"
                   android:layout_height="wrap_content"
                   android:layout_weight="1"
+                  android:background="@android:color/transparent"
+                  android:completionThreshold="1"
                   android:hint="@string/edit_message"/>
 
-        <Button   android:text="@string/button_send"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"
-                  android:onClick="sendMessage"
-                  android:hint="@string/button_send"/>
+        <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="sendMessage"
+                android:alpha="0.3"
+                android:src="@drawable/ic_send_black_24dp"
+                android:contentDescription="@string/button_send"/>
     </LinearLayout>
 
     <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"

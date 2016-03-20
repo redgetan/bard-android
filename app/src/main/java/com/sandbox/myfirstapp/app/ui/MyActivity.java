@@ -6,11 +6,13 @@ import android.content.res.Configuration;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.Build;
 import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.MotionEvent;
@@ -31,11 +33,13 @@ import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Repo;
+import com.sandbox.myfirstapp.app.models.SpaceTokenizer;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import android.support.v7.widget.Toolbar;
 
 import java.io.*;
+import java.lang.reflect.Field;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -51,7 +55,7 @@ public class MyActivity extends BaseActivity {
 
     private Context mContext;
 
-    private EditText editText;
+    private MultiAutoCompleteTextView editText;
     private TextView debugView;
     private VideoView videoView;
     private String packageDir;
@@ -73,7 +77,7 @@ public class MyActivity extends BaseActivity {
         setContentView(R.layout.activity_my);
         mContext = this;
 
-        editText = (EditText) findViewById(R.id.edit_message);
+        editText = (MultiAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
         debugView = (TextView) findViewById(R.id.display_debug);
         videoView = (VideoView) findViewById(R.id.video_view);
@@ -81,7 +85,35 @@ public class MyActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         videoView.setMediaController(new MediaController(this));
 
+        initChatText();
         initNavigationViewDrawer();
+    }
+
+    private void initChatText() {
+        clearChatCursor();
+        initAutocompleteWords();
+    }
+
+    private void clearChatCursor() {
+        if (editText == null || Build.VERSION.SDK_INT < 12) {
+            return;
+        }
+        try {
+            Field mCursorDrawableRes = TextView.class.getDeclaredField("mCursorDrawableRes");
+            mCursorDrawableRes.setAccessible(true);
+            mCursorDrawableRes.setInt(editText, 0);
+        } catch (Exception e) {
+            Log.e("madchat", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void initAutocompleteWords() {
+        String[] words = new String[] { "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"};
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);
+        editText.setAdapter(adapter);
+        editText.setTokenizer(new SpaceTokenizer());
     }
 
     private void initNavigationViewDrawer() {
