@@ -45,6 +45,9 @@ public class MyActivity extends BaseActivity {
     public static final String EXTRA_VIDEO_URL = "com.sandbox.myfirstapp.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.sandbox.myfirstapp.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.sandbox.myfirstapp.WORD_LIST";
+    public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
+    public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
+    public static final int SETTINGS_DRAWER_ITEM_IDENTIFIER = 3;
 
     private Context mContext;
 
@@ -74,6 +77,7 @@ public class MyActivity extends BaseActivity {
         packageDir = getExternalFilesDir(null).getAbsolutePath();
         debugView = (TextView) findViewById(R.id.display_debug);
         videoView = (VideoView) findViewById(R.id.video_view);
+
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         videoView.setMediaController(new MediaController(this));
 
@@ -85,15 +89,10 @@ public class MyActivity extends BaseActivity {
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.profile_header)
+                .withSelectionListEnabledForSingleProfile(false)
                 .addProfiles(
                         new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(getResources().getDrawable(R.drawable.profile))
                 )
-                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
-                    @Override
-                    public boolean onProfileChanged(View view, IProfile profile, boolean currentProfile) {
-                        return false;
-                    }
-                })
                 .build();
 
         new DrawerBuilder()
@@ -101,43 +100,37 @@ public class MyActivity extends BaseActivity {
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.create_string),
-                        new PrimaryDrawerItem().withName(R.string.my_projects_string),
-                        new PrimaryDrawerItem().withName(R.string.settings_string)
+                        new PrimaryDrawerItem().withName(R.string.create_string).withIdentifier(CREATE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(SETTINGS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         // do something with the clicked item :D
-                        return true;
+                        switch ((int) drawerItem.getIdentifier()) {
+                            case CREATE_DRAWER_ITEM_IDENTIFIER:
+                                Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
+                                break;
+                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
+                                Intent intent = new Intent(mContext, UserRepoListActivity.class);
+                                startActivity(intent);
+                                break;
+                            case SETTINGS_DRAWER_ITEM_IDENTIFIER:
+                                Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // allows drawer to close
+                        return false;
                     }
                 })
                 .build();
 
     }
 
-
-//    /* Called whenever we call invalidateOptionsMenu() */
-//    @Override
-//    public boolean onPrepareOptionsMenu(Menu menu) {
-//        // If the nav drawer is open, hide action items related to the content view
-//        boolean drawerOpen = mDrawerLayout.isDrawerOpen(mDrawerList);
-////        menu.findItem(R.id.action_websearch).setVisible(!drawerOpen);
-//        return super.onPrepareOptionsMenu(menu);
-//    }
-
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        // Sync the toggle state after onRestoreInstanceState has occurred.
-//        mDrawerToggle.syncState();
-//    }
-//
-//    @Override
-//    public void onConfigurationChanged(Configuration newConfig) {
-//        super.onConfigurationChanged(newConfig);
-//        mDrawerToggle.onConfigurationChanged(newConfig);
-//    }
 
     // http://stackoverflow.com/a/28939113
 
@@ -159,26 +152,26 @@ public class MyActivity extends BaseActivity {
     }
 
     // http://developer.android.com/guide/topics/ui/menus.html
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == R.id.action_save) {
-//            Intent intent = new Intent(mContext, SaveActivity.class);
-//            intent.putExtra(EXTRA_VIDEO_URL, this.videoUrl);
-//            intent.putExtra(EXTRA_VIDEO_PATH, this.videoPath);
-//            intent.putExtra(EXTRA_WORD_LIST, this.wordList);
-//            startActivity(intent);
-//            return true;
-//        }
-//        if (item.getItemId() == android.R.id.home) {
-//            if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
-//                mDrawerLayout.closeDrawers();
-//            else {
-//                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
-//            }
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == R.id.action_save) {
+            Intent intent = new Intent(mContext, SaveActivity.class);
+            intent.putExtra(EXTRA_VIDEO_URL, this.videoUrl);
+            intent.putExtra(EXTRA_VIDEO_PATH, this.videoPath);
+            intent.putExtra(EXTRA_WORD_LIST, this.wordList);
+            startActivity(intent);
+            return true;
+        }
+        if (item.getItemId() == android.R.id.home) {
+            if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
+                mDrawerLayout.closeDrawers();
+            else {
+                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
+            }
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
 
     public void sendMessage(View view) throws IOException {
         debugView.setText("");
