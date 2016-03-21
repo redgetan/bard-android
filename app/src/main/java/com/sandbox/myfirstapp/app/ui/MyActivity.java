@@ -3,7 +3,9 @@ package com.sandbox.myfirstapp.app.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.Rect;
+import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -83,10 +85,20 @@ public class MyActivity extends BaseActivity {
         videoView = (VideoView) findViewById(R.id.video_view);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
-        videoView.setMediaController(new MediaController(this));
 
+        initVideoPlayer();
         initChatText();
         initNavigationViewDrawer();
+    }
+
+    private void initVideoPlayer() {
+        videoView.setMediaController(new MediaController(this));
+        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                videoView.setBackgroundColor(Color.TRANSPARENT);
+            }
+        });
     }
 
     private void initChatText() {
@@ -109,7 +121,11 @@ public class MyActivity extends BaseActivity {
     }
 
     private void initAutocompleteWords() {
-        String[] words = new String[] { "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"};
+        String[] words = new String[] {
+                "the", "this", "time", "tree", "tell", "tod", "take","tall", "tam", "taker", "taken",
+                "tad", "tar", "tame", "tamer", "tap", "tape", "tale","tail", "tarzan", "tan",
+                "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"
+        };
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);
         editText.setAdapter(adapter);
