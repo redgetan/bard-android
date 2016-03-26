@@ -2,7 +2,6 @@ package com.sandbox.myfirstapp.app.ui.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
-import android.util.SparseBooleanArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,17 +18,14 @@ public class IndexListAdapter extends
 
     // Store a member variable for the contacts
     private List<Index> indexList;
-    private SparseBooleanArray selectedItems;
     private Context context;
-    private Long selectedIndex;
-    private Long selectedView;
+    private View selectedView;
 
     // Pass in the contact array into the constructor
     public IndexListAdapter(List<Index> indexList, Context context) {
         this.indexList = indexList;
-        this.selectedItems = new SparseBooleanArray();
         this.context = context;
-        this.selectedItems.put(Setting.getCurrentIndex(context).intValue(), true);
+
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -54,8 +50,10 @@ public class IndexListAdapter extends
         TextView textView = viewHolder.indexNameView;
         textView.setText(index.getName());
 
-        viewHolder.itemView.setSelected(selectedItems.get(position, false));
-
+        if (index.getId() == Setting.getCurrentIndex(context).intValue()) {
+            selectedView = viewHolder.itemView;
+            selectedView.setSelected(true);
+        }
     }
 
     // Return the total count of items
@@ -90,17 +88,16 @@ public class IndexListAdapter extends
             int position = getLayoutPosition();
             Index index = indexList.get(position);
             Toast.makeText(this.context, index.getName(), Toast.LENGTH_SHORT).show();
+
+            if (selectedView != null) {
+                selectedView.setSelected(false);
+            }
+
+            selectedView = v;
+
+            selectedView.setSelected(true);
             Setting.setCurrentIndex(this.context, index.getId());
 
-
-            if (selectedItems.get(getAdapterPosition(), false)) {
-                selectedItems.delete(getAdapterPosition());
-                v.setSelected(false);
-            }
-            else {
-                selectedItems.put(getAdapterPosition(), true);
-                v.setSelected(true);
-            }
         }
     }
 }

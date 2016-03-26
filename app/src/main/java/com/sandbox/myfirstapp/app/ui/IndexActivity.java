@@ -12,6 +12,7 @@ import com.sandbox.myfirstapp.app.events.IndexFetchEvent;
 import com.sandbox.myfirstapp.app.models.Index;
 import com.sandbox.myfirstapp.app.models.ItemOffsetDecoration;
 import com.sandbox.myfirstapp.app.models.Setting;
+import com.sandbox.myfirstapp.app.models.SquareAlbumDecoration;
 import com.sandbox.myfirstapp.app.ui.adapter.IndexListAdapter;
 import com.sandbox.myfirstapp.app.util.ItemClickSupport;
 import org.greenrobot.eventbus.EventBus;
@@ -66,6 +67,9 @@ public class IndexActivity extends BaseActivity {
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_GRID_COLUMNS));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
         recyclerView.addItemDecoration(itemDecoration);
+
+//        recyclerView.addItemDecoration(new SquareAlbumDecoration(getResources().getDimensionPixelSize(R.dimen.square_album_spacing), getResources().getInteger(R.integer.square_album_columns)));
+
     }
 
 }
