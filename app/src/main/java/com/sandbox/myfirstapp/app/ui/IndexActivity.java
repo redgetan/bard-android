@@ -11,6 +11,7 @@ import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.IndexFetchEvent;
 import com.sandbox.myfirstapp.app.models.Index;
 import com.sandbox.myfirstapp.app.models.ItemOffsetDecoration;
+import com.sandbox.myfirstapp.app.models.Setting;
 import com.sandbox.myfirstapp.app.ui.adapter.IndexListAdapter;
 import com.sandbox.myfirstapp.app.util.ItemClickSupport;
 import org.greenrobot.eventbus.EventBus;
@@ -60,25 +61,11 @@ public class IndexActivity extends BaseActivity {
 
         final List<Index> indexList = event.indexList;
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
-        IndexListAdapter adapter = new IndexListAdapter(indexList);
+        IndexListAdapter adapter = new IndexListAdapter(indexList, this);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_GRID_COLUMNS));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
         recyclerView.addItemDecoration(itemDecoration);
-
-        // http://stackoverflow.com/a/27037230
-        // recyclerView.addItemDecoration(new DividerItemDecoration(this));
-
-        ItemClickSupport.addTo(recyclerView).setOnItemClickListener(
-                new ItemClickSupport.OnItemClickListener() {
-                    @Override
-                    public void onItemClicked(RecyclerView recyclerView, int position, View v) {
-                        // do it
-                        Index index = indexList.get(position);
-                        Toast.makeText(getApplicationContext(), index.getName(), Toast.LENGTH_SHORT).show();
-                    }
-                }
-        );
     }
 
 }
