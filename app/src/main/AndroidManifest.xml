@@ -36,6 +36,14 @@
                 android:value=".ui.MyActivity" />
         </activity>
         <activity
+                android:name=".ui.IndexActivity"
+                android:label="@string/title_index"
+                android:parentActivityName=".ui.MyActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.MyActivity" />
+        </activity>
+        <activity
                 android:name=".ui.UserRepoListActivity"
                 android:label="@string/title_project_list"
                 android:parentActivityName=".ui.MyActivity" >

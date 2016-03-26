@@ -54,6 +54,7 @@ public class MyActivity extends BaseActivity {
     public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
     public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
     public static final int SETTINGS_DRAWER_ITEM_IDENTIFIER = 3;
+    public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
 
     private Context mContext;
 
@@ -149,6 +150,7 @@ public class MyActivity extends BaseActivity {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName(R.string.create_string).withIdentifier(CREATE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.choose_character_string).withIdentifier(CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.abc_ic_star_black_36dp),
                         new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(SETTINGS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
                 )
@@ -156,12 +158,18 @@ public class MyActivity extends BaseActivity {
                     @Override
                     public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
                         // do something with the clicked item :D
+                        Intent intent;
+
                         switch ((int) drawerItem.getIdentifier()) {
                             case CREATE_DRAWER_ITEM_IDENTIFIER:
                                 Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
                                 break;
+                            case CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(mContext, IndexActivity.class);
+                                startActivity(intent);
+                                break;
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                Intent intent = new Intent(mContext, UserRepoListActivity.class);
+                                intent = new Intent(mContext, UserRepoListActivity.class);
                                 startActivity(intent);
                                 break;
                             case SETTINGS_DRAWER_ITEM_IDENTIFIER:
@@ -197,7 +205,7 @@ public class MyActivity extends BaseActivity {
             }
         }
         return super.dispatchTouchEvent( event );
-    }
+   }
 
     // http://developer.android.com/guide/topics/ui/menus.html
     @Override

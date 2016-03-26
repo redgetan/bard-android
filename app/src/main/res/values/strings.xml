@@ -6,6 +6,7 @@
     <string name="edit_message">Message</string>
     <string name="button_send">Send</string>
     <string name="title_activity_save">Share</string>
+    <string name="title_index">Choose a Character</string>
     <string name="title_project_list">My Projects</string>
     <string name="button_play_video">Play Video</string>
     <string name="no_network_connection">No network connection. Unable to send message</string>
@@ -22,4 +23,5 @@
     <string name="my_projects_string">My Projects</string>
     <string name="create_string">Create</string>
     <string name="settings_string">Settings</string>
+    <string name="choose_character_string">Character</string>
 </resources>

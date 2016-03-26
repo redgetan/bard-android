@@ -10,6 +10,12 @@
                 android:title="@string/create_string" />
 
         <item
+                android:id="@+id/choose_character"
+                android:checked="false"
+                android:icon="@drawable/abc_ic_star_black_36dp"
+                android:title="@string/my_projects_string" />
+
+        <item
                 android:id="@+id/my_projects"
                 android:checked="false"
                 android:icon="@drawable/ic_inbox_black_24dp"
