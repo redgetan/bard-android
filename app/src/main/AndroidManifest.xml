@@ -44,7 +44,7 @@
                     android:value=".ui.MyActivity" />
         </activity>
         <activity
-                android:name=".ui.UserRepoListActivity"
+                android:name=".ui.RepoListActivity"
                 android:label="@string/title_project_list"
                 android:parentActivityName=".ui.MyActivity" >
             <meta-data
@@ -54,10 +54,10 @@
         <activity
                 android:name=".ui.VideoPlayerActivity"
                 android:configChanges="orientation|screenSize"
-                android:parentActivityName=".ui.UserRepoListActivity" >
+                android:parentActivityName=".ui.RepoListActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.UserRepoListActivity" />
+                    android:value=".ui.RepoListActivity" />
         </activity>
     </application>
 

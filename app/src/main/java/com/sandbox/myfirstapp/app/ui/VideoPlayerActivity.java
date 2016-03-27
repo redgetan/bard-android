@@ -4,18 +4,14 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.ShareActionProvider;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.MediaController;
 import android.widget.VideoView;
 import com.sandbox.myfirstapp.app.R;
-import com.sandbox.myfirstapp.app.models.Repo;
 
 import java.io.File;
-import java.net.URI;
 
 public class VideoPlayerActivity extends BaseActivity {
 
@@ -27,7 +23,7 @@ public class VideoPlayerActivity extends BaseActivity {
         setContentView(R.layout.activity_video_player);
 
         Intent intent = getIntent();
-        this.videoLocation = intent.getStringExtra(UserRepoListActivity.VIDEO_LOCATION_MESSAGE);
+        this.videoLocation = intent.getStringExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE);
 
         VideoView videoView = (VideoView) findViewById(R.id.video_view);
         videoView.setMediaController(new MediaController(this));

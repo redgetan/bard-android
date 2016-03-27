@@ -28,7 +28,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class UserRepoListActivity extends BaseActivity {
+public class RepoListActivity extends BaseActivity {
 
     private Context context;
     public static final String VIDEO_LOCATION_MESSAGE = "com.sandbox.myfirstapp.VIDEO_URL";

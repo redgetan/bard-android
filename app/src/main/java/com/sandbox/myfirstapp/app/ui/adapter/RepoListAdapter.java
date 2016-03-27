@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.models.Repo;
-import com.sandbox.myfirstapp.app.ui.UserRepoListActivity;
+import com.sandbox.myfirstapp.app.ui.RepoListActivity;
 import com.sandbox.myfirstapp.app.ui.VideoPlayerActivity;
 
 import java.util.List;
@@ -92,7 +92,7 @@ public class RepoListAdapter extends
             Repo repo = repos.get(position);
 
             Intent intent = new Intent(this.context, VideoPlayerActivity.class);
-            intent.putExtra(UserRepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
+            intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
             this.context.startActivity(intent);
         }
 

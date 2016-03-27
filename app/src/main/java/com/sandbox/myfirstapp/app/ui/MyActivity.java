@@ -3,7 +3,6 @@ package com.sandbox.myfirstapp.app.ui;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
-import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.media.MediaPlayer;
@@ -14,7 +13,6 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,31 +27,22 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Index;
-import com.sandbox.myfirstapp.app.models.Repo;
 import com.sandbox.myfirstapp.app.models.Setting;
 import com.sandbox.myfirstapp.app.models.SpaceTokenizer;
 import com.sandbox.myfirstapp.app.util.*;
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
-import android.support.v7.widget.Toolbar;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 
 public class MyActivity extends BaseActivity {
 
@@ -220,7 +209,7 @@ public class MyActivity extends BaseActivity {
                                 startActivity(intent);
                                 break;
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, UserRepoListActivity.class);
+                                intent = new Intent(mContext, RepoListActivity.class);
                                 startActivity(intent);
                                 break;
                             case SETTINGS_DRAWER_ITEM_IDENTIFIER:
