@@ -10,6 +10,7 @@ import android.widget.Button;
 import android.widget.TextView;
 import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.models.Repo;
+import com.sandbox.myfirstapp.app.ui.UserRepoListActivity;
 import com.sandbox.myfirstapp.app.ui.VideoPlayerActivity;
 
 import java.util.List;
@@ -19,10 +20,12 @@ public class RepoListAdapter extends
 
     // Store a member variable for the contacts
     private List<Repo> repos;
+    private Context context;
 
     // Pass in the contact array into the constructor
-    public RepoListAdapter(List<Repo> repoList) {
-        repos = repoList;
+    public RepoListAdapter(Context context, List<Repo> repoList) {
+        this.repos = repoList;
+        this.context = context;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -35,7 +38,7 @@ public class RepoListAdapter extends
         View contactView = inflater.inflate(R.layout.repo_list_item, parent, false);
 
         // Return a new holder instance
-        return new ViewHolder(contactView);
+        return new ViewHolder(this.context, contactView);
     }
 
     // Involves populating data into the item through holder
@@ -61,21 +64,36 @@ public class RepoListAdapter extends
 
     // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView repoTitleView;
         public Button viewButton;
+        private Context context;
 
         // We also create a constructor that accepts the entire item row
         // and does the view lookups to find each subview
-        public ViewHolder(View itemView) {
+        public ViewHolder(Context context, View itemView) {
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
 
             repoTitleView = (TextView) itemView.findViewById(R.id.repo_title);
             viewButton = (Button) itemView.findViewById(R.id.view_button);
+
+            this.context = context;
+            itemView.setOnClickListener(this);
+        }
+
+        @Override
+        public void onClick(View v) {
+
+            int position = getLayoutPosition();
+            Repo repo = repos.get(position);
+
+            Intent intent = new Intent(this.context, VideoPlayerActivity.class);
+            intent.putExtra(UserRepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
+            this.context.startActivity(intent);
         }
 
     }

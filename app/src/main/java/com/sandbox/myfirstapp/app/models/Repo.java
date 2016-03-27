@@ -1,7 +1,8 @@
 package com.sandbox.myfirstapp.app.models;
 
-import com.orm.SugarRecord;
+import io.realm.Realm;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.RealmClass;
 
@@ -11,12 +12,12 @@ import java.util.Map;
 
 public class Repo extends RealmObject {
 
+    private String token;
     private String url;
     private String filePath;
     private String wordList;
     private String error;
     private Date createdAt;
-    private Long id;
 
     @Ignore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -30,6 +31,27 @@ public class Repo extends RealmObject {
         this.filePath = filePath;
         this.wordList = wordList;
         this.createdAt = createdAt;
+    }
+
+    public static RealmResults<Repo> findAll() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Repo.class).findAll();
+    }
+
+    public static void create(String token, String videoUrl, String videoPath, String wordList, Date createdAt) {
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+
+        Repo index = realm.createObject(Repo.class);
+
+        index.setToken(token);
+        index.setUrl(videoUrl);
+        index.setFilePath(videoPath);
+        index.setWordList(wordList);
+        index.setCreatedAt(createdAt);
+
+        realm.commitTransaction();
     }
 
     public void setFilePath(String filePath) {
@@ -115,12 +137,17 @@ public class Repo extends RealmObject {
        return this.additionalProperties;
     }
 
-    public void setAdditionalProperty(String name, Object value) {
+    public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
 
-    public Long getId() {
-        return id;
+    public String getToken() {
+        return this.token;
     }
+
+    public void setToken(String token) {
+        this.token = token;
+    }
+
 
 }

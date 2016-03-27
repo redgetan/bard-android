@@ -4,16 +4,16 @@ import android.content.Context;
 import android.preference.PreferenceManager;
 
 public class Setting {
-    private static final String CURRENT_INDEX = "current_index";
+    private static final String CURRENT_INDEX_TOKEN = "current_index_token";
 
-    public static Long getCurrentIndex(Context context) {
+    public static String getCurrentIndexToken(Context context) {
         return PreferenceManager.getDefaultSharedPreferences(context)
-                        .getLong(CURRENT_INDEX, 0);
+                        .getString(CURRENT_INDEX_TOKEN, "");
     }
-    public static void setCurrentIndex(Context context, Long value) {
+    public static void setCurrentIndexToken(Context context, String token) {
         PreferenceManager.getDefaultSharedPreferences(context)
                 .edit()
-                .putLong(CURRENT_INDEX, value)
+                .putString(CURRENT_INDEX_TOKEN, token)
                 .apply();
     }
 }

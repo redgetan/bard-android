@@ -30,13 +30,13 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
-import com.orm.SugarRecord;
 import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Index;
 import com.sandbox.myfirstapp.app.models.Repo;
+import com.sandbox.myfirstapp.app.models.Setting;
 import com.sandbox.myfirstapp.app.models.SpaceTokenizer;
 import com.sandbox.myfirstapp.app.util.*;
 import io.realm.Realm;
@@ -58,6 +58,7 @@ import java.util.Date;
 public class MyActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "com.sandbox.myfirstapp.MESSAGE";
+    public static final String EXTRA_REPO_TOKEN = "com.sandbox.myfirstapp.REPO_TOKEN";
     public static final String EXTRA_VIDEO_URL = "com.sandbox.myfirstapp.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.sandbox.myfirstapp.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.sandbox.myfirstapp.WORD_LIST";
@@ -80,6 +81,7 @@ public class MyActivity extends BaseActivity {
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private String repoToken;
     private String videoUrl;  // original url of video
     private String videoPath; // filepath of saved video
     private String wordList;
@@ -104,7 +106,7 @@ public class MyActivity extends BaseActivity {
     }
 
 
-    private void initWordIndex() {
+    public void initWordIndex() {
         RealmResults<Index> indexResults = Index.findAll();
         if (indexResults.size() == 0) {
             try {
@@ -112,13 +114,18 @@ public class MyActivity extends BaseActivity {
                 populateWordIndex("donald_trump_index.json");
                 populateWordIndex("kevin_hart_index.json");
                 populateWordIndex("emma_watson_index.json");
+
+                setDefaultIndex();
             } catch (IOException e) {
                 e.printStackTrace();
             } catch (JSONException e) {
                 e.printStackTrace();
             }
-
         }
+    }
+
+    public void setDefaultIndex() {
+        Setting.setCurrentIndexToken(this,Index.findFirst().getToken());
     }
 
     public void populateWordIndex(String indexFileName) throws IOException, JSONException {
@@ -163,11 +170,14 @@ public class MyActivity extends BaseActivity {
     }
 
     private void initAutocompleteWords() {
-        String[] words = new String[] {
-                "the", "this", "time", "tree", "tell", "tod", "take","tall", "tam", "taker", "taken",
-                "tad", "tar", "tame", "tamer", "tap", "tape", "tale","tail", "tarzan", "tan",
-                "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"
-        };
+//        String[] words = new String[] {
+//                "the", "this", "time", "tree", "tell", "tod", "take","tall", "tam", "taker", "taken",
+//                "tad", "tar", "tame", "tamer", "tap", "tape", "tale","tail", "tarzan", "tan",
+//                "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"
+//        };
+        String[] words = Index.forToken(Setting.getCurrentIndexToken(this))
+                              .getWordList()
+                              .split(",");
         ArrayAdapter<String> adapter =
                 new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);
         editText.setAdapter(adapter);
@@ -253,6 +263,7 @@ public class MyActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == R.id.action_save) {
             Intent intent = new Intent(mContext, SaveActivity.class);
+            intent.putExtra(EXTRA_REPO_TOKEN, this.repoToken);
             intent.putExtra(EXTRA_VIDEO_URL, this.videoUrl);
             intent.putExtra(EXTRA_VIDEO_PATH, this.videoPath);
             intent.putExtra(EXTRA_WORD_LIST, this.wordList);
@@ -281,7 +292,7 @@ public class MyActivity extends BaseActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             String message = editText.getText().toString();
-            MadchatClient.getQuery(message);
+            MadchatClient.getQuery(message, Setting.getCurrentIndexToken(this));
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -317,8 +328,14 @@ public class MyActivity extends BaseActivity {
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
+        this.repoToken = event.token;
         this.wordList = event.wordList;
         this.videoUrl = event.videoUrl;
+
+        if (event.error != null) {
+            progressBar.setVisibility(View.GONE);
+            debugView.setText(event.error);
+        }
     }
 
     @Subscribe

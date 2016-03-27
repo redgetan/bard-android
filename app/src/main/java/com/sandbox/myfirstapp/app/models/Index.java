@@ -1,17 +1,16 @@
 package com.sandbox.myfirstapp.app.models;
 
 import android.content.Context;
-import com.orm.SugarRecord;
-import com.orm.dsl.Ignore;
-import com.orm.dsl.Table;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.annotations.Ignore;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 public class Index extends RealmObject {
 
@@ -21,7 +20,6 @@ public class Index extends RealmObject {
     private String error;
     private String wordList;
     private Date createdAt;
-    private Long id;
 
     @Ignore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -40,12 +38,23 @@ public class Index extends RealmObject {
         return realm.where(Index.class).findAll();
     }
 
+    public static Index findFirst() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Index.class).findFirst();
+    }
+
+    public static Index forToken(String token) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Index.class).equalTo("token", token).findFirst();
+    }
+
     public static void create(String token, String name, String description, String wordList) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
 
         Index index = realm.createObject(Index.class);
+        index.setToken(token);
         index.setName(name);
         index.setDescription(description);
         index.setWordList(wordList);
@@ -130,12 +139,12 @@ public class Index extends RealmObject {
         this.token = token;
     }
 
-    public void setAdditionalProperty(String name, Object value) {
-        this.additionalProperties.put(name, value);
+    public Map<String, Object> getAdditionalProperties() {
+        return this.additionalProperties;
     }
 
-    public Long getId() {
-        return id;
+    public void setAdditionalProperties(String name, Object value) {
+        this.additionalProperties.put(name, value);
     }
 
 }

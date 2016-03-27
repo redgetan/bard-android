@@ -14,7 +14,7 @@ import com.sandbox.myfirstapp.app.models.ItemOffsetDecoration;
 import com.sandbox.myfirstapp.app.models.Setting;
 import com.sandbox.myfirstapp.app.models.SquareAlbumDecoration;
 import com.sandbox.myfirstapp.app.ui.adapter.IndexListAdapter;
-import com.sandbox.myfirstapp.app.util.ItemClickSupport;
+import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -29,11 +29,14 @@ public class IndexActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
 
-        try {
-            getIndexList();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        RealmResults<Index> indexResults = Index.findAll();
+        displayIndexList(indexResults);
+
+//        try {
+//            getIndexList();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -60,16 +63,16 @@ public class IndexActivity extends BaseActivity {
             return;
         }
 
-        final List<Index> indexList = event.indexList;
+        displayIndexList(event.indexList);
+    }
+
+    public void displayIndexList(List<Index> indexList) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
-        IndexListAdapter adapter = new IndexListAdapter(indexList, this);
+        IndexListAdapter adapter = new IndexListAdapter(this, indexList);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_GRID_COLUMNS));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
         recyclerView.addItemDecoration(itemDecoration);
-
-//        recyclerView.addItemDecoration(new SquareAlbumDecoration(getResources().getDimensionPixelSize(R.dimen.square_album_spacing), getResources().getInteger(R.integer.square_album_columns)));
-
     }
 
 }

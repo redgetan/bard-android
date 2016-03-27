@@ -1,11 +1,17 @@
 package com.sandbox.myfirstapp.app.api;
 
 import android.util.Log;
+import com.google.gson.ExclusionStrategy;
+import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.sandbox.myfirstapp.app.events.IndexFetchEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
 import com.sandbox.myfirstapp.app.models.Index;
 import com.sandbox.myfirstapp.app.models.Repo;
+import com.sandbox.myfirstapp.app.models.Setting;
 import com.sandbox.myfirstapp.app.models.VideoDownloader;
+import io.realm.RealmObject;
 import okhttp3.ResponseBody;
 import org.greenrobot.eventbus.EventBus;
 import retrofit2.Call;
@@ -23,7 +29,7 @@ import java.util.List;
 
 interface MadchatService {
     @GET("query")
-    Call<Repo> query( @Query("text") String text);
+    Call<Repo> query( @Query("text") String text, @Query("bundle_token") String bundleToken);
 
     @GET("bundles")
     Call<List<Index>> listIndex();
@@ -49,29 +55,43 @@ public class MadchatClient {
         });
     }
 
-    public static void getQuery(String text) throws IOException {
-        Call<Repo> call = getService().query(text);
+    public static void getQuery(String text, String indexToken) throws IOException {
+        Call<Repo> call = getService().query(text, indexToken);
         call.enqueue(new Callback<Repo>() {
             @Override
             public void onResponse(Call<Repo> call, Response<Repo> response) {
                 Repo repo = response.body();
                 VideoDownloader.downloadVideo(repo.getUrl());
-                EventBus.getDefault().post(new VideoQueryEvent(repo.getUrl(),repo.getWordList(),repo.getError()));
+                EventBus.getDefault().post(new VideoQueryEvent(repo.getToken(), repo.getUrl(),repo.getWordList(),repo.getError()));
             }
 
             @Override
             public void onFailure(Call<Repo> call, Throwable throwable) {
                 Log.d("MyActivity", "failure on getQuery ");
-                EventBus.getDefault().post(new VideoQueryEvent(null,null,"timeout"));
+                EventBus.getDefault().post(new VideoQueryEvent(null,null,null,"Timeout"));
             }
         });
     }
 
     private static MadchatService getService() {
         if (service == null) {
+            Gson gson = new GsonBuilder()
+                    .setExclusionStrategies(new ExclusionStrategy() {
+                        @Override
+                        public boolean shouldSkipField(FieldAttributes f) {
+                            return f.getDeclaringClass().equals(RealmObject.class);
+                        }
+
+                        @Override
+                        public boolean shouldSkipClass(Class<?> clazz) {
+                            return false;
+                        }
+                    })
+                    .create();
+
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)
-                    .addConverterFactory(GsonConverterFactory.create())
+                    .addConverterFactory(GsonConverterFactory.create(gson))
                     .build();
             service = retrofit.create(MadchatService.class);
         }

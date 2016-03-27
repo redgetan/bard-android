@@ -22,10 +22,9 @@ public class IndexListAdapter extends
     private View selectedView;
 
     // Pass in the contact array into the constructor
-    public IndexListAdapter(List<Index> indexList, Context context) {
-        this.indexList = indexList;
+    public IndexListAdapter(Context context, List<Index> indexList) {
         this.context = context;
-
+        this.indexList = indexList;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -50,7 +49,7 @@ public class IndexListAdapter extends
         TextView textView = viewHolder.indexNameView;
         textView.setText(index.getName());
 
-        if (index.getId() == Setting.getCurrentIndex(context).intValue()) {
+        if (index.getToken().equals(Setting.getCurrentIndexToken(context))) {
             selectedView = viewHolder.itemView;
             selectedView.setSelected(true);
         }
@@ -96,7 +95,7 @@ public class IndexListAdapter extends
             selectedView = v;
 
             selectedView.setSelected(true);
-            Setting.setCurrentIndex(this.context, index.getId());
+            Setting.setCurrentIndexToken(this.context, index.getToken());
 
         }
     }
