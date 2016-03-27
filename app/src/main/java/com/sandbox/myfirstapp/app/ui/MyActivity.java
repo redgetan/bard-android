@@ -2,6 +2,7 @@ package com.sandbox.myfirstapp.app.ui;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.AssetManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -34,14 +35,23 @@ import com.sandbox.myfirstapp.app.R;
 import com.sandbox.myfirstapp.app.api.MadchatClient;
 import com.sandbox.myfirstapp.app.events.VideoDownloadEvent;
 import com.sandbox.myfirstapp.app.events.VideoQueryEvent;
+import com.sandbox.myfirstapp.app.models.Index;
 import com.sandbox.myfirstapp.app.models.Repo;
 import com.sandbox.myfirstapp.app.models.SpaceTokenizer;
+import com.sandbox.myfirstapp.app.util.*;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import android.support.v7.widget.Toolbar;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -87,9 +97,40 @@ public class MyActivity extends BaseActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
 
+        initWordIndex();
         initVideoPlayer();
         initChatText();
         initNavigationViewDrawer();
+    }
+
+
+    private void initWordIndex() {
+        RealmResults<Index> indexResults = Index.findAll();
+        if (indexResults.size() == 0) {
+            try {
+                populateWordIndex("smosh_index.json");
+                populateWordIndex("donald_trump_index.json");
+                populateWordIndex("kevin_hart_index.json");
+                populateWordIndex("emma_watson_index.json");
+            } catch (IOException e) {
+                e.printStackTrace();
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    public void populateWordIndex(String indexFileName) throws IOException, JSONException {
+        AssetManager assetManager = getAssets();
+        InputStream input = assetManager.open(indexFileName);
+
+        JSONObject obj = new JSONObject(FileManager.readInputStream(input));
+
+        Index.create(obj.getString("token"),
+                     obj.getString("name"),
+                     obj.getString("description"),
+                     obj.getString("wordList"));
     }
 
     private void initVideoPlayer() {

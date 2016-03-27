@@ -1,19 +1,25 @@
 package com.sandbox.myfirstapp.app.models;
 
+import android.content.Context;
 import com.orm.SugarRecord;
 import com.orm.dsl.Ignore;
 import com.orm.dsl.Table;
+import io.realm.Realm;
+import io.realm.RealmConfiguration;
+import io.realm.RealmObject;
+import io.realm.RealmResults;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Table
-public class Index {
+public class Index extends RealmObject {
 
+    private String token;
     private String name;
     private String description;
     private String error;
+    private String wordList;
     private Date createdAt;
     private Long id;
 
@@ -27,6 +33,24 @@ public class Index {
     public Index(String name, String description){
         this.name = name;
         this.description = description;
+    }
+
+    public static RealmResults<Index> findAll() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Index.class).findAll();
+    }
+
+    public static void create(String token, String name, String description, String wordList) {
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+
+        Index index = realm.createObject(Index.class);
+        index.setName(name);
+        index.setDescription(description);
+        index.setWordList(wordList);
+
+        realm.commitTransaction();
     }
 
     public void setName(String name) {
@@ -90,8 +114,20 @@ public class Index {
         this.description = description;
     }
 
-    public Map<String, Object> getAdditionalProperties() {
-        return this.additionalProperties;
+    public String getWordList() {
+        return this.wordList;
+    }
+
+    public void setWordList(String wordList) {
+        this.wordList = wordList;
+    }
+
+    public String getToken() {
+        return this.token;
+    }
+
+    public void setToken(String token) {
+        this.token = token;
     }
 
     public void setAdditionalProperty(String name, Object value) {

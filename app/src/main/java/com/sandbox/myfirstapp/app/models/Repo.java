@@ -1,15 +1,15 @@
 package com.sandbox.myfirstapp.app.models;
 
 import com.orm.SugarRecord;
-import com.orm.dsl.Ignore;
-import com.orm.dsl.Table;
+import io.realm.RealmObject;
+import io.realm.annotations.Ignore;
+import io.realm.annotations.RealmClass;
 
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-@Table
-public class Repo {
+public class Repo extends RealmObject {
 
     private String url;
     private String filePath;
