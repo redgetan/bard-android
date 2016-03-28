@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.sandbox.myfirstapp.app" >
+    package="com.roplabs.madchat" >
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.INTERNET" />
@@ -11,13 +11,13 @@
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
-        android:name=".ClientApp"
+        android:name="com.roplabs.madchat.ClientApp"
         android:theme="@style/AppTheme" >
         <meta-data
                 android:name="io.fabric.ApiKey"
                 android:value="bf06d741fa30b7cb5be2fe488dfe67d7f1952540" />
         <activity
-            android:name=".ui.MyActivity"
+            android:name="com.roplabs.madchat.ui.MyActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
@@ -27,36 +27,36 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.SaveActivity"
+            android:name="com.roplabs.madchat.ui.SaveActivity"
             android:label="@string/title_activity_save"
-            android:parentActivityName=".ui.MyActivity" >
+            android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ui.MyActivity" />
+                android:value="com.roplabs.madchat.ui.MyActivity" />
         </activity>
         <activity
-                android:name=".ui.IndexActivity"
+                android:name="com.roplabs.madchat.ui.IndexActivity"
                 android:label="@string/title_index"
-                android:parentActivityName=".ui.MyActivity" >
+                android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.MyActivity" />
+                    android:value="com.roplabs.madchat.ui.MyActivity" />
         </activity>
         <activity
-                android:name=".ui.RepoListActivity"
+                android:name="com.roplabs.madchat.ui.RepoListActivity"
                 android:label="@string/title_project_list"
-                android:parentActivityName=".ui.MyActivity" >
+                android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.MyActivity" />
+                    android:value="com.roplabs.madchat.ui.MyActivity" />
         </activity>
         <activity
-                android:name=".ui.VideoPlayerActivity"
+                android:name="com.roplabs.madchat.ui.VideoPlayerActivity"
                 android:configChanges="orientation|screenSize"
-                android:parentActivityName=".ui.RepoListActivity" >
+                android:parentActivityName="com.roplabs.madchat.ui.RepoListActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.RepoListActivity" />
+                    android:value="com.roplabs.madchat.ui.RepoListActivity" />
         </activity>
     </application>
 
