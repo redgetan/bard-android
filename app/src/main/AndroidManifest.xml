@@ -13,10 +13,9 @@
         android:label="@string/app_name"
         android:name=".ClientApp"
         android:theme="@style/AppTheme" >
-        <meta-data android:name="DATABASE" android:value="myfirstapp.db" />
-        <meta-data android:name="VERSION" android:value="2" />
-        <meta-data android:name="QUERY_LOG" android:value="true" />
-        <meta-data android:name="DOMAIN_PACKAGE_NAME" android:value="com.sandbox.myfirstapp.app" />
+        <meta-data
+                android:name="io.fabric.ApiKey"
+                android:value="bf06d741fa30b7cb5be2fe488dfe67d7f1952540" />
         <activity
             android:name=".ui.MyActivity"
             android:configChanges="orientation|screenSize"
