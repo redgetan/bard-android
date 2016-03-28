@@ -20,6 +20,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -27,6 +29,7 @@ import com.mikepenz.materialdrawer.DrawerBuilder;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.roplabs.madchat.ClientApp;
 import com.roplabs.madchat.R;
 import com.roplabs.madchat.api.MadchatClient;
 import com.roplabs.madchat.events.VideoDownloadEvent;
@@ -92,6 +95,13 @@ public class MyActivity extends BaseActivity {
         initVideoPlayer();
         initChatText();
         initNavigationViewDrawer();
+        initAnalytics();
+    }
+
+    public void initAnalytics() {
+        Tracker mTracker = ((ClientApp) getApplication()).getDefaultTracker();
+        mTracker.setScreenName("ChatActivity");
+        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
 
