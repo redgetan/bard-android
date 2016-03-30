@@ -1,5 +1,6 @@
 package com.roplabs.madchat.ui;
 
+import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,6 +14,8 @@ public class BaseActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Stetho.initializeWithDefaults(this);
+
+        setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
 
     @Override
