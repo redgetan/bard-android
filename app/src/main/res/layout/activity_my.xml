@@ -39,7 +39,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="vertical"
-                    android:gravity="center"
+                    android:gravity="center_vertical|center_horizontal"
     >
         <VideoView android:id="@+id/video_view"
                    android:background="@color/md_green_100"
@@ -47,11 +47,13 @@
                    android:layout_height="match_parent" />
 
         <TextView android:id="@+id/display_debug"
+                  android:layout_gravity = "center_vertical|center_horizontal"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"/>
 
         <ProgressBar
                 android:id="@+id/query_video_progress_bar"
+                android:layout_gravity = "center_vertical|center_horizontal"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:visibility="gone"
