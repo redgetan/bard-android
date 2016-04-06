@@ -8,8 +8,12 @@ import android.graphics.Rect;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.widget.ShareActionProvider;
 import android.support.v4.widget.DrawerLayout;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -35,6 +39,7 @@ import com.roplabs.madchat.api.MadchatClient;
 import com.roplabs.madchat.events.VideoDownloadEvent;
 import com.roplabs.madchat.events.VideoQueryEvent;
 import com.roplabs.madchat.models.Index;
+import com.roplabs.madchat.models.Repo;
 import com.roplabs.madchat.models.Setting;
 import com.roplabs.madchat.models.SpaceTokenizer;
 import com.roplabs.madchat.util.*;
@@ -46,6 +51,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.Calendar;
 
 public class MyActivity extends BaseActivity {
 
@@ -64,8 +70,14 @@ public class MyActivity extends BaseActivity {
     private MultiAutoCompleteTextView editText;
     private TextView debugView;
     private VideoView videoView;
+    private MediaPlayer mediaPlayer;
     private String packageDir;
     private ProgressBar progressBar;
+
+    private MenuItem shareMenuItem;
+    private boolean isVideoReady = false;
+    private boolean isVideoBeingTouched = false;
+    private Handler mHandler = new Handler();
 
     private NavigationView navigationView;
     private DrawerLayout mDrawerLayout;
@@ -140,11 +152,27 @@ public class MyActivity extends BaseActivity {
     }
 
     private void initVideoPlayer() {
-        videoView.setMediaController(new MediaController(this));
+//        videoView.setMediaController(new MediaController(this));
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 videoView.setBackgroundColor(Color.TRANSPARENT);
+                isVideoReady = true;
+                mediaPlayer = mp;
+            }
+        });
+
+        videoView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // http://stackoverflow.com/a/14163267
+
+                if (!isVideoReady) return false;
+
+                mediaPlayer.seekTo(0);
+                mediaPlayer.start();
+
+                return false;
             }
         });
     }
@@ -260,15 +288,6 @@ public class MyActivity extends BaseActivity {
     // http://developer.android.com/guide/topics/ui/menus.html
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == R.id.action_save) {
-            Intent intent = new Intent(mContext, SaveActivity.class);
-            intent.putExtra(EXTRA_REPO_TOKEN, this.repoToken);
-            intent.putExtra(EXTRA_VIDEO_URL, this.videoUrl);
-            intent.putExtra(EXTRA_VIDEO_PATH, this.videoPath);
-            intent.putExtra(EXTRA_WORD_LIST, this.wordList);
-            startActivity(intent);
-            return true;
-        }
         if (item.getItemId() == android.R.id.home) {
             if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
                 mDrawerLayout.closeDrawers();
@@ -344,7 +363,12 @@ public class MyActivity extends BaseActivity {
         if (event.error != null) {
             debugView.setText(event.error);
         } else {
+            // save MADs by default
             this.videoPath = event.videoPath;
+
+            Repo.create(repoToken, videoUrl, videoPath, wordList, Calendar.getInstance().getTime());
+            setShareProvider();
+
             videoView.setVideoPath(this.videoPath);
             videoView.requestFocus();
             videoView.start();
@@ -352,11 +376,33 @@ public class MyActivity extends BaseActivity {
 
     }
 
+    public void setShareProvider() {
+        // http://stackoverflow.com/a/21630571/
+        ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
+        MenuItemCompat.setActionProvider(this.shareMenuItem, mShareActionProvider);
+        mShareActionProvider.setShareIntent(getShareIntent());
+    }
+
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_my, menu);
+
+        // Locate MenuItem with ShareActionProvider
+        this.shareMenuItem = menu.findItem(R.id.menu_item_share);
+
         return true;
+    }
+
+    public Intent getShareIntent() {
+        Uri videoUri = Uri.fromFile(new File(this.videoPath));
+        // Create share intent as described above
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
+        shareIntent.setType("video/mp4");
+        return shareIntent;
     }
 
 

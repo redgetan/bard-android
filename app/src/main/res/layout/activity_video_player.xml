@@ -16,10 +16,10 @@
             android:gravity="center_vertical"
     >
 
-        <VideoView android:id="@+id/video_view"
+        <com.roplabs.madchat.ui.SquareVideoView android:id="@+id/video_view"
                    android:layout_gravity="center"
                    android:layout_width="match_parent"
-                   android:layout_height="match_parent"
+                   android:layout_height="wrap_content"
         />
     </LinearLayout>
 </LinearLayout>
