@@ -33,7 +33,7 @@ interface MadchatService {
 
 public class MadchatClient {
     static MadchatService service;
-    public static final String BASE_URL = "http://192.168.1.79:3000/";
+    public static final String BASE_URL = "http://dev.madchat.com:3000/";
 
     public static void getIndexList() throws IOException {
         Call<List<Index>> call = getService().listIndex();
