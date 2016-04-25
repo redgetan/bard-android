@@ -9,8 +9,12 @@ import com.roplabs.madchat.events.IndexFetchEvent;
 import com.roplabs.madchat.events.VideoQueryEvent;
 import com.roplabs.madchat.models.Index;
 import com.roplabs.madchat.models.Repo;
+import com.roplabs.madchat.models.Segment;
 import com.roplabs.madchat.models.VideoDownloader;
 import io.realm.RealmObject;
+import okhttp3.Headers;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
 import org.greenrobot.eventbus.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -25,7 +29,7 @@ import java.util.List;
 
 interface MadchatService {
     @GET("query")
-    Call<Repo> query( @Query("text") String text, @Query("bundle_token") String bundleToken);
+    Call<List<Segment>> query(@Query("text") String text, @Query("bundle_token") String bundleToken);
 
     @GET("bundles")
     Call<List<Index>> listIndex();
@@ -33,7 +37,9 @@ interface MadchatService {
 
 public class MadchatClient {
     static MadchatService service;
-    public static final String BASE_URL = "http://dev.madchat.com:3000/";
+    public static final String BASE_URL = "http://e2280f4f.ngrok.io";
+    private static final OkHttpClient client = new OkHttpClient();
+
 
     public static void getIndexList() throws IOException {
         Call<List<Index>> call = getService().listIndex();
@@ -52,21 +58,46 @@ public class MadchatClient {
     }
 
     public static void getQuery(String text, String indexToken) throws IOException {
-        Call<Repo> call = getService().query(text, indexToken);
-        call.enqueue(new Callback<Repo>() {
+        Call<List<Segment>> call = getService().query(text, indexToken);
+        call.enqueue(new Callback<List<Segment>>() {
             @Override
-            public void onResponse(Call<Repo> call, Response<Repo> response) {
-                Repo repo = response.body();
-                VideoDownloader.downloadVideo(repo.getUrl());
-                EventBus.getDefault().post(new VideoQueryEvent(repo.getToken(), repo.getUrl(),repo.getWordList(),repo.getError()));
+            public void onResponse(Call<List<Segment>> call, Response<List<Segment>> response) {
+                List<Segment> segments = response.body();
+                if(!response.isSuccess() && response.errorBody() != null){
+                    EventBus.getDefault().post(new VideoQueryEvent(null, response.errorBody().toString()));
+                } else {
+                    fetchSegments();
+                }
             }
 
             @Override
-            public void onFailure(Call<Repo> call, Throwable throwable) {
+            public void onFailure(Call<List<Segment>> call, Throwable throwable) {
                 Log.d("MyActivity", "failure on getQuery ");
-                EventBus.getDefault().post(new VideoQueryEvent(null,null,null,"Timeout"));
+                EventBus.getDefault().post(new VideoQueryEvent(null, "timeout"));
             }
         });
+    }
+
+    public static void fetchSegments() {
+        Request request = new Request.Builder()
+                .url("http://d22z4oll34c07f.cloudfront.net/segments/70gme6lL86o/hey_18965_37.mp4")
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                Log.d("Madchat", "failure on fetchSegments ");
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                Headers responseHeaders = response.headers();
+                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+                }
+            }
+        });
+
     }
 
     private static MadchatService getService() {

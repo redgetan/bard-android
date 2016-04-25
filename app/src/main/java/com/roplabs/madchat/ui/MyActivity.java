@@ -346,9 +346,9 @@ public class MyActivity extends BaseActivity {
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
-        this.repoToken = event.token;
-        this.wordList = event.wordList;
-        this.videoUrl = event.videoUrl;
+//        this.repoToken = event.token;
+//        this.wordList = event.wordList;
+//        this.videoUrl = event.videoUrl;
 
         if (event.error != null) {
             progressBar.setVisibility(View.GONE);
