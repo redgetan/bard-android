@@ -1,6 +1,7 @@
 package com.roplabs.madchat.ui;
 
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Color;
@@ -9,14 +10,13 @@ import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Build;
-import android.os.Handler;
+import android.os.*;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v4.widget.DrawerLayout;
-import android.os.Bundle;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -24,6 +24,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -38,10 +39,7 @@ import com.roplabs.madchat.R;
 import com.roplabs.madchat.api.MadchatClient;
 import com.roplabs.madchat.events.VideoDownloadEvent;
 import com.roplabs.madchat.events.VideoQueryEvent;
-import com.roplabs.madchat.models.Index;
-import com.roplabs.madchat.models.Repo;
-import com.roplabs.madchat.models.Setting;
-import com.roplabs.madchat.models.SpaceTokenizer;
+import com.roplabs.madchat.models.*;
 import com.roplabs.madchat.util.*;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
@@ -51,7 +49,9 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class MyActivity extends BaseActivity {
 
@@ -72,6 +72,9 @@ public class MyActivity extends BaseActivity {
     private VideoView videoView;
     private MediaPlayer mediaPlayer;
     private String packageDir;
+    private String applicationDir;
+    private String moviesDir;
+    private String ffmpegPath;
     private ProgressBar progressBar;
 
     private MenuItem shareMenuItem;
@@ -98,16 +101,51 @@ public class MyActivity extends BaseActivity {
 
         editText = (MultiAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
+
+        applicationDir = getApplicationInfo().dataDir;
+        ffmpegPath = applicationDir + "/" + "ffmpeg";
         debugView = (TextView) findViewById(R.id.display_debug);
         videoView = (VideoView) findViewById(R.id.video_view);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
 
+        initVideoStorage();
+        initFFmpeg();
         initWordIndex();
         initVideoPlayer();
         initChatText();
         initNavigationViewDrawer();
         initAnalytics();
+    }
+
+    private void initVideoStorage() {
+        moviesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                .getAbsolutePath() + "/" +  getResources().getString(R.string.app_name) + "/";
+
+        File moviesDirFile = new File(moviesDir);
+
+        if (!moviesDirFile.exists()) {
+          moviesDirFile.mkdirs();
+        }
+    }
+
+    public void initFFmpeg() {
+        String binary = "ffmpeg";
+
+        if (!(new File(ffmpegPath)).exists()) {
+
+            // copy ffmpeg binary from assets folder to /data/data/com.roplabs.*
+            try {
+                InputStream inputStream = getAssets().open(binary);
+                File file = Helper.getSafeOutputFile(applicationDir, binary);
+                Helper.writeToFile(inputStream, file);
+            } catch (IOException e) {
+                e.printStackTrace();
+                Crashlytics.logException(e);
+            }
+
+            Helper.runCmd(new String[] { "/system/bin/chmod", "744", ffmpegPath});
+        }
     }
 
     public void initAnalytics() {
@@ -299,9 +337,93 @@ public class MyActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void sendMessage(View view) throws IOException {
-        debugView.setText("");
+    // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
+    public void joinSegments(List<Segment> segments) {
+        final String outputFilePath = getJoinedOutputFilePath(segments);
+        String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
 
+        (new AsyncTask<String[], Integer, String>() {
+            @Override
+            protected String doInBackground(String[]... cmds) {
+                return Helper.runCmd(cmds[0]);
+            }
+
+            @Override
+            protected void onPostExecute(String result) {
+                // check if file was created
+                if ((new File(outputFilePath)).exists()) {
+                    playLocalVideo(outputFilePath);
+                } else {
+                    // report error
+                    Crashlytics.logException(new Throwable(result));
+                }
+            }
+        }).execute(cmd);
+
+    }
+
+
+    public String[] buildJoinSegmentsCmd(List<Segment> segments, String outputFilePath) {
+        List<String> cmd = new ArrayList<String>();
+
+        cmd.add(ffmpegPath);
+
+        for (Segment segment : segments) {
+            cmd.add("-i");
+            cmd.add(segment.getSourceUrl());
+        }
+
+        if (segments.size() > 1) {
+            cmd.add("-filter_complex");
+            cmd.add(buildConcatFilterGraph(segments));
+            cmd.add("-map");
+            cmd.add("[v]");
+            cmd.add("-map");
+            cmd.add("[a]");
+        }
+
+        cmd.add("-c:v");
+        cmd.add("libx264");
+        cmd.add("-preset");
+        cmd.add("ultrafast");
+        cmd.add("-c:a");
+        cmd.add("aac");
+        cmd.add("-movflags");
+        cmd.add("+faststart");
+        cmd.add("-strict");
+        cmd.add("-2");
+
+        cmd.add(outputFilePath);
+
+        return cmd.toArray(new String[0]);
+    }
+
+    private String buildConcatFilterGraph(List<Segment> segments) {
+        String concatFilterGraph = "";
+        int index;
+
+        for (Segment segment : segments) {
+            index = segments.indexOf(segment);
+            concatFilterGraph += " [" + index + ":v] " + "[" + index + ":a] ";
+        }
+
+        concatFilterGraph += " concat=n=" + segments.size() + ":v=1:a=1 [v] [a] ";
+
+        return concatFilterGraph;
+    }
+
+    public String getJoinedOutputFilePath(List<Segment> segments) {
+        List<String> wordList = new ArrayList<String>();
+
+        for (Segment segment: segments) {
+            wordList.add(segment.getWord());
+        }
+
+        return moviesDir + Helper.getTimestamp() + ".mp4";
+    }
+
+
+    public void sendMessage(View view) throws IOException {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
@@ -324,10 +446,11 @@ public class MyActivity extends BaseActivity {
 //        startActivity(intent);
     }
 
-    public void playLocalVideo(View view) {
-        //videoView.setVideoURI(Uri.parse("http://192.168.1.77:3000/repos/im_gonna_make_him_an_offers_he_cant_reject_1455179387.mp4"));
-        videoView.setVideoPath(packageDir + "/mydownloadmovie.mp4");
-        // videoView.setVideoURI(Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.kevin_hart_booty));
+    public void playLocalVideo(String filePath) {
+        progressBar.setVisibility(View.GONE);
+        debugView.setText("");
+
+        videoView.setVideoPath(filePath);
         videoView.requestFocus();
         videoView.start();
     }
@@ -353,6 +476,8 @@ public class MyActivity extends BaseActivity {
         if (event.error != null) {
             progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
+        } else {
+            joinSegments(event.segments);
         }
     }
 
@@ -362,6 +487,7 @@ public class MyActivity extends BaseActivity {
 
         if (event.error != null) {
             debugView.setText(event.error);
+            Crashlytics.logException(new Throwable(event.error));
         } else {
             // save MADs by default
             this.videoPath = event.videoPath;

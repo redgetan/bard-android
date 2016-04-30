@@ -37,7 +37,7 @@ interface MadchatService {
 
 public class MadchatClient {
     static MadchatService service;
-    public static final String BASE_URL = "http://e2280f4f.ngrok.io";
+    public static final String BASE_URL = "http://madchat.z9kt2x3bxp.us-west-2.elasticbeanstalk.com";
     private static final OkHttpClient client = new OkHttpClient();
 
 
@@ -57,16 +57,17 @@ public class MadchatClient {
         });
     }
 
-    public static void getQuery(String text, String indexToken) throws IOException {
+    public static void getQuery(final String text, String indexToken) throws IOException {
         Call<List<Segment>> call = getService().query(text, indexToken);
         call.enqueue(new Callback<List<Segment>>() {
             @Override
             public void onResponse(Call<List<Segment>> call, Response<List<Segment>> response) {
                 List<Segment> segments = response.body();
-                if(!response.isSuccess() && response.errorBody() != null){
-                    EventBus.getDefault().post(new VideoQueryEvent(null, response.errorBody().toString()));
+                if(!response.isSuccess()){
+                    String msg = response.raw().message() + " - " + text;
+                    EventBus.getDefault().post(new VideoQueryEvent(null, msg));
                 } else {
-                    fetchSegments();
+                    EventBus.getDefault().post(new VideoQueryEvent(segments, null));
                 }
             }
 
@@ -78,27 +79,27 @@ public class MadchatClient {
         });
     }
 
-    public static void fetchSegments() {
-        Request request = new Request.Builder()
-                .url("http://d22z4oll34c07f.cloudfront.net/segments/70gme6lL86o/hey_18965_37.mp4")
-                .build();
-
-        client.newCall(request).enqueue(new okhttp3.Callback() {
-            @Override
-            public void onFailure(okhttp3.Call call, IOException e) {
-                Log.d("Madchat", "failure on fetchSegments ");
-            }
-
-            @Override
-            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
-                Headers responseHeaders = response.headers();
-                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-                }
-            }
-        });
-
-    }
+//    public static void fetchSegments() {
+//        Request request = new Request.Builder()
+//                .url("http://d22z4oll34c07f.cloudfront.net/segments/70gme6lL86o/hey_18965_37.mp4")
+//                .build();
+//
+//        client.newCall(request).enqueue(new okhttp3.Callback() {
+//            @Override
+//            public void onFailure(okhttp3.Call call, IOException e) {
+//                Log.d("Madchat", "failure on fetchSegments ");
+//            }
+//
+//            @Override
+//            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+//                Headers responseHeaders = response.headers();
+//                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
+//                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
+//                }
+//            }
+//        });
+//
+//    }
 
     private static MadchatService getService() {
         if (service == null) {

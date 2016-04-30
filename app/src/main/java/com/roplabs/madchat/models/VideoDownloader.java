@@ -3,6 +3,7 @@ package com.roplabs.madchat.models;
 import android.os.AsyncTask;
 import android.os.Environment;
 import com.roplabs.madchat.events.VideoDownloadEvent;
+import com.roplabs.madchat.util.Helper;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -58,7 +59,7 @@ public class VideoDownloader {
                 String packageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
                                                .getAbsolutePath();
 
-                 File file = getSafeOutputFile(packageDir + "/MadChat/", getSourceFileName(url));
+                 File file = Helper.getSafeOutputFile(packageDir + "/MadChat/", getSourceFileName(url));
                  FileOutputStream fileOutput = new FileOutputStream(file);
 
                 //Stream used for reading the data from the internet
@@ -96,24 +97,6 @@ public class VideoDownloader {
                 result.put("videoPath", null);
                 result.put("error", e.getMessage());
                 return result;
-            }
-        }
-
-        protected File getSafeOutputFile(String directory,String filename) {
-            String filepath;
-            if(directory.lastIndexOf(File.separator) != directory.length() - 1){
-                directory += File.separator;
-            }
-            File dir = new File(directory);
-            dir.mkdirs();
-            filepath = directory + filename;
-            File file = new File(filepath);
-            try{
-                file.createNewFile();
-                return file.getCanonicalFile();
-            }catch (IOException e){
-                e.printStackTrace();
-                throw new Error("Can not get an valid output file");
             }
         }
 

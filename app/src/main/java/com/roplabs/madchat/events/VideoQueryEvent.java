@@ -7,15 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class VideoQueryEvent {
-    public final String words;
+    public final List<Segment> segments;
     public final String error;
 
     public VideoQueryEvent(List<Segment> segments, String error) {
-        List<String> wordList = new ArrayList<String>();
-        for (Segment segment: segments) {
-            wordList.add(segment.getWord());
-        }
-        this.words = TextUtils.join(",", wordList);
+        this.segments = segments;
         this.error = error;
     }
 
