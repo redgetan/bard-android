@@ -64,6 +64,10 @@ dependencies {
         transitive = true;
     }
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
 }
 
 apply plugin: 'com.google.gms.google-services'

@@ -2,6 +2,7 @@ package com.roplabs.madchat;
 
 import android.app.Application;
 import com.crashlytics.android.Crashlytics;
+import com.squareup.leakcanary.LeakCanary;
 import io.fabric.sdk.android.Fabric;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -15,6 +16,7 @@ public class ClientApp extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
+        LeakCanary.install(this);
         Fabric.with(this, new Crashlytics());
         RealmConfiguration config = new RealmConfiguration.Builder(this).build();
         Realm.setDefaultConfiguration(config);
