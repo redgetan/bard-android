@@ -16,7 +16,9 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -69,6 +71,7 @@ public class MyActivity extends BaseActivity {
 
     private MultiAutoCompleteTextView editText;
     private TextView debugView;
+    private TextView wordErrorView;
     private VideoView videoView;
     private MediaPlayer mediaPlayer;
     private String packageDir;
@@ -105,6 +108,7 @@ public class MyActivity extends BaseActivity {
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + "ffmpeg";
         debugView = (TextView) findViewById(R.id.display_debug);
+        wordErrorView = (TextView) findViewById(R.id.display_word_error);
         videoView = (VideoView) findViewById(R.id.video_view);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
@@ -243,8 +247,8 @@ public class MyActivity extends BaseActivity {
         String[] words = Index.forToken(Setting.getCurrentIndexToken(this))
                               .getWordList()
                               .split(",");
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, words);
+        TrieAdapter<String> adapter =
+                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, words);
         editText.setAdapter(adapter);
         editText.setTokenizer(new SpaceTokenizer());
     }
