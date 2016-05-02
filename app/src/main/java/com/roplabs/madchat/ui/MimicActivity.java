@@ -1,7 +1,6 @@
 package com.roplabs.madchat.ui;
 
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.graphics.Color;
@@ -103,7 +102,7 @@ public class MimicActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
+        setContentView(R.layout.activity_mimic);
         mContext = this;
 
         editText = (MultiAutoCompleteTextView) findViewById(R.id.edit_message);
