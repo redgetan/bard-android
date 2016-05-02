@@ -44,6 +44,8 @@ import com.roplabs.madchat.events.VideoQueryEvent;
 import com.roplabs.madchat.models.*;
 import com.roplabs.madchat.util.*;
 import io.realm.RealmResults;
+import org.apache.commons.collections4.Trie;
+import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
@@ -91,10 +93,12 @@ public class MyActivity extends BaseActivity {
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private Trie<String, String> wordTrie;
     private String repoToken;
     private String videoUrl;  // original url of video
     private String videoPath; // filepath of saved video
     private String wordList;
+    private String[] availableWordList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,19 +243,77 @@ public class MyActivity extends BaseActivity {
     }
 
     private void initAutocompleteWords() {
-//        String[] words = new String[] {
-//                "the", "this", "time", "tree", "tell", "tod", "take","tall", "tam", "taker", "taken",
-//                "tad", "tar", "tame", "tamer", "tap", "tape", "tale","tail", "tarzan", "tan",
-//                "hello", "world", "i", "am", "funny", "fun", "food","in", "what", "are", "you"
-//        };
-        String[] words = Index.forToken(Setting.getCurrentIndexToken(this))
-                              .getWordList()
-                              .split(",");
+        progressBar.setVisibility(View.VISIBLE);
+        debugView.setText("Initializing Available Word List");
+        final Context context = this;
+
+        (new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... params) {
+                availableWordList = Index.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
+                wordTrie = buildWordTrie();
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void result) {
+                initMultiAutoComplete();
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+
+        }).execute();
+    }
+
+    private Trie<String, String> buildWordTrie() {
+        Trie<String, String> trie = new PatriciaTrie<String>();
+        for (String word : availableWordList ) {
+            trie.put(word, null);
+        }
+
+        return trie;
+    }
+
+    private void initMultiAutoComplete() {
         TrieAdapter<String> adapter =
-                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, words);
+                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
         editText.setAdapter(adapter);
         editText.setTokenizer(new SpaceTokenizer());
+        editText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                notifyUserOnUnavailableWord();
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
     }
+
+    private void notifyUserOnUnavailableWord() {
+        Editable text = editText.getText();
+        String[] words = text.toString().split(" ");
+        List<String> invalidWords = new ArrayList<String>();
+
+        for (String word : words) {
+            if (!wordTrie.containsKey(word)) {
+                invalidWords.add(word);
+            }
+        }
+
+        if (invalidWords.size() > 0) {
+            wordErrorView.setText("Words not available: " + TextUtils.join(",",invalidWords));
+        } else {
+            wordErrorView.setText("");
+        }
+    }
+
 
     private void initNavigationViewDrawer() {
 // Create the AccountHeader

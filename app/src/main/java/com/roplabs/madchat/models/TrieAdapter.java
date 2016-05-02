@@ -121,6 +121,11 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
         this(context, resource, 0, Arrays.asList(objects));
     }
 
+    public TrieAdapter(Context context, int resource, T[] objects, Trie<String, T> trie) {
+        this(context, resource, 0, Arrays.asList(objects));
+        mOriginalValues = trie;
+    }
+
     /**
      * Constructor
      *
@@ -147,6 +152,10 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
         this(context, resource, 0, objects);
     }
 
+    public TrieAdapter(Context context, int resource, List<T> objects, Trie<String, T> trie) {
+        this(context, resource, 0, objects);
+        mOriginalValues = trie;
+    }
 
     /**
      * Constructor
@@ -164,12 +173,14 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
         mResource = mDropDownResource = resource;
         mObjects = objects;
         mFieldId = textViewResourceId;
-
-        mOriginalValues = new PatriciaTrie<T>();
-        for (T object : mObjects) {
-            mOriginalValues.put(object.toString(),null);
-        }
     }
+
+    public TrieAdapter(Context context, int resource, int textViewResourceId,
+                       List<T> objects, Trie<String, T> trie) {
+        this(context, resource, textViewResourceId, objects);
+        mOriginalValues = trie;
+    }
+
 
     /**
      * Adds the specified object at the end of the array.
