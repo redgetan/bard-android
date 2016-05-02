@@ -73,7 +73,7 @@ public class MadchatClient {
 
             @Override
             public void onFailure(Call<List<Segment>> call, Throwable throwable) {
-                Log.d("MimicActivity", "failure on getQuery ");
+                Log.d("Mimic", "failure on getQuery ");
                 EventBus.getDefault().post(new VideoQueryEvent(null, "timeout"));
             }
         });
