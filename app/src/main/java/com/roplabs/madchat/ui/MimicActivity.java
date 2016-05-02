@@ -57,7 +57,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
-public class MyActivity extends BaseActivity {
+public class MimicActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.madchat.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.madchat.REPO_TOKEN";

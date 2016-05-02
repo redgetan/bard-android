@@ -17,7 +17,7 @@
                 android:name="io.fabric.ApiKey"
                 android:value="bf06d741fa30b7cb5be2fe488dfe67d7f1952540" />
         <activity
-            android:name="com.roplabs.madchat.ui.MyActivity"
+            android:name=".ui.MimicActivity"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name" >
             <intent-filter>
@@ -29,26 +29,26 @@
         <activity
             android:name="com.roplabs.madchat.ui.SaveActivity"
             android:label="@string/title_activity_save"
-            android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
+            android:parentActivityName=".ui.MimicActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roplabs.madchat.ui.MyActivity" />
+                android:value=".ui.MimicActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.madchat.ui.IndexActivity"
                 android:label="@string/title_index"
-                android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
+                android:parentActivityName=".ui.MimicActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.roplabs.madchat.ui.MyActivity" />
+                    android:value=".ui.MimicActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.madchat.ui.RepoListActivity"
                 android:label="@string/title_project_list"
-                android:parentActivityName="com.roplabs.madchat.ui.MyActivity" >
+                android:parentActivityName=".ui.MimicActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.roplabs.madchat.ui.MyActivity" />
+                    android:value=".ui.MimicActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.madchat.ui.VideoPlayerActivity"
