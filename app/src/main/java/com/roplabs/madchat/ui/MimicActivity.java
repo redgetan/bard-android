@@ -66,7 +66,7 @@ public class MimicActivity extends BaseActivity {
     public static final String EXTRA_WORD_LIST = "com.roplabs.madchat.WORD_LIST";
     public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
     public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
-    public static final int SETTINGS_DRAWER_ITEM_IDENTIFIER = 3;
+    public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
     public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
 
     private Context mContext;
@@ -237,7 +237,7 @@ public class MimicActivity extends BaseActivity {
             mCursorDrawableRes.setAccessible(true);
             mCursorDrawableRes.setInt(editText, 0);
         } catch (Exception e) {
-            Log.e("madchat", e.getMessage());
+            Log.e("Mimic", e.getMessage());
             e.printStackTrace();
         }
     }
@@ -334,7 +334,7 @@ public class MimicActivity extends BaseActivity {
                         new PrimaryDrawerItem().withName(R.string.create_string).withIdentifier(CREATE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.choose_character_string).withIdentifier(CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.abc_ic_star_black_36dp),
                         new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(SETTINGS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
+                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -354,7 +354,7 @@ public class MimicActivity extends BaseActivity {
                                 intent = new Intent(mContext, RepoListActivity.class);
                                 startActivity(intent);
                                 break;
-                            case SETTINGS_DRAWER_ITEM_IDENTIFIER:
+                            case ABOUT_DRAWER_ITEM_IDENTIFIER:
                                 Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
