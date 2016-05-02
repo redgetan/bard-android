@@ -7,7 +7,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.roplabs.madchat.R;
 import com.roplabs.madchat.models.Repo;
 import com.roplabs.madchat.ui.RepoListActivity;
@@ -51,9 +54,11 @@ public class RepoListAdapter extends
         TextView textView = viewHolder.repoTitleView;
         textView.setText(repo.getWordList());
 
-        Button button = viewHolder.viewButton;
-        button.setText("view");
-
+        ImageView thumbnail = viewHolder.repoThumbnail;
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+             .load(repo.getFilePath())
+             .into(thumbnail);
     }
 
     // Return the total count of items
@@ -68,7 +73,7 @@ public class RepoListAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView repoTitleView;
-        public Button viewButton;
+        public ImageView repoThumbnail;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -79,7 +84,7 @@ public class RepoListAdapter extends
             super(itemView);
 
             repoTitleView = (TextView) itemView.findViewById(R.id.repo_title);
-            viewButton = (Button) itemView.findViewById(R.id.view_button);
+            repoThumbnail = (ImageView) itemView.findViewById(R.id.repo_thumbnail);
 
             this.context = context;
             itemView.setOnClickListener(this);
