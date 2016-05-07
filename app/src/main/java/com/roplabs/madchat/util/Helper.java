@@ -1,10 +1,34 @@
 package com.roplabs.madchat.util;
 
+import com.roplabs.madchat.models.APIError;
+import okhttp3.ResponseBody;
+import org.json.JSONException;
+import org.json.JSONObject;
+import retrofit2.Converter;
+import retrofit2.Response;
+
 import java.io.*;
+import java.lang.annotation.Annotation;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Helper {
+
+    public static String parseError(Response<?> response) {
+        if (response.errorBody() != null) {
+            try {
+                String json = response.errorBody().string();
+                JSONObject jsonObj = new JSONObject(json);
+                return jsonObj.getString("error");
+            } catch (IOException e) {
+                return "";
+            } catch (JSONException e) {
+                return "";
+            }
+        } else {
+           return "";
+        }
+    }
 
     // http://gimite.net/en/index.php?Run%20native%20executable%20in%20Android%20App
     public static String runCmd(String[] cmd) {

@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -13,9 +14,15 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.Bind;
 import com.roplabs.madchat.R;
+import com.roplabs.madchat.api.MadchatClient;
+import com.roplabs.madchat.events.SignUpEvent;
+import com.roplabs.madchat.models.Setting;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
+    private ProgressDialog progressDialog;
 
     @Bind(R.id.input_name) EditText _nameText;
     @Bind(R.id.input_email) EditText _emailText;
@@ -49,13 +56,12 @@ public class SignupActivity extends AppCompatActivity {
         Log.d(TAG, "Signup");
 
         if (!validate()) {
-            onSignupFailed();
             return;
         }
 
         _signupButton.setEnabled(false);
 
-        final ProgressDialog progressDialog = new ProgressDialog(SignupActivity.this,
+        progressDialog = new ProgressDialog(SignupActivity.this,
                 R.style.AppTheme_Dark_Dialog);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
@@ -65,31 +71,24 @@ public class SignupActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        // TODO: Implement your own signup logic here.
-
-        new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        // On complete call either onSignupSuccess or onSignupFailed
-                        // depending on success
-                        onSignupSuccess();
-                        // onSignupFailed();
-                        progressDialog.dismiss();
-                    }
-                }, 3000);
+        MadchatClient.doSignUp(name, email, password);
     }
 
+    @Subscribe
+    public void onEvent(SignUpEvent event) {
+        progressDialog.dismiss();
 
-    public void onSignupSuccess() {
-        _signupButton.setEnabled(true);
-        setResult(RESULT_OK, null);
-        finish();
-    }
-
-    public void onSignupFailed() {
-        Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
-
-        _signupButton.setEnabled(true);
+        if (event.error != null) {
+            Toast toast = Toast.makeText(getBaseContext(), event.error, Toast.LENGTH_LONG);
+            toast.setGravity(Gravity.TOP, 0, 10);
+            toast.show();
+            _signupButton.setEnabled(true);
+        } else {
+            Setting.setAuthenticationToken(this, event.authenticationToken);
+            _signupButton.setEnabled(true);
+            setResult(RESULT_OK, null);
+            finish();
+        }
     }
 
     public boolean validate() {
@@ -99,9 +98,11 @@ public class SignupActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        if (name.isEmpty() || name.length() < 3) {
-            _nameText.setError("at least 3 characters");
+        if (name.isEmpty()) {
+            _nameText.setError("cant be empty");
             valid = false;
+        } else if (!name.matches("\\A[a-z0-9_]+\\z")) {
+            _nameText.setError("can only contain a-z, 0-9, and _");
         } else {
             _nameText.setError(null);
         }
@@ -121,5 +122,17 @@ public class SignupActivity extends AppCompatActivity {
         }
 
         return valid;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
     }
 }
