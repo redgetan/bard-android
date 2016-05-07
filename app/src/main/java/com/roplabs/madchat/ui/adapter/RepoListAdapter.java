@@ -58,6 +58,7 @@ public class RepoListAdapter extends
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(context)
              .load(repo.getFilePath())
+             .crossFade()
              .into(thumbnail);
     }
 
