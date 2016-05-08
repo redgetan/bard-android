@@ -8,8 +8,10 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.roplabs.madchat.R;
+import com.roplabs.madchat.events.IndexSelectEvent;
 import com.roplabs.madchat.models.Index;
 import com.roplabs.madchat.models.Setting;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -86,7 +88,6 @@ public class IndexListAdapter extends
 
             int position = getLayoutPosition();
             Index index = indexList.get(position);
-            Toast.makeText(this.context, index.getName(), Toast.LENGTH_SHORT).show();
 
             if (selectedView != null) {
                 selectedView.setSelected(false);
@@ -95,8 +96,7 @@ public class IndexListAdapter extends
             selectedView = v;
 
             selectedView.setSelected(true);
-            Setting.setCurrentIndexToken(this.context, index.getToken());
-
+            EventBus.getDefault().post(new IndexSelectEvent(index,null));
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.roplabs.madchat.ui;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.AssetManager;
@@ -19,10 +20,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.crashlytics.android.Crashlytics;
@@ -52,9 +50,7 @@ import org.json.JSONObject;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.List;
+import java.util.*;
 
 public class MimicActivity extends BaseActivity {
 
@@ -63,10 +59,6 @@ public class MimicActivity extends BaseActivity {
     public static final String EXTRA_VIDEO_URL = "com.roplabs.madchat.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.madchat.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.madchat.WORD_LIST";
-    public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
-    public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
-    public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
-    public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
 
     private Context mContext;
 
@@ -87,7 +79,6 @@ public class MimicActivity extends BaseActivity {
     private Handler mHandler = new Handler();
 
     private NavigationView navigationView;
-    private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -98,6 +89,7 @@ public class MimicActivity extends BaseActivity {
     private String videoPath; // filepath of saved video
     private String wordList;
     private String[] availableWordList;
+    Set<String> invalidWords;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,14 +107,30 @@ public class MimicActivity extends BaseActivity {
         videoView = (VideoView) findViewById(R.id.video_view);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
+        invalidWords = new HashSet<String>();
+
+        Intent intent = getIntent();
+        String indexName = intent.getStringExtra("indexName");
+        setTitle(indexName);
 
         initVideoStorage();
-        initFFmpeg();
-        initWordIndex();
         initVideoPlayer();
         initChatText();
-        initNavigationViewDrawer();
         initAnalytics();
+
+        showKeyboardOnStartup();
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
+    }
+
+    private void showKeyboardOnStartup() {
+        if (editText.requestFocus()) {
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+        }
     }
 
     private void initVideoStorage() {
@@ -132,26 +140,7 @@ public class MimicActivity extends BaseActivity {
         File moviesDirFile = new File(moviesDir);
 
         if (!moviesDirFile.exists()) {
-          moviesDirFile.mkdirs();
-        }
-    }
-
-    public void initFFmpeg() {
-        String binary = "ffmpeg";
-
-        if (!(new File(ffmpegPath)).exists()) {
-
-            // copy ffmpeg binary from assets folder to /data/data/com.roplabs.*
-            try {
-                InputStream inputStream = getAssets().open(binary);
-                File file = Helper.getSafeOutputFile(applicationDir, binary);
-                Helper.writeToFile(inputStream, file);
-            } catch (IOException e) {
-                e.printStackTrace();
-                Crashlytics.logException(e);
-            }
-
-            Helper.runCmd(new String[] { "/system/bin/chmod", "744", ffmpegPath});
+            moviesDirFile.mkdirs();
         }
     }
 
@@ -161,40 +150,6 @@ public class MimicActivity extends BaseActivity {
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
-
-    public void initWordIndex() {
-        RealmResults<Index> indexResults = Index.findAll();
-        if (indexResults.size() == 0) {
-            try {
-                populateWordIndex("smosh_index.json");
-                populateWordIndex("donald_trump_index.json");
-                populateWordIndex("kevin_hart_index.json");
-                populateWordIndex("emma_watson_index.json");
-
-                setDefaultIndex();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void setDefaultIndex() {
-        Setting.setCurrentIndexToken(this,Index.findFirst().getToken());
-    }
-
-    public void populateWordIndex(String indexFileName) throws IOException, JSONException {
-        AssetManager assetManager = getAssets();
-        InputStream input = assetManager.open(indexFileName);
-
-        JSONObject obj = new JSONObject(FileManager.readInputStream(input));
-
-        Index.create(obj.getString("token"),
-                     obj.getString("name"),
-                     obj.getString("description"),
-                     obj.getString("wordList"));
-    }
 
     private void initVideoPlayer() {
 //        videoView.setMediaController(new MediaController(this));
@@ -286,7 +241,15 @@ public class MimicActivity extends BaseActivity {
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                notifyUserOnUnavailableWord();
+                int endPos = editText.getSelectionEnd();
+                int startPos = (new SpaceTokenizer()).findTokenStart(s, endPos);
+
+                Boolean isWordComplete = (startPos == endPos) && (startPos != 0);
+                if (isWordComplete) {
+                    notifyUserOnUnavailableWord();
+                } else {
+                    updateInvalidWords();
+                }
             }
 
             @Override
@@ -295,10 +258,19 @@ public class MimicActivity extends BaseActivity {
         });
     }
 
+    private void updateInvalidWords() {
+        Editable text = editText.getText();
+        List<String> words = Arrays.asList(text.toString().split(" "));
+        invalidWords.retainAll(words);
+
+        displayInvalidWords();
+    }
+
     private void notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
         String[] words = text.toString().split(" ");
-        List<String> invalidWords = new ArrayList<String>();
+
+        invalidWords.clear();
 
         for (String word : words) {
             if (!wordTrie.containsKey(word)) {
@@ -306,6 +278,11 @@ public class MimicActivity extends BaseActivity {
             }
         }
 
+        displayInvalidWords();
+    }
+
+
+    private void displayInvalidWords() {
         if (invalidWords.size() > 0) {
             wordErrorView.setText("Words not available: " + TextUtils.join(",",invalidWords));
         } else {
@@ -313,93 +290,30 @@ public class MimicActivity extends BaseActivity {
         }
     }
 
-
-    private void initNavigationViewDrawer() {
-// Create the AccountHeader
-        AccountHeader headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withHeaderBackground(R.drawable.profile_header)
-                .withSelectionListEnabledForSingleProfile(false)
-                .addProfiles(
-                        new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(getResources().getDrawable(R.drawable.profile))
-                )
-                .build();
-
-        new DrawerBuilder()
-                .withActivity(this)
-                .withAccountHeader(headerResult)
-                .withToolbar(toolbar)
-                .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.create_string).withIdentifier(CREATE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.choose_character_string).withIdentifier(CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.abc_ic_star_black_36dp),
-                        new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        // do something with the clicked item :D
-                        Intent intent;
-
-                        switch ((int) drawerItem.getIdentifier()) {
-                            case CREATE_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
-                                break;
-                            case CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, IndexActivity.class);
-                                startActivity(intent);
-                                break;
-                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, RepoListActivity.class);
-                                startActivity(intent);
-                                break;
-                            case ABOUT_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
-                                break;
-                            default:
-                                break;
-                        }
-
-                        // allows drawer to close
-                        return false;
-                    }
-                })
-                .build();
-
-    }
-
-
     // http://stackoverflow.com/a/28939113
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            View v = getCurrentFocus();
-            if ( v instanceof EditText) {
-                Rect outRect = new Rect();
-                v.getGlobalVisibleRect(outRect);
-                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
-                    v.clearFocus();
-                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-                }
-            }
-        }
-        return super.dispatchTouchEvent( event );
-   }
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent event) {
+//        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//            View v = getCurrentFocus();
+//            if ( v instanceof EditText) {
+//                Rect outRect = new Rect();
+//                v.getGlobalVisibleRect(outRect);
+//                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
+//                    v.clearFocus();
+//                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+//                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
+//                }
+//            }
+//        }
+//        return super.dispatchTouchEvent( event );
+//   }
 
-    // http://developer.android.com/guide/topics/ui/menus.html
+
     @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
-                mDrawerLayout.closeDrawers();
-            else {
-                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
-            }
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
+    protected void onStop() {
+        super.onStop();
+        hideKeyboard();
     }
 
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)

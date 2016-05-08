@@ -505,7 +505,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
             FilterResults results = new FilterResults();
 
             if (prefix == null || prefix.length() == 0) {
-                Log.w("Mimic", "perform filtering - prefix empty");
+//                Log.w("Mimic", "perform filtering - prefix empty");
                 Trie<String, T> values = mOriginalValues;;
 
                 Set<String> set = values.prefixMap("").keySet();
@@ -514,7 +514,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
                 results.values = newValues;
                 results.count = newValues.size();
             } else {
-                Log.w("Mimic", "perform filtering - prefix present");
+//                Log.w("Mimic", "perform filtering - prefix present");
                 String prefixString = prefix.toString().toLowerCase();
 
                 Trie<String, T> values = mOriginalValues;;
@@ -533,7 +533,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-            Log.w("Mimic", "publishResults");
+//            Log.w("Mimic", "publishResults");
             //noinspection unchecked
             mObjects = (List<T>) results.values;
             if (results.count > 0) {
