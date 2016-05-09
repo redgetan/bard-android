@@ -37,17 +37,18 @@ public class VideoPlayerActivity extends BaseActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate menu resource file.
         getMenuInflater().inflate(R.menu.menu_video_player, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-        // Locate MenuItem with ShareActionProvider
-        MenuItem item = menu.findItem(R.id.menu_item_share);
-
-        // http://stackoverflow.com/a/21630571/
-        ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
-        MenuItemCompat.setActionProvider(item, mShareActionProvider);
-        mShareActionProvider.setShareIntent(getShareIntent());
-
-        // Return true to display menu
-        return true;
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_share:
+                startActivity(getShareIntent());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
     public Intent getShareIntent() {

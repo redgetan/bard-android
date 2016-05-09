@@ -62,6 +62,7 @@ public class MimicActivity extends BaseActivity {
 
     private Context mContext;
 
+    private ImageView repoShareButton;
     private MultiAutoCompleteTextView editText;
     private TextView debugView;
     private TextView wordErrorView;
@@ -84,11 +85,12 @@ public class MimicActivity extends BaseActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Trie<String, String> wordTrie;
-//    private String repoToken;
-//    private String videoUrl;  // original url of video
-//    private String videoPath; // filepath of saved video
+
+    private Repo repo;
     private String[] availableWordList;
     Set<String> invalidWords;
+
+    ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,6 +106,7 @@ public class MimicActivity extends BaseActivity {
         debugView = (TextView) findViewById(R.id.display_debug);
         wordErrorView = (TextView) findViewById(R.id.display_word_error);
         videoView = (VideoView) findViewById(R.id.video_view);
+        repoShareButton = (ImageView) findViewById(R.id.repo_share_button);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         invalidWords = new HashSet<String>();
@@ -128,7 +131,7 @@ public class MimicActivity extends BaseActivity {
     private void showKeyboardOnStartup() {
         if (editText.requestFocus()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-            imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
+            imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
         }
     }
 
@@ -331,15 +334,21 @@ public class MimicActivity extends BaseActivity {
             protected void onPostExecute(String result) {
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
-                    saveRepo(outputFilePath, wordList);
-                    playLocalVideo(outputFilePath);
+                    onJoinSegmentsSuccess(outputFilePath, wordList);
                 } else {
                     // report error
                     Crashlytics.logException(new Throwable(result));
                 }
             }
+
         }).execute(cmd);
 
+    }
+
+    private void onJoinSegmentsSuccess(String outputFilePath, String wordList) {
+        repo = saveRepo(outputFilePath, wordList);
+        shareMenuItem.setVisible(true);
+        playLocalVideo(outputFilePath);
     }
 
     private String getWordListFromSegments(List<Segment> segments) {
@@ -350,8 +359,8 @@ public class MimicActivity extends BaseActivity {
         return TextUtils.join(" ", list);
     }
 
-    private void saveRepo(String videoPath, String wordList) {
-        Repo.create(null, null, videoPath, wordList, Calendar.getInstance().getTime());
+    private Repo saveRepo(String videoPath, String wordList) {
+        return Repo.create(null, null, videoPath, wordList, Calendar.getInstance().getTime());
     }
 
 
@@ -430,12 +439,6 @@ public class MimicActivity extends BaseActivity {
             debugView.setText(R.string.no_network_connection);
             return;
         }
-
-//        Intent intent = new Intent(this, DisplayMessageActivity.class);
-//        EditText editText = (EditText) findViewById(R.id.edit_message);
-//        String message = editText.getText().toString();
-//        intent.putExtra(EXTRA_MESSAGE, message);
-//        startActivity(intent);
     }
 
     public void playLocalVideo(String filePath) {
@@ -461,10 +464,6 @@ public class MimicActivity extends BaseActivity {
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
-//        this.repoToken = event.token;
-//        this.wordList = event.wordList;
-//        this.videoUrl = event.videoUrl;
-
         if (event.error != null) {
             progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
@@ -481,36 +480,37 @@ public class MimicActivity extends BaseActivity {
             debugView.setText(event.error);
             Crashlytics.logException(new Throwable(event.error));
         } else {
-            // save MADs by default
-//            this.videoPath = event.videoPath;
-
-//            Repo.create(repoToken, videoUrl, videoPath, wordList, Calendar.getInstance().getTime());
-//            setShareProvider();
-
-//            videoView.setVideoPath(this.videoPath);
-//            videoView.requestFocus();
-//            videoView.start();
         }
 
     }
 
-//    public void setShareProvider() {
-//        // http://stackoverflow.com/a/21630571/
-//        ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
-//        MenuItemCompat.setActionProvider(this.shareMenuItem, mShareActionProvider);
-//        mShareActionProvider.setShareIntent(getShareIntent());
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_mimic, menu);
+        shareMenuItem = menu.findItem(R.id.menu_item_share);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_share:
+                startActivity(getRepoShareIntent());
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
-//    public Intent getShareIntent() {
-//        Uri videoUri = Uri.fromFile(new File(this.videoPath));
-//        // Create share intent as described above
-//        Intent shareIntent = new Intent();
-//        shareIntent.setAction(Intent.ACTION_SEND);
-//        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
-//        shareIntent.setType("video/mp4");
-//        return shareIntent;
-//    }
+    public Intent getRepoShareIntent() {
+        Uri videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
+        // Create share intent as described above
+        Intent shareIntent = new Intent();
+        shareIntent.setAction(Intent.ACTION_SEND);
+        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
+        shareIntent.setType("video/mp4");
+        return shareIntent;
+    }
 
 
 }

@@ -40,20 +40,22 @@ public class Repo extends RealmObject {
         return results;
     }
 
-    public static void create(String token, String videoUrl, String videoPath, String wordList, Date createdAt) {
+    public static Repo create(String token, String videoUrl, String videoPath, String wordList, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
 
-        Repo index = realm.createObject(Repo.class);
+        Repo repo = realm.createObject(Repo.class);
 
-        index.setToken(token);
-        index.setUrl(videoUrl);
-        index.setFilePath(videoPath);
-        index.setWordList(wordList);
-        index.setCreatedAt(createdAt);
+        repo.setToken(token);
+        repo.setUrl(videoUrl);
+        repo.setFilePath(videoPath);
+        repo.setWordList(wordList);
+        repo.setCreatedAt(createdAt);
 
         realm.commitTransaction();
+
+        return repo;
     }
 
     public void setFilePath(String filePath) {
