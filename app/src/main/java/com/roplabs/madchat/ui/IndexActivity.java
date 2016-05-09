@@ -30,6 +30,7 @@ import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Set;
 
 public class IndexActivity extends BaseActivity {
     private final int NUM_GRID_COLUMNS = 2;
@@ -126,8 +127,9 @@ public class IndexActivity extends BaseActivity {
                 .withHeaderBackground(R.drawable.profile_header)
                 .withSelectionListEnabledForSingleProfile(false)
                 .addProfiles(
-                        new ProfileDrawerItem().withName("Mike Penz").withEmail("mikepenz@gmail.com").withIcon(getResources().getDrawable(R.drawable.profile))
+                        new ProfileDrawerItem().withName(Setting.getUsername(this)).withEmail(Setting.getEmail(this)) // .withIcon(getResources().getDrawable(R.drawable.profile))
                 )
+                .withHeightDp(150)
                 .build();
 
         new DrawerBuilder()
@@ -135,10 +137,8 @@ public class IndexActivity extends BaseActivity {
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.create_string).withIdentifier(CREATE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.choose_character_string).withIdentifier(CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.abc_ic_star_black_36dp),
                         new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
+                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_info_outline_black_24dp)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -159,7 +159,7 @@ public class IndexActivity extends BaseActivity {
                                 startActivity(intent);
                                 break;
                             case ABOUT_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"Settings",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"About",Toast.LENGTH_SHORT).show();
                                 break;
                             default:
                                 break;

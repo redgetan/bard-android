@@ -84,10 +84,9 @@ public class MimicActivity extends BaseActivity {
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Trie<String, String> wordTrie;
-    private String repoToken;
-    private String videoUrl;  // original url of video
-    private String videoPath; // filepath of saved video
-    private String wordList;
+//    private String repoToken;
+//    private String videoUrl;  // original url of video
+//    private String videoPath; // filepath of saved video
     private String[] availableWordList;
     Set<String> invalidWords;
 
@@ -319,6 +318,7 @@ public class MimicActivity extends BaseActivity {
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(List<Segment> segments) {
         final String outputFilePath = getJoinedOutputFilePath(segments);
+        final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
 
         (new AsyncTask<String[], Integer, String>() {
@@ -331,6 +331,7 @@ public class MimicActivity extends BaseActivity {
             protected void onPostExecute(String result) {
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
+                    saveRepo(outputFilePath, wordList);
                     playLocalVideo(outputFilePath);
                 } else {
                     // report error
@@ -339,6 +340,18 @@ public class MimicActivity extends BaseActivity {
             }
         }).execute(cmd);
 
+    }
+
+    private String getWordListFromSegments(List<Segment> segments) {
+        List<String> list = new ArrayList<String>();
+        for (Segment segment: segments) {
+            list.add(segment.getWord());
+        }
+        return TextUtils.join(" ", list);
+    }
+
+    private void saveRepo(String videoPath, String wordList) {
+        Repo.create(null, null, videoPath, wordList, Calendar.getInstance().getTime());
     }
 
 
@@ -469,46 +482,35 @@ public class MimicActivity extends BaseActivity {
             Crashlytics.logException(new Throwable(event.error));
         } else {
             // save MADs by default
-            this.videoPath = event.videoPath;
+//            this.videoPath = event.videoPath;
 
-            Repo.create(repoToken, videoUrl, videoPath, wordList, Calendar.getInstance().getTime());
-            setShareProvider();
+//            Repo.create(repoToken, videoUrl, videoPath, wordList, Calendar.getInstance().getTime());
+//            setShareProvider();
 
-            videoView.setVideoPath(this.videoPath);
-            videoView.requestFocus();
-            videoView.start();
+//            videoView.setVideoPath(this.videoPath);
+//            videoView.requestFocus();
+//            videoView.start();
         }
 
     }
 
-    public void setShareProvider() {
-        // http://stackoverflow.com/a/21630571/
-        ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
-        MenuItemCompat.setActionProvider(this.shareMenuItem, mShareActionProvider);
-        mShareActionProvider.setShareIntent(getShareIntent());
-    }
+//    public void setShareProvider() {
+//        // http://stackoverflow.com/a/21630571/
+//        ShareActionProvider mShareActionProvider = new ShareActionProvider(this);
+//        MenuItemCompat.setActionProvider(this.shareMenuItem, mShareActionProvider);
+//        mShareActionProvider.setShareIntent(getShareIntent());
+//    }
 
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_my, menu);
-
-        // Locate MenuItem with ShareActionProvider
-        this.shareMenuItem = menu.findItem(R.id.menu_item_share);
-
-        return true;
-    }
-
-    public Intent getShareIntent() {
-        Uri videoUri = Uri.fromFile(new File(this.videoPath));
-        // Create share intent as described above
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
-        shareIntent.setType("video/mp4");
-        return shareIntent;
-    }
+//    public Intent getShareIntent() {
+//        Uri videoUri = Uri.fromFile(new File(this.videoPath));
+//        // Create share intent as described above
+//        Intent shareIntent = new Intent();
+//        shareIntent.setAction(Intent.ACTION_SEND);
+//        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
+//        shareIntent.setType("video/mp4");
+//        return shareIntent;
+//    }
 
 
 }

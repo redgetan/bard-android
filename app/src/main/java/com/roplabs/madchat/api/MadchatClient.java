@@ -3,6 +3,7 @@ package com.roplabs.madchat.api;
 import android.util.Log;
 import com.google.gson.*;
 import com.roplabs.madchat.ClientApp;
+import com.roplabs.madchat.R;
 import com.roplabs.madchat.events.IndexFetchEvent;
 import com.roplabs.madchat.events.LoginEvent;
 import com.roplabs.madchat.events.SignUpEvent;
@@ -50,7 +51,7 @@ public class MadchatClient {
     static AccountService accountService;
 
     public static final String CODEC_BASE_URL = "http://madchat.z9kt2x3bxp.us-west-2.elasticbeanstalk.com";
-    public static final String ACCOUNT_BASE_URL = "http://eac90af8.ngrok.io";
+    public static final String ACCOUNT_BASE_URL = "http://a389bcc3.ngrok.io";
     private static final OkHttpClient client = new OkHttpClient();
 
 
@@ -102,7 +103,7 @@ public class MadchatClient {
                     EventBus.getDefault().post(new LoginEvent(null,error));
                 } else {
                     User user = response.body();
-                    EventBus.getDefault().post(new LoginEvent(user.getAuthenticationToken(),null));
+                    EventBus.getDefault().post(new LoginEvent(user,null));
                 }
             }
 
@@ -123,7 +124,7 @@ public class MadchatClient {
                     EventBus.getDefault().post(new SignUpEvent(null,error));
                 } else {
                     User user = response.body();
-                    EventBus.getDefault().post(new SignUpEvent(user.getAuthenticationToken(),null));
+                    EventBus.getDefault().post(new SignUpEvent(user,null));
                 }
             }
 

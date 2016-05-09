@@ -3,6 +3,7 @@ package com.roplabs.madchat.models;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import io.realm.annotations.Ignore;
 
 import java.util.Date;
@@ -34,7 +35,9 @@ public class Repo extends RealmObject {
 
     public static RealmResults<Repo> findAll() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Repo.class).findAll();
+        RealmResults<Repo> results = realm.where(Repo.class).findAll();
+        results.sort("createdAt", Sort.DESCENDING);
+        return results;
     }
 
     public static void create(String token, String videoUrl, String videoPath, String wordList, Date createdAt) {

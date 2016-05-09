@@ -84,7 +84,9 @@ public class SignupActivity extends AppCompatActivity {
             toast.show();
             _signupButton.setEnabled(true);
         } else {
-            Setting.setAuthenticationToken(this, event.authenticationToken);
+            Setting.setAuthenticationToken(this, event.user.getAuthenticationToken());
+            Setting.setUsername(this, event.user.getUsername());
+            Setting.setEmail(this, event.user.getEmail());
             _signupButton.setEnabled(true);
             setResult(RESULT_OK, null);
             finish();
