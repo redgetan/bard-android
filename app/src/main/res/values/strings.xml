@@ -20,7 +20,7 @@
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="share">Share</string>
-    <string name="my_projects_string">My Projects</string>
+    <string name="my_projects_string">Projects</string>
     <string name="create_string">Create</string>
     <string name="settings_string">Settings</string>
     <string name="about_string">About</string>

@@ -10,7 +10,8 @@
         <!-- android:textColorPrimary is the color of the title text in the Toolbar  -->
         <item name="android:textColorPrimary">@color/white</item>
         <!-- android:actionMenuTextColor is the color of the text of action (menu) items  -->
-        <item name="actionMenuTextColor">@color/primary_blue</item>
+        <item name="actionMenuTextColor">@color/white</item>
+        <item name="actionModeShareDrawable">@drawable/ic_share_white_24dp</item>
         <!-- Enable these below if you want clicking icons to trigger a ripple effect -->
         <!--
         <item name="selectableItemBackground">?android:selectableItemBackground</item>

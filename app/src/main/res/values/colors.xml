@@ -4,6 +4,8 @@
     <color name="purple">#704def</color>
     <color name="white">@android:color/white</color>
     <color name="primary_blue">#53777A</color>
+    <color name="primary">white</color>
+    <color name="accent">#CCCCCC</color>
     <color name="material_drawer_selected">@android:color/transparent</color>
     <color name="material_drawer_selected_text">#000</color>
 
