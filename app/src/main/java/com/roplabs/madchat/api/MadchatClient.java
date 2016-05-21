@@ -12,10 +12,9 @@ import com.roplabs.madchat.models.*;
 import com.roplabs.madchat.ui.MainActivity;
 import com.roplabs.madchat.util.Helper;
 import io.realm.RealmObject;
-import okhttp3.Interceptor;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.ResponseBody;
+import okhttp3.*;
+import okio.BufferedSink;
+import okio.Okio;
 import org.greenrobot.eventbus.EventBus;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -27,6 +26,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Query;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 
@@ -134,28 +134,6 @@ public class MadchatClient {
             }
         });
     }
-
-//    public static void fetchSegments() {
-//        Request request = new Request.Builder()
-//                .url("http://d22z4oll34c07f.cloudfront.net/segments/70gme6lL86o/hey_18965_37.mp4")
-//                .build();
-//
-//        client.newCall(request).enqueue(new okhttp3.Callback() {
-//            @Override
-//            public void onFailure(okhttp3.Call call, IOException e) {
-//                Log.d("Madchat", "failure on fetchSegments ");
-//            }
-//
-//            @Override
-//            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
-//                Headers responseHeaders = response.headers();
-//                for (int i = 0, size = responseHeaders.size(); i < size; i++) {
-//                    System.out.println(responseHeaders.name(i) + ": " + responseHeaders.value(i));
-//                }
-//            }
-//        });
-//
-//    }
 
     private static MadchatService getCodecService() {
         if (codecService == null) {

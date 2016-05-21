@@ -7,6 +7,7 @@ public class Segment {
 
     private String word;
     private String sourceUrl;
+    private String filePath;
     private String error;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
@@ -61,6 +62,14 @@ public class Segment {
          */
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
+    }
+
+    public void setFilePath(String filePath) {
+        this.filePath = filePath;
+    }
+
+    public String getFilePath() {
+        return this.filePath;
     }
 
     public Map<String, Object> getAdditionalProperties() {

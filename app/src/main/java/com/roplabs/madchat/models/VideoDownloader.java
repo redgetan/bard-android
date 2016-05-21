@@ -2,8 +2,14 @@ package com.roplabs.madchat.models;
 
 import android.os.AsyncTask;
 import android.os.Environment;
+import android.util.Log;
+import com.roplabs.madchat.ClientApp;
 import com.roplabs.madchat.events.VideoDownloadEvent;
 import com.roplabs.madchat.util.Helper;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okio.BufferedSink;
+import okio.Okio;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
@@ -13,12 +19,59 @@ import java.io.InputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 public class VideoDownloader {
+    private static final OkHttpClient client = new OkHttpClient();
+
     public static void downloadVideo(String url) {
+
         new DownloadVideoTask().execute(url);
     }
+
+    public static void fetchSegments(List<Segment> segments) {
+        final CountDownLatch responseCountDownLatch = new CountDownLatch(segments.size());
+        final List<String> segmentPathList = new ArrayList<String>();
+
+        for (final Segment segment : segments) {
+            Request request = new Request.Builder()
+                    .url(segment.getSourceUrl())
+                    .build();
+
+            client.newCall(request).enqueue(new okhttp3.Callback() {
+                @Override
+                public void onFailure(okhttp3.Call call, IOException e) {
+                    Log.d("Madchat", "failure on fetchSegments ");
+                }
+
+                @Override
+                public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                    // http://stackoverflow.com/a/29012988/803865
+                    File downloadedFile = new File(ClientApp.getContext().getCacheDir(), segment.getWord() + ".mp4");
+                    BufferedSink sink = Okio.buffer(Okio.sink(downloadedFile));
+                    sink.writeAll(response.body().source());
+                    sink.close();
+
+                    segment.setFilePath(downloadedFile.getAbsolutePath());
+                    responseCountDownLatch.countDown();
+                }
+            });
+        }
+
+        try {
+            responseCountDownLatch.await();
+            EventBus.getDefault().post(new VideoDownloadEvent(segments));
+        } catch (InterruptedException e) {
+            HashMap<String, String> result = new HashMap<String, String>();
+            result.put("error","interruption error");
+            EventBus.getDefault().post(new VideoDownloadEvent(result));
+        }
+
+    }
+
 
     private static class DownloadVideoTask extends AsyncTask<String, Integer, HashMap<String, String>> {
         @Override

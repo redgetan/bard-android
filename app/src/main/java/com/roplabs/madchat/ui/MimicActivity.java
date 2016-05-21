@@ -262,7 +262,7 @@ public class MimicActivity extends BaseActivity {
 
     private void updateInvalidWords() {
         Editable text = editText.getText();
-        List<String> words = Arrays.asList(text.toString().split(" "));
+        List<String> words = Arrays.asList(text.toString().split("\\s+"));
         invalidWords.retainAll(words);
 
         displayInvalidWords();
@@ -270,7 +270,7 @@ public class MimicActivity extends BaseActivity {
 
     private void notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
-        String[] words = text.toString().split(" ");
+        String[] words = text.toString().split("\\s+");
 
         invalidWords.clear();
 
@@ -323,6 +323,8 @@ public class MimicActivity extends BaseActivity {
         final String outputFilePath = getJoinedOutputFilePath(segments);
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
+        final long startTime = System.currentTimeMillis();
+        Log.e("Mimic", TextUtils.join(",",cmd));
 
         (new AsyncTask<String[], Integer, String>() {
             @Override
@@ -334,6 +336,8 @@ public class MimicActivity extends BaseActivity {
             protected void onPostExecute(String result) {
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
+                    final long endTime = System.currentTimeMillis();
+                    Log.e("Mimic", String.valueOf(endTime - startTime) + " seconds" );
                     onJoinSegmentsSuccess(outputFilePath, wordList);
                 } else {
                     // report error
@@ -371,7 +375,7 @@ public class MimicActivity extends BaseActivity {
 
         for (Segment segment : segments) {
             cmd.add("-i");
-            cmd.add(segment.getSourceUrl());
+            cmd.add(segment.getFilePath());
         }
 
         if (segments.size() > 1) {
@@ -468,18 +472,18 @@ public class MimicActivity extends BaseActivity {
             progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
         } else {
-            joinSegments(event.segments);
+            VideoDownloader.fetchSegments(event.segments);
         }
     }
 
     @Subscribe
     public void onEvent(VideoDownloadEvent event) {
-        progressBar.setVisibility(View.GONE);
-
         if (event.error != null) {
             debugView.setText(event.error);
+            progressBar.setVisibility(View.GONE);
             Crashlytics.logException(new Throwable(event.error));
-        } else {
+        } else if (event.segments != null) {
+            joinSegments(event.segments);
         }
 
     }
