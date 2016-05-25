@@ -44,7 +44,7 @@ public class VideoDownloader {
             client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, IOException e) {
-                    Log.d("Madchat", "failure on fetchSegments ");
+                    Log.d("Bard", "failure on fetchSegments ");
                 }
 
                 @Override
@@ -112,7 +112,7 @@ public class VideoDownloader {
                 String packageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
                                                .getAbsolutePath();
 
-                 File file = Helper.getSafeOutputFile(packageDir + "/MadChat/", getSourceFileName(url));
+                 File file = Helper.getSafeOutputFile(packageDir + "/Bard/", getSourceFileName(url));
                  FileOutputStream fileOutput = new FileOutputStream(file);
 
                 //Stream used for reading the data from the internet

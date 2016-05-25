@@ -14,7 +14,7 @@ import java.util.List;
 public class RepoListActivity extends BaseActivity {
 
     private Context context;
-    public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.madchat.VIDEO_URL";
+    public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

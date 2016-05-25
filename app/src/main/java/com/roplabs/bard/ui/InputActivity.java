@@ -24,7 +24,7 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
-import com.roplabs.bard.api.MadchatClient;
+import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.VideoDownloadEvent;
 import com.roplabs.bard.events.VideoQueryEvent;
 import com.roplabs.bard.models.*;
@@ -40,11 +40,11 @@ import java.util.*;
 
 public class InputActivity extends BaseActivity {
 
-    public static final String EXTRA_MESSAGE = "com.roplabs.madchat.MESSAGE";
-    public static final String EXTRA_REPO_TOKEN = "com.roplabs.madchat.REPO_TOKEN";
-    public static final String EXTRA_VIDEO_URL = "com.roplabs.madchat.VIDEO_URL";
-    public static final String EXTRA_VIDEO_PATH = "com.roplabs.madchat.VIDEO_PATH";
-    public static final String EXTRA_WORD_LIST = "com.roplabs.madchat.WORD_LIST";
+    public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
+    public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
+    public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
+    public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
+    public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
     private Context mContext;
 
@@ -81,7 +81,7 @@ public class InputActivity extends BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_mimic);
+        setContentView(R.layout.activity_input);
         mContext = this;
 
         editText = (MultiAutoCompleteTextView) findViewById(R.id.edit_message);
@@ -423,7 +423,7 @@ public class InputActivity extends BaseActivity {
             progressBar.setVisibility(View.VISIBLE);
 
             String message = editText.getText().toString();
-            MadchatClient.getQuery(message, Setting.getCurrentIndexToken(this));
+            BardClient.getQuery(message, Setting.getCurrentIndexToken(this));
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);

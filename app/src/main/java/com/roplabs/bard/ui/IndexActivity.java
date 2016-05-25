@@ -16,7 +16,7 @@ import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.roplabs.bard.R;
-import com.roplabs.bard.api.MadchatClient;
+import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.IndexFetchEvent;
 import com.roplabs.bard.events.IndexSelectEvent;
 import com.roplabs.bard.models.Index;
@@ -54,7 +54,7 @@ public class IndexActivity extends BaseActivity {
     }
 
     private void getIndexList() throws IOException {
-        MadchatClient.getIndexList();
+        BardClient.getIndexList();
     }
 
     @Override

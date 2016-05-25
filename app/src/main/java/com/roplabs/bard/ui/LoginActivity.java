@@ -16,7 +16,7 @@ import android.widget.Toast;
 import butterknife.ButterKnife;
 import butterknife.Bind;
 import com.roplabs.bard.R;
-import com.roplabs.bard.api.MadchatClient;
+import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.LoginEvent;
 import com.roplabs.bard.models.Setting;
 import org.greenrobot.eventbus.EventBus;
@@ -76,7 +76,7 @@ public class LoginActivity extends AppCompatActivity {
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
 
-        MadchatClient.doLoginIn(email, password);
+        BardClient.doLoginIn(email, password);
     }
 
 

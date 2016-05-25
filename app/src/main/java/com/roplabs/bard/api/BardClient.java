@@ -25,7 +25,7 @@ import retrofit2.http.Query;
 import java.io.IOException;
 import java.util.List;
 
-interface MadchatService {
+interface BardService {
     @GET("query")
     Call<List<Segment>> query(@Query("text") String text, @Query("bundle_token") String bundleToken);
 
@@ -41,8 +41,8 @@ interface AccountService {
     Call<User> signUp(@Body User user);
 }
 
-public class MadchatClient {
-    static MadchatService codecService;
+public class BardClient {
+    static BardService  codecService;
     static AccountService accountService;
 
     public static final String CODEC_BASE_URL = "http://madchat.z9kt2x3bxp.us-west-2.elasticbeanstalk.com";
@@ -130,14 +130,14 @@ public class MadchatClient {
         });
     }
 
-    private static MadchatService getCodecService() {
+    private static BardService  getCodecService() {
         if (codecService == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(CODEC_BASE_URL)
                     .addConverterFactory(getGsonConverterFactory())
                     .client(getHTTPClient(true))
                     .build();
-            codecService = retrofit.create(MadchatService.class);
+            codecService = retrofit.create(BardService .class);
         }
 
         return codecService;
