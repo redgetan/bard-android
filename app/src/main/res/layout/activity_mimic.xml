@@ -17,10 +17,10 @@
                     android:background="@drawable/top_white_border"
                     android:gravity="center_vertical|center_horizontal"
     >
-        <com.roplabs.madchat.ui.SquareVideoView android:id="@+id/video_view"
-                       android:background="@color/iron"
-                       android:layout_width="match_parent"
-                       android:layout_height="wrap_content" />
+        <com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"
+                                             android:background="@color/iron"
+                                             android:layout_width="match_parent"
+                                             android:layout_height="wrap_content" />
 
         <ImageView
                 android:id="@+id/repo_share_button"
