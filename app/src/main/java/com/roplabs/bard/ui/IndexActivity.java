@@ -83,7 +83,7 @@ public class IndexActivity extends BaseActivity {
     public void onEvent(IndexSelectEvent event) {
         Index index = event.index;
         Setting.setCurrentIndexToken(this, index.getToken());
-        Intent intent = new Intent(this, MimicActivity.class);
+        Intent intent = new Intent(this, InputActivity.class);
         intent.putExtra("indexName",index.getName());
         startActivity(intent);
     }

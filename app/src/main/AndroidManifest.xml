@@ -32,7 +32,7 @@
         <activity android:name="com.roplabs.bard.ui.SignupActivity" android:theme="@style/AppTheme.Dark" android:windowSoftInputMode="adjustResize"/>
 
         <activity
-                android:name="com.roplabs.bard.ui.MimicActivity"
+                android:name=".ui.InputActivity"
                 android:label="@string/app_name"
                 android:configChanges="orientation|screenSize"
                 android:parentActivityName="com.roplabs.bard.ui.IndexActivity" >
@@ -44,10 +44,10 @@
         <activity
             android:name="com.roplabs.bard.ui.SaveActivity"
             android:label="@string/title_activity_save"
-            android:parentActivityName="com.roplabs.bard.ui.MimicActivity" >
+            android:parentActivityName=".ui.InputActivity" >
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.roplabs.bard.ui.MimicActivity" />
+                android:value=".ui.InputActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.bard.ui.IndexActivity"
@@ -56,10 +56,10 @@
         <activity
                 android:name="com.roplabs.bard.ui.RepoListActivity"
                 android:label="@string/title_project_list"
-                android:parentActivityName="com.roplabs.bard.ui.MimicActivity" >
+                android:parentActivityName=".ui.InputActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value="com.roplabs.bard.ui.MimicActivity" />
+                    android:value=".ui.InputActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.bard.ui.VideoPlayerActivity"

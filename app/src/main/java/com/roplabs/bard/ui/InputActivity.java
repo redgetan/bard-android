@@ -38,7 +38,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class MimicActivity extends BaseActivity {
+public class InputActivity extends BaseActivity {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.madchat.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.madchat.REPO_TOKEN";
