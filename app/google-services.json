@@ -1,39 +1,32 @@
 {
   "project_info": {
-    "project_id": "madchat-2b39b",
-    "project_number": "418533635200",
-    "name": "Madchat"
+    "project_number": "382617240916",
+    "project_id": "bard-37e0f"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:418533635200:android:a605b3caf5cba784",
-        "client_id": "android:com.roplabs.madchat",
-        "client_type": 1,
+        "mobilesdk_app_id": "1:382617240916:android:1ac7711681be55ac",
         "android_client_info": {
-          "package_name": "com.roplabs.madchat",
-          "certificate_hash": []
+          "package_name": "com.roplabs.bard"
         }
       },
       "oauth_client": [],
-      "api_key": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDhzJYNWXGwEtzI6lwkIG_eJiG4a5NWUY4"
+        }
+      ],
       "services": {
         "analytics_service": {
           "status": 2,
           "analytics_property": {
-            "tracking_id": "UA-75665160-1"
+            "tracking_id": "UA-78358606-1"
           }
-        },
-        "cloud_messaging_service": {
-          "status": 1,
-          "apns_config": []
         },
         "appinvite_service": {
           "status": 1,
           "other_platform_oauth_client": []
-        },
-        "google_signin_service": {
-          "status": 1
         },
         "ads_service": {
           "status": 1
@@ -41,6 +34,5 @@
       }
     }
   ],
-  "client_info": [],
-  "ARTIFACT_VERSION": "1"
+  "configuration_version": "1"
 }
