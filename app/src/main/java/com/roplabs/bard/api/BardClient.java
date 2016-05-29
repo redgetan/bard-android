@@ -46,7 +46,7 @@ public class BardClient {
     static AccountService accountService;
 
     public static final String CODEC_BASE_URL = "http://madchat.z9kt2x3bxp.us-west-2.elasticbeanstalk.com";
-    public static final String ACCOUNT_BASE_URL = "http://a389bcc3.ngrok.io";
+    public static final String ACCOUNT_BASE_URL = "http://bard.zrqp9xghrt.us-west-2.elasticbeanstalk.com";
     private static final OkHttpClient client = new OkHttpClient();
 
 
