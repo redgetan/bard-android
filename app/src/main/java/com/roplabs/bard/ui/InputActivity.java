@@ -10,8 +10,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
-import android.support.v7.widget.ShareActionProvider;
+import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.ShareActionProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -28,6 +29,8 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.VideoDownloadEvent;
 import com.roplabs.bard.events.VideoQueryEvent;
 import com.roplabs.bard.models.*;
+import com.roplabs.bard.ui.adapter.RepoListAdapter;
+import com.roplabs.bard.ui.adapter.WordListAdapter;
 import com.roplabs.bard.util.*;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -101,9 +104,27 @@ public class InputActivity extends BaseActivity {
         String indexName = intent.getStringExtra("indexName");
         setTitle(indexName);
 
+
+        List<String> words = new ArrayList<String>();
+        for (int i = 0; i < 100; i++) {
+            words.add("hello_" + i);
+        }
+
+        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
+        WordListAdapter adapter = new WordListAdapter(this, words);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setHasFixedSize(true);
+//        recyclerView.recycler
+
+//        recyclerView.setLayoutManager();
+//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+//        recyclerView.
+
+
+
         initVideoStorage();
-        initVideoPlayer();
-        initChatText();
+//        initVideoPlayer();
+//        initChatText();
         initAnalytics();
 
         showKeyboardOnStartup();

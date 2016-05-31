@@ -17,10 +17,15 @@
                     android:background="@drawable/top_white_border"
                     android:gravity="center_vertical|center_horizontal"
     >
-        <com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"
-                                             android:background="@color/iron"
-                                             android:layout_width="match_parent"
-                                             android:layout_height="wrap_content" />
+        <!--<com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"-->
+                                             <!--android:background="@color/iron"-->
+                                             <!--android:layout_width="match_parent"-->
+                                             <!--android:layout_height="wrap_content" />-->
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/current_word_list"
+                android:layout_width="match_parent"
+                android:layout_height="200dp" />
 
         <ImageView
                 android:id="@+id/repo_share_button"
