@@ -16,6 +16,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.ui.RepoListActivity;
 import com.roplabs.bard.ui.TagView;
 import com.roplabs.bard.ui.VideoPlayerActivity;
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -37,11 +38,16 @@ public class WordListAdapter extends
     public WordListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
 
-        TagView tagView = new TagView(this.context, "");
-        initTagView(tagView);
+//        TagView tagView = new TagView(this.context, "");
+//        initTagView(tagView);
+
+        LayoutInflater inflater = LayoutInflater.from(context);
+
+        // Inflate the custom layout
+        View itemView = inflater.inflate(R.layout.word_list_item, parent, false);
 
         // Return a new holder instance
-        return new ViewHolder(this.context, tagView);
+        return new ViewHolder(this.context, itemView);
     }
 
     private void initTagView(TagView tagView){
@@ -72,7 +78,7 @@ public class WordListAdapter extends
         String word = wordList.get(position);
 
         // Set item views based on the data model
-        viewHolder.wordTag.setText(word);
+        viewHolder.tagView.setText(word);
     }
 
     // Return the total count of items
@@ -86,7 +92,7 @@ public class WordListAdapter extends
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
-        public TagView wordTag;
+        public TextView tagView;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -96,7 +102,7 @@ public class WordListAdapter extends
             // to access the context from any ViewHolder instance.
             super(itemView);
 
-            wordTag = (TagView) itemView;
+            tagView = (TextView) itemView;
 
             this.context = context;
             itemView.setOnClickListener(this);

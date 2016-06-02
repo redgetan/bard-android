@@ -32,14 +32,19 @@ import com.roplabs.bard.models.*;
 import com.roplabs.bard.ui.adapter.RepoListAdapter;
 import com.roplabs.bard.ui.adapter.WordListAdapter;
 import com.roplabs.bard.util.*;
+import com.roplabs.bard.vendor.flowlayout.FlowLayoutManager;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.apmem.tools.layouts.FlowLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
+
+//import org.apmem.tools.layouts.FlowLayoutManager;
+
 
 public class InputActivity extends BaseActivity {
 
@@ -107,13 +112,15 @@ public class InputActivity extends BaseActivity {
 
         List<String> words = new ArrayList<String>();
         for (int i = 0; i < 100; i++) {
-            words.add("hello_" + i);
+            words.add(Character.forDigit(i, 10) + "ello_" + i);
         }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
         WordListAdapter adapter = new WordListAdapter(this, words);
         recyclerView.setAdapter(adapter);
-        recyclerView.setHasFixedSize(true);
+//        recyclerView.setHasFixedSize(true);
+//        FlowLayoutManager
+        recyclerView.setLayoutManager(new FlowLayoutManager());
 //        recyclerView.recycler
 
 //        recyclerView.setLayoutManager();

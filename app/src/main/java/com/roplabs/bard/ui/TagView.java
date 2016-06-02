@@ -7,6 +7,7 @@ import android.graphics.RectF;
 import android.graphics.Typeface;
 import android.support.v4.widget.ViewDragHelper;
 import android.text.TextUtils;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
@@ -72,9 +73,16 @@ public class TagView extends View {
 
     private Typeface mTypeface;
 
-    public TagView(Context context, String text){
+    public TagView(Context context) {
         super(context);
-        init(text);
+    }
+
+    public TagView(Context context, AttributeSet attrs) {
+        super(context, attrs);
+    }
+
+    public TagView(Context context, AttributeSet attrs, int defStyleAttr) {
+        super(context, attrs, defStyleAttr);
     }
 
     private void init(String text){
