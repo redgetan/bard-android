@@ -58,7 +58,7 @@ public class InputActivity extends BaseActivity {
     private Context mContext;
 
     private ImageView repoShareButton;
-    private MultiAutoCompleteTextView editText;
+    private WordsAutoCompleteTextView editText;
     private TextView debugView;
     private TextView wordErrorView;
     private VideoView videoView;
@@ -68,6 +68,7 @@ public class InputActivity extends BaseActivity {
     private String moviesDir;
     private String ffmpegPath;
     private ProgressBar progressBar;
+    private RecyclerView recyclerView;
 
     private MenuItem shareMenuItem;
     private boolean isVideoReady = false;
@@ -93,7 +94,7 @@ public class InputActivity extends BaseActivity {
         setContentView(R.layout.activity_input);
         mContext = this;
 
-        editText = (MultiAutoCompleteTextView) findViewById(R.id.edit_message);
+        editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
 
         applicationDir = getApplicationInfo().dataDir;
@@ -106,35 +107,17 @@ public class InputActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         invalidWords = new HashSet<String>();
 
+        recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
+        recyclerView.setLayoutManager(new WordsLayoutManager(this));
+        recyclerView.setHasFixedSize(true);
+
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
         setTitle(indexName);
 
-
-        Random ran = new Random();
-        List<String> words = new ArrayList<String>();
-        for (int i = 0; i < 1000; i++) {
-            words.add(randomString(ran.nextInt(10) + 5));
-//            words.add(Character.forDigit(i, 10) + "ello_" + i);
-        }
-
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
-        WordListAdapter adapter = new WordListAdapter(this, words);
-        recyclerView.setAdapter(adapter);
-//        recyclerView.setHasFixedSize(true);
-//        FlowLayoutManager
-        recyclerView.setLayoutManager(new WordsLayoutManager(this));
-//        recyclerView.recycler
-
-//        recyclerView.setLayoutManager();
-//        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        recyclerView.
-
-
-
         initVideoStorage();
 //        initVideoPlayer();
-//        initChatText();
+        initChatText();
         initAnalytics();
 
         showKeyboardOnStartup();
@@ -236,6 +219,7 @@ public class InputActivity extends BaseActivity {
             protected Void doInBackground(Void... params) {
                 availableWordList = Index.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
                 wordTrie = buildWordTrie();
+
                 return null;
             }
 
@@ -251,7 +235,8 @@ public class InputActivity extends BaseActivity {
 
     private Trie<String, String> buildWordTrie() {
         Trie<String, String> trie = new PatriciaTrie<String>();
-        for (String word : availableWordList ) {
+        String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot" };
+        for (String word : words ) {
             trie.put(word, null);
         }
 
@@ -259,9 +244,10 @@ public class InputActivity extends BaseActivity {
     }
 
     private void initMultiAutoComplete() {
-        TrieAdapter<String> adapter =
-                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
-        editText.setAdapter(adapter);
+//        TrieAdapter<String> adapter =
+//                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
+        editText.setRecyclerView(recyclerView);
+        editText.setAutoCompleteWords(wordTrie);
         editText.setTokenizer(new SpaceTokenizer());
         editText.addTextChangedListener(new TextWatcher() {
             @Override
