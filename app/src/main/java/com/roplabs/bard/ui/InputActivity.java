@@ -35,12 +35,13 @@ import com.roplabs.bard.util.*;
 import com.roplabs.bard.vendor.flowlayout.FlowLayoutManager;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.apmem.tools.layouts.FlowLayout;
+//import org.apmem.tools.layouts.FlowLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.*;
 import java.lang.reflect.Field;
+import java.security.SecureRandom;
 import java.util.*;
 
 //import org.apmem.tools.layouts.FlowLayoutManager;
@@ -110,9 +111,11 @@ public class InputActivity extends BaseActivity {
         setTitle(indexName);
 
 
+        Random ran = new Random();
         List<String> words = new ArrayList<String>();
-        for (int i = 0; i < 100; i++) {
-            words.add(Character.forDigit(i, 10) + "ello_" + i);
+        for (int i = 0; i < 1000; i++) {
+            words.add(randomString(ran.nextInt(10) + 5));
+//            words.add(Character.forDigit(i, 10) + "ello_" + i);
         }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
@@ -120,7 +123,7 @@ public class InputActivity extends BaseActivity {
         recyclerView.setAdapter(adapter);
 //        recyclerView.setHasFixedSize(true);
 //        FlowLayoutManager
-        recyclerView.setLayoutManager(new FlowLayoutManager());
+        recyclerView.setLayoutManager(new WordsLayoutManager(this));
 //        recyclerView.recycler
 
 //        recyclerView.setLayoutManager();
@@ -135,6 +138,16 @@ public class InputActivity extends BaseActivity {
         initAnalytics();
 
         showKeyboardOnStartup();
+    }
+
+    static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+    static SecureRandom rnd = new SecureRandom();
+
+    String randomString( int len ){
+        StringBuilder sb = new StringBuilder( len );
+        for( int i = 0; i < len; i++ )
+            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
+        return sb.toString();
     }
 
     private void hideKeyboard() {
