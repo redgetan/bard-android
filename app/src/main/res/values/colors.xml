@@ -19,4 +19,8 @@
     <color name="iron">#CCCCCC</color>
     <color name="primary_dark">#E12929</color>
     <color name="primary_darker">#CC1D1D</color>
+
+    <!--<color name="word_tag_background">#EEE</color>-->
+    <color name="word_tag_border">#C6A8DD</color>
+
 </resources>

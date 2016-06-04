@@ -26,6 +26,7 @@ import com.google.android.gms.analytics.Tracker;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.events.VideoDownloadEvent;
 import com.roplabs.bard.events.VideoQueryEvent;
 import com.roplabs.bard.models.*;
@@ -108,7 +109,7 @@ public class InputActivity extends BaseActivity {
         invalidWords = new HashSet<String>();
 
         recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
-        recyclerView.setLayoutManager(new WordsLayoutManager(this));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         recyclerView.setHasFixedSize(true);
 
         Intent intent = getIntent();
@@ -235,8 +236,8 @@ public class InputActivity extends BaseActivity {
 
     private Trie<String, String> buildWordTrie() {
         Trie<String, String> trie = new PatriciaTrie<String>();
-        String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot" };
-        for (String word : words ) {
+        String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot", "cant", "you", "event", "smell", "what", "the", "rock", "is", "cooking", "extravaganza" };
+        for (String word : availableWordList ) {
             trie.put(word, null);
         }
 
@@ -487,6 +488,11 @@ public class InputActivity extends BaseActivity {
         } else {
             VideoDownloader.fetchSegments(event.segments);
         }
+    }
+
+    @Subscribe
+    public void onEvent(TagClickEvent event) {
+        editText.replaceText(event.word);
     }
 
     @Subscribe

@@ -13,9 +13,11 @@ import android.widget.TextView;
 import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
+import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.ui.RepoListActivity;
 import com.roplabs.bard.ui.TagView;
 import com.roplabs.bard.ui.VideoPlayerActivity;
+import org.greenrobot.eventbus.EventBus;
 import org.w3c.dom.Text;
 
 import java.util.List;
@@ -114,7 +116,7 @@ public class WordListAdapter extends
             int position = getLayoutPosition();
             String word = wordList.get(position);
 
-            Toast.makeText(this.context,word,Toast.LENGTH_SHORT).show();
+            EventBus.getDefault().post(new TagClickEvent(word));
         }
 
     }

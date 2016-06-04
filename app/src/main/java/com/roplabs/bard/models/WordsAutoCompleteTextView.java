@@ -94,7 +94,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         this.recyclerView = recyclerView;
     }
 
-    protected void replaceText(CharSequence text) {
+    public void replaceText(CharSequence text) {
         clearComposingText();
 
         int end = getSelectionEnd();
@@ -143,7 +143,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
-            recyclerView.swapAdapter(adapter, false);
+            recyclerView.setAdapter(adapter);
             onFilterComplete(results.count);
         }
     }
