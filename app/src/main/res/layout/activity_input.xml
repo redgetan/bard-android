@@ -9,89 +9,109 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
-                    android:layout_width="match_parent"
+    <RelativeLayout android:layout_width="fill_parent" android:layout_height="fill_parent">
+
+        <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:tools="http://schemas.android.com/tools"
+                        android:id="@+id/bard_text_entry"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:gravity="center_vertical"
+                        android:background="@drawable/top_white_border"
+                        android:orientation="horizontal"
+        >
+            <com.roplabs.bard.models.WordsAutoCompleteTextView android:id="@+id/edit_message"
+                                                               android:layout_width="0dp"
+                                                               android:layout_height="wrap_content"
+                                                               android:layout_weight="1"
+                                                               android:background="@android:color/transparent"
+                                                               android:completionThreshold="1"
+                                                               android:hint="@string/edit_message"/>
+
+            <ImageView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:padding="10dp"
-                    android:gravity="center_vertical"
-                    android:background="@drawable/top_white_border"
-                    android:orientation="horizontal"
-    >
-        <com.roplabs.bard.models.WordsAutoCompleteTextView android:id="@+id/edit_message"
-                                                           android:layout_width="0dp"
-                                                           android:layout_height="wrap_content"
-                                                           android:layout_weight="1"
-                                                           android:background="@android:color/transparent"
-                                                           android:completionThreshold="1"
-                                                           android:hint="@string/edit_message"/>
+                    android:onClick="sendMessage"
+                    android:alpha="0.3"
+                    android:src="@drawable/ic_send_black_24dp"
+                    android:contentDescription="@string/button_send"/>
+        </LinearLayout>
 
-        <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:onClick="sendMessage"
-                android:alpha="0.3"
-                android:src="@drawable/ic_send_black_24dp"
-                android:contentDescription="@string/button_send"/>
-    </LinearLayout>
+        <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                       xmlns:tools="http://schemas.android.com/tools"
+                       android:layout_width="match_parent"
+                       android:layout_height="fill_parent"
+                       android:paddingLeft="10dp"
+                       android:paddingStart="10dp"
+                       android:paddingEnd="10dp"
+                       android:layout_marginTop="10dp"
+                       android:layout_marginBottom="10dp"
+                       android:layout_below="@+id/bard_text_entry"
+                       android:layout_above="@+id/bard_text_status"
+                       android:orientation="vertical"
+                       android:gravity="center_vertical|center_horizontal"
+        >
+            <!--<com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"-->
+            <!--android:background="@color/iron"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="wrap_content" />-->
 
-    <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
-                    xmlns:tools="http://schemas.android.com/tools"
+            <android.support.v7.widget.RecyclerView
+                    android:id="@+id/current_word_list"
                     android:layout_width="match_parent"
+                    android:layout_height="fill_parent" />
+
+            <ImageView
+                    android:id="@+id/repo_share_button"
+                    android:layout_gravity = "top|right"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitXY"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginRight="15dp"
+                    android:visibility="gone"
+                    android:onClick="shareRepo"
+                    android:src="@drawable/ic_share_white_24dp"
+                    android:contentDescription="@string/button_share"/>
+
+            <TextView android:id="@+id/display_debug"
+                      android:layout_gravity = "center_vertical|center_horizontal"
+                      android:layout_marginTop="30dp"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                    android:id="@+id/query_video_progress_bar"
+                    android:layout_gravity = "center_vertical|center_horizontal"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="10dp"
-                    android:orientation="vertical"
-                    android:gravity="center_vertical|center_horizontal"
-    >
-        <!--<com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"-->
-                                             <!--android:background="@color/iron"-->
-                                             <!--android:layout_width="match_parent"-->
-                                             <!--android:layout_height="wrap_content" />-->
-
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/current_word_list"
-                android:layout_width="match_parent"
-                android:layout_height="200dp" />
-
-        <ImageView
-                android:id="@+id/repo_share_button"
-                android:layout_gravity = "top|right"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
-                android:adjustViewBounds="true"
-                android:scaleType="fitXY"
-                android:layout_marginTop="15dp"
-                android:layout_marginRight="15dp"
-                android:visibility="gone"
-                android:onClick="shareRepo"
-                android:src="@drawable/ic_share_white_24dp"
-                android:contentDescription="@string/button_share"/>
-
-        <TextView android:id="@+id/display_debug"
-                  android:layout_gravity = "center_vertical|center_horizontal"
-                  android:layout_marginTop="30dp"
-                  android:layout_width="wrap_content"
-                  android:layout_height="wrap_content"/>
-
-        <ProgressBar
-                android:id="@+id/query_video_progress_bar"
-                android:layout_gravity = "center_vertical|center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-        />
+                    android:visibility="gone"
+            />
 
 
-    </FrameLayout>
+        </FrameLayout>
 
-    <TextView android:id="@+id/display_word_error"
-              android:layout_gravity = "top|left"
-              android:layout_margin="10dp"
-              android:background="@android:color/holo_red_light"
-              android:textColor="@android:color/white"
-              android:visibility="visible"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
+        <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:tools="http://schemas.android.com/tools"
+                        android:id="@+id/bard_text_status"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:padding="10dp"
+                        android:layout_alignParentBottom="true"
+        >
+
+            <TextView android:id="@+id/display_word_error"
+                      android:background="@android:color/holo_red_light"
+                      android:textColor="@android:color/white"
+                      android:visibility="visible"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"/>
+
+        </LinearLayout>
+
+    </RelativeLayout>
 
 
 </LinearLayout>

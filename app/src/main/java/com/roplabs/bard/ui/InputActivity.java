@@ -109,8 +109,7 @@ public class InputActivity extends BaseActivity {
         invalidWords = new HashSet<String>();
 
         recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.setHasFixedSize(true);
+        recyclerView.setLayoutManager(new WordsLayoutManager(this));
 
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
