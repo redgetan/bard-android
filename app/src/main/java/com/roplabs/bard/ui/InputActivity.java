@@ -60,7 +60,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
     private Context mContext;
-    private ViewPager vpPager;
+    private InputViewPager vpPager;
     private TextView debugView;
     private WordsAutoCompleteTextView editText;
     private TextView wordErrorView;
@@ -147,9 +147,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     }
 
     public void initViewPager() {
-        vpPager = (ViewPager) findViewById(R.id.vpPager);
+        vpPager = (InputViewPager) findViewById(R.id.vpPager);
         adapterViewPager = new InputPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
+        vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
     }
 
 
@@ -399,6 +400,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             progressBar.setVisibility(View.VISIBLE);
 
             vpPager.setCurrentItem(1);
+            vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
             String message = editText.getText().toString();
             BardClient.getQuery(message, Setting.getCurrentIndexToken(this));
@@ -415,6 +417,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
         VideoResultFragment videoResultFragment = (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
         videoResultFragment.playLocalVideo(filePath);
+
+        vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.all);
     }
 
     @Override
