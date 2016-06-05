@@ -8,6 +8,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
@@ -54,6 +55,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     private Context mContext;
     private InputViewPager vpPager;
+    private FrameLayout vpPagerContainer;
     private TextView debugView;
     private WordsAutoCompleteTextView editText;
     private TextView wordErrorView;
@@ -97,6 +99,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         wordErrorView = (TextView) findViewById(R.id.display_word_error);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
+        vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
 
         Intent intent = getIntent();
@@ -144,6 +147,39 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         adapterViewPager = new InputPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
         vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
+
+        // Attach the page change listener inside the activity
+        vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+
+            // This method will be invoked when a new page becomes selected.
+            @Override
+            public void onPageSelected(int position) {
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) vpPagerContainer.getLayoutParams();
+
+                if (position == 0) {
+                    params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
+                } else if (position == 1) {
+                    params.height = 200;
+//                    params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+                }
+
+                vpPagerContainer.setLayoutParams(params);
+                vpPagerContainer.requestLayout();
+            }
+
+            // This method will be invoked when the current page is scrolled
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+                // Code goes here
+            }
+
+            // Called when the scroll state changes:
+            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
+            @Override
+            public void onPageScrollStateChanged(int state) {
+                // Code goes here
+            }
+        });
     }
 
 
