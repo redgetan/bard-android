@@ -15,7 +15,6 @@ import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.ui.RepoListActivity;
-import com.roplabs.bard.ui.TagView;
 import com.roplabs.bard.ui.VideoPlayerActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.w3c.dom.Text;
@@ -40,9 +39,6 @@ public class WordListAdapter extends
     public WordListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
 
-//        TagView tagView = new TagView(this.context, "");
-//        initTagView(tagView);
-
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
@@ -50,23 +46,6 @@ public class WordListAdapter extends
 
         // Return a new holder instance
         return new ViewHolder(this.context, itemView);
-    }
-
-    private void initTagView(TagView tagView){
-        tagView.setTagBackgroundColor(Color.parseColor("#EEEEFF"));
-        tagView.setTagBorderColor(Color.parseColor("#333333"));
-        tagView.setTagTextColor(Color.parseColor("#333333"));
-        tagView.setTagMaxLength(23);
-        tagView.setTextDirection(View.TEXT_DIRECTION_LTR);
-        tagView.setTypeface(Typeface.DEFAULT);
-//        tagView.setBorderWidth(mTagBorderWidth);
-        tagView.setBorderRadius(10.0f);
-        tagView.setTextSize(30.0f);
-        tagView.setHorizontalPadding(10);
-        tagView.setVerticalPadding(10);
-        tagView.setIsViewClickable(true);
-        tagView.setBdDistance(5.5f);
-//        tagView.setOnTagClickListener(mOnTagClickListener);
     }
 
     public List<String> getList() {
