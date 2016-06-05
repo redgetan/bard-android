@@ -15,7 +15,6 @@ import android.view.View;
 import android.view.View.MeasureSpec;
 import android.view.ViewDebug;
 import android.view.ViewGroup;
-import com.roplabs.bard.vendor.flowlayout.logic.ViewDefinition;
 
 import java.util.ArrayList;
 import java.util.List;
