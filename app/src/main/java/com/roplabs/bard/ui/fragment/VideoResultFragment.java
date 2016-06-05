@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -48,16 +49,21 @@ public class VideoResultFragment extends Fragment {
         });
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
+
             @Override
             public boolean onTouch(View v, MotionEvent event) {
                 // http://stackoverflow.com/a/14163267
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (!isVideoReady) return false;
 
-                if (!isVideoReady) return false;
+                    mediaPlayer.seekTo(0);
+                    mediaPlayer.start();
 
-                mediaPlayer.seekTo(0);
-                mediaPlayer.start();
+                    return false;
+                } else {
+                    return true;
+                }
 
-                return false;
             }
         });
     }
