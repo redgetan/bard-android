@@ -21,8 +21,15 @@
                         android:background="@drawable/top_white_border"
                         android:orientation="horizontal"
         >
+            <Spinner
+                    android:id="@+id/input_mode_spinner"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content" />
+
             <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
                                                                android:layout_width="0dp"
+                                                                  android:layout_marginLeft="15dp"
+                                                                  android:layout_marginStart="15dp"
                                                                android:layout_height="wrap_content"
                                                                android:layout_weight="1"
                                                                android:background="@android:color/transparent"

@@ -23,20 +23,24 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     RecyclerView recyclerView;
     private Filter mFilter;
     private Trie<String,String> mOriginalValues;
+    private boolean isAutocompleteEnabled;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
         addTextChangedListener(new MyWatcher());
+        this.isAutocompleteEnabled = true;
     }
 
     public WordsAutoCompleteTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         addTextChangedListener(new MyWatcher());
+        this.isAutocompleteEnabled = true;
     }
 
     public WordsAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         addTextChangedListener(new MyWatcher());
+        this.isAutocompleteEnabled = true;
     }
 
     @Override
@@ -55,7 +59,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     void doAfterTextChanged() {
-        performFiltering(getText(), 0);
+        if (this.isAutocompleteEnabled) {
+            performFiltering(getText(), 0);
+        }
     }
 
     protected void performFiltering(CharSequence text, int keyCode) {
@@ -68,6 +74,14 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     protected void performFiltering(CharSequence text, int start, int end,
                                     int keyCode) {
         getFilter().filter(text.subSequence(start, end), this);
+    }
+    public void setEnableAutocomplete(boolean isAutocompleteEnabled) {
+        this.isAutocompleteEnabled = isAutocompleteEnabled;
+    }
+
+    public void setSentenceWords(List<String> words) {
+        WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), words);
+        recyclerView.setAdapter(adapter);
     }
 
     public void setAutoCompleteWords(Trie<String, String> wordTrie) {

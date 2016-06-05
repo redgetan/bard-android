@@ -45,7 +45,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener {
+public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener, AdapterView.OnItemSelectedListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -79,6 +79,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     private Repo repo;
     private String[] availableWordList;
+    private String[] uniqueWordList;
     Set<String> invalidWords;
 
     ShareActionProvider mShareActionProvider;
@@ -101,6 +102,13 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
+
+        Spinner spinner = (Spinner) findViewById(R.id.input_mode_spinner);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+                R.array.bard_input_modes, android.R.layout.simple_spinner_item);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinner.setAdapter(adapter);
+        spinner.setOnItemSelectedListener(this);
 
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
@@ -185,6 +193,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     public void onWordListViewReady(RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
+        this.editText.setRecyclerView(recyclerView);
         initChatText();
     }
 
@@ -217,6 +226,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             @Override
             protected Void doInBackground(Void... params) {
                 availableWordList = Index.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
+                uniqueWordList = new HashSet<String>(Arrays.asList(availableWordList)).toArray(new String[0]);
+
                 wordTrie = buildWordTrie();
 
                 return null;
@@ -235,7 +246,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private Trie<String, String> buildWordTrie() {
         Trie<String, String> trie = new PatriciaTrie<String>();
         String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot", "cant", "you", "event", "smell", "what", "the", "rock", "is", "cooking", "extravaganza" };
-        for (String word : availableWordList ) {
+        for (String word : uniqueWordList ) {
             trie.put(word, null);
         }
 
@@ -245,7 +256,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private void initMultiAutoComplete() {
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
-        editText.setRecyclerView(recyclerView);
         editText.setAutoCompleteWords(wordTrie);
         editText.setTokenizer(new SpaceTokenizer());
         editText.addTextChangedListener(new TextWatcher() {
@@ -521,4 +531,23 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     }
 
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        if (availableWordList == null) {
+            return;
+        }
+        String mode = (String) parent.getItemAtPosition(position);
+        if (mode.equals("a")) {
+            editText.setEnableAutocomplete(false);
+            editText.setSentenceWords(new ArrayList<String>(Arrays.asList(availableWordList)));
+        } else if (mode.equals("b")) {
+            editText.setEnableAutocomplete(true);
+            editText.setAutoCompleteWords(wordTrie);
+        }
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
 }
