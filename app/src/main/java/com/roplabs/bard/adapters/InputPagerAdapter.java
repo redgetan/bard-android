@@ -1,9 +1,9 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import com.roplabs.bard.models.SmartFragmentStatePagerAdapter;
+import com.roplabs.bard.ui.fragment.VideoResultFragment;
+import com.roplabs.bard.ui.fragment.WordListFragment;
 
 public class InputPagerAdapter extends SmartFragmentStatePagerAdapter {
     private static int NUM_ITEMS = 2;

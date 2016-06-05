@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
@@ -20,9 +20,9 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.IndexFetchEvent;
 import com.roplabs.bard.events.IndexSelectEvent;
 import com.roplabs.bard.models.Index;
-import com.roplabs.bard.models.ItemOffsetDecoration;
+import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
-import com.roplabs.bard.ui.adapter.IndexListAdapter;
+import com.roplabs.bard.adapters.IndexListAdapter;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;

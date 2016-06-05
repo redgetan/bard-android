@@ -1,4 +1,4 @@
-package com.roplabs.bard.models;
+package com.roplabs.bard.adapters;
 
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;

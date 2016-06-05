@@ -21,7 +21,7 @@
                         android:background="@drawable/top_white_border"
                         android:orientation="horizontal"
         >
-            <com.roplabs.bard.models.WordsAutoCompleteTextView android:id="@+id/edit_message"
+            <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
                                                                android:layout_width="0dp"
                                                                android:layout_height="wrap_content"
                                                                android:layout_weight="1"
@@ -53,11 +53,11 @@
                        android:gravity="center_vertical|center_horizontal"
         >
 
-            <com.roplabs.bard.ui.InputViewPager
+            <com.roplabs.bard.ui.widget.InputViewPager
                     android:id="@+id/vpPager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
-            </com.roplabs.bard.ui.InputViewPager>
+            </com.roplabs.bard.ui.widget.InputViewPager>
 
             <TextView android:id="@+id/display_debug"
                       android:layout_gravity = "center_vertical|center_horizontal"

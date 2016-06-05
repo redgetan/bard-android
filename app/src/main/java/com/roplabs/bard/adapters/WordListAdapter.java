@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui.adapter;
+package com.roplabs.bard.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -14,8 +14,6 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.events.TagClickEvent;
-import com.roplabs.bard.ui.RepoListActivity;
-import com.roplabs.bard.ui.VideoPlayerActivity;
 import org.greenrobot.eventbus.EventBus;
 import org.w3c.dom.Text;
 

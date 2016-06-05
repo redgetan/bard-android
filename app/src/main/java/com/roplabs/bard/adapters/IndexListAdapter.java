@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui.adapter;
+package com.roplabs.bard.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;

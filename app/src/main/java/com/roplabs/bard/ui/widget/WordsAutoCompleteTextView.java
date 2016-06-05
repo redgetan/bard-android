@@ -1,4 +1,4 @@
-package com.roplabs.bard.models;
+package com.roplabs.bard.ui.widget;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,7 +9,7 @@ import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
 import android.widget.*;
 import com.roplabs.bard.ClientApp;
-import com.roplabs.bard.ui.adapter.WordListAdapter;
+import com.roplabs.bard.adapters.WordListAdapter;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;

@@ -1,18 +1,13 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.activity;
 
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Color;
-import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
@@ -28,28 +23,26 @@ import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.adapters.InputPagerAdapter;
+import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.events.VideoDownloadEvent;
 import com.roplabs.bard.events.VideoQueryEvent;
 import com.roplabs.bard.models.*;
-import com.roplabs.bard.ui.adapter.RepoListAdapter;
-import com.roplabs.bard.ui.adapter.WordListAdapter;
+import com.roplabs.bard.ui.fragment.VideoResultFragment;
+import com.roplabs.bard.ui.fragment.WordListFragment;
+import com.roplabs.bard.ui.widget.InputViewPager;
+import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
-import com.roplabs.bard.vendor.flowlayout.FlowLayoutManager;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-//import org.apmem.tools.layouts.FlowLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.*;
 import java.lang.reflect.Field;
-import java.security.SecureRandom;
 import java.util.*;
-
-//import org.apmem.tools.layouts.FlowLayoutManager;
-
 
 public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener {
 

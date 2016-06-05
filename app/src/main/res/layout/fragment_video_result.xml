@@ -4,7 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-        <com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"
+        <com.roplabs.bard.ui.widget.SquareVideoView android:id="@+id/video_view"
                                              android:background="@color/iron"
                                              android:layout_width="match_parent"
                                              android:layout_height="wrap_content" />

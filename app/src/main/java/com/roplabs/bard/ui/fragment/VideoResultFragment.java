@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.fragment;
 
 import android.graphics.Color;
 import android.media.MediaPlayer;

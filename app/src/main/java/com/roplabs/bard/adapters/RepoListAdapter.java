@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui.adapter;
+package com.roplabs.bard.adapters;
 
 import android.content.Context;
 import android.content.Intent;
@@ -11,8 +11,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.ui.RepoListActivity;
-import com.roplabs.bard.ui.VideoPlayerActivity;
+import com.roplabs.bard.ui.activity.RepoListActivity;
+import com.roplabs.bard.ui.activity.VideoPlayerActivity;
 
 import java.util.List;
 

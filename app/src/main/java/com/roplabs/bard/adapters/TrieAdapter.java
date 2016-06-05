@@ -1,4 +1,4 @@
-package com.roplabs.bard.models;
+package com.roplabs.bard.adapters;
 
 import android.content.Context;
 import android.content.res.Resources;

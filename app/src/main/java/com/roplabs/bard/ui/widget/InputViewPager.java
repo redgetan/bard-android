@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.widget;
 
 // Source: http://stackoverflow.com/a/34076649
 

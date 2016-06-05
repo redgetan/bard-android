@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.activity;
 
 import android.content.Intent;
 import android.os.Bundle;

@@ -1,13 +1,13 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import com.roplabs.bard.R;
-import com.roplabs.bard.models.DividerItemDecoration;
+import com.roplabs.bard.ui.widget.DividerItemDecoration;
 import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.ui.adapter.RepoListAdapter;
+import com.roplabs.bard.adapters.RepoListAdapter;
 
 import java.util.List;
 

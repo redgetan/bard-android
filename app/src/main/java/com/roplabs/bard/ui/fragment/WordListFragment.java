@@ -1,4 +1,4 @@
-package com.roplabs.bard.ui;
+package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.os.Bundle;

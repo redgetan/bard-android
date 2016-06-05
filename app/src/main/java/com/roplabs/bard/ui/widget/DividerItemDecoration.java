@@ -1,4 +1,4 @@
-package com.roplabs.bard.models;
+package com.roplabs.bard.ui.widget;
 
 import android.content.Context;
 import android.graphics.Canvas;

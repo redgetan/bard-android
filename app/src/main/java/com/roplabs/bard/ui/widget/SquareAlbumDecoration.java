@@ -1,4 +1,4 @@
-package com.roplabs.bard.models;
+package com.roplabs.bard.ui.widget;
 
 import android.graphics.Rect;
 import android.support.v7.widget.RecyclerView;
