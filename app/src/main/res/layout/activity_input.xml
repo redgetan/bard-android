@@ -52,29 +52,22 @@
                        android:orientation="vertical"
                        android:gravity="center_vertical|center_horizontal"
         >
-            <!--<com.roplabs.bard.ui.SquareVideoView android:id="@+id/video_view"-->
-            <!--android:background="@color/iron"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="wrap_content" />-->
 
-            <android.support.v7.widget.RecyclerView
-                    android:id="@+id/current_word_list"
+            <android.support.v4.view.ViewPager
+                    android:id="@+id/vpPager"
                     android:layout_width="match_parent"
-                    android:layout_height="fill_parent" />
+                    android:layout_height="wrap_content">
 
-            <ImageView
-                    android:id="@+id/repo_share_button"
-                    android:layout_gravity = "top|right"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:adjustViewBounds="true"
-                    android:scaleType="fitXY"
-                    android:layout_marginTop="15dp"
-                    android:layout_marginRight="15dp"
-                    android:visibility="gone"
-                    android:onClick="shareRepo"
-                    android:src="@drawable/ic_share_white_24dp"
-                    android:contentDescription="@string/button_share"/>
+                <android.support.v4.view.PagerTabStrip
+                        android:id="@+id/pager_header"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="top"
+                        android:paddingBottom="4dp"
+                        android:paddingTop="4dp" />
+
+            </android.support.v4.view.ViewPager>
+
 
             <TextView android:id="@+id/display_debug"
                       android:layout_gravity = "center_vertical|center_horizontal"
@@ -89,7 +82,6 @@
                     android:layout_height="wrap_content"
                     android:visibility="gone"
             />
-
 
         </FrameLayout>
 
@@ -110,6 +102,7 @@
                       android:layout_height="wrap_content"/>
 
         </LinearLayout>
+
 
     </RelativeLayout>
 

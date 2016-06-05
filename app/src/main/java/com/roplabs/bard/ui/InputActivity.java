@@ -10,6 +10,9 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
@@ -48,7 +51,7 @@ import java.util.*;
 //import org.apmem.tools.layouts.FlowLayoutManager;
 
 
-public class InputActivity extends BaseActivity {
+public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -57,23 +60,19 @@ public class InputActivity extends BaseActivity {
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
     private Context mContext;
-
-    private ImageView repoShareButton;
-    private WordsAutoCompleteTextView editText;
+    private ViewPager vpPager;
     private TextView debugView;
+    private WordsAutoCompleteTextView editText;
     private TextView wordErrorView;
-    private VideoView videoView;
-    private MediaPlayer mediaPlayer;
     private String packageDir;
     private String applicationDir;
     private String moviesDir;
     private String ffmpegPath;
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
+    private SmartFragmentStatePagerAdapter adapterViewPager;
 
     private MenuItem shareMenuItem;
-    private boolean isVideoReady = false;
-    private boolean isVideoBeingTouched = false;
     private Handler mHandler = new Handler();
 
     private NavigationView navigationView;
@@ -95,42 +94,27 @@ public class InputActivity extends BaseActivity {
         setContentView(R.layout.activity_input);
         mContext = this;
 
+        debugView = (TextView) findViewById(R.id.display_debug);
+
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
 
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + "ffmpeg";
-        debugView = (TextView) findViewById(R.id.display_debug);
         wordErrorView = (TextView) findViewById(R.id.display_word_error);
-        videoView = (VideoView) findViewById(R.id.video_view);
-        repoShareButton = (ImageView) findViewById(R.id.repo_share_button);
 
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         invalidWords = new HashSet<String>();
-
-        recyclerView = (RecyclerView) findViewById(R.id.current_word_list);
-        recyclerView.setLayoutManager(new WordsLayoutManager(this));
 
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
         setTitle(indexName);
 
         initVideoStorage();
-//        initVideoPlayer();
-        initChatText();
         initAnalytics();
+        initViewPager();
 
         showKeyboardOnStartup();
-    }
-
-    static final String AB = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-    static SecureRandom rnd = new SecureRandom();
-
-    String randomString( int len ){
-        StringBuilder sb = new StringBuilder( len );
-        for( int i = 0; i < len; i++ )
-            sb.append( AB.charAt( rnd.nextInt(AB.length()) ) );
-        return sb.toString();
     }
 
     private void hideKeyboard() {
@@ -162,31 +146,16 @@ public class InputActivity extends BaseActivity {
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
 
+    public void initViewPager() {
+        vpPager = (ViewPager) findViewById(R.id.vpPager);
+        adapterViewPager = new InputPagerAdapter(getSupportFragmentManager());
+        vpPager.setAdapter(adapterViewPager);
+    }
 
-    private void initVideoPlayer() {
-//        videoView.setMediaController(new MediaController(this));
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                videoView.setBackgroundColor(Color.TRANSPARENT);
-                isVideoReady = true;
-                mediaPlayer = mp;
-            }
-        });
 
-        videoView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // http://stackoverflow.com/a/14163267
-
-                if (!isVideoReady) return false;
-
-                mediaPlayer.seekTo(0);
-                mediaPlayer.start();
-
-                return false;
-            }
-        });
+    public void onWordListViewReady(RecyclerView recyclerView) {
+        this.recyclerView = recyclerView;
+        initChatText();
     }
 
     private void initChatText() {
@@ -304,26 +273,6 @@ public class InputActivity extends BaseActivity {
             wordErrorView.setText("");
         }
     }
-
-    // http://stackoverflow.com/a/28939113
-
-//    @Override
-//    public boolean dispatchTouchEvent(MotionEvent event) {
-//        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//            View v = getCurrentFocus();
-//            if ( v instanceof EditText) {
-//                Rect outRect = new Rect();
-//                v.getGlobalVisibleRect(outRect);
-//                if (!outRect.contains((int)event.getRawX(), (int)event.getRawY())) {
-//                    v.clearFocus();
-//                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-//                    imm.hideSoftInputFromWindow(v.getWindowToken(), 0);
-//                }
-//            }
-//        }
-//        return super.dispatchTouchEvent( event );
-//   }
-
 
     @Override
     protected void onStop() {
@@ -449,6 +398,8 @@ public class InputActivity extends BaseActivity {
         if (networkInfo != null && networkInfo.isConnected()) {
             progressBar.setVisibility(View.VISIBLE);
 
+            vpPager.setCurrentItem(1);
+
             String message = editText.getText().toString();
             BardClient.getQuery(message, Setting.getCurrentIndexToken(this));
         } else {
@@ -462,9 +413,8 @@ public class InputActivity extends BaseActivity {
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
 
-        videoView.setVideoPath(filePath);
-        videoView.requestFocus();
-        videoView.start();
+        VideoResultFragment videoResultFragment = (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
+        videoResultFragment.playLocalVideo(filePath);
     }
 
     @Override
@@ -497,13 +447,16 @@ public class InputActivity extends BaseActivity {
     @Subscribe
     public void onEvent(VideoDownloadEvent event) {
         if (event.error != null) {
-            debugView.setText(event.error);
+            setVideoError(event.error);
             progressBar.setVisibility(View.GONE);
             Crashlytics.logException(new Throwable(event.error));
         } else if (event.segments != null) {
             joinSegments(event.segments);
         }
+    }
 
+    private void setVideoError(String error) {
+        debugView.setText(error);
     }
 
     @Override
