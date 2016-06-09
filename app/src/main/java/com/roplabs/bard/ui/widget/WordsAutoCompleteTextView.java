@@ -81,6 +81,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     public void setSentenceWords(List<String> words) {
         WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), words);
+        adapter.setIsWordTagged(true);
         recyclerView.setAdapter(adapter);
     }
 
@@ -88,6 +89,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         mOriginalValues = wordTrie;
 
         WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), new ArrayList<String>(wordTrie.prefixMap("").keySet()));
+        adapter.setIsWordTagged(false);
         recyclerView.setAdapter(adapter);
 
         mFilter = getFilter();

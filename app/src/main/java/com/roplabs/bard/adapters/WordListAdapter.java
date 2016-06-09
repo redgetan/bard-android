@@ -25,6 +25,7 @@ public class WordListAdapter extends
     // Store a member variable for the contacts
     private List<String> wordList;
     private Context context;
+    private boolean isWordTagged;
 
     // Pass in the contact array into the constructor
     public WordListAdapter(Context context, List<String> wordList) {
@@ -56,6 +57,11 @@ public class WordListAdapter extends
         // Get the data model based on position
         String word = wordList.get(position);
 
+        if (this.isWordTagged) {
+            String[] wordTag = word.split(":");
+            word = wordTag[0];
+        }
+
         // Set item views based on the data model
         viewHolder.tagView.setText(word);
     }
@@ -64,6 +70,10 @@ public class WordListAdapter extends
     @Override
     public int getItemCount() {
         return wordList.size();
+    }
+
+    public void setIsWordTagged(boolean isWordTagged) {
+        this.isWordTagged = isWordTagged;
     }
 
     // Provide a direct reference to each of the views within a data item
