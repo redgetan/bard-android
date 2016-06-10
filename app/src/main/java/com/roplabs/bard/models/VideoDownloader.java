@@ -50,7 +50,9 @@ public class VideoDownloader {
                 @Override
                 public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
                     // http://stackoverflow.com/a/29012988/803865
-                    File downloadedFile = new File(ClientApp.getContext().getCacheDir(), segment.getWord() + ".mp4");
+                    String[] sourceUrlTokens = segment.getSourceUrl().split("/");
+                    String fileName = sourceUrlTokens[sourceUrlTokens.length - 1];
+                    File downloadedFile = new File(ClientApp.getContext().getCacheDir(), fileName);
                     BufferedSink sink = Okio.buffer(Okio.sink(downloadedFile));
                     sink.writeAll(response.body().source());
                     sink.close();

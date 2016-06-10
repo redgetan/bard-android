@@ -66,6 +66,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private SmartFragmentStatePagerAdapter adapterViewPager;
+    private WordListFragment wordListFragment;
 
     private MenuItem shareMenuItem;
     private Handler mHandler = new Handler();
@@ -235,6 +236,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
             @Override
             protected void onPostExecute(Void result) {
+                initFindInPage();
                 initMultiAutoComplete();
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
@@ -251,6 +253,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         }
 
         return trie;
+    }
+
+    public void initFindInPage() {
+        wordListFragment = (WordListFragment) adapterViewPager.getRegisteredFragment(0);
+        wordListFragment.initFindInPage(availableWordList);
     }
 
     private void initMultiAutoComplete() {

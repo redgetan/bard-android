@@ -15,6 +15,7 @@ import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
@@ -24,21 +25,24 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private Filter mFilter;
     private Trie<String,String> mOriginalValues;
     private boolean isAutocompleteEnabled;
+    private boolean isFindInPage;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
-        addTextChangedListener(new MyWatcher());
-        this.isAutocompleteEnabled = true;
+        initWordsAutoComplete();
     }
 
     public WordsAutoCompleteTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
-        addTextChangedListener(new MyWatcher());
-        this.isAutocompleteEnabled = true;
+        initWordsAutoComplete();
     }
 
     public WordsAutoCompleteTextView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initWordsAutoComplete();
+    }
+
+    public void initWordsAutoComplete() {
         addTextChangedListener(new MyWatcher());
         this.isAutocompleteEnabled = true;
     }

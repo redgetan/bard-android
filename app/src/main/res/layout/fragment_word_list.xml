@@ -6,8 +6,25 @@
 
     <android.support.v7.widget.RecyclerView
             android:id="@+id/current_word_list"
-            android:layout_above="@+id/bard_text_status"
+            android:layout_above="@+id/input_find_in_page"
             android:layout_width="match_parent"
             android:layout_height="fill_parent" />
+
+    <EditText android:id="@+id/input_find_in_page"
+              android:layout_alignParentBottom="true"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:layout_toLeftOf="@+id/btn_find_next"
+              android:layout_toStartOf="@+id/btn_find_next"
+              android:hint="search" />
+
+    <android.support.v7.widget.AppCompatButton
+            android:id="@+id/btn_find_next"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Find"/>
 
 </RelativeLayout>
