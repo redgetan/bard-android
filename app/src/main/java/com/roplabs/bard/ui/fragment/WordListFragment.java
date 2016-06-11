@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
@@ -9,28 +10,44 @@ import android.support.v7.widget.WordsLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.VideoView;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
+import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.events.AddWordEvent;
+import com.roplabs.bard.events.TagClickEvent;
+import com.roplabs.bard.models.Segment;
+import com.roplabs.bard.models.Setting;
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class WordListFragment extends Fragment {
     // Store instance variables
     private RecyclerView recyclerView;
     private EditText findInPageInput;
     private Button findNextBtn;
+    private Button addWordBtn;
+    private String previewWord;
     HashMap<String, ArrayList<Integer>> wordPositionsMap;
     private int currentWordPositionIndex;
     private WordListAdapter.ViewHolder lastViewHolder;
     private int currentScrollPosition;
     private String lastWord;
+    private VideoView previewTagView;
+    private MediaPlayer mediaPlayer;
+    private boolean isVideoReady = false;
 
     private OnWordListViewReadyListener listener;
 
@@ -64,9 +81,15 @@ public class WordListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
 
+        previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
         findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
+        addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
         findNextBtn = (Button) view.findViewById(R.id.btn_find_next);
         lastWord = "";
+        previewWord = "";
+
+        initVideoPlayer();
+        initAddBtnListener();
 
         recyclerView = (RecyclerView) view.findViewById(R.id.current_word_list);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
@@ -92,6 +115,75 @@ public class WordListFragment extends Fragment {
 
         return view;
     }
+
+    private void initAddBtnListener() {
+        addWordBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                EventBus.getDefault().post(new AddWordEvent(previewWord));
+            }
+        });
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Subscribe
+    public void onEvent(TagClickEvent event) throws IOException {
+        previewWord = event.word;
+        BardClient.getQuery(event.word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+    }
+
+    public void playPreview(Segment segment) {
+        playVideo(segment.getSourceUrl());
+    }
+
+    private void initVideoPlayer() {
+        previewTagView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+            @Override
+            public void onPrepared(MediaPlayer mp) {
+                previewTagView.setBackgroundColor(Color.TRANSPARENT);
+                isVideoReady = true;
+                mediaPlayer = mp;
+            }
+        });
+
+        previewTagView.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                // http://stackoverflow.com/a/14163267
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (!isVideoReady) return false;
+
+                    mediaPlayer.seekTo(0);
+                    mediaPlayer.start();
+
+                    return false;
+                } else {
+                    return true;
+                }
+
+            }
+        });
+    }
+
+
+    public void playVideo(String sourceUrl) {
+        previewTagView.setVideoPath(sourceUrl);
+        previewTagView.requestFocus();
+        previewTagView.start();
+    }
+
 
     public void initFindInPage(String[] availableWordList) {
         fillWordPositionsMap(availableWordList);

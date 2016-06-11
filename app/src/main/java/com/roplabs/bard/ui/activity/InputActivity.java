@@ -27,6 +27,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.events.AddWordEvent;
 import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.events.VideoDownloadEvent;
 import com.roplabs.bard.events.VideoQueryEvent;
@@ -449,7 +450,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
             String message = editText.getText().toString();
-            BardClient.getQuery(message, Setting.getCurrentIndexToken(this));
+            BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
@@ -485,13 +486,14 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
         } else {
-            VideoDownloader.fetchSegments(event.segments);
+            if (event.isPreview) {
+                if (wordListFragment != null) {
+                    wordListFragment.playPreview(event.segments.get(0));
+                }
+            } else {
+                VideoDownloader.fetchSegments(event.segments);
+            }
         }
-    }
-
-    @Subscribe
-    public void onEvent(TagClickEvent event) {
-        editText.replaceText(event.word);
     }
 
     @Subscribe
@@ -503,6 +505,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         } else if (event.segments != null) {
             joinSegments(event.segments);
         }
+    }
+
+    @Subscribe
+    public void onEvent(AddWordEvent event) {
+        editText.replaceText(event.word);
     }
 
     private void setVideoError(String error) {

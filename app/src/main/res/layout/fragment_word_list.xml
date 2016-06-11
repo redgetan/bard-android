@@ -4,9 +4,37 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
+    <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                   xmlns:tools="http://schemas.android.com/tools"
+                   android:id="@+id/preview_container"
+                   android:layout_width="match_parent"
+                   android:layout_height="200dp"
+                   android:orientation="vertical"
+                   android:gravity="center_vertical|center_horizontal"
+    >
+        <VideoView android:id="@+id/preview_tag_view"
+            android:background="@color/iron"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_add_word"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|right"
+                android:layout_marginRight="24dp"
+                android:background="@android:drawable/btn_default_small"
+                android:layout_marginBottom="24dp"
+                android:padding="12dp"
+                android:text="Add"/>
+    </FrameLayout>
+
     <android.support.v7.widget.RecyclerView
             android:id="@+id/current_word_list"
             android:layout_above="@+id/input_find_in_page"
+            android:layout_below="@+id/preview_container"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
             android:layout_width="match_parent"
             android:layout_height="fill_parent" />
 

@@ -66,7 +66,7 @@ public class BardClient {
         });
     }
 
-    public static void getQuery(final String text, String indexToken) throws IOException {
+    public static void getQuery(final String text, String indexToken, final boolean isPreview) throws IOException {
         Call<List<Segment>> call = getCodecService().query(text, indexToken);
         call.enqueue(new Callback<List<Segment>>() {
             @Override
@@ -74,16 +74,16 @@ public class BardClient {
                 List<Segment> segments = response.body();
                 if(!response.isSuccess()){
                     String msg = response.raw().message() + " - " + text;
-                    EventBus.getDefault().post(new VideoQueryEvent(null, msg));
+                    EventBus.getDefault().post(new VideoQueryEvent(null, msg, isPreview));
                 } else {
-                    EventBus.getDefault().post(new VideoQueryEvent(segments, null));
+                    EventBus.getDefault().post(new VideoQueryEvent(segments, null, isPreview));
                 }
             }
 
             @Override
             public void onFailure(Call<List<Segment>> call, Throwable throwable) {
                 Log.d("Mimic", "failure on getQuery ");
-                EventBus.getDefault().post(new VideoQueryEvent(null, "timeout"));
+                EventBus.getDefault().post(new VideoQueryEvent(null, "timeout", isPreview));
             }
         });
     }
