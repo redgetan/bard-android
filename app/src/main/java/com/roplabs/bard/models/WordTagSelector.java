@@ -19,6 +19,18 @@ public class WordTagSelector {
         initWordTagMap(wordTags);
     }
 
+    public String getCurrentWord() {
+        return currentWord;
+    }
+
+    public int getCurrentWordTagIndex() {
+        return currentWordTagIndex;
+    }
+
+    public int getCurrentWordTagCount() {
+        return wordTagMap.get(currentWord).size();
+    }
+
     public void initWordTagMap(String[] wordTags) {
         this.wordTagMap = new HashMap<String, ArrayList<String>>();
 

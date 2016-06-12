@@ -42,9 +42,17 @@
                 android:text="Add"/>
     </FrameLayout>
 
+    <TextView android:id="@+id/word_tag_index_pagination"
+              android:layout_width="fill_parent"
+              android:layout_height="wrap_content"
+              android:layout_below="@id/preview_container"
+              android:text=""
+              android:gravity="center"
+              android:textSize="16sp"/>
+
     <EditText android:id="@+id/input_find_in_page"
               android:layout_alignParentBottom="true"
-              android:layout_below="@id/preview_container"
+              android:layout_below="@id/word_tag_index_pagination"
               android:layout_width="match_parent"
               android:layout_height="20dp"
               android:hint="Start typing" />

@@ -41,6 +41,7 @@ public class WordListFragment extends Fragment {
     private Button findNextBtn;
     private Button findPrevBtn;
     private Button addWordBtn;
+    private TextView word_tag_index_pagination;
 
     private WordTagSelector wordTagSelector;
     private VideoView previewTagView;
@@ -79,6 +80,7 @@ public class WordListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
 
+        word_tag_index_pagination = (TextView) view.findViewById(R.id.word_tag_index_pagination);
         previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
         findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
@@ -100,20 +102,22 @@ public class WordListFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        EventBus.getDefault().register(this);
-    }
-
-    @Override
-    public void onPause() {
-        EventBus.getDefault().unregister(this);
-        super.onPause();
-    }
-
     public void playPreview(Segment segment) {
+        drawPagination();
         playVideo(segment.getSourceUrl());
+    }
+
+    private void drawPagination() {
+        StringBuilder builder = new StringBuilder();
+
+        builder.append(wordTagSelector.getCurrentWord());
+        builder.append(" (");
+        builder.append(wordTagSelector.getCurrentWordTagIndex() + 1);
+        builder.append(" / ");
+        builder.append(wordTagSelector.getCurrentWordTagCount());
+        builder.append(" )");
+
+        word_tag_index_pagination.setText(builder.toString());
     }
 
     private void initVideoPlayer() {
@@ -164,7 +168,7 @@ public class WordListFragment extends Fragment {
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = wordTagSelector.findPrevWord(findInPageInput.getText().toString());
+                String word = wordTagSelector.findNextWord(findInPageInput.getText().toString());
                 if (word.length() > 0) {
                     try {
                         BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
@@ -178,7 +182,7 @@ public class WordListFragment extends Fragment {
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = wordTagSelector.findNextWord(findInPageInput.getText().toString());
+                String word = wordTagSelector.findPrevWord(findInPageInput.getText().toString());
                 if (word.length() > 0) {
                     try {
                         BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
