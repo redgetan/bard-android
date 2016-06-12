@@ -119,6 +119,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         initVideoStorage();
         initAnalytics();
         initViewPager();
+        initChatText();
 
         showKeyboardOnStartup();
     }
@@ -196,7 +197,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     public void onWordListViewReady(RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
         this.editText.setRecyclerView(recyclerView);
-        initChatText();
     }
 
     private void initChatText() {

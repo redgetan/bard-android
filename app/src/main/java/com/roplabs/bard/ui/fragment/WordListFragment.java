@@ -38,16 +38,19 @@ public class WordListFragment extends Fragment {
     private RecyclerView recyclerView;
     private EditText findInPageInput;
     private Button findNextBtn;
+    private Button findPrevBtn;
     private Button addWordBtn;
     private String previewWord;
-    HashMap<String, ArrayList<Integer>> wordPositionsMap;
+    HashMap<String, ArrayList<String>> wordTagMap;
     private int currentWordPositionIndex;
-    private WordListAdapter.ViewHolder lastViewHolder;
-    private int currentScrollPosition;
     private String lastWord;
+    private String lastWordTag;
     private VideoView previewTagView;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
+
+    private static final String NEXT_DIRECTION = "next";
+    private static final String PREV_DIRECTION = "prev";
 
     private OnWordListViewReadyListener listener;
 
@@ -85,33 +88,12 @@ public class WordListFragment extends Fragment {
         findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
         findNextBtn = (Button) view.findViewById(R.id.btn_find_next);
+        findPrevBtn = (Button) view.findViewById(R.id.btn_find_prev);
         lastWord = "";
         previewWord = "";
 
         initVideoPlayer();
         initAddBtnListener();
-
-        recyclerView = (RecyclerView) view.findViewById(R.id.current_word_list);
-        recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
-
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-                if (currentScrollPosition != -1) {
-                    WordListAdapter.ViewHolder viewHolder = (WordListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(currentScrollPosition);
-                    viewHolder.tagView.setBackgroundColor(Color.YELLOW);
-                    lastViewHolder = viewHolder;
-                    currentScrollPosition = -1;
-                }
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
-
-        listener.onWordListViewReady(recyclerView);
 
         return view;
     }
@@ -120,7 +102,7 @@ public class WordListFragment extends Fragment {
         addWordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EventBus.getDefault().post(new AddWordEvent(previewWord));
+                EventBus.getDefault().post(new AddWordEvent(lastWordTag));
             }
         });
     }
@@ -140,7 +122,6 @@ public class WordListFragment extends Fragment {
     @Subscribe
     public void onEvent(TagClickEvent event) throws IOException {
         previewWord = event.word;
-        BardClient.getQuery(event.word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
     }
 
     public void playPreview(Segment segment) {
@@ -191,21 +172,22 @@ public class WordListFragment extends Fragment {
         this.currentWordPositionIndex = 0;
     }
 
-    public void fillWordPositionsMap(String[] words) {
-        this.wordPositionsMap = new HashMap<String, ArrayList<Integer>>();
+    public void fillWordPositionsMap(String[] wordTags) {
+        this.wordTagMap = new HashMap<String, ArrayList<String>>();
 
-        ArrayList<Integer> positions;
+        ArrayList<String> wordTagList;
 
         int i = 0;
-        while (i < words.length) {
-            String word = words[i].split(":")[0];
+        while (i < wordTags.length) {
+            String wordTag = wordTags[i];
+            String word = wordTag.split(":")[0];
 
-            if ((positions = wordPositionsMap.get(word)) != null) {
-                positions.add(i);
+            if ((wordTagList = wordTagMap.get(word)) != null) {
+                wordTagList.add(wordTag);
             } else {
-                positions = new ArrayList<Integer>();
-                positions.add(i);
-                wordPositionsMap.put(word, positions);
+                wordTagList = new ArrayList<String>();
+                wordTagList.add(wordTag);
+                wordTagMap.put(word, wordTagList);
             }
 
             i++;
@@ -217,7 +199,28 @@ public class WordListFragment extends Fragment {
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                findNextWord(findInPageInput.getText().toString());
+                String word = findPrevWord(findInPageInput.getText().toString());
+                if (word.length() > 0) {
+                    try {
+                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        findPrevBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                String word = findNextWord(findInPageInput.getText().toString());
+                if (word.length() > 0) {
+                    try {
+                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
@@ -235,31 +238,52 @@ public class WordListFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                findNextWord(s.toString());
+                String word = findNextWord(s.toString());
+                if (word.length() > 0) {
+                    try {
+                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
     }
 
-    public void findNextWord(String word) {
-        ArrayList<Integer> positions = wordPositionsMap.get(word);
-        if (positions == null) return;
+    public String findNextWord(String word) {
+        return findWord(word, NEXT_DIRECTION);
+    }
+
+    public String findPrevWord(String word) {
+        return findWord(word, PREV_DIRECTION);
+    }
+
+    public String findWord(String word, String direction) {
+        ArrayList<String> wordTags = wordTagMap.get(word);
+        if (wordTags == null) return "";
 
         if (!lastWord.equals(word)) {
             this.currentWordPositionIndex = 0;
         }
 
-        int position = positions.get(this.currentWordPositionIndex);
-        recyclerView.scrollToPosition(position);
-        currentScrollPosition = position;
+        lastWord = word;
 
-        if (lastViewHolder != null) lastViewHolder.tagView.setBackgroundColor(Color.TRANSPARENT);
+        String wordTag = wordTags.get(currentWordPositionIndex);
+        lastWordTag = wordTag;
 
-        currentWordPositionIndex++;
-        if (currentWordPositionIndex > positions.size() - 1) {
-            currentWordPositionIndex = 0;
+        if (direction.equals(NEXT_DIRECTION)) {
+            currentWordPositionIndex++;
+        } else if (direction.equals(PREV_DIRECTION)) {
+            currentWordPositionIndex--;
         }
 
-        lastWord = word;
+        if (currentWordPositionIndex > wordTags.size() - 1) {
+            currentWordPositionIndex = 0;
+        } else if (currentWordPositionIndex < 0) {
+            currentWordPositionIndex = wordTags.size() - 1;
+        }
+
+        return wordTag;
     }
 
 

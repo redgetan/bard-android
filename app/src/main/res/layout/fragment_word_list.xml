@@ -8,7 +8,7 @@
                    xmlns:tools="http://schemas.android.com/tools"
                    android:id="@+id/preview_container"
                    android:layout_width="match_parent"
-                   android:layout_height="100dp"
+                   android:layout_height="200dp"
                    android:orientation="vertical"
                    android:gravity="center_vertical|center_horizontal"
     >
@@ -18,41 +18,35 @@
             android:layout_height="match_parent" />
 
         <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_find_prev"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|left"
+                android:text="["/>
+
+
+        <android.support.v7.widget.AppCompatButton
+                android:id="@+id/btn_find_next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical|right"
+                android:text="]"/>
+
+        <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_add_word"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_gravity="bottom|right"
-                android:layout_marginRight="24dp"
+                android:layout_gravity="bottom|center"
                 android:background="@android:drawable/btn_default_small"
-                android:layout_marginBottom="24dp"
-                android:padding="12dp"
+                android:layout_marginBottom="10dp"
                 android:text="Add"/>
     </FrameLayout>
 
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/current_word_list"
-            android:layout_above="@+id/input_find_in_page"
-            android:layout_below="@+id/preview_container"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_width="match_parent"
-            android:layout_height="fill_parent" />
-
     <EditText android:id="@+id/input_find_in_page"
               android:layout_alignParentBottom="true"
+              android:layout_below="@id/preview_container"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:layout_toLeftOf="@+id/btn_find_next"
-              android:layout_toStartOf="@+id/btn_find_next"
-              android:hint="search" />
-
-    <android.support.v7.widget.AppCompatButton
-            android:id="@+id/btn_find_next"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Find"/>
+              android:layout_height="20dp"
+              android:hint="Start typing" />
 
 </RelativeLayout>
