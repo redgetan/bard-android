@@ -13,10 +13,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.VideoView;
+import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
@@ -39,8 +36,8 @@ public class WordListFragment extends Fragment {
     // Store instance variables
     private RecyclerView recyclerView;
     private EditText findInPageInput;
-    private Button findNextBtn;
-    private Button findPrevBtn;
+    private ImageView findNextBtn;
+    private ImageView findPrevBtn;
     private Button addWordBtn;
     private TextView word_tag_status;
     private TextView display_word_error;
@@ -87,8 +84,8 @@ public class WordListFragment extends Fragment {
         previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
         findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
-        findNextBtn = (Button) view.findViewById(R.id.btn_find_next);
-        findPrevBtn = (Button) view.findViewById(R.id.btn_find_prev);
+        findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
+        findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
 
         initVideoPlayer();
         initAddBtnListener();
@@ -182,7 +179,6 @@ public class WordListFragment extends Fragment {
         wordTagSelector = new WordTagSelector(availableWordList);
         initFindInPageListener();
     }
-
 
     public void initFindInPageListener() {
         findNextBtn.setOnClickListener(new View.OnClickListener() {

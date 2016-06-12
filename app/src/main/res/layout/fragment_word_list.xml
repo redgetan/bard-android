@@ -17,27 +17,31 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <android.support.v7.widget.AppCompatButton
+        <ImageView
                 android:id="@+id/btn_find_prev"
+                android:src="@drawable/ic_keyboard_arrow_left_white_24dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:padding="10dp"
                 android:layout_gravity="center_vertical|left"
-                android:text="["/>
+                android:contentDescription="@string/find_prev_string"/>
 
-
-        <android.support.v7.widget.AppCompatButton
+        <ImageView
                 android:id="@+id/btn_find_next"
+                android:src="@drawable/ic_keyboard_arrow_right_white_24dp"
+                android:padding="10dp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical|right"
-                android:text="]"/>
+                android:contentDescription="@string/find_next_string"/>
+
 
         <android.support.v7.widget.AppCompatButton
                 android:id="@+id/btn_add_word"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom|center"
-                android:background="@android:drawable/btn_default_small"
+                android:padding="2dp"
                 android:layout_marginBottom="10dp"
                 android:text="Add"/>
     </FrameLayout>
