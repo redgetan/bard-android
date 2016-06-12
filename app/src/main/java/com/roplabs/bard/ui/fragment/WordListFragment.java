@@ -18,9 +18,7 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.events.AddWordEvent;
-import com.roplabs.bard.events.InvalidWordEvent;
-import com.roplabs.bard.events.TagClickEvent;
+import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.WordTagSelector;
@@ -119,6 +117,30 @@ public class WordListFragment extends Fragment {
         display_word_error.setText(event.text);
     }
 
+    @Subscribe
+    public void onEvent(FindWordEvent event) {
+        String wordTag = wordTagSelector.findNextWord(event.word);
+        queryWordPreview(wordTag);
+        EventBus.getDefault().post(new AddWordEvent(wordTag));
+    }
+
+    @Subscribe
+    public void onEvent(PreviewWordEvent event) {
+        String wordTag = event.word;
+        wordTagSelector.setWordTag(wordTag);
+        queryWordPreview(wordTag);
+    }
+
+    private void queryWordPreview(String wordTag) {
+        if (wordTag.isEmpty()) return;
+
+        try {
+            BardClient.getQuery(wordTag, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void playPreview(Segment segment) {
         drawPagination();
         playVideo(segment.getSourceUrl());
@@ -184,28 +206,16 @@ public class WordListFragment extends Fragment {
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = wordTagSelector.findNextWord(findInPageInput.getText().toString());
-                if (word.length() > 0) {
-                    try {
-                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                String wordTag = wordTagSelector.findNextWord();
+                queryWordPreview(wordTag);
             }
         });
 
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = wordTagSelector.findPrevWord(findInPageInput.getText().toString());
-                if (word.length() > 0) {
-                    try {
-                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                String wordTag = wordTagSelector.findPrevWord();
+                queryWordPreview(wordTag);
             }
         });
 
@@ -223,14 +233,8 @@ public class WordListFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String word = wordTagSelector.findNextWord(s.toString());
-                if (word.length() > 0) {
-                    try {
-                        BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+                String wordTag = wordTagSelector.findNextWord(s.toString());
+                queryWordPreview(wordTag);
             }
         });
     }

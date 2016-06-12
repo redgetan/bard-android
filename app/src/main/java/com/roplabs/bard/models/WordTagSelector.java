@@ -57,12 +57,25 @@ public class WordTagSelector {
        return wordTagMap.get(currentWord).get(currentWordTagIndex);
     }
 
+    public void setWordTag(String wordTag) {
+        currentWord = wordTag.split(":")[0];
+        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTag);
+    }
+
     public String findNextWord(String word) {
         return findWord(word, NEXT_DIRECTION);
     }
 
+    public String findNextWord() {
+        return findWord(currentWord, NEXT_DIRECTION);
+    }
+
     public String findPrevWord(String word) {
         return findWord(word, PREV_DIRECTION);
+    }
+
+    public String findPrevWord() {
+        return findWord(currentWord, PREV_DIRECTION);
     }
 
     // see if word exists on the map

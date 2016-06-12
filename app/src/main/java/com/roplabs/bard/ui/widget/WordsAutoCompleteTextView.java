@@ -7,13 +7,20 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
+import android.view.View;
 import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.adapters.WordListAdapter;
+import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.events.FindWordEvent;
+import com.roplabs.bard.events.PreviewWordEvent;
+import com.roplabs.bard.models.Setting;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
+import org.greenrobot.eventbus.EventBus;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +52,25 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void initWordsAutoComplete() {
         addTextChangedListener(new MyWatcher());
         this.isAutocompleteEnabled = true;
+        setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mTokenizer != null) {
+                    Editable text = getText();
+                    int startPos = mTokenizer.findTokenStart(text,getSelectionEnd());
+                    int endPos = mTokenizer.findTokenEnd(text,getSelectionEnd());
+
+                    String word = text.subSequence(startPos, endPos).toString();
+
+                    boolean isMiddleOfWordTag = !word.isEmpty() && word.contains(":");
+                    if (isMiddleOfWordTag) {
+                        String wordTag = word;
+                        EventBus.getDefault().post(new PreviewWordEvent(wordTag));
+                    }
+
+                }
+            }
+        });
     }
 
     @Override
@@ -59,6 +85,17 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
         public void onTextChanged(CharSequence s, int start, int before, int count) {
+            String character = getText().subSequence(start,getSelectionEnd()).toString();
+
+            if (character.equals(" ")) {
+                int lastWordStartPos = mTokenizer.findTokenStart(getText(),start);
+                int lastWordEndPos = mTokenizer.findTokenEnd(getText(),start);
+                String lastWord = getText().subSequence(lastWordStartPos, lastWordEndPos).toString();
+                if (!lastWord.isEmpty()) {
+                    EventBus.getDefault().post(new FindWordEvent(lastWord));
+                }
+            }
+
         }
     }
 
@@ -123,7 +160,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void replaceText(CharSequence text) {
         clearComposingText();
 
-        int end = getSelectionEnd();
+        int end = getSelectionEnd() - 1;
+        if (end == -1) end = 0;
         int start = mTokenizer.findTokenStart(getText(), end);
 
         Editable editable = getText();
