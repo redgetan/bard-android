@@ -22,6 +22,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.AddWordEvent;
+import com.roplabs.bard.events.InvalidWordEvent;
 import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
@@ -41,7 +42,8 @@ public class WordListFragment extends Fragment {
     private Button findNextBtn;
     private Button findPrevBtn;
     private Button addWordBtn;
-    private TextView word_tag_index_pagination;
+    private TextView word_tag_status;
+    private TextView display_word_error;
 
     private WordTagSelector wordTagSelector;
     private VideoView previewTagView;
@@ -80,7 +82,8 @@ public class WordListFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
 
-        word_tag_index_pagination = (TextView) view.findViewById(R.id.word_tag_index_pagination);
+        display_word_error = (TextView) view.findViewById(R.id.display_word_error);
+        word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
         previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
         findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
@@ -102,6 +105,23 @@ public class WordListFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+        EventBus.getDefault().register(this);
+    }
+
+    @Override
+    public void onPause() {
+        EventBus.getDefault().unregister(this);
+        super.onPause();
+    }
+
+    @Subscribe
+    public void onEvent(InvalidWordEvent event) {
+        display_word_error.setText(event.text);
+    }
+
     public void playPreview(Segment segment) {
         drawPagination();
         playVideo(segment.getSourceUrl());
@@ -117,7 +137,7 @@ public class WordListFragment extends Fragment {
         builder.append(wordTagSelector.getCurrentWordTagCount());
         builder.append(" )");
 
-        word_tag_index_pagination.setText(builder.toString());
+        word_tag_status.setText(builder.toString());
     }
 
     private void initVideoPlayer() {

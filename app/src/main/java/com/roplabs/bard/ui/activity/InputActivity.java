@@ -27,10 +27,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.events.AddWordEvent;
-import com.roplabs.bard.events.TagClickEvent;
-import com.roplabs.bard.events.VideoDownloadEvent;
-import com.roplabs.bard.events.VideoQueryEvent;
+import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.ui.fragment.VideoResultFragment;
 import com.roplabs.bard.ui.fragment.WordListFragment;
@@ -316,9 +313,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     private void displayInvalidWords() {
         if (invalidWords.size() > 0) {
-            wordErrorView.setText("Words not available: " + TextUtils.join(",",invalidWords));
+            EventBus.getDefault().post(new InvalidWordEvent("Words not available: " + TextUtils.join(",",invalidWords)));
         } else {
-            wordErrorView.setText("");
+            EventBus.getDefault().post(new InvalidWordEvent(""));
         }
     }
 
