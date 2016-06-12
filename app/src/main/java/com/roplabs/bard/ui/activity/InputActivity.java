@@ -557,6 +557,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         } else if (mode.equals("b")) {
             editText.setEnableAutocomplete(true);
             editText.setAutoCompleteWords(wordTrie);
+        } else if (mode.equals("c")) {
+            editText.setEnableAutocomplete(false);
+            editText.setWordTagMap(availableWordList);
         }
     }
 

@@ -23,7 +23,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     MultiAutoCompleteTextView.Tokenizer mTokenizer;
     RecyclerView recyclerView;
     private Filter mFilter;
-    private Trie<String,String> mOriginalValues;
+    private Trie<String,String> mWordTrie;
     private boolean isAutocompleteEnabled;
     private boolean isFindInPage;
 
@@ -90,7 +90,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public void setAutoCompleteWords(Trie<String, String> wordTrie) {
-        mOriginalValues = wordTrie;
+        mWordTrie = wordTrie;
 
         WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), new ArrayList<String>(wordTrie.prefixMap("").keySet()));
         adapter.setIsWordTagged(false);
@@ -98,6 +98,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         mFilter = getFilter();
     }
+
+    public void setWordTagMap(String[] wordTagMap) {
+
+        mFilter = getFilter();
+    }
+
 
     public Filter getFilter() {
         if (mFilter == null) {
@@ -127,6 +133,19 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         editable.replace(start, end, mTokenizer.terminateToken(text));
     }
 
+    private class WordTagFilter extends Filter {
+
+        @Override
+        protected FilterResults performFiltering(CharSequence constraint) {
+            return null;
+        }
+
+        @Override
+        protected void publishResults(CharSequence constraint, FilterResults results) {
+
+        }
+    }
+
     private class TrieFilter extends Filter {
 
         @Override
@@ -134,8 +153,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             FilterResults results = new FilterResults();
 
             if (prefix == null || prefix.length() == 0) {
-//                Log.w("Mimic", "perform filtering - prefix empty");
-                Trie<String, String> values = mOriginalValues;;
+                Trie<String, String> values = mWordTrie;;
 
                 Set<String> set = values.prefixMap("").keySet();
                 final ArrayList<String> newValues = new ArrayList<String>(set);
@@ -143,10 +161,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
                 results.values = newValues;
                 results.count = newValues.size();
             } else {
-//                Log.w("Mimic", "perform filtering - prefix present");
                 String prefixString = prefix.toString().toLowerCase();
 
-                Trie<String, String> values = mOriginalValues;;
+                Trie<String, String> values = mWordTrie;;
 
                 final int count = values.size();
 

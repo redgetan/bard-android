@@ -25,6 +25,7 @@ import com.roplabs.bard.events.AddWordEvent;
 import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.models.WordTagSelector;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -40,17 +41,11 @@ public class WordListFragment extends Fragment {
     private Button findNextBtn;
     private Button findPrevBtn;
     private Button addWordBtn;
-    private String previewWord;
-    HashMap<String, ArrayList<String>> wordTagMap;
-    private int currentWordPositionIndex;
-    private String lastWord;
-    private String lastWordTag;
+
+    private WordTagSelector wordTagSelector;
     private VideoView previewTagView;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
-
-    private static final String NEXT_DIRECTION = "next";
-    private static final String PREV_DIRECTION = "prev";
 
     private OnWordListViewReadyListener listener;
 
@@ -89,8 +84,6 @@ public class WordListFragment extends Fragment {
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
         findNextBtn = (Button) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (Button) view.findViewById(R.id.btn_find_prev);
-        lastWord = "";
-        previewWord = "";
 
         initVideoPlayer();
         initAddBtnListener();
@@ -102,7 +95,7 @@ public class WordListFragment extends Fragment {
         addWordBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EventBus.getDefault().post(new AddWordEvent(lastWordTag));
+                EventBus.getDefault().post(new AddWordEvent(wordTagSelector.getCurrentWordTag()));
             }
         });
     }
@@ -117,11 +110,6 @@ public class WordListFragment extends Fragment {
     public void onPause() {
         EventBus.getDefault().unregister(this);
         super.onPause();
-    }
-
-    @Subscribe
-    public void onEvent(TagClickEvent event) throws IOException {
-        previewWord = event.word;
     }
 
     public void playPreview(Segment segment) {
@@ -167,31 +155,8 @@ public class WordListFragment extends Fragment {
 
 
     public void initFindInPage(String[] availableWordList) {
-        fillWordPositionsMap(availableWordList);
+        wordTagSelector = new WordTagSelector(availableWordList);
         initFindInPageListener();
-        this.currentWordPositionIndex = 0;
-    }
-
-    public void fillWordPositionsMap(String[] wordTags) {
-        this.wordTagMap = new HashMap<String, ArrayList<String>>();
-
-        ArrayList<String> wordTagList;
-
-        int i = 0;
-        while (i < wordTags.length) {
-            String wordTag = wordTags[i];
-            String word = wordTag.split(":")[0];
-
-            if ((wordTagList = wordTagMap.get(word)) != null) {
-                wordTagList.add(wordTag);
-            } else {
-                wordTagList = new ArrayList<String>();
-                wordTagList.add(wordTag);
-                wordTagMap.put(word, wordTagList);
-            }
-
-            i++;
-        }
     }
 
 
@@ -199,7 +164,7 @@ public class WordListFragment extends Fragment {
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = findPrevWord(findInPageInput.getText().toString());
+                String word = wordTagSelector.findPrevWord(findInPageInput.getText().toString());
                 if (word.length() > 0) {
                     try {
                         BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
@@ -213,7 +178,7 @@ public class WordListFragment extends Fragment {
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String word = findNextWord(findInPageInput.getText().toString());
+                String word = wordTagSelector.findNextWord(findInPageInput.getText().toString());
                 if (word.length() > 0) {
                     try {
                         BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
@@ -238,7 +203,7 @@ public class WordListFragment extends Fragment {
 
             @Override
             public void afterTextChanged(Editable s) {
-                String word = findNextWord(s.toString());
+                String word = wordTagSelector.findNextWord(s.toString());
                 if (word.length() > 0) {
                     try {
                         BardClient.getQuery(word, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
@@ -249,42 +214,5 @@ public class WordListFragment extends Fragment {
             }
         });
     }
-
-    public String findNextWord(String word) {
-        return findWord(word, NEXT_DIRECTION);
-    }
-
-    public String findPrevWord(String word) {
-        return findWord(word, PREV_DIRECTION);
-    }
-
-    public String findWord(String word, String direction) {
-        ArrayList<String> wordTags = wordTagMap.get(word);
-        if (wordTags == null) return "";
-
-        if (!lastWord.equals(word)) {
-            this.currentWordPositionIndex = 0;
-        }
-
-        lastWord = word;
-
-        String wordTag = wordTags.get(currentWordPositionIndex);
-        lastWordTag = wordTag;
-
-        if (direction.equals(NEXT_DIRECTION)) {
-            currentWordPositionIndex++;
-        } else if (direction.equals(PREV_DIRECTION)) {
-            currentWordPositionIndex--;
-        }
-
-        if (currentWordPositionIndex > wordTags.size() - 1) {
-            currentWordPositionIndex = 0;
-        } else if (currentWordPositionIndex < 0) {
-            currentWordPositionIndex = wordTags.size() - 1;
-        }
-
-        return wordTag;
-    }
-
 
 }
