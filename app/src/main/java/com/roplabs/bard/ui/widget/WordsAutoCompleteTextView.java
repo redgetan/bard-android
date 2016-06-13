@@ -8,6 +8,8 @@ import android.text.TextWatcher;
 import android.text.method.QwertyKeyListener;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.adapters.WordListAdapter;
@@ -33,6 +35,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private Trie<String,String> mWordTrie;
     private boolean isAutocompleteEnabled;
     private boolean isFindInPage;
+    private int lastStart;
+    private int lastEnd;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
@@ -64,6 +68,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
                     boolean isMiddleOfWordTag = !word.isEmpty() && word.contains(":");
                     if (isMiddleOfWordTag) {
+                        lastStart = startPos;
+                        lastEnd = endPos;
+
                         String wordTag = word;
                         EventBus.getDefault().post(new PreviewWordEvent(wordTag));
                     }
@@ -169,6 +176,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         QwertyKeyListener.markAsReplaced(editable, start, end, original);
         editable.replace(start, end, mTokenizer.terminateToken(text));
+
+        lastStart = mTokenizer.findTokenStart(getText(), end);
+        lastEnd   = mTokenizer.findTokenEnd(getText(), end);
+    }
+
+    public void replaceLastText(CharSequence text) {
+        clearComposingText();
+        Editable editable = getText();
+        String original = TextUtils.substring(editable, lastStart, lastEnd);
+
+        QwertyKeyListener.markAsReplaced(editable, lastStart, lastEnd, original);
+        editable.replace(lastStart, lastEnd, text);
+
+        int end = lastEnd;
+        lastStart = mTokenizer.findTokenStart(getText(), end);
+        lastEnd   = mTokenizer.findTokenEnd(getText(), end);
     }
 
     private class WordTagFilter extends Filter {

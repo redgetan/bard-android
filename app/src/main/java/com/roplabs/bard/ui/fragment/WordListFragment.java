@@ -33,7 +33,6 @@ import java.util.List;
 public class WordListFragment extends Fragment {
     // Store instance variables
     private RecyclerView recyclerView;
-    private EditText findInPageInput;
     private ImageView findNextBtn;
     private ImageView findPrevBtn;
     private Button addWordBtn;
@@ -80,7 +79,6 @@ public class WordListFragment extends Fragment {
         display_word_error = (TextView) view.findViewById(R.id.display_word_error);
         word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
         previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
-        findInPageInput = (EditText) view.findViewById(R.id.input_find_in_page);
         addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
         findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
@@ -192,7 +190,6 @@ public class WordListFragment extends Fragment {
 
     public void playVideo(String sourceUrl) {
         previewTagView.setVideoPath(sourceUrl);
-        previewTagView.requestFocus();
         previewTagView.start();
     }
 
@@ -208,6 +205,7 @@ public class WordListFragment extends Fragment {
             public void onClick(View v) {
                 String wordTag = wordTagSelector.findNextWord();
                 queryWordPreview(wordTag);
+                EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
             }
         });
 
@@ -216,27 +214,11 @@ public class WordListFragment extends Fragment {
             public void onClick(View v) {
                 String wordTag = wordTagSelector.findPrevWord();
                 queryWordPreview(wordTag);
+                EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
             }
         });
 
 
-
-        findInPageInput.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                String wordTag = wordTagSelector.findNextWord(s.toString());
-                queryWordPreview(wordTag);
-            }
-        });
     }
 
 }

@@ -62,12 +62,4 @@
               android:layout_width="wrap_content"
               android:layout_height="wrap_content"/>
 
-
-    <EditText android:id="@+id/input_find_in_page"
-              android:layout_alignParentBottom="true"
-              android:layout_below="@id/display_word_error"
-              android:layout_width="match_parent"
-              android:layout_height="20dp"
-              android:hint="Start typing" />
-
 </RelativeLayout>

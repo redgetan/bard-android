@@ -507,6 +507,13 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     @Subscribe
     public void onEvent(AddWordEvent event) {
         editText.replaceText(event.word);
+        editText.requestFocus();
+    }
+
+    @Subscribe
+    public void onEvent(ReplaceWordEvent event) {
+        editText.replaceLastText(event.word);
+        editText.requestFocus();
     }
 
     private void setVideoError(String error) {
