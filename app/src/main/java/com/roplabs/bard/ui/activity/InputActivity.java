@@ -506,6 +506,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     @Subscribe
     public void onEvent(AddWordEvent event) {
+        if (event.word.isEmpty()) return;
+
         editText.replaceText(event.word);
         editText.requestFocus();
     }
