@@ -35,7 +35,6 @@ public class WordListFragment extends Fragment {
     private RecyclerView recyclerView;
     private ImageView findNextBtn;
     private ImageView findPrevBtn;
-    private Button addWordBtn;
     private TextView word_tag_status;
     private TextView display_word_error;
 
@@ -79,23 +78,12 @@ public class WordListFragment extends Fragment {
         display_word_error = (TextView) view.findViewById(R.id.display_word_error);
         word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
         previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
-        addWordBtn = (Button) view.findViewById(R.id.btn_add_word);
         findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
 
         initVideoPlayer();
-        initAddBtnListener();
 
         return view;
-    }
-
-    private void initAddBtnListener() {
-        addWordBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                EventBus.getDefault().post(new AddWordEvent(wordTagSelector.getCurrentWordTag()));
-            }
-        });
     }
 
     @Override

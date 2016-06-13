@@ -35,15 +35,6 @@
                 android:layout_gravity="center_vertical|right"
                 android:contentDescription="@string/find_next_string"/>
 
-
-        <android.support.v7.widget.AppCompatButton
-                android:id="@+id/btn_add_word"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="bottom|center"
-                android:padding="2dp"
-                android:layout_marginBottom="10dp"
-                android:text="Add"/>
     </FrameLayout>
 
     <TextView android:id="@+id/word_tag_status"
