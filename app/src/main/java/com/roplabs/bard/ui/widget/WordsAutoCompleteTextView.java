@@ -172,9 +172,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         int start = mTokenizer.findTokenStart(getText(), end);
 
         Editable editable = getText();
-        String original = TextUtils.substring(editable, start, end);
-
-        QwertyKeyListener.markAsReplaced(editable, start, end, original);
         editable.replace(start, end, mTokenizer.terminateToken(text));
 
         lastStart = mTokenizer.findTokenStart(getText(), end);
@@ -183,10 +180,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     public void replaceLastText(CharSequence text) {
         clearComposingText();
-        Editable editable = getText();
-        String original = TextUtils.substring(editable, lastStart, lastEnd);
 
-        QwertyKeyListener.markAsReplaced(editable, lastStart, lastEnd, original);
+        Editable editable = getText();
         editable.replace(lastStart, lastEnd, text);
 
         int end = lastEnd;
