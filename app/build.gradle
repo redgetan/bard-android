@@ -29,6 +29,7 @@ android {
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
+        manifestPlaceholders = [HOCKEYAPP_APP_ID: "cf292678fd2f44f79f226b7fdd4a9f71"]
     }
 
     compileOptions {
@@ -74,6 +75,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'org.apmem.tools:layouts:1.10@aar'
+    compile 'net.hockeyapp.android:HockeySDK:4.0.1'
 
 
 }

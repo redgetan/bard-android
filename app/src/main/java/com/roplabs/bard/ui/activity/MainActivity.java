@@ -10,8 +10,11 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.util.FileManager;
 import com.roplabs.bard.util.Helper;
 import io.realm.RealmResults;
+import net.hockeyapp.android.UpdateManager;
 import org.json.JSONException;
 import org.json.JSONObject;
+import net.hockeyapp.android.CrashManager;
+
 
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +33,8 @@ public class MainActivity extends BaseActivity {
         ffmpegPath = applicationDir + "/" + "ffmpeg";
         initFFmpeg();
         initWordIndex();
+
+        checkForUpdates();
     }
 
     @Override
@@ -46,6 +51,25 @@ public class MainActivity extends BaseActivity {
         }
 
         startActivity(intent);
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        checkForCrashes();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterManagers();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterManagers();
     }
 
     public void initFFmpeg() {
@@ -100,6 +124,20 @@ public class MainActivity extends BaseActivity {
 
     public void setDefaultIndex() {
         Setting.setCurrentIndexToken(this,Index.findFirst().getToken());
+    }
+
+
+    private void checkForCrashes() {
+        CrashManager.register(this);
+    }
+
+    private void checkForUpdates() {
+        // Remove this for store builds!
+        UpdateManager.register(this);
+    }
+
+    private void unregisterManagers() {
+        UpdateManager.unregister();
     }
 
 

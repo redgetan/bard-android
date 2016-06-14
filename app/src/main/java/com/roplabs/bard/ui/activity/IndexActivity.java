@@ -157,7 +157,8 @@ public class IndexActivity extends BaseActivity {
                                 startActivity(intent);
                                 break;
                             case ABOUT_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"About",Toast.LENGTH_SHORT).show();
+                                intent = new Intent(mContext, FeedbackActivity.class);
+                                startActivity(intent);
                                 break;
                             default:
                                 break;

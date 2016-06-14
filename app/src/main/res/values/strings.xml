@@ -31,6 +31,7 @@
     <string name="my_projects_string">Projects</string>
     <string name="create_string">Create</string>
     <string name="settings_string">Settings</string>
-    <string name="about_string">About</string>
+    <string name="about_string">Feedback</string>
     <string name="choose_character_string">Character</string>
+    <string name="feedback_btn_string">Give Feedback</string>
 </resources>
