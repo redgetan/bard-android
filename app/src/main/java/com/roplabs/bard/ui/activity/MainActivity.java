@@ -108,10 +108,8 @@ public class MainActivity extends BaseActivity {
         if (indexResults.size() == 0) {
             try {
                 populateWordIndex("smosh_index.json");
-                populateWordIndex("donald_trump_index.json");
                 populateWordIndex("kevin_hart_index.json");
                 populateWordIndex("emma_watson_index.json");
-                populateWordIndex("elon_musk_index.json");
                 populateWordIndex("harry_styles_index.json");
 
                 setDefaultIndex();
