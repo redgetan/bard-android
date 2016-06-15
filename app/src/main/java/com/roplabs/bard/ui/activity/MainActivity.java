@@ -112,6 +112,7 @@ public class MainActivity extends BaseActivity {
                 populateWordIndex("kevin_hart_index.json");
                 populateWordIndex("emma_watson_index.json");
                 populateWordIndex("elon_musk_index.json");
+                populateWordIndex("harry_styles_index.json");
 
                 setDefaultIndex();
             } catch (IOException e) {
