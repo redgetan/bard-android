@@ -10,10 +10,8 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.util.FileManager;
 import com.roplabs.bard.util.Helper;
 import io.realm.RealmResults;
-import net.hockeyapp.android.UpdateManager;
 import org.json.JSONException;
 import org.json.JSONObject;
-import net.hockeyapp.android.CrashManager;
 
 
 import java.io.File;

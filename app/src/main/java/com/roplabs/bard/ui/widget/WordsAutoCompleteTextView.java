@@ -167,8 +167,13 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void replaceText(CharSequence text) {
         clearComposingText();
 
-        int end = getSelectionEnd() - 1;
-        if (end == -1) end = 0;
+        int end = getSelectionEnd();
+
+        // "was " - if current cursor is one space after a word (this will allow
+        //          the word to be found)
+        if (end > 1 && getText().subSequence(end - 1, end).toString().equals(" ")) {
+           end--;
+        }
         int start = mTokenizer.findTokenStart(getText(), end);
 
         Editable editable = getText();
@@ -176,6 +181,13 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         lastStart = mTokenizer.findTokenStart(getText(), end);
         lastEnd   = mTokenizer.findTokenEnd(getText(), end);
+    }
+
+    public String getLastWord() {
+        int end = getSelectionEnd();
+        int start = mTokenizer.findTokenStart(getText(), end);
+
+        return getText().subSequence(start, end).toString();
     }
 
     public void replaceLastText(CharSequence text) {

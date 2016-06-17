@@ -441,18 +441,39 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
         if (networkInfo != null && networkInfo.isConnected()) {
-            progressBar.setVisibility(View.VISIBLE);
+            if (addMissingWordTag()) {
+                progressBar.setVisibility(View.VISIBLE);
 
-            vpPager.setCurrentItem(1);
-            vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
+                vpPager.setCurrentItem(1);
+                vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
-            String message = editText.getText().toString();
-            BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
+                String message = editText.getText().toString();
+                BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
+            } else {
+                notifyUserOnUnavailableWord();
+            }
         } else {
             // display error
             debugView.setText(R.string.no_network_connection);
             return;
         }
+    }
+
+    // return false if wordtag missing and unable to find match. true otherwise
+    public boolean addMissingWordTag() {
+        String lastWord = editText.getLastWord();
+        if (!lastWord.contains(":")) {
+            wordListFragment = (WordListFragment) adapterViewPager.getRegisteredFragment(0);
+            String wordTag = wordListFragment.getWordTagSelector().findNextWord(lastWord);
+
+            if (wordTag.length() == 0) {
+                return false;
+            }
+
+            editText.replaceText(wordTag);
+        }
+
+        return true;
     }
 
     public void playLocalVideo(String filePath) {

@@ -60,6 +60,7 @@ public class WordListFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
+
         if (context instanceof OnWordListViewReadyListener) {
             listener = (OnWordListViewReadyListener) context;
         } else {
@@ -185,6 +186,10 @@ public class WordListFragment extends Fragment {
     public void initFindInPage(String[] availableWordList) {
         wordTagSelector = new WordTagSelector(availableWordList);
         initFindInPageListener();
+    }
+
+    public WordTagSelector getWordTagSelector() {
+        return wordTagSelector;
     }
 
     public void initFindInPageListener() {

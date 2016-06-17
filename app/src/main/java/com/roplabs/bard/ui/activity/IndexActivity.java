@@ -25,8 +25,6 @@ import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.IndexListAdapter;
 import io.realm.RealmResults;
-import net.hockeyapp.android.CrashManager;
-import net.hockeyapp.android.UpdateManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
