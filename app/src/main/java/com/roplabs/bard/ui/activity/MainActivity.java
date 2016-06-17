@@ -33,8 +33,6 @@ public class MainActivity extends BaseActivity {
         ffmpegPath = applicationDir + "/" + "ffmpeg";
         initFFmpeg();
         initWordIndex();
-
-        checkForUpdates();
     }
 
     @Override
@@ -44,7 +42,7 @@ public class MainActivity extends BaseActivity {
         Intent intent;
         String authToken = Setting.getAuthenticationToken(this);
 
-        if (authToken.length() > 0) {
+        if (authToken.length() > 0 || Helper.getAppVersion().contains("beta")) {
             intent = new Intent(this, IndexActivity.class);
         } else {
             intent = new Intent(this, LoginActivity.class);
@@ -54,22 +52,8 @@ public class MainActivity extends BaseActivity {
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
-
-        checkForCrashes();
-    }
-
-    @Override
     public void onPause() {
         super.onPause();
-        unregisterManagers();
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        unregisterManagers();
     }
 
     public void initFFmpeg() {
@@ -125,19 +109,6 @@ public class MainActivity extends BaseActivity {
         Setting.setCurrentIndexToken(this,Index.findFirst().getToken());
     }
 
-
-    private void checkForCrashes() {
-        CrashManager.register(this);
-    }
-
-    private void checkForUpdates() {
-        // Remove this for store builds!
-        UpdateManager.register(this);
-    }
-
-    private void unregisterManagers() {
-        UpdateManager.unregister();
-    }
 
 
 }

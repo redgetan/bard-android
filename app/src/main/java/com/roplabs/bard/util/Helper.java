@@ -1,5 +1,8 @@
 package com.roplabs.bard.util;
 
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import com.roplabs.bard.ClientApp;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Response;
@@ -23,6 +26,20 @@ public class Helper {
            return "";
         }
     }
+
+    public static String getAppVersion() {
+        String result = "";
+
+        try {
+            PackageInfo pInfo = ClientApp.getContext().getPackageManager().getPackageInfo(ClientApp.getContext().getPackageName(), 0);
+            result = pInfo.versionName;
+        } catch (PackageManager.NameNotFoundException e) {
+        }
+
+        return result;
+    }
+
+
 
     // http://gimite.net/en/index.php?Run%20native%20executable%20in%20Android%20App
     public static String runCmd(String[] cmd) {

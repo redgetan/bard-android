@@ -3,6 +3,8 @@ package com.roplabs.bard;
 import android.app.Application;
 import android.content.Context;
 import com.crashlytics.android.Crashlytics;
+import com.instabug.library.IBGInvocationEvent;
+import com.instabug.library.Instabug;
 import com.squareup.leakcanary.LeakCanary;
 import io.fabric.sdk.android.Fabric;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -23,6 +25,10 @@ public class ClientApp extends Application {
         Fabric.with(this, new Crashlytics());
         RealmConfiguration config = new RealmConfiguration.Builder(this).build();
         Realm.setDefaultConfiguration(config);
+
+        new Instabug.Builder(this, "aa977106b63d2bcb32d9e9c1319d9142")
+                .setInvocationEvent(IBGInvocationEvent.IBGInvocationEventShake)
+                .build();
     }
 
     public static ClientApp getInstance() {

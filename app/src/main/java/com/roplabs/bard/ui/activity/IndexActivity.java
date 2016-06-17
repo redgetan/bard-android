@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
@@ -24,9 +25,12 @@ import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.IndexListAdapter;
 import io.realm.RealmResults;
+import net.hockeyapp.android.CrashManager;
+import net.hockeyapp.android.UpdateManager;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 
@@ -157,8 +161,8 @@ public class IndexActivity extends BaseActivity {
                                 startActivity(intent);
                                 break;
                             case ABOUT_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, FeedbackActivity.class);
-                                startActivity(intent);
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://bard.co"));
+                                startActivity(browserIntent);
                                 break;
                             default:
                                 break;
@@ -171,6 +175,5 @@ public class IndexActivity extends BaseActivity {
                 .build();
 
     }
-
 
 }
