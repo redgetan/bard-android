@@ -462,7 +462,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     // return false if wordtag missing and unable to find match. true otherwise
     public boolean addMissingWordTag() {
         String lastWord = editText.getLastWord();
-        if (!lastWord.contains(":")) {
+        if (lastWord.length() > 0 && !lastWord.contains(":")) {
             wordListFragment = (WordListFragment) adapterViewPager.getRegisteredFragment(0);
             String wordTag = wordListFragment.getWordTagSelector().findNextWord(lastWord);
 
