@@ -293,8 +293,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             public void onClick(View v) {
                 if (editText.getTokenizer() != null) {
                     int tokenIndex = editText.getTokenIndex();
-                    WordTag wordTag = wordTagList.get(tokenIndex);
-                    EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                    if (tokenIndex < wordTagList.size()) {
+                        WordTag wordTag = wordTagList.get(tokenIndex);
+                        EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                    }
                 }
             }
         });

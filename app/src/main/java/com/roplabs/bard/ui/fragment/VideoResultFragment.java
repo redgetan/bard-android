@@ -71,7 +71,6 @@ public class VideoResultFragment extends Fragment {
 
     public void playLocalVideo(String filePath) {
         videoView.setVideoPath(filePath);
-        videoView.requestFocus();
         videoView.start();
     }
 
