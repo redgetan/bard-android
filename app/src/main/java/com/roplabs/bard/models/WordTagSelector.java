@@ -57,9 +57,9 @@ public class WordTagSelector {
        return wordTagMap.get(currentWord).get(currentWordTagIndex);
     }
 
-    public void setWordTag(String wordTag) {
-        currentWord = wordTag.split(":")[0];
-        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTag);
+    public void setWordTag(String wordTagString) {
+        currentWord = wordTagString.split(":")[0];
+        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTagString);
     }
 
     public String findNextWord(String word) {

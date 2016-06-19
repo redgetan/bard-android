@@ -14,7 +14,6 @@ import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.events.FindWordEvent;
 import com.roplabs.bard.events.PreviewWordEvent;
 import com.roplabs.bard.models.Setting;
 import org.apache.commons.collections4.MapIterator;
@@ -29,7 +28,7 @@ import java.util.List;
 import java.util.Set;
 
 public class WordsAutoCompleteTextView extends EditText implements Filterable, Filter.FilterListener {
-    MultiAutoCompleteTextView.Tokenizer mTokenizer;
+    private MultiAutoCompleteTextView.Tokenizer mTokenizer;
     RecyclerView recyclerView;
     private Filter mFilter;
     private Trie<String,String> mWordTrie;
@@ -56,28 +55,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void initWordsAutoComplete() {
         addTextChangedListener(new MyWatcher());
         this.isAutocompleteEnabled = true;
-        setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (mTokenizer != null) {
-                    Editable text = getText();
-                    int startPos = mTokenizer.findTokenStart(text,getSelectionEnd());
-                    int endPos = mTokenizer.findTokenEnd(text,getSelectionEnd());
-
-                    String word = text.subSequence(startPos, endPos).toString();
-
-                    boolean isMiddleOfWordTag = !word.isEmpty() && word.contains(":");
-                    if (isMiddleOfWordTag) {
-                        lastStart = startPos;
-                        lastEnd = endPos;
-
-                        String wordTag = word;
-                        EventBus.getDefault().post(new PreviewWordEvent(wordTag));
-                    }
-
-                }
-            }
-        });
     }
 
     @Override
@@ -92,16 +69,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         public void beforeTextChanged(CharSequence s, int start, int count, int after) {
         }
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            String character = getText().subSequence(start,getSelectionEnd()).toString();
-
-            if (character.equals(" ")) {
-                int lastWordStartPos = mTokenizer.findTokenStart(getText(),start);
-                int lastWordEndPos = mTokenizer.findTokenEnd(getText(),start);
-                String lastWord = getText().subSequence(lastWordStartPos, lastWordEndPos).toString();
-                if (!lastWord.isEmpty()) {
-                    EventBus.getDefault().post(new FindWordEvent(lastWord));
-                }
-            }
 
         }
     }
@@ -160,6 +127,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         mTokenizer = t;
     }
 
+    public  MultiAutoCompleteTextView.Tokenizer getTokenizer() {
+        return mTokenizer;
+    }
+
     public void setRecyclerView(RecyclerView recyclerView) {
         this.recyclerView = recyclerView;
     }
@@ -183,11 +154,38 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         lastEnd   = mTokenizer.findTokenEnd(getText(), end);
     }
 
-    public String getLastWord() {
-        int end = getSelectionEnd();
-        int start = mTokenizer.findTokenStart(getText(), end);
+    public String getAddedChar(int start) {
+        return getText().subSequence(start,getSelectionEnd()).toString();
+    }
 
-        return getText().subSequence(start, end).toString();
+    public int getTokenIndex() {
+        int end = getSelectionEnd();
+        boolean isInFrontOfWord = mTokenizer.findTokenEnd(getText(), end + 1) > end;
+
+        if (isInFrontOfWord) {
+            return getText().subSequence(0, end + 1).toString().trim().split("\\s+").length - 1;
+        } else {
+            return getText().subSequence(0, end).toString().trim().split("\\s+").length - 1;
+        }
+    }
+
+    public int getTokenCount() {
+        return getText().toString().trim().split("\\s+").length;
+    }
+
+    public String getLastWord() {
+        int start = mTokenizer.findTokenStart(getText(), getSelectionEnd());
+        int end = mTokenizer.findTokenEnd(getText(), getSelectionEnd());
+
+        if (end > start) {
+            // 1st method
+            return getText().subSequence(start, end).toString();
+        } else {
+            // 2nd method (if cursor in empty space, such not near a word)
+            String[] words = getText().subSequence(0, end).toString().trim().split("\\s+");
+            return words[words.length - 1];
+        }
+
     }
 
     public void replaceLastText(CharSequence text) {

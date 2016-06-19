@@ -1,9 +1,9 @@
 package com.roplabs.bard.events;
 
 public class ReplaceWordEvent {
-    public final String word;
+    public final String wordTagString;
 
-    public ReplaceWordEvent(String word) {
-        this.word = word;
+    public ReplaceWordEvent(String wordTagString) {
+        this.wordTagString = wordTagString;
     }
 }

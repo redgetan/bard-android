@@ -7,6 +7,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
@@ -64,7 +65,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private SmartFragmentStatePagerAdapter adapterViewPager;
-    private WordListFragment wordListFragment;
 
     private MenuItem shareMenuItem;
     private Handler mHandler = new Handler();
@@ -75,6 +75,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private ActionBarDrawerToggle mDrawerToggle;
 
     private Trie<String, String> wordTrie;
+    private LinkedList<WordTag> wordTagList;
 
     private Repo repo;
     private String[] availableWordList;
@@ -101,6 +102,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
+        wordTagList = new LinkedList<WordTag>();
 
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
@@ -145,6 +147,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     public void initViewPager() {
         vpPager = (InputViewPager) findViewById(R.id.vpPager);
+
         adapterViewPager = new InputPagerAdapter(getSupportFragmentManager());
         vpPager.setAdapter(adapterViewPager);
         vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
@@ -218,8 +221,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             @Override
             protected Void doInBackground(Void... params) {
                 availableWordList = Index.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
-                uniqueWordList = new HashSet<String>(Arrays.asList(availableWordList)).toArray(new String[0]);
 
+                uniqueWordList = buildUniqueWordList();
                 wordTrie = buildWordTrie();
 
                 return null;
@@ -236,6 +239,20 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         }).execute();
     }
 
+    private String[] buildUniqueWordList() {
+        String word = "";
+        Set<String> wordSet = new HashSet<String>();
+
+        for (String wordTagString : availableWordList) {
+            word = wordTagString.split(":")[0];
+            wordSet.add(word);
+        }
+
+        String[] list = new String[wordSet.size()];
+        return wordSet.toArray(list);
+    }
+
+
     private Trie<String, String> buildWordTrie() {
         Trie<String, String> trie = new PatriciaTrie<String>();
         String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot", "cant", "you", "event", "smell", "what", "the", "rock", "is", "cooking", "extravaganza" };
@@ -247,8 +264,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     }
 
     public void initFindInPage() {
-        wordListFragment = (WordListFragment) adapterViewPager.getRegisteredFragment(0);
-        wordListFragment.initFindInPage(availableWordList);
+        getWordListFragment().initFindInPage(availableWordList);
     }
 
     private void initMultiAutoComplete() {
@@ -263,21 +279,87 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                int endPos = editText.getSelectionEnd();
-                int startPos = (new SpaceTokenizer()).findTokenStart(s, endPos);
-
-                Boolean isWordComplete = (startPos == endPos) && (startPos != 0);
-                if (isWordComplete) {
-                    notifyUserOnUnavailableWord();
-                } else {
-                    updateInvalidWords();
-                }
+                handleUnavailableWords(s, start);
+                updateWordTagList(s, start);
             }
 
             @Override
             public void afterTextChanged(Editable s) {
             }
         });
+
+        editText.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (editText.getTokenizer() != null) {
+                    int tokenIndex = editText.getTokenIndex();
+                    WordTag wordTag = wordTagList.get(tokenIndex);
+                    EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                }
+            }
+        });
+    }
+
+    private void handleUnavailableWords(CharSequence s, int start) {
+        int endPos = editText.getSelectionEnd();
+        int startPos = editText.getTokenizer().findTokenStart(s, endPos);
+
+        Boolean isWordComplete = (startPos == endPos) && (startPos != 0);
+        if (isWordComplete) {
+            notifyUserOnUnavailableWord();
+        } else {
+            updateInvalidWords();
+        }
+    }
+
+    private void updateWordTagList(CharSequence s, int start) {
+        String character = editText.getAddedChar(start);
+        boolean isLeaderPressed = character.equals(" ");
+        String lastWord = editText.getLastWord();
+        int tokenIndex = editText.getTokenIndex();
+
+        if (isLeaderPressed) {
+            WordTag wordTag = wordTagList.get(tokenIndex);
+            if (wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
+                String wordTagString = getWordTagSelector().findNextWord(lastWord);
+                if (!wordTagString.isEmpty()) {
+                    String tag = wordTagString.split(":")[1];
+                    wordTag.tag = tag;
+
+                    getWordListFragment().queryWordPreview(wordTag.toString());
+                }
+            }
+        } else {
+            int tokenCount = editText.getTokenCount();
+            if (tokenCount > wordTagList.size()) {
+                // ADD wordTag (when token count increases)
+                WordTag wordTag = new WordTag(lastWord);
+                wordTagList.add(tokenIndex, wordTag);
+            } else if (tokenCount < wordTagList.size()) {
+                // DELETE wordTag (when token count decreases)
+                wordTagList.remove(tokenIndex + 1);
+            } else {
+                // UPDATE wordTag (when word changed)
+                WordTag wordTag = wordTagList.get(tokenIndex);
+                if (!wordTag.word.equals(lastWord)) {
+                    wordTag.tag = "";
+                    wordTag.word = lastWord;
+                }
+
+            }
+
+        }
+    }
+
+    private String getWordMessage() {
+        TextUtils.join(" ", wordTagList);
+        List<String> wordTagStringList = new ArrayList<String>();
+
+        for (WordTag wordTag : wordTagList) {
+            wordTagStringList.add(wordTag.toString());
+        }
+
+        return TextUtils.join(" ", wordTagStringList);
     }
 
     private void updateInvalidWords() {
@@ -437,10 +519,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);
 
-                vpPager.setCurrentItem(1);
+                vpPager.setCurrentItem(1, true);
                 vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
-                String message = editText.getText().toString();
+                String message = getWordMessage();
                 BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
             } else {
                 notifyUserOnUnavailableWord();
@@ -454,34 +536,45 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     // return false if wordtag missing and unable to find match. true otherwise
     public boolean addMissingWordTag() {
-        String lastWord = editText.getLastWord();
-        if (lastWord.length() > 0 && !lastWord.contains(":")) {
-            wordListFragment = (WordListFragment) adapterViewPager.getRegisteredFragment(0);
-            String wordTag = wordListFragment.getWordTagSelector().findNextWord(lastWord);
-
-            if (wordTag.length() == 0) {
-                return false;
+        for (WordTag wordTag : wordTagList) {
+            if (wordTag.tag.isEmpty()) {
+                String wordTagString = getWordTagSelector().findNextWord(wordTag.word);
+                if (wordTagString.isEmpty()) {
+                    return false;
+                } else {
+                    wordTag.tag = wordTagString.split(":")[1];
+                }
             }
 
-            editText.replaceText(wordTag);
         }
 
         return true;
+    }
+
+    private WordTagSelector getWordTagSelector() {
+        return  getWordListFragment().getWordTagSelector();
+    }
+
+    private WordListFragment getWordListFragment() {
+        return (WordListFragment) adapterViewPager.getRegisteredFragment(0);
+    }
+
+    private VideoResultFragment getVideoResultFragment() {
+        return (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
     }
 
     public void playLocalVideo(String filePath) {
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
 
-        VideoResultFragment videoResultFragment = (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
-        videoResultFragment.playLocalVideo(filePath);
+        getVideoResultFragment().playLocalVideo(filePath);
 
         vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.all);
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         EventBus.getDefault().register(this);
     }
 
@@ -498,8 +591,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             debugView.setText(event.error);
         } else {
             if (event.isPreview) {
-                if (wordListFragment != null) {
-                    wordListFragment.playPreview(event.segments.get(0));
+                if (getWordListFragment() != null) {
+                    if (vpPager.getCurrentItem() != 0) {
+                        vpPager.setCurrentItem(0, true);
+                    }
+                    getWordListFragment().playPreview(event.segments.get(0));
                 }
             } else {
                 VideoDownloader.fetchSegments(event.segments);
@@ -519,17 +615,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     }
 
     @Subscribe
-    public void onEvent(AddWordEvent event) {
-        if (event.word.isEmpty()) return;
-
-        editText.replaceText(event.word);
-        editText.requestFocus();
-    }
-
-    @Subscribe
     public void onEvent(ReplaceWordEvent event) {
-        editText.replaceLastText(event.word);
-        editText.requestFocus();
+        int tokenIndex = editText.getTokenIndex();
+        WordTag wordTag = wordTagList.get(tokenIndex);
+        wordTag.tag = event.wordTagString.split(":")[1];
     }
 
     private void setVideoError(String error) {

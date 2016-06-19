@@ -60,8 +60,8 @@ public class IndexActivity extends BaseActivity {
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
+    protected void onResume() {
+        super.onResume();
         EventBus.getDefault().register(this);
     }
 

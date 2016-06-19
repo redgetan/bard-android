@@ -105,24 +105,17 @@ public class WordListFragment extends Fragment {
     }
 
     @Subscribe
-    public void onEvent(FindWordEvent event) {
-        String wordTag = wordTagSelector.findNextWord(event.word);
-        queryWordPreview(wordTag);
-        EventBus.getDefault().post(new AddWordEvent(wordTag));
-    }
-
-    @Subscribe
     public void onEvent(PreviewWordEvent event) {
-        String wordTag = event.word;
-        wordTagSelector.setWordTag(wordTag);
-        queryWordPreview(wordTag);
+        String wordTagString = event.wordTagString;
+        wordTagSelector.setWordTag(wordTagString);
+        queryWordPreview(wordTagString);
     }
 
-    private void queryWordPreview(String wordTag) {
-        if (wordTag.isEmpty()) return;
+    public void queryWordPreview(String wordTagString) {
+        if (wordTagString.isEmpty()) return;
 
         try {
-            BardClient.getQuery(wordTag, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+            BardClient.getQuery(wordTagString, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -196,18 +189,18 @@ public class WordListFragment extends Fragment {
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String wordTag = wordTagSelector.findNextWord();
-                queryWordPreview(wordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
+                String wordTagString = wordTagSelector.findNextWord();
+                queryWordPreview(wordTagString);
+                EventBus.getDefault().post(new ReplaceWordEvent(wordTagString));
             }
         });
 
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String wordTag = wordTagSelector.findPrevWord();
-                queryWordPreview(wordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
+                String wordTagString = wordTagSelector.findPrevWord();
+                queryWordPreview(wordTagString);
+                EventBus.getDefault().post(new ReplaceWordEvent(wordTagString));
             }
         });
 
