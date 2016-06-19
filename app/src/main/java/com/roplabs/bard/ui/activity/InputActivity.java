@@ -366,7 +366,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     private void updateInvalidWords() {
         Editable text = editText.getText();
-        List<String> words = Arrays.asList(text.toString().split("\\s+"));
+        List<String> words = Arrays.asList(text.toString().trim().split("\\s+"));
         invalidWords.retainAll(words);
 
         displayInvalidWords();
@@ -374,7 +374,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
 
     private void notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
-        String[] words = text.toString().split("\\s+");
+        String[] words = text.toString().trim().split("\\s+");
 
         invalidWords.clear();
 
