@@ -43,7 +43,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener, AdapterView.OnItemSelectedListener {
+public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -101,13 +101,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
-
-        Spinner spinner = (Spinner) findViewById(R.id.input_mode_spinner);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-                R.array.bard_input_modes, android.R.layout.simple_spinner_item);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinner.setAdapter(adapter);
-        spinner.setOnItemSelectedListener(this);
 
         Intent intent = getIntent();
         String indexName = intent.getStringExtra("indexName");
@@ -571,27 +564,4 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         return shareIntent;
     }
 
-
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        if (availableWordList == null) {
-            return;
-        }
-        String mode = (String) parent.getItemAtPosition(position);
-        if (mode.equals("a")) {
-            editText.setEnableAutocomplete(false);
-            editText.setSentenceWords(new ArrayList<String>(Arrays.asList(availableWordList)));
-        } else if (mode.equals("b")) {
-            editText.setEnableAutocomplete(true);
-            editText.setAutoCompleteWords(wordTrie);
-        } else if (mode.equals("c")) {
-            editText.setEnableAutocomplete(false);
-            editText.setWordTagMap(availableWordList);
-        }
-    }
-
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 }
