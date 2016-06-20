@@ -32,6 +32,7 @@
                                                                android:hint="@string/edit_message"/>
 
             <ImageView
+                    android:id="@+id/send_message_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:onClick="sendMessage"
@@ -45,9 +46,8 @@
                        xmlns:tools="http://schemas.android.com/tools"
                        android:id="@+id/vp_pager_container"
                        android:layout_width="fill_parent"
-                       android:layout_height="fill_parent"
+                       android:layout_height="wrap_content"
                        android:layout_below="@+id/bard_text_entry"
-                       android:layout_alignParentBottom="true"
                        android:orientation="vertical"
                        android:gravity="center_vertical|center_horizontal"
         >

@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -65,6 +66,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private ProgressBar progressBar;
     private RecyclerView recyclerView;
     private SmartFragmentStatePagerAdapter adapterViewPager;
+    private LinearLayout editTextContainer;
 
     private MenuItem shareMenuItem;
     private Handler mHandler = new Handler();
@@ -81,6 +83,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     private String[] availableWordList;
     private String[] uniqueWordList;
     Set<String> invalidWords;
+    private String indexName;
+    private ImageView sendMessageBtn;
 
     ShareActionProvider mShareActionProvider;
 
@@ -103,17 +107,17 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
         wordTagList = new LinkedList<WordTag>();
+        editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
+        sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
 
         Intent intent = getIntent();
-        String indexName = intent.getStringExtra("indexName");
+        indexName = intent.getStringExtra("indexName");
         setTitle(indexName);
 
         initVideoStorage();
         initAnalytics();
         initViewPager();
         initChatText();
-
-        showKeyboardOnStartup();
     }
 
     private void hideKeyboard() {
@@ -121,7 +125,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         imm.hideSoftInputFromWindow(editText.getWindowToken(), 0);
     }
 
-    private void showKeyboardOnStartup() {
+    private void showKeyboard() {
         if (editText.requestFocus()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
@@ -232,6 +236,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             protected void onPostExecute(Void result) {
                 initFindInPage();
                 initMultiAutoComplete();
+                showKeyboard();
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
             }
@@ -521,7 +526,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);
 
-                vpPager.setCurrentItem(1, true);
+                showVideoResultFragment();
                 vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
                 String message = getWordMessage();
@@ -594,15 +599,38 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         } else {
             if (event.isPreview) {
                 if (getWordListFragment() != null) {
-                    if (vpPager.getCurrentItem() != 0) {
-                        vpPager.setCurrentItem(0, true);
-                    }
                     getWordListFragment().playPreview(event.segments.get(0));
                 }
             } else {
                 VideoDownloader.fetchSegments(event.segments);
             }
         }
+    }
+
+    private void showVideoResultFragment() {
+        editText.setEnabled(false);
+        sendMessageBtn.setVisibility(View.GONE);
+
+        if (vpPager.getCurrentItem() != 1) {
+            vpPager.setCurrentItem(1, true);
+        }
+
+        setTitle(R.string.share);
+        if (shareMenuItem != null) shareMenuItem.setVisible(true);
+    }
+
+    private void showWordListFragment() {
+        editText.setEnabled(true);
+        sendMessageBtn.setVisibility(View.VISIBLE);
+
+        if (vpPager.getCurrentItem() != 0) {
+            vpPager.setCurrentItem(0, true);
+        }
+
+        setTitle(indexName);
+        if (shareMenuItem != null) shareMenuItem.setVisible(false);
+
+        showKeyboard();
     }
 
     @Subscribe
@@ -637,6 +665,15 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
+            case android.R.id.home:
+                if (vpPager.getCurrentItem() == 0) {
+                    // wordListFragment
+                    finish();
+                } else if (vpPager.getCurrentItem() == 1) {
+                    showWordListFragment();
+                }
+
+                return true;
             case R.id.menu_item_share:
                 startActivity(getRepoShareIntent());
                 return true;
