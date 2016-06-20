@@ -526,7 +526,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
                 progressBar.setVisibility(View.VISIBLE);
 
                 showVideoResultFragment();
-                vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
 
                 String message = getWordMessage();
                 BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
@@ -574,8 +573,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         debugView.setText("");
 
         getVideoResultFragment().playLocalVideo(filePath);
-
-        vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.all);
     }
 
     @Override
