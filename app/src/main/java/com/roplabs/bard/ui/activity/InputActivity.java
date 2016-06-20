@@ -167,8 +167,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
                 if (position == 0) {
                     params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
                 } else if (position == 1) {
-                    params.height = 200;
-//                    params.height = RelativeLayout.LayoutParams.WRAP_CONTENT;
+                    params.height = getVideoResultFragment().getVideoView().getHeight();
                 }
 
                 vpPagerContainer.setLayoutParams(params);

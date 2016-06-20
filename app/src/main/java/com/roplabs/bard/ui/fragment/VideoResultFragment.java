@@ -38,6 +38,10 @@ public class VideoResultFragment extends Fragment {
         return view;
     }
 
+    public VideoView getVideoView() {
+        return videoView;
+    }
+
     private void initVideoPlayer() {
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
