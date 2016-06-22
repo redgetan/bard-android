@@ -7,6 +7,7 @@ public class WordTag  {
 
     public WordTag(String word) {
         this.word = word;
+        this.tag = "";
     }
 
     @Override
