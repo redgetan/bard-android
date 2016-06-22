@@ -27,9 +27,8 @@ android {
         applicationId "com.roplabs.bard"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0.beta"
-        manifestPlaceholders = [HOCKEYAPP_APP_ID: "cf292678fd2f44f79f226b7fdd4a9f71"]
+        versionCode 2
+        versionName "1.0.beta.1"
     }
 
     compileOptions {
