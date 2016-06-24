@@ -43,12 +43,12 @@ public class WordListFragment extends Fragment {
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
 
-    private OnWordListViewReadyListener listener;
+    private OnReadyListener listener;
 
     // Define the events that the fragment will use to communicate
-    public interface OnWordListViewReadyListener  {
+    public interface OnReadyListener  {
         // This can be any number of events to be sent to the activity
-        public void onWordListViewReady(RecyclerView recyclerView);
+        public void onWordListFragmentReady();
     }
 
     // Store instance variables based on arguments passed
@@ -61,11 +61,11 @@ public class WordListFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-        if (context instanceof OnWordListViewReadyListener) {
-            listener = (OnWordListViewReadyListener) context;
+        if (context instanceof OnReadyListener) {
+            listener = (OnReadyListener) context;
         } else {
             throw new ClassCastException(context.toString()
-                    + " must implement WordListFragment.OnWordListViewReadyListener");
+                    + " must implement WordListFragment.OnReadyListener");
         }
     }
 
@@ -83,6 +83,8 @@ public class WordListFragment extends Fragment {
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
 
         initVideoPlayer();
+
+        listener.onWordListFragmentReady();
 
         return view;
     }

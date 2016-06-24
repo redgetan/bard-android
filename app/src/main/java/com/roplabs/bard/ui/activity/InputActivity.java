@@ -45,7 +45,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class InputActivity extends BaseActivity implements WordListFragment.OnWordListViewReadyListener {
+public class InputActivity extends BaseActivity implements WordListFragment.OnReadyListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -117,7 +117,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         initVideoStorage();
         initAnalytics();
         initViewPager();
-        initChatText();
     }
 
     private void hideKeyboard() {
@@ -688,4 +687,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnWo
         return shareIntent;
     }
 
+    @Override
+    public void onWordListFragmentReady() {
+        initChatText();
+    }
 }
