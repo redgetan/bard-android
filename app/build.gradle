@@ -4,7 +4,7 @@ buildscript {
         maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:1.2.3'
+        classpath 'com.android.tools.build:gradle:2.2.0-alpha4'
         classpath 'io.realm:realm-gradle-plugin:0.87.5'
         classpath 'io.fabric.tools:gradle:1.+'
         classpath 'com.google.gms:google-services:2.1.0-alpha4'
@@ -27,8 +27,8 @@ android {
         applicationId "com.roplabs.bard"
         minSdkVersion 14
         targetSdkVersion 23
-        versionCode 3
-        versionName "1.0.beta.2"
+        versionCode 4
+        versionName "1.0.beta.3"
     }
 
     compileOptions {
