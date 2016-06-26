@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -54,6 +55,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
+    private ImageView lastImageView;
     private Context mContext;
     private InputViewPager vpPager;
     private FrameLayout vpPagerContainer;
@@ -346,7 +348,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
                 wordTagList.remove(tokenIndex + 1);
-                previewTimeline.removeViewAt(tokenIndex + 1);
+                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
+                if (imageView != null) {
+                    previewTimeline.removeView(imageView);
+                }
             } else {
                 // UPDATE wordTag (when word changed)
                 WordTag wordTag = wordTagList.get(tokenIndex);
@@ -703,15 +708,23 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         int tokenIndex = editText.getTokenIndex();
         imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
 
+        if (lastImageView != null && lastImageView != imageView) {
+            lastImageView.setSelected(false);
+        }
+
         if (imageView != null) {
             imageView.setImageBitmap(bitmap);
         } else {
             imageView = new ImageView(this);
             imageView.setImageBitmap(bitmap);
+            imageView.setBackgroundResource(R.drawable.selector_preview_image);
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
             previewTimeline.addView(imageView, tokenIndex);
         }
+
+        imageView.setSelected(true);
+        lastImageView = imageView;
     }
 }
