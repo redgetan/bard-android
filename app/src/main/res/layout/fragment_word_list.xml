@@ -12,7 +12,7 @@
                    android:orientation="vertical"
                    android:gravity="center_vertical|center_horizontal"
     >
-        <VideoView android:id="@+id/preview_tag_view"
+        <TextureView android:id="@+id/preview_tag_view"
             android:background="@color/iron"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />

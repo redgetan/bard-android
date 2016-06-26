@@ -2,6 +2,8 @@ package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.graphics.Color;
+import android.graphics.SurfaceTexture;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,11 +11,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.WordsLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
+import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
@@ -30,7 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class WordListFragment extends Fragment {
+public class WordListFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnPreparedListener {
     // Store instance variables
     private RecyclerView recyclerView;
     private ImageView findNextBtn;
@@ -39,11 +39,42 @@ public class WordListFragment extends Fragment {
     private TextView display_word_error;
 
     private WordTagSelector wordTagSelector;
-    private VideoView previewTagView;
+    private TextureView previewTagView;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
+    private Surface previewSurface;
 
     private OnReadyListener listener;
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        previewSurface = new Surface(surface);
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setSurface(previewSurface);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        previewTagView.setBackgroundColor(Color.TRANSPARENT);
+        isVideoReady = true;
+    }
 
     // Define the events that the fragment will use to communicate
     public interface OnReadyListener  {
@@ -78,7 +109,7 @@ public class WordListFragment extends Fragment {
 
         display_word_error = (TextView) view.findViewById(R.id.display_word_error);
         word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
-        previewTagView = (VideoView) view.findViewById(R.id.preview_tag_view);
+        previewTagView = (TextureView) view.findViewById(R.id.preview_tag_view);
         findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
 
@@ -142,14 +173,10 @@ public class WordListFragment extends Fragment {
     }
 
     private void initVideoPlayer() {
-        previewTagView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                previewTagView.setBackgroundColor(Color.TRANSPARENT);
-                isVideoReady = true;
-                mediaPlayer = mp;
-            }
-        });
+        previewTagView.setAlpha(1);
+        previewTagView.setOpaque(false);
+        previewTagView.setSurfaceTextureListener(this);
+
 
         previewTagView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -173,8 +200,16 @@ public class WordListFragment extends Fragment {
 
 
     public void playVideo(String sourceUrl) {
-        previewTagView.setVideoPath(sourceUrl);
-        previewTagView.start();
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(sourceUrl);
+            mediaPlayer.setSurface(previewSurface);
+            mediaPlayer.prepare();
+            mediaPlayer.start();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+        }
     }
 
 
