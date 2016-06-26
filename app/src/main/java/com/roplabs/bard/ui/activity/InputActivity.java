@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -85,6 +86,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     Set<String> invalidWords;
     private String indexName;
     private ImageView sendMessageBtn;
+    private LinearLayout previewTimeline;
 
     ShareActionProvider mShareActionProvider;
 
@@ -109,6 +111,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
+        previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
 
         Intent intent = getIntent();
         indexName = intent.getStringExtra("indexName");
@@ -343,6 +346,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
                 wordTagList.remove(tokenIndex + 1);
+                previewTimeline.removeViewAt(tokenIndex + 1);
             } else {
                 // UPDATE wordTag (when word changed)
                 WordTag wordTag = wordTagList.get(tokenIndex);
@@ -690,5 +694,24 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     @Override
     public void onWordListFragmentReady() {
         initChatText();
+    }
+
+    @Override
+    public void onVideoThumbnailChanged(Bitmap bitmap) {
+        ImageView imageView;
+
+        int tokenIndex = editText.getTokenIndex();
+        imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
+
+        if (imageView != null) {
+            imageView.setImageBitmap(bitmap);
+        } else {
+            imageView = new ImageView(this);
+            imageView.setImageBitmap(bitmap);
+            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
+            imageView.setLayoutParams(layoutParams);
+            imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            previewTimeline.addView(imageView, tokenIndex);
+        }
     }
 }

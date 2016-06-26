@@ -1,6 +1,7 @@
 package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
@@ -30,7 +31,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-public class WordListFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnPreparedListener {
+public class WordListFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     // Store instance variables
     private RecyclerView recyclerView;
     private ImageView findNextBtn;
@@ -52,6 +53,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         mediaPlayer = new MediaPlayer();
         mediaPlayer.setSurface(previewSurface);
         mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
     }
 
@@ -68,6 +70,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     @Override
     public void onSurfaceTextureUpdated(SurfaceTexture surface) {
 
+
     }
 
     @Override
@@ -76,10 +79,16 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         isVideoReady = true;
     }
 
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+        listener.onVideoThumbnailChanged(previewTagView.getBitmap(100,100));
+    }
+
     // Define the events that the fragment will use to communicate
     public interface OnReadyListener  {
         // This can be any number of events to be sent to the activity
         public void onWordListFragmentReady();
+        public void onVideoThumbnailChanged(Bitmap bitmap);
     }
 
     // Store instance variables based on arguments passed
