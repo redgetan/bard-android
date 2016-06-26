@@ -323,7 +323,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
 
-        if (isLeaderPressed) {
+        if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
             WordTag wordTag = wordTagList.get(tokenIndex);
             if (wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
                 String wordTagString = getWordTagSelector().findNextWord(lastWord);
