@@ -5,6 +5,8 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.widget.MultiAutoCompleteTextView;
 
+import java.util.HashMap;
+
 // http://stackoverflow.com/a/4596652
 public class SpaceTokenizer implements MultiAutoCompleteTextView.Tokenizer {
 
@@ -34,6 +36,59 @@ public class SpaceTokenizer implements MultiAutoCompleteTextView.Tokenizer {
         }
 
         return len;
+    }
+
+    // cases:
+    //   1. word at beginning of string
+    //   2. word at middle of string
+
+    public static HashMap<String, Integer> findStartStopOfNthToken(CharSequence text, int tokenIndex) {
+        int i = 0;
+        int start = -1;
+        int stop = -1;
+        int nthToken = 0;
+        boolean shouldFindStart = true;
+        boolean shouldFindStop = false;
+
+        while (i < text.length()) {
+            // non-space character
+            if (text.charAt(i) != ' ') {
+                if (shouldFindStart) {
+                    start = i;
+                    shouldFindStart = false;
+                    shouldFindStop = true;
+                }
+            } else {
+                // space character
+                if (shouldFindStop) {
+                    stop = i;
+                    shouldFindStop = false;
+                    shouldFindStart = true;
+                }
+            }
+
+            if (start >= 0 && stop >= 0) {
+                if (tokenIndex == nthToken) {
+                    break;
+                } else {
+                    // reset for next round
+                    start = -1;
+                    stop  = -1;
+                    nthToken++;
+                }
+            }
+
+            i++;
+        }
+
+        // handles case where tokenindex corresponds to lastword (and no space is found on last word)
+        if (stop == -1) stop = text.length();
+
+        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        result.put("start",start);
+        result.put("stop",stop);
+
+        return result;
     }
 
     public CharSequence terminateToken(CharSequence text) {

@@ -612,8 +612,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showVideoResultFragment() {
-        editText.setEnabled(false);
+        editText.setVisibility(View.GONE);
         sendMessageBtn.setVisibility(View.GONE);
+        previewTimeline.setVisibility(View.GONE);
 
         if (vpPager.getCurrentItem() != 1) {
             vpPager.setCurrentItem(1, true);
@@ -624,8 +625,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showWordListFragment() {
-        editText.setEnabled(true);
+        editText.setVisibility(View.VISIBLE);
         sendMessageBtn.setVisibility(View.VISIBLE);
+        previewTimeline.setVisibility(View.VISIBLE);
 
         if (vpPager.getCurrentItem() != 0) {
             vpPager.setCurrentItem(0, true);
@@ -721,6 +723,27 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
             imageView.setLayoutParams(layoutParams);
             imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+            imageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (lastImageView != null && lastImageView != v) {
+                        lastImageView.setSelected(false);
+                    }
+                    v.setSelected(true);
+
+                    int tokenIndex = previewTimeline.indexOfChild(v);
+
+                    HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
+                    if (result.get("start") >= 0 && result.get("stop") >= 0) {
+                        editText.setSelection(result.get("start"), result.get("stop"));
+                    }
+
+                    if (tokenIndex < wordTagList.size()) {
+                        WordTag wordTag = wordTagList.get(tokenIndex);
+                        EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                    }
+                }
+            });
             previewTimeline.addView(imageView, tokenIndex);
         }
 

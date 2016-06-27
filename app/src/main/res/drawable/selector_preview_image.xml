@@ -3,5 +3,5 @@
 <!-- Color when the row is selected -->
 <item android:drawable="@drawable/preview_image_border" android:state_selected="true" />
 <!-- Standard background color -->
-<item android:drawable="@android:color/white" android:state_selected="false" />
+<item android:drawable="@color/iron" android:state_selected="false" />
 </selector>

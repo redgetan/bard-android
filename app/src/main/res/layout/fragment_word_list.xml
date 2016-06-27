@@ -17,6 +17,13 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
+        <View
+                android:id="@+id/preview_video_overlay"
+                android:background="@color/iron"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
+
         <ImageView
                 android:id="@+id/btn_find_prev"
                 android:src="@drawable/ic_keyboard_arrow_left_white_24dp"

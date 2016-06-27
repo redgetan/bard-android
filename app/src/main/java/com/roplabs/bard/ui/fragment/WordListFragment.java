@@ -2,12 +2,14 @@ package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.WordsLayoutManager;
 import android.text.Editable;
@@ -44,6 +46,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
     private Surface previewSurface;
+    private View previewOverlay;
 
     private OnReadyListener listener;
 
@@ -121,6 +124,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         previewTagView = (TextureView) view.findViewById(R.id.preview_tag_view);
         findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
+        previewOverlay = view.findViewById(R.id.preview_video_overlay);
 
         initVideoPlayer();
 
@@ -164,6 +168,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     public void playPreview(Segment segment) {
+        if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
         drawPagination();
         playVideo(segment.getSourceUrl());
     }
@@ -182,7 +187,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     private void initVideoPlayer() {
-        previewTagView.setAlpha(1);
         previewTagView.setOpaque(false);
         previewTagView.setSurfaceTextureListener(this);
 
