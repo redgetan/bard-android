@@ -23,7 +23,7 @@
                   android:background="@color/black"
                   android:textColor="@color/white"
                   android:padding="5dp"
-                  android:alpha="0.3"
+                  android:alpha="0.8"
                   android:layout_height="wrap_content"
                   android:layout_marginTop="10dp"
                   android:layout_gravity="top|center_horizontal"

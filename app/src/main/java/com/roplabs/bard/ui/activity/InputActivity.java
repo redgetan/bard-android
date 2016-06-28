@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -727,6 +728,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     public void onVideoThumbnailChanged(Bitmap bitmap) {
         if (currentImageView != null) {
             currentImageView.setImageBitmap(bitmap);
+            currentImageView.setEnabled(true);
         } else {
             currentImageView = createPreviewImageView(bitmap);
             previewTimeline.addView(currentImageView, currentTokenIndex);
@@ -740,6 +742,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
+        } else {
+            imageView.setEnabled(false);
         }
 
         imageView.setBackgroundResource(R.drawable.selector_preview_image);
