@@ -366,10 +366,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
                 wordTagList.remove(tokenIndex + 1);
-                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
-                if (imageView != null) {
-                    previewTimeline.removeView(imageView);
-                }
             } else {
                 // UPDATE wordTag (when word changed)
                 WordTag wordTag = wordTagList.get(tokenIndex);
