@@ -10,7 +10,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
@@ -121,6 +120,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         indexName = intent.getStringExtra("indexName");
         setTitle(indexName);
 
+        initPreviewTimeline();
         initVideoStorage();
         initAnalytics();
         initViewPager();
@@ -135,6 +135,16 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         if (editText.requestFocus()) {
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
+        }
+    }
+
+    private void initPreviewTimeline() {
+        // add blank preview slots
+        ImageView imageView;
+
+        for (int i = 0; i < 10; i++) {
+            imageView = createPreviewImageView(null);
+            previewTimeline.addView(imageView,i);
         }
     }
 
@@ -334,6 +344,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         boolean isLeaderPressed = character.equals(" ");
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
+        currentTokenIndex = tokenIndex;
 
         if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
             WordTag wordTag = wordTagList.get(tokenIndex);
@@ -718,37 +729,47 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         if (currentImageView != null) {
             currentImageView.setImageBitmap(bitmap);
         } else {
-            currentImageView = new ImageView(this);
-            currentImageView.setImageBitmap(bitmap);
-            currentImageView.setBackgroundResource(R.drawable.selector_preview_image);
-            LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
-            currentImageView.setLayoutParams(layoutParams);
-            currentImageView.setScaleType(ImageView.ScaleType.FIT_XY);
-            currentImageView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (lastImageView != null && lastImageView != v) {
-                        lastImageView.setSelected(false);
-                    }
-                    v.setSelected(true);
-
-                    int tokenIndex = previewTimeline.indexOfChild(v);
-
-                    HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
-                    if (result.get("start") >= 0 && result.get("stop") >= 0) {
-                        editText.setSelection(result.get("start"), result.get("stop"));
-                    }
-
-                    if (tokenIndex < wordTagList.size()) {
-                        WordTag wordTag = wordTagList.get(tokenIndex);
-                        EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
-                    }
-                }
-            });
+            currentImageView = createPreviewImageView(bitmap);
             previewTimeline.addView(currentImageView, currentTokenIndex);
         }
 
         currentImageView.setSelected(true);
         lastImageView = currentImageView;
+    }
+
+    public ImageView createPreviewImageView(Bitmap bitmap) {
+        ImageView imageView = new ImageView(this);
+
+        if (bitmap != null) {
+            imageView.setImageBitmap(bitmap);
+        }
+
+        imageView.setBackgroundResource(R.drawable.selector_preview_image);
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
+        imageView.setLayoutParams(layoutParams);
+        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
+        imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (lastImageView != null && lastImageView != v) {
+                    lastImageView.setSelected(false);
+                }
+                v.setSelected(true);
+
+                int tokenIndex = previewTimeline.indexOfChild(v);
+
+                HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
+                if (result.get("start") >= 0 && result.get("stop") >= 0) {
+                    editText.setSelection(result.get("start"), result.get("stop"));
+                }
+
+                if (tokenIndex < wordTagList.size()) {
+                    WordTag wordTag = wordTagList.get(tokenIndex);
+                    EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                }
+            }
+        });
+
+        return imageView;
     }
 }

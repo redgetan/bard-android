@@ -16,21 +16,22 @@
                         android:id="@+id/bard_text_entry"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:layout_alignParentBottom="true"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
         >
             <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
-                                                               android:layout_width="0dp"
+                                                                  android:layout_width="0dp"
                                                                   android:layout_marginLeft="5dp"
                                                                   android:layout_marginStart="5dp"
                                                                   android:layout_marginRight="5dp"
-                                                               android:layout_height="wrap_content"
-                                                               android:layout_weight="1"
-                                                               android:background="@android:color/transparent"
-                                                               android:completionThreshold="1"
-                                                               android:hint="@string/edit_message"/>
+                                                                  android:layout_height="wrap_content"
+                                                                  android:layout_weight="1"
+                                                                  android:background="@android:color/transparent"
+                                                                  android:completionThreshold="1"
+                                                                  android:hint="@string/edit_message"/>
 
             <ImageView
                     android:id="@+id/send_message_btn"
@@ -44,26 +45,17 @@
                     android:contentDescription="@string/button_send"/>
         </LinearLayout>
 
-        <HorizontalScrollView
-                android:id="@+id/preview_timeline_container"
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/word_list_dictionary"
+                android:layout_above="@id/bard_text_entry"
                 android:layout_width="match_parent"
-                android:layout_below="@+id/bard_text_entry"
-                android:layout_height="40dp">
-            <LinearLayout
-                    android:id="@+id/preview_timeline"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal" >
-                <!-- child views in here -->
-            </LinearLayout>
-        </HorizontalScrollView>
+                android:layout_height="wrap_content" />
 
         <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                        xmlns:tools="http://schemas.android.com/tools"
                        android:id="@+id/vp_pager_container"
                        android:layout_width="fill_parent"
-                       android:layout_height="wrap_content"
-                       android:layout_below="@+id/preview_timeline_container"
+                       android:layout_height="160dp"
                        android:orientation="vertical"
                        android:gravity="center_vertical|center_horizontal"
         >
@@ -89,6 +81,22 @@
             />
 
         </FrameLayout>
+
+        <HorizontalScrollView
+                android:id="@+id/preview_timeline_container"
+                android:layout_below="@id/vp_pager_container"
+                android:layout_width="match_parent"
+                android:paddingBottom="10dp"
+                android:layout_height="40dp">
+            <LinearLayout
+                    android:id="@+id/preview_timeline"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal" >
+                <!-- child views in here -->
+            </LinearLayout>
+        </HorizontalScrollView>
+
 
 
     </RelativeLayout>
