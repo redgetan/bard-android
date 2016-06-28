@@ -31,6 +31,16 @@
                   android:gravity="center"
                   android:textSize="16sp"/>
 
+        <TextView android:id="@+id/display_word_error"
+                  android:background="@android:color/holo_red_light"
+                  android:textColor="@android:color/white"
+                  android:visibility="visible"
+                  android:layout_gravity="top|left"
+                  android:layout_margin="10dp"
+                  android:layout_width="wrap_content"
+                  android:layout_height="wrap_content"/>
+
+
         <View
                 android:id="@+id/preview_video_overlay"
                 android:background="@color/iron"
@@ -57,14 +67,5 @@
                 android:contentDescription="@string/find_next_string"/>
 
     </FrameLayout>
-
-    <TextView android:id="@+id/display_word_error"
-              android:background="@android:color/holo_red_light"
-              android:textColor="@android:color/white"
-              android:layout_below="@id/preview_container"
-              android:visibility="visible"
-              android:gravity="center"
-              android:layout_width="wrap_content"
-              android:layout_height="wrap_content"/>
 
 </RelativeLayout>
