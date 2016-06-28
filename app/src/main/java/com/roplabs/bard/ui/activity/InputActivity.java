@@ -10,6 +10,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
+import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
@@ -314,10 +315,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                 if (editText.getTokenizer() != null) {
                     int tokenIndex = editText.getTokenIndex();
                     if (tokenIndex < wordTagList.size()) {
-                        currentImageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
-                        if (lastImageView != null && lastImageView != currentImageView) {
-                            lastImageView.setSelected(false);
-                        }
+                        setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
                         EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
@@ -354,6 +352,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                     String tag = wordTagString.split(":")[1];
                     wordTag.tag = tag;
 
+                    setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     getWordListFragment().queryWordPreview(wordTag.toString());
                 }
             }
@@ -734,7 +733,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         }
 
         currentImageView.setSelected(true);
-        lastImageView = currentImageView;
     }
 
     public ImageView createPreviewImageView(Bitmap bitmap) {
@@ -751,9 +749,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (lastImageView != null && lastImageView != v) {
-                    lastImageView.setSelected(false);
-                }
+                setCurrentImageView((ImageView) v);
                 v.setSelected(true);
 
                 int tokenIndex = previewTimeline.indexOfChild(v);
@@ -771,5 +767,15 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         });
 
         return imageView;
+    }
+
+    private void setCurrentImageView(ImageView imageView) {
+        currentImageView = imageView;
+
+        if (lastImageView != null && lastImageView != imageView) {
+            lastImageView.setSelected(false);
+        }
+
+        lastImageView = currentImageView;
     }
 }

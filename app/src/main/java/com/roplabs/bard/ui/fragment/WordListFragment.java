@@ -1,10 +1,7 @@
 package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.SurfaceTexture;
+import android.graphics.*;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -14,6 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.WordsLayoutManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.crashlytics.android.Crashlytics;
@@ -58,6 +56,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+        adjustAspectRatio(640,360);
     }
 
     @Override
@@ -223,6 +222,40 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             e.printStackTrace();
             Crashlytics.logException(e);
         }
+    }
+
+
+    /**
+     * Sets the TextureView transform to preserve the aspect ratio of the video.
+     */
+    private void adjustAspectRatio(int videoWidth, int videoHeight) {
+        int viewWidth = previewTagView.getWidth();
+        int viewHeight = previewTagView.getHeight();
+        double aspectRatio = (double) videoHeight / videoWidth;
+
+        int newWidth, newHeight;
+        if (viewHeight > (int) (viewWidth * aspectRatio)) {
+            // limited by narrow width; restrict height
+            newWidth = viewWidth;
+            newHeight = (int) (viewWidth * aspectRatio);
+        } else {
+            // limited by short height; restrict width
+            newWidth = (int) (viewHeight / aspectRatio);
+            newHeight = viewHeight;
+        }
+        int xoff = (viewWidth - newWidth) / 2;
+        int yoff = (viewHeight - newHeight) / 2;
+        Log.v("Mimic", "video=" + videoWidth + "x" + videoHeight +
+                " view=" + viewWidth + "x" + viewHeight +
+                " newView=" + newWidth + "x" + newHeight +
+                " off=" + xoff + "," + yoff);
+
+        Matrix txform = new Matrix();
+        previewTagView.getTransform(txform);
+        txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+        //txform.postRotate(10);          // just for fun
+        txform.postTranslate(xoff, yoff);
+        previewTagView.setTransform(txform);
     }
 
 
