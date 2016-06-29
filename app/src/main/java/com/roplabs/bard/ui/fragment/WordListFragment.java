@@ -56,7 +56,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-        adjustAspectRatio(640,360);
     }
 
     @Override

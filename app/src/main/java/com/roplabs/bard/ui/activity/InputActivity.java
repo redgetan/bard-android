@@ -57,11 +57,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
     private Context mContext;
+    private RelativeLayout inputContainer;
     private InputViewPager vpPager;
     private FrameLayout vpPagerContainer;
     private TextView debugView;
     private WordsAutoCompleteTextView editText;
-    private TextView wordErrorView;
     private String packageDir;
     private String applicationDir;
     private String moviesDir;
@@ -92,6 +92,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private String indexName;
     private ImageView sendMessageBtn;
     private LinearLayout previewTimeline;
+    private HorizontalScrollView previewTimelineContainer;
 
     ShareActionProvider mShareActionProvider;
 
@@ -108,8 +109,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + "ffmpeg";
-        wordErrorView = (TextView) findViewById(R.id.display_word_error);
 
+        inputContainer = (RelativeLayout) findViewById(R.id.input_container);
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
@@ -117,6 +118,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
+        previewTimelineContainer = (HorizontalScrollView) findViewById(R.id.preview_timeline_container);
 
         Intent intent = getIntent();
         indexName = intent.getStringExtra("indexName");
@@ -180,16 +182,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             // This method will be invoked when a new page becomes selected.
             @Override
             public void onPageSelected(int position) {
-                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) vpPagerContainer.getLayoutParams();
-
-                if (position == 0) {
-                    params.height = RelativeLayout.LayoutParams.MATCH_PARENT;
-                } else if (position == 1) {
-                    params.height = getVideoResultFragment().getVideoView().getHeight();
-                }
-
-                vpPagerContainer.setLayoutParams(params);
-                vpPagerContainer.requestLayout();
             }
 
             // This method will be invoked when the current page is scrolled
@@ -343,17 +335,37 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         boolean isLeaderPressed = character.equals(" ");
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
+        if (isLeaderPressed && !editText.getNextChar(start).equals(" ") && !editText.getNextChar(start).equals("")) {
+            tokenIndex--;
+        }
         currentTokenIndex = tokenIndex;
+        WordTag wordTag;
 
         if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
-            WordTag wordTag = wordTagList.get(tokenIndex);
+            if (editText.getTokenCount() > wordTagList.size()) {
+                // ADD wordTag (when token count increases)
+                wordTag = new WordTag(lastWord);
+                wordTagList.add(tokenIndex, wordTag);
+            } else {
+                wordTag = wordTagList.get(tokenIndex);
+            }
+
             if (wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
                 String wordTagString = getWordTagSelector().findNextWord(lastWord);
                 if (!wordTagString.isEmpty()) {
                     String tag = wordTagString.split(":")[1];
                     wordTag.tag = tag;
 
-                    setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
+                    // if number of enabled imageview in timeline is less than number of words in wordtaglist
+                    // insert at current index a new bitmap slot for onVideoThumbnail changed to fill,
+                    // else change current bitmap slot
+                    if (getTimelineEnabledImageViewCount() < wordTagList.size()) {
+                        ImageView emptyImageView = createPreviewImageView(null);
+                        previewTimeline.addView(emptyImageView, tokenIndex);
+                        setCurrentImageView(emptyImageView);
+                    } else {
+                        setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
+                    }
                     getWordListFragment().queryWordPreview(wordTag.toString());
                 }
             }
@@ -361,14 +373,20 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             int tokenCount = editText.getTokenCount();
             if (tokenCount > wordTagList.size()) {
                 // ADD wordTag (when token count increases)
-                WordTag wordTag = new WordTag(lastWord);
+                wordTag = new WordTag(lastWord);
                 wordTagList.add(tokenIndex, wordTag);
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
                 wordTagList.remove(tokenIndex + 1);
+                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
+                if (imageView != null) {
+                    previewTimeline.removeView(imageView);
+                    previewTimeline.addView(createPreviewImageView(null));
+                }
+
             } else {
                 // UPDATE wordTag (when word changed)
-                WordTag wordTag = wordTagList.get(tokenIndex);
+                wordTag = wordTagList.get(tokenIndex);
                 if (!wordTag.word.equals(lastWord)) {
                     wordTag.tag = "";
                     wordTag.word = lastWord;
@@ -377,6 +395,19 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             }
 
         }
+    }
+
+    private int getTimelineEnabledImageViewCount() {
+        int childCount = previewTimeline.getChildCount();
+        int enabledCount = 0;
+
+        for (int i = 0; i < childCount; i++) {
+            if (previewTimeline.getChildAt(i).isEnabled()) {
+                enabledCount++;
+            }
+        }
+
+        return enabledCount;
     }
 
     private String getWordMessage() {
@@ -626,9 +657,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showVideoResultFragment() {
-        editText.setVisibility(View.GONE);
-        sendMessageBtn.setVisibility(View.GONE);
-        previewTimeline.setVisibility(View.GONE);
+        editText.setVisibility(View.INVISIBLE);
+        sendMessageBtn.setVisibility(View.INVISIBLE);
+        previewTimelineContainer.setVisibility(View.INVISIBLE);
 
         if (vpPager.getCurrentItem() != 1) {
             vpPager.setCurrentItem(1, true);
@@ -641,7 +672,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private void showWordListFragment() {
         editText.setVisibility(View.VISIBLE);
         sendMessageBtn.setVisibility(View.VISIBLE);
-        previewTimeline.setVisibility(View.VISIBLE);
+        previewTimelineContainer.setVisibility(View.VISIBLE);
 
         if (vpPager.getCurrentItem() != 0) {
             vpPager.setCurrentItem(0, true);

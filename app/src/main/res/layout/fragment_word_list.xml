@@ -9,7 +9,7 @@
                    android:id="@+id/preview_container"
                    android:layout_width="match_parent"
                    android:background="@color/black"
-                   android:layout_height="160dp"
+                   android:layout_height="200dp"
                    android:orientation="vertical"
                    android:gravity="center_vertical|center_horizontal"
     >
@@ -35,7 +35,7 @@
                   android:background="@android:color/holo_red_light"
                   android:textColor="@android:color/white"
                   android:visibility="visible"
-                  android:layout_gravity="top|left"
+                  android:layout_gravity="bottom|center_horizontal"
                   android:layout_margin="10dp"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"/>

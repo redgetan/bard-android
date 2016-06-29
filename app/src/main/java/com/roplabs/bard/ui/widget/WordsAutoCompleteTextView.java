@@ -62,6 +62,16 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     }
 
+    public String getNextChar(int start) {
+        String result;
+        if (start == length() - 1) {
+            result = "";
+        } else {
+            result = getText().toString().subSequence(start + 1, start + 2).toString();
+        }
+        return result;
+    }
+
     private class MyWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
             doAfterTextChanged();
