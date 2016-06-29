@@ -336,6 +336,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
         if (isLeaderPressed && !editText.getNextChar(start).equals(" ") && !editText.getNextChar(start).equals("")) {
+            lastWord = editText.getPrevWord(start);
             tokenIndex--;
         }
         currentTokenIndex = tokenIndex;
@@ -377,8 +378,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                 wordTagList.add(tokenIndex, wordTag);
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
-                wordTagList.remove(tokenIndex + 1);
-                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
+                wordTagList.remove(tokenIndex);
+                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
                 if (imageView != null) {
                     previewTimeline.removeView(imageView);
                     previewTimeline.addView(createPreviewImageView(null));

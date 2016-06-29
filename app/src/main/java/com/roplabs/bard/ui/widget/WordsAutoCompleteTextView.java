@@ -72,6 +72,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return result;
     }
 
+    public String getPrevWord(int start) {
+        String[] tokens = getText().toString().subSequence(0,start).toString().trim().split("\\s+");
+        return tokens[tokens.length - 1];
+    }
+
     private class MyWatcher implements TextWatcher {
         public void afterTextChanged(Editable s) {
             doAfterTextChanged();
