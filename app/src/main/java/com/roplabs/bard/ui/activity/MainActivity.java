@@ -89,10 +89,10 @@ public class MainActivity extends BaseActivity {
         RealmResults<Index> indexResults = Index.findAll();
         if (indexResults.size() == 0) {
             try {
-                populateWordIndex("smosh_index.json");
+                populateWordIndex("harry_styles_index.json");
                 populateWordIndex("kevin_hart_index.json");
                 populateWordIndex("emma_watson_index.json");
-                populateWordIndex("harry_styles_index.json");
+                populateWordIndex("smosh_index.json");
 
                 setDefaultIndex();
             } catch (IOException e) {
