@@ -132,7 +132,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     @Override
-    public void onStart() {
+    public void onResume() {
         super.onStart();
         EventBus.getDefault().register(this);
     }
