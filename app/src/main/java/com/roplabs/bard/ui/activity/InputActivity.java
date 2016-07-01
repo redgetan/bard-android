@@ -378,8 +378,16 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                 wordTagList.add(tokenIndex, wordTag);
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
-                wordTagList.remove(tokenIndex);
-                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
+                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
+                String nextWordInWordTagList = wordTagList.get(tokenIndex + 1).word;
+                ImageView imageView;
+                if (nextImmediateWord.equals(nextWordInWordTagList)) {
+                    wordTagList.remove(tokenIndex);
+                    imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
+                } else {
+                    wordTagList.remove(tokenIndex + 1);
+                    imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
+                }
                 if (imageView != null) {
                     previewTimeline.removeView(imageView);
                     previewTimeline.addView(createPreviewImageView(null));
