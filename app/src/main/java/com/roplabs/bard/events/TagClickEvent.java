@@ -1,9 +1,11 @@
 package com.roplabs.bard.events;
 
-public class TagClickEvent {
-    public final String word;
+import com.roplabs.bard.models.WordTag;
 
-    public TagClickEvent(String word) {
-        this.word = word;
+public class TagClickEvent {
+    public final WordTag wordTag;
+
+    public TagClickEvent(WordTag wordTag) {
+        this.wordTag = wordTag;
     }
 }

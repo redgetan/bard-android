@@ -1,9 +1,11 @@
 package com.roplabs.bard.events;
 
-public class ReplaceWordEvent {
-    public final String wordTagString;
+import com.roplabs.bard.models.WordTag;
 
-    public ReplaceWordEvent(String wordTagString) {
-        this.wordTagString = wordTagString;
+public class ReplaceWordEvent {
+    public final WordTag wordTag;
+
+    public ReplaceWordEvent(WordTag wordTag) {
+        this.wordTag = wordTag;
     }
 }

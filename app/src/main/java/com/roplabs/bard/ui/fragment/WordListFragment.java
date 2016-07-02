@@ -22,6 +22,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.models.WordTag;
 import com.roplabs.bard.models.WordTagSelector;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -150,9 +151,8 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Subscribe
     public void onEvent(PreviewWordEvent event) {
-        String wordTagString = event.wordTagString;
-        wordTagSelector.setWordTag(wordTagString);
-        queryWordPreview(wordTagString);
+        wordTagSelector.setWordTag(event.wordTag);
+        queryWordPreview(event.wordTag.toString());
     }
 
     public void queryWordPreview(String wordTagString) {
@@ -271,18 +271,18 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String wordTagString = wordTagSelector.findNextWord();
-                queryWordPreview(wordTagString);
-                EventBus.getDefault().post(new ReplaceWordEvent(wordTagString));
+                WordTag targetWordTag = wordTagSelector.findNextWord();
+                queryWordPreview(targetWordTag.toString());
+                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
             }
         });
 
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String wordTagString = wordTagSelector.findPrevWord();
-                queryWordPreview(wordTagString);
-                EventBus.getDefault().post(new ReplaceWordEvent(wordTagString));
+                WordTag targetWordTag = wordTagSelector.findPrevWord();
+                queryWordPreview(targetWordTag.toString());
+                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
             }
         });
 

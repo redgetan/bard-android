@@ -169,6 +169,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         lastEnd   = mTokenizer.findTokenEnd(getText(), end);
     }
 
+    public void insertText(CharSequence text) {
+        Editable editable = getText();
+        editable.insert(getSelectionEnd(), text);
+    }
+
     public String getAddedChar(int start) {
         return getText().subSequence(start,getSelectionEnd()).toString();
     }

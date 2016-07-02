@@ -5,9 +5,10 @@ import java.util.HashMap;
 import java.util.List;
 
 public class WordTagSelector {
-    HashMap<String, ArrayList<String>> wordTagMap;
+    HashMap<String, ArrayList<WordTag>> wordTagMap;
     private int currentWordTagIndex;
     private String currentWord;
+    private int currentScrollPosition;
 
     private static final String NEXT_DIRECTION = "next";
     private static final String PREV_DIRECTION = "prev";
@@ -15,8 +16,17 @@ public class WordTagSelector {
     public WordTagSelector(String[] wordTags) {
         this.currentWord = "";
         this.currentWordTagIndex = 0;
+        this.currentScrollPosition = -1;
 
         initWordTagMap(wordTags);
+    }
+
+    public void setCurrentScrollPosition(int position) {
+        this.currentScrollPosition = position;
+    }
+
+    public int getCurrentScrollPosition() {
+        return this.currentScrollPosition;
     }
 
     public String getCurrentWord() {
@@ -32,57 +42,57 @@ public class WordTagSelector {
     }
 
     public void initWordTagMap(String[] wordTags) {
-        this.wordTagMap = new HashMap<String, ArrayList<String>>();
+        this.wordTagMap = new HashMap<String, ArrayList<WordTag>>();
 
-        ArrayList<String> wordTagList;
+        ArrayList<WordTag> wordTagList;
 
         int i = 0;
         while (i < wordTags.length) {
-            String wordTag = wordTags[i];
-            String word = wordTag.split(":")[0];
+            String wordTagString = wordTags[i];
+            WordTag wordTag = new WordTag(wordTagString, i);
 
-            if ((wordTagList = wordTagMap.get(word)) != null) {
+            if ((wordTagList = wordTagMap.get(wordTag.word)) != null) {
                 wordTagList.add(wordTag);
             } else {
-                wordTagList = new ArrayList<String>();
+                wordTagList = new ArrayList<WordTag>();
                 wordTagList.add(wordTag);
-                wordTagMap.put(word, wordTagList);
+                wordTagMap.put(wordTag.word, wordTagList);
             }
 
             i++;
         }
     }
 
-    public String getCurrentWordTag() {
+    public WordTag getCurrentWordTag() {
        return wordTagMap.get(currentWord).get(currentWordTagIndex);
     }
 
-    public void setWordTag(String wordTagString) {
-        currentWord = wordTagString.split(":")[0];
-        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTagString);
+    public void setWordTag(WordTag wordTag) {
+        currentWord = wordTag.word;
+        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTag);
     }
 
-    public String findNextWord(String word) {
+    public WordTag findNextWord(String word) {
         return findWord(word, NEXT_DIRECTION);
     }
 
-    public String findNextWord() {
+    public WordTag findNextWord() {
         return findWord(currentWord, NEXT_DIRECTION);
     }
 
-    public String findPrevWord(String word) {
+    public WordTag findPrevWord(String word) {
         return findWord(word, PREV_DIRECTION);
     }
 
-    public String findPrevWord() {
+    public WordTag findPrevWord() {
         return findWord(currentWord, PREV_DIRECTION);
     }
 
     // see if word exists on the map
     // if exists, update index
     // return word
-    public String findWord(String word, String direction) {
-        if (isWordNotInDatabase(word)) return "";
+    public WordTag findWord(String word, String direction) {
+        if (isWordNotInDatabase(word)) return null;
 
         if (isWordChanged(word)) {
             currentWord = word;
@@ -91,7 +101,10 @@ public class WordTagSelector {
             updateWordTagIndex(word, direction);
         }
 
-        return getCurrentWordTag();
+        WordTag wordTag = getCurrentWordTag();
+        setCurrentScrollPosition(wordTag.position);
+
+        return wordTag;
     }
 
     private boolean isWordNotInDatabase(String word) {

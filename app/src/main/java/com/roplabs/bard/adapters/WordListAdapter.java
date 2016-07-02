@@ -15,6 +15,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.events.TagClickEvent;
+import com.roplabs.bard.models.WordTag;
 import org.greenrobot.eventbus.EventBus;
 import org.w3c.dom.Text;
 
@@ -102,9 +103,10 @@ public class WordListAdapter extends
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            String word = wordList.get(position);
+            String wordTagString = wordList.get(position);
+            WordTag wordTag = new WordTag(wordTagString);
 
-            EventBus.getDefault().post(new TagClickEvent(word));
+            EventBus.getDefault().post(new TagClickEvent(wordTag));
         }
 
     }

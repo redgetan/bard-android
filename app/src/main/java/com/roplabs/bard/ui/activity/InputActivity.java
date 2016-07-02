@@ -31,6 +31,7 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
+import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.*;
@@ -84,6 +85,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
     private Trie<String, String> wordTrie;
     private LinkedList<WordTag> wordTagList;
+    private boolean skipOnTextChangeCallback;
 
     private Repo repo;
     private String[] availableWordList;
@@ -93,6 +95,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private ImageView sendMessageBtn;
     private LinearLayout previewTimeline;
     private HorizontalScrollView previewTimelineContainer;
+    private WordListAdapter.ViewHolder lastViewHolder;
 
     ShareActionProvider mShareActionProvider;
 
@@ -119,6 +122,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (HorizontalScrollView) findViewById(R.id.preview_timeline_container);
+        recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
 
         Intent intent = getIntent();
         indexName = intent.getStringExtra("indexName");
@@ -140,6 +144,35 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
             imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
         }
+    }
+
+
+    private void initScrollableWordList() {
+        editText.setEnableAutocomplete(false);
+        editText.setRecyclerView(recyclerView);
+
+        WordListAdapter adapter = new WordListAdapter(this, new ArrayList<String>(Arrays.asList(availableWordList)));
+        adapter.setIsWordTagged(true);
+        recyclerView.setAdapter(adapter);
+        recyclerView.setLayoutManager(new LinearLayoutManager(ClientApp.getContext()));
+        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+//                if (getWordTagSelector().getCurrentScrollPosition() != -1) {
+//                    WordListAdapter.ViewHolder viewHolder = (WordListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(getWordTagSelector().getCurrentScrollPosition());
+//                    viewHolder.tagView.setBackgroundColor(Color.YELLOW);
+//                    if (lastViewHolder != null) lastViewHolder.tagView.setBackgroundColor(Color.TRANSPARENT);
+//                    lastViewHolder = viewHolder;
+//                    getWordTagSelector().setCurrentScrollPosition(-1);
+//                }
+                super.onScrolled(recyclerView, dx, dy);
+            }
+        });
     }
 
     private void initPreviewTimeline() {
@@ -199,11 +232,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         });
     }
 
-
-    public void onWordListViewReady(RecyclerView recyclerView) {
-        this.recyclerView = recyclerView;
-        this.editText.setRecyclerView(recyclerView);
-    }
 
     private void initChatText() {
         clearChatCursor();
@@ -282,9 +310,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void initMultiAutoComplete() {
+        initScrollableWordList();
+
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
-        editText.setAutoCompleteWords(wordTrie);
+//        editText.setAutoCompleteWords(wordTrie);
         editText.setTokenizer(new SpaceTokenizer());
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -293,8 +323,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                handleUnavailableWords(s, start);
-                updateWordTagList(s, start);
+                if (!skipOnTextChangeCallback) {
+                    handleUnavailableWords(s, start);
+                    updateWordTagList(s, start);
+                }
             }
 
             @Override
@@ -311,7 +343,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
-                        EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                        EventBus.getDefault().post(new PreviewWordEvent(wordTag));
                     }
                 }
             }
@@ -329,6 +361,23 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             updateInvalidWords();
         }
     }
+
+    @Subscribe
+    public void onEvent(TagClickEvent event) throws IOException {
+        // insert word in current index
+        //   - wordTagList
+        //   - editText
+        skipOnTextChangeCallback = true;
+        editText.insertText(event.wordTag.word + " ");
+        skipOnTextChangeCallback = false;
+
+        currentTokenIndex = editText.getTokenIndex();
+        setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
+
+        wordTagList.add(currentTokenIndex,event.wordTag);
+        EventBus.getDefault().post(new PreviewWordEvent(event.wordTag));
+    }
+
 
     private void updateWordTagList(CharSequence s, int start) {
         String character = editText.getAddedChar(start);
@@ -352,10 +401,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             }
 
             if (wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
-                String wordTagString = getWordTagSelector().findNextWord(lastWord);
-                if (!wordTagString.isEmpty()) {
-                    String tag = wordTagString.split(":")[1];
-                    wordTag.tag = tag;
+                WordTag targetWordTag = getWordTagSelector().findNextWord(lastWord);
+                if (targetWordTag != null) {
+                    wordTag.tag = targetWordTag.tag;
+                    recyclerView.scrollToPosition(targetWordTag.position);
 
                     // if number of enabled imageview in timeline is less than number of words in wordtaglist
                     // insert at current index a new bitmap slot for onVideoThumbnail changed to fill,
@@ -605,11 +654,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     public boolean addMissingWordTag() {
         for (WordTag wordTag : wordTagList) {
             if (wordTag.tag.isEmpty()) {
-                String wordTagString = getWordTagSelector().findNextWord(wordTag.word);
-                if (wordTagString.isEmpty()) {
+                WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
+                if (targetWordTag == null) {
                     return false;
                 } else {
-                    wordTag.tag = wordTagString.split(":")[1];
+                    wordTag.tag = targetWordTag.tag;
                 }
             }
 
@@ -666,9 +715,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showVideoResultFragment() {
-        editText.setVisibility(View.INVISIBLE);
-        sendMessageBtn.setVisibility(View.INVISIBLE);
-        previewTimelineContainer.setVisibility(View.INVISIBLE);
+        editText.setVisibility(View.GONE);
+        sendMessageBtn.setVisibility(View.GONE);
+        previewTimelineContainer.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.GONE);
 
         if (vpPager.getCurrentItem() != 1) {
             vpPager.setCurrentItem(1, true);
@@ -682,6 +732,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         editText.setVisibility(View.VISIBLE);
         sendMessageBtn.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.VISIBLE);
 
         if (vpPager.getCurrentItem() != 0) {
             vpPager.setCurrentItem(0, true);
@@ -708,7 +759,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     public void onEvent(ReplaceWordEvent event) {
         int tokenIndex = editText.getTokenIndex();
         WordTag wordTag = wordTagList.get(tokenIndex);
-        wordTag.tag = event.wordTagString.split(":")[1];
+        wordTag.tag = event.wordTag.tag;
+        recyclerView.scrollToPosition(event.wordTag.position);
     }
 
     private void setVideoError(String error) {
@@ -801,7 +853,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
                 if (tokenIndex < wordTagList.size()) {
                     WordTag wordTag = wordTagList.get(tokenIndex);
-                    EventBus.getDefault().post(new PreviewWordEvent(wordTag.toString()));
+                    EventBus.getDefault().post(new PreviewWordEvent(wordTag));
                 }
             }
         });
