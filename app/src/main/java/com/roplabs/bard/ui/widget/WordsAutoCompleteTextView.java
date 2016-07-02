@@ -190,7 +190,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public int getTokenCount() {
-        return getText().toString().trim().split("\\s+").length;
+        String[] tokens = getText().toString().trim().split("\\s+");
+        if (tokens.length == 1) {
+            return tokens[0].isEmpty() ? 0 : 1;
+        } else {
+            return tokens.length;
+        }
     }
 
     public String getLastWord() {

@@ -154,7 +154,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         WordListAdapter adapter = new WordListAdapter(this, new ArrayList<String>(Arrays.asList(availableWordList)));
         adapter.setIsWordTagged(true);
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(ClientApp.getContext()));
+        recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
             public void onScrollStateChanged(RecyclerView recyclerView, int newState) {

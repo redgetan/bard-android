@@ -62,19 +62,12 @@
             </LinearLayout>
         </HorizontalScrollView>
 
-        <android.support.v7.widget.RecyclerView
-                android:id="@+id/word_list_dictionary"
-                android:layout_below="@+id/preview_timeline_container"
-                android:layout_above="@+id/bard_text_entry"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-
         <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:tools="http://schemas.android.com/tools"
                         android:id="@+id/bard_text_entry"
+                        android:layout_below="@id/preview_timeline_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentBottom="true"
                         android:paddingTop="10dp"
                         android:paddingBottom="10dp"
                         android:gravity="center_vertical"
@@ -103,6 +96,12 @@
                     android:contentDescription="@string/button_send"/>
         </LinearLayout>
 
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/word_list_dictionary"
+                android:padding="10dp"
+                android:layout_below="@+id/bard_text_entry"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
 
 
     </RelativeLayout>

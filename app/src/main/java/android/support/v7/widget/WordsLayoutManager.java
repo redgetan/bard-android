@@ -450,6 +450,7 @@ public class WordsLayoutManager extends LinearLayoutManager {
         private       int              lineThickness;
         private       int              lineStartThickness;
         private       int              lineStartLength;
+        private int MAX_ROW_ITEMS = 4;
 
         public LineDefinition(ConfigDefinition config) {
             this.config = config;
@@ -469,6 +470,7 @@ public class WordsLayoutManager extends LinearLayoutManager {
         }
 
         public boolean canFit(ViewDefinition child) {
+            if (views.size() == MAX_ROW_ITEMS) return false;
             return lineLength + child.getLength() + child.getSpacingLength() <= config.getMaxLength();
         }
 

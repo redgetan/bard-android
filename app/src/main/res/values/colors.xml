@@ -21,6 +21,7 @@
     <color name="primary_darker">#CC1D1D</color>
 
     <!--<color name="word_tag_background">#EEE</color>-->
-    <color name="word_tag_border">#C6A8DD</color>
+    <!--<color name="word_tag_border">#C6A8DD</color>-->
+    <color name="word_tag_border">#333</color>
 
 </resources>
