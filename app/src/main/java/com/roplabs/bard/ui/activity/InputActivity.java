@@ -398,10 +398,21 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
     private void updateWordTagList(CharSequence s, int start) {
         String character = editText.getAddedChar(start);
+        String nextCharacter = editText.getNextChar(s, start);
         boolean isLeaderPressed = character.equals(" ");
+        boolean isBackspacePressed = character.equals("");
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
-        if (isLeaderPressed && !editText.getNextChar(start).equals(" ") && !editText.getNextChar(start).equals("")) {
+
+        // when adding character, always make sure there's a space right after, if not, add one (to preserve token count)
+        if (!isBackspacePressed && !nextCharacter.equals("") && !nextCharacter.equals(" ")) {
+            skipOnTextChangeCallback = true;
+            editText.insertText(" ");
+            editText.setSelection(start + 1);
+            skipOnTextChangeCallback = false;
+        }
+
+        if (isLeaderPressed && !nextCharacter.equals(" ") && !nextCharacter.equals("")) {
             lastWord = editText.getPrevWord(start);
             tokenIndex--;
         }
@@ -433,6 +444,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                     } else {
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
+                    progressBar.setVisibility(View.VISIBLE);
                     getWordListFragment().queryWordPreview(wordTag.toString());
                 }
             }
@@ -466,10 +478,17 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
             } else {
                 // UPDATE wordTag (when word changed)
-                wordTag = wordTagList.get(tokenIndex);
-                if (!wordTag.word.equals(lastWord)) {
-                    wordTag.tag = "";
-                    wordTag.word = lastWord;
+                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
+                String nextWordInWordTagList = wordTagList.get(tokenIndex).word;
+
+                if (nextImmediateWord.equals(nextWordInWordTagList)) {
+                    // dont change word tag (might be used again)
+                } else {
+                    wordTag = wordTagList.get(tokenIndex);
+                    if (!wordTag.word.equals(lastWord)) {
+                        wordTag.tag = "";
+                        wordTag.word = lastWord;
+                    }
                 }
 
             }
@@ -736,8 +755,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
+        progressBar.setVisibility(View.GONE);
+
         if (event.error != null) {
-            progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
         } else {
             if (event.isPreview) {

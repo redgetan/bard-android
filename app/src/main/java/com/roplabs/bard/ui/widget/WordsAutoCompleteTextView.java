@@ -62,10 +62,15 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     }
 
-    public String getNextChar(int start) {
-        String result;
-        if (start == length() - 1) {
+    public String getNextChar(CharSequence s, int start) {
+        String result = "";
+        String character = getAddedChar(start);
+        boolean isBackspacePressed = character.equals("");
+
+        if (start == length() - 1 || start == length()) {
             result = "";
+        } else if (isBackspacePressed)  {
+            result = getText().toString().subSequence(start, start + 1).toString();
         } else {
             result = getText().toString().subSequence(start + 1, start + 2).toString();
         }
