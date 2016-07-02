@@ -152,14 +152,14 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     @Subscribe
     public void onEvent(PreviewWordEvent event) {
         wordTagSelector.setWordTag(event.wordTag);
-        queryWordPreview(event.wordTag.toString());
+        queryWordPreview(event.wordTag);
     }
 
-    public void queryWordPreview(String wordTagString) {
-        if (wordTagString.isEmpty()) return;
+    public void queryWordPreview(WordTag wordTag) {
+        if (wordTag == null) return;
 
         try {
-            BardClient.getQuery(wordTagString, Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+            BardClient.getQuery(wordTag.toString(), Setting.getCurrentIndexToken(ClientApp.getContext()), true);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -272,7 +272,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onClick(View v) {
                 WordTag targetWordTag = wordTagSelector.findNextWord();
-                queryWordPreview(targetWordTag.toString());
+                queryWordPreview(targetWordTag);
                 EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
             }
         });
@@ -281,7 +281,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onClick(View v) {
                 WordTag targetWordTag = wordTagSelector.findPrevWord();
-                queryWordPreview(targetWordTag.toString());
+                queryWordPreview(targetWordTag);
                 EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
             }
         });

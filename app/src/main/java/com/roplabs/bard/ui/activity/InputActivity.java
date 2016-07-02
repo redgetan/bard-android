@@ -445,7 +445,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
                     progressBar.setVisibility(View.VISIBLE);
-                    getWordListFragment().queryWordPreview(wordTag.toString());
+                    getWordListFragment().queryWordPreview(wordTag);
                 }
             }
         } else {
