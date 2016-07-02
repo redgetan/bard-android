@@ -755,12 +755,12 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
     @Subscribe
     public void onEvent(VideoQueryEvent event) {
-        progressBar.setVisibility(View.GONE);
-
         if (event.error != null) {
+            progressBar.setVisibility(View.GONE);
             debugView.setText(event.error);
         } else {
             if (event.isPreview) {
+                progressBar.setVisibility(View.GONE);
                 if (getWordListFragment() != null) {
                     getWordListFragment().playPreview(event.segments.get(0));
                 }
