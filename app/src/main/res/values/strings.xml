@@ -5,7 +5,8 @@
     <string name="action_save">Save</string>
     <string name="edit_message">says something</string>
     <string name="button_send">Send</string>
-    <string name="button_share">Share</string>
+    <string name="button_keyboard">Keyboard</string>
+    <string name="button_word_list">Word List</string>
     <string name="title_activity_save">Share</string>
     <string name="title_index">Choose a Character</string>
     <string name="title_project_list">My Projects</string>

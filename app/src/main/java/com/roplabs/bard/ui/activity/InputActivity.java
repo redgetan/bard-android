@@ -93,6 +93,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     Set<String> invalidWords;
     private String indexName;
     private ImageView sendMessageBtn;
+    private ImageView showKeyboardBtn;
+    private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
     private HorizontalScrollView previewTimelineContainer;
     private WordListAdapter.ViewHolder lastViewHolder;
@@ -120,9 +122,12 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
+        showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
+        showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (HorizontalScrollView) findViewById(R.id.preview_timeline_container);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
+
 
         Intent intent = getIntent();
         indexName = intent.getStringExtra("indexName");
@@ -273,7 +278,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             protected void onPostExecute(Void result) {
                 initFindInPage();
                 initMultiAutoComplete();
-                showKeyboard();
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
             }
@@ -346,6 +350,19 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         EventBus.getDefault().post(new PreviewWordEvent(wordTag));
                     }
                 }
+            }
+        });
+
+        editText.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (showKeyboardBtn.isShown()) {
+                    showKeyboardBtn.setVisibility(View.GONE);
+                    showWordChoiceBtn.setVisibility(View.VISIBLE);
+                    recyclerView.setVisibility(View.GONE);
+                }
+
+                return false;
             }
         });
     }
@@ -458,6 +475,20 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             }
 
         }
+    }
+
+    public void showKeyboard(View view) {
+        showKeyboardBtn.setVisibility(View.GONE);
+        showWordChoiceBtn.setVisibility(View.VISIBLE);
+        recyclerView.setVisibility(View.GONE);
+        this.showKeyboard();
+    }
+
+    public void showWordChoice(View view) {
+        showKeyboardBtn.setVisibility(View.VISIBLE);
+        showWordChoiceBtn.setVisibility(View.GONE);
+        recyclerView.setVisibility(View.VISIBLE);
+        this.hideKeyboard();
     }
 
     private int getTimelineEnabledImageViewCount() {
@@ -745,8 +776,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
         setTitle(indexName);
         if (shareMenuItem != null) shareMenuItem.setVisible(false);
-
-        showKeyboard();
     }
 
     @Subscribe
