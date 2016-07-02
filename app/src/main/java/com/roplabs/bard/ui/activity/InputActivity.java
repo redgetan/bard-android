@@ -751,8 +751,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showVideoResultFragment() {
-        editText.setVisibility(View.GONE);
-        sendMessageBtn.setVisibility(View.GONE);
+        editTextContainer.setVisibility(View.GONE);
         previewTimelineContainer.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
 
@@ -765,8 +764,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     private void showWordListFragment() {
-        editText.setVisibility(View.VISIBLE);
-        sendMessageBtn.setVisibility(View.VISIBLE);
+        editTextContainer.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
         recyclerView.setVisibility(View.VISIBLE);
 
