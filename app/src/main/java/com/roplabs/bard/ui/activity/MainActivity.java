@@ -40,7 +40,7 @@ public class MainActivity extends BaseActivity {
         Intent intent;
         String authToken = Setting.getAuthenticationToken(this);
 
-        if (authToken.length() > 0 || Helper.getAppVersion().contains("beta")) {
+        if (authToken.length() > 0) {
             intent = new Intent(this, IndexActivity.class);
         } else {
             intent = new Intent(this, LoginActivity.class);

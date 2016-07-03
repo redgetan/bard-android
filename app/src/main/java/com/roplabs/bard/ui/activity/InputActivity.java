@@ -184,7 +184,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         // add blank preview slots
         ImageView imageView;
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 20; i++) {
             imageView = createPreviewImageView(null);
             previewTimeline.addView(imageView,i);
         }
