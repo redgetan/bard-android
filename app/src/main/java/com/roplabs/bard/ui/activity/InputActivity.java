@@ -479,7 +479,14 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             } else {
                 // UPDATE wordTag (when word changed)
                 String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
-                String nextWordInWordTagList = wordTagList.get(tokenIndex).word;
+                WordTag nextWordTag = wordTagList.get(tokenIndex);
+                String nextWordInWordTagList;
+
+                if (nextWordTag != null) {
+                    nextWordInWordTagList = nextWordTag.word;
+                } else {
+                    nextWordInWordTagList = ""; 
+                }
 
                 if (nextImmediateWord.equals(nextWordInWordTagList)) {
                     // dont change word tag (might be used again)
