@@ -417,18 +417,18 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             tokenIndex--;
         }
         currentTokenIndex = tokenIndex;
-        WordTag wordTag;
+        WordTag wordTag = null;
 
         if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
             if (editText.getTokenCount() > wordTagList.size()) {
                 // ADD wordTag (when token count increases)
                 wordTag = new WordTag(lastWord);
                 wordTagList.add(tokenIndex, wordTag);
-            } else {
+            } else if (!lastWord.isEmpty()) {
                 wordTag = wordTagList.get(tokenIndex);
             }
 
-            if (wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
+            if (wordTag != null && wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
                 WordTag targetWordTag = getWordTagSelector().findNextWord(lastWord);
                 if (targetWordTag != null) {
                     wordTag.tag = targetWordTag.tag;
