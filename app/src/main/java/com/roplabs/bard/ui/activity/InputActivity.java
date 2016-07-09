@@ -92,11 +92,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private String indexName;
-    private Button playMessageBtn;
+    private ImageButton playMessageBtn;
     private ImageView showKeyboardBtn;
     private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
-    private HorizontalScrollView previewTimelineContainer;
+    private FrameLayout previewTimelineContainer;
     private WordListAdapter.ViewHolder lastViewHolder;
 
     ShareActionProvider mShareActionProvider;
@@ -121,11 +121,11 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         invalidWords = new HashSet<String>();
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
-        playMessageBtn = (Button) findViewById(R.id.play_message_btn);
+        playMessageBtn = (ImageButton) findViewById(R.id.play_message_btn);
         showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
         showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
-        previewTimelineContainer = (HorizontalScrollView) findViewById(R.id.preview_timeline_container);
+        previewTimelineContainer = (FrameLayout) findViewById(R.id.preview_timeline_container);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
 
 
@@ -699,6 +699,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                 progressBar.setVisibility(View.VISIBLE);
 
                 showVideoResultFragment();
+//                hideWordVariantSelector();
 
                 String message = getWordMessage();
                 BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
@@ -710,6 +711,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             debugView.setText(R.string.no_network_connection);
             return;
         }
+    }
+
+    private void hideWordVariantSelector() {
+
     }
 
     // return false if wordtag missing and unable to find match. true otherwise
