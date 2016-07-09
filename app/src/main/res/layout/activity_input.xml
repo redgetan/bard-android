@@ -1,8 +1,8 @@
-<LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:tools="http://schemas.android.com/tools"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent" xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="vertical"
 >
     <include
             layout="@layout/toolbar_main"
@@ -108,17 +108,18 @@
                                                                   android:background="@android:color/transparent"
                                                                   android:completionThreshold="1"
                                                                   android:hint="@string/edit_message"/>
-
-            <ImageView
-                    android:id="@+id/send_message_btn"
+            <Button
+                    android:id="@+id/play_message_btn"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="30dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginEnd="5dp"
-                    android:onClick="sendMessage"
-                    android:alpha="0.3"
-                    android:src="@drawable/ic_send_black_24dp"
+                    android:background="@color/purple"
+                    android:textColor="@color/white"
+                    android:onClick="playMessage"
+                    android:text="@string/button_play_all"
                     android:contentDescription="@string/button_send"/>
+
         </LinearLayout>
 
         <android.support.v7.widget.RecyclerView

@@ -92,7 +92,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private String indexName;
-    private ImageView sendMessageBtn;
+    private Button playMessageBtn;
     private ImageView showKeyboardBtn;
     private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
@@ -121,7 +121,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         invalidWords = new HashSet<String>();
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
-        sendMessageBtn = (ImageView) findViewById(R.id.send_message_btn);
+        playMessageBtn = (Button) findViewById(R.id.play_message_btn);
         showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
         showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
@@ -689,7 +689,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
 
-    public void sendMessage(View view) throws IOException {
+    public void playMessage(View view) throws IOException {
         ConnectivityManager connMgr = (ConnectivityManager)
                 getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
