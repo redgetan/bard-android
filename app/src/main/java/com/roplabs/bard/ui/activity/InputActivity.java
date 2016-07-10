@@ -449,7 +449,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
                     progressBar.setVisibility(View.VISIBLE);
-                    getWordListFragment().queryWordPreview(wordTag);
+                    getWordListFragment().setWordTag(wordTag);
                 }
             }
         } else {
@@ -476,9 +476,9 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                     imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
                 }
                 if (imageView != null) {
-                    updatePlayAllBtnState();
                     previewTimeline.removeView(imageView);
                     previewTimeline.addView(createPreviewImageView(null));
+                    updatePlayAllBtnState();
                 }
 
             } else {
@@ -923,7 +923,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
 
                 if (tokenIndex < wordTagList.size()) {
                     WordTag wordTag = wordTagList.get(tokenIndex);
-                    EventBus.getDefault().post(new PreviewWordEvent(wordTag));
+                    getWordListFragment().setWordTag(wordTag);
                 }
             }
         });
