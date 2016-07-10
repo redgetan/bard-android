@@ -347,7 +347,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
-                        EventBus.getDefault().post(new PreviewWordEvent(wordTag));
+                        getWordListFragment().setWordTag(wordTag);
                     }
                 }
             }
@@ -400,7 +400,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
         wordTagList.add(currentTokenIndex,event.wordTag);
-        EventBus.getDefault().post(new PreviewWordEvent(event.wordTag));
+        getWordListFragment().setWordTag(event.wordTag);
     }
 
 

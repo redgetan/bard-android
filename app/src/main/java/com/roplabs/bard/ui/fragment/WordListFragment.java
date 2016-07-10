@@ -5,6 +5,7 @@ import android.graphics.*;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
@@ -47,6 +48,8 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     private boolean isVideoReady = false;
     private Surface previewSurface;
     private View previewOverlay;
+    private Runnable fetchWordTagSegmentUrl;
+    private Handler wordTagPlayHandler;
 
     private OnReadyListener listener;
 
@@ -124,6 +127,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
         previewOverlay = view.findViewById(R.id.preview_video_overlay);
+        wordTagPlayHandler = new Handler();
 
         initVideoPlayer();
 
@@ -149,10 +153,29 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         display_word_error.setText(event.text);
     }
 
-    @Subscribe
-    public void onEvent(PreviewWordEvent event) {
-        wordTagSelector.setWordTag(event.wordTag);
-        queryWordPreview(event.wordTag);
+    public void setWordTag(WordTag wordTag) {
+        wordTagSelector.setWordTag(wordTag);
+        onWordTagChanged(wordTag);
+    }
+
+    public void onWordTagChanged(final WordTag wordTag) {
+        if (wordTag == null) return;
+
+        drawPagination();
+
+        if (fetchWordTagSegmentUrl != null) {
+            wordTagPlayHandler.removeCallbacks(fetchWordTagSegmentUrl);
+        }
+
+        fetchWordTagSegmentUrl = new Runnable(){
+            @Override
+            public void run(){
+                queryWordPreview(wordTag);
+                fetchWordTagSegmentUrl = null;
+            }
+        };
+
+        wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, 1000);
     }
 
     public void queryWordPreview(WordTag wordTag) {
@@ -160,6 +183,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
         try {
             BardClient.getQuery(wordTag.toString(), Setting.getCurrentIndexToken(ClientApp.getContext()), true);
+            EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -167,7 +191,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     public void playPreview(Segment segment) {
         if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
-        drawPagination();
         playVideo(segment.getSourceUrl());
     }
 
@@ -192,15 +215,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onSwipeLeft() {
                 WordTag targetWordTag = wordTagSelector.findNextWord();
-                queryWordPreview(targetWordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+                if (targetWordTag != null) onWordTagChanged(targetWordTag);
             }
 
             @Override
             public void onSwipeRight() {
                 WordTag targetWordTag = wordTagSelector.findPrevWord();
-                queryWordPreview(targetWordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+                if (targetWordTag != null) onWordTagChanged(targetWordTag);
             }
 
             @Override
@@ -277,8 +298,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onClick(View v) {
                 WordTag targetWordTag = wordTagSelector.findNextWord();
-                queryWordPreview(targetWordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+                if (targetWordTag != null) onWordTagChanged(targetWordTag);
             }
         });
 
@@ -286,8 +306,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onClick(View v) {
                 WordTag targetWordTag = wordTagSelector.findPrevWord();
-                queryWordPreview(targetWordTag);
-                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+                if (targetWordTag != null) onWordTagChanged(targetWordTag);
             }
         });
 
