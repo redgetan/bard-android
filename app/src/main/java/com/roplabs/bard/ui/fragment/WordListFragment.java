@@ -24,6 +24,7 @@ import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.WordTag;
 import com.roplabs.bard.models.WordTagSelector;
+import com.roplabs.bard.util.OnSwipeTouchListener;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -111,7 +112,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         }
     }
 
-
     // Inflate the view for the fragment based on layout XML
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -188,25 +188,30 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         previewTagView.setOpaque(false);
         previewTagView.setSurfaceTextureListener(this);
 
-
-        previewTagView.setOnTouchListener(new View.OnTouchListener() {
+        previewTagView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+            @Override
+            public void onSwipeLeft() {
+                WordTag targetWordTag = wordTagSelector.findNextWord();
+                queryWordPreview(targetWordTag);
+                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+            }
 
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                // http://stackoverflow.com/a/14163267
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (!isVideoReady) return false;
+            public void onSwipeRight() {
+                WordTag targetWordTag = wordTagSelector.findPrevWord();
+                queryWordPreview(targetWordTag);
+                EventBus.getDefault().post(new ReplaceWordEvent(targetWordTag));
+            }
 
-                    mediaPlayer.seekTo(0);
-                    mediaPlayer.start();
+            @Override
+            public void onTouchUp() {
+                if (!isVideoReady) return;
 
-                    return false;
-                } else {
-                    return true;
-                }
-
+                mediaPlayer.seekTo(0);
+                mediaPlayer.start();
             }
         });
+
     }
 
 
