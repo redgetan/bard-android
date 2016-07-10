@@ -92,7 +92,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private String indexName;
-    private ImageButton playMessageBtn;
+    private Button playMessageBtn;
     private ImageView showKeyboardBtn;
     private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
@@ -121,7 +121,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         invalidWords = new HashSet<String>();
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
-        playMessageBtn = (ImageButton) findViewById(R.id.play_message_btn);
+        playMessageBtn = (Button) findViewById(R.id.play_message_btn);
         showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
         showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
@@ -367,6 +367,14 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         });
     }
 
+    private void updatePlayAllBtnState() {
+        if (getTimelineEnabledImageViewCount() > 0) {
+            playMessageBtn.setEnabled(true);
+        } else {
+            playMessageBtn.setEnabled(false);
+        }
+    }
+
     private void handleUnavailableWords(CharSequence s, int start) {
         int endPos = editText.getSelectionEnd();
         int startPos = editText.getTokenizer().findTokenStart(s, endPos);
@@ -472,6 +480,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                     imageView = (ImageView) previewTimeline.getChildAt(tokenIndex + 1);
                 }
                 if (imageView != null) {
+                    updatePlayAllBtnState();
                     previewTimeline.removeView(imageView);
                     previewTimeline.addView(createPreviewImageView(null));
                 }
@@ -699,7 +708,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                 progressBar.setVisibility(View.VISIBLE);
 
                 showVideoResultFragment();
-//                hideWordVariantSelector();
 
                 String message = getWordMessage();
                 BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
@@ -711,10 +719,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             debugView.setText(R.string.no_network_connection);
             return;
         }
-    }
-
-    private void hideWordVariantSelector() {
-
     }
 
     // return false if wordtag missing and unable to find match. true otherwise
@@ -786,6 +790,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         editTextContainer.setVisibility(View.GONE);
         previewTimelineContainer.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
+        playMessageBtn.setVisibility(View.GONE);
 
         if (vpPager.getCurrentItem() != 1) {
             vpPager.setCurrentItem(1, true);
@@ -798,7 +803,10 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private void showWordListFragment() {
         editTextContainer.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.VISIBLE);
+        if (showKeyboardBtn.isShown()) {
+            recyclerView.setVisibility(View.VISIBLE);
+        }
+        playMessageBtn.setVisibility(View.VISIBLE);
 
         if (vpPager.getCurrentItem() != 0) {
             vpPager.setCurrentItem(0, true);
@@ -881,6 +889,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
         if (currentImageView != null) {
             currentImageView.setImageBitmap(bitmap);
             currentImageView.setEnabled(true);
+            updatePlayAllBtnState();
         } else {
             currentImageView = createPreviewImageView(bitmap);
             previewTimeline.addView(currentImageView, currentTokenIndex);
