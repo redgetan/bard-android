@@ -14,97 +14,60 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
-        <android.support.design.widget.CoordinatorLayout
-                android:id="@+id/coordinator_container"
-                xmlns:android="http://schemas.android.com/apk/res/android"
-                xmlns:app="http://schemas.android.com/apk/res-auto"
+        <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                       xmlns:tools="http://schemas.android.com/tools"
+                       android:id="@+id/vp_pager_container"
+                       android:layout_width="fill_parent"
+                       android:layout_height="200dp"
+                       android:orientation="vertical"
+                       android:gravity="center_vertical|center_horizontal"
+        >
+
+            <com.roplabs.bard.ui.widget.InputViewPager
+                    android:id="@+id/vpPager"
+                    android:layout_width="fill_parent"
+                    android:layout_height="wrap_content">
+            </com.roplabs.bard.ui.widget.InputViewPager>
+
+            <TextView android:id="@+id/display_debug"
+                      android:layout_gravity = "center_vertical|center_horizontal"
+                      android:layout_marginTop="30dp"
+                      android:layout_width="wrap_content"
+                      android:layout_height="wrap_content"/>
+
+            <ProgressBar
+                    android:id="@+id/query_video_progress_bar"
+                    android:layout_gravity = "center_vertical|center_horizontal"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone"
+            />
+
+        </FrameLayout>
+
+
+        <HorizontalScrollView
+                android:id="@+id/preview_timeline_container"
+                android:layout_below="@id/vp_pager_container"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-            <RelativeLayout android:layout_width="fill_parent" android:layout_height="wrap_content">
-                <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
-                               xmlns:tools="http://schemas.android.com/tools"
-                               android:id="@+id/vp_pager_container"
-                               android:layout_width="fill_parent"
-                               android:layout_height="200dp"
-                               android:orientation="vertical"
-                               android:gravity="center_vertical|center_horizontal"
-                >
-
-                    <com.roplabs.bard.ui.widget.InputViewPager
-                            android:id="@+id/vpPager"
-                            android:layout_width="fill_parent"
-                            android:layout_height="wrap_content">
-                    </com.roplabs.bard.ui.widget.InputViewPager>
-
-                    <TextView android:id="@+id/display_debug"
-                              android:layout_gravity = "center_vertical|center_horizontal"
-                              android:layout_marginTop="30dp"
-                              android:layout_width="wrap_content"
-                              android:layout_height="wrap_content"/>
-
-                    <ProgressBar
-                            android:id="@+id/query_video_progress_bar"
-                            android:layout_gravity = "center_vertical|center_horizontal"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:visibility="gone"
-                    />
-
-                </FrameLayout>
-
-                <HorizontalScrollView
-                        android:id="@+id/preview_timeline_container"
-                        android:layout_below="@+id/vp_pager_container"
-                        android:layout_width="match_parent"
-                        android:layout_height="40dp"
-                >
-                    <LinearLayout
-                            android:id="@+id/preview_timeline"
-                            android:background="@color/iron"
-                            android:layout_width="wrap_content"
-                            android:layout_height="match_parent"
-                            android:paddingTop="2dp"
-                            android:paddingBottom="2dp"
-                            android:orientation="horizontal" >
-                        <!-- child views in here -->
-                    </LinearLayout>
-                </HorizontalScrollView>
-
-            </RelativeLayout>
-            <!--<ImageButton-->
-                    <!--android:id="@+id/play_message_btn"-->
-                    <!--android:layout_width="80dp"-->
-                    <!--android:layout_gravity="bottom|right"-->
-                    <!--android:layout_height="80dp"-->
-                    <!--android:layout_marginRight="5dp"-->
-                    <!--android:layout_marginEnd="5dp"-->
-                    <!--android:background="@color/iron"-->
-                    <!--android:src="@drawable/ic_play_arrow_black_24dp"-->
-                    <!--android:onClick="playMessage"-->
-                    <!--android:text="@string/button_play_all"-->
-                    <!--android:contentDescription="@string/button_send"/>-->
-
-            <Button
-                    android:id="@+id/play_message_btn"
-                    android:onClick="playMessage"
-                    android:enabled="false"
-                    android:background="@drawable/selector_play_all"
-                    app:layout_anchor="@id/vp_pager_container"
-                    app:layout_anchorGravity="bottom|right|end"
-                    android:contentDescription="@string/button_send"
-                    android:layout_marginBottom="2dp"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp" />
-
-        </android.support.design.widget.CoordinatorLayout>
-
-
-
+                android:layout_height="40dp"
+        >
+            <LinearLayout
+                    android:id="@+id/preview_timeline"
+                    android:background="@color/iron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:orientation="horizontal" >
+                <!-- child views in here -->
+            </LinearLayout>
+        </HorizontalScrollView>
 
         <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:tools="http://schemas.android.com/tools"
                         android:id="@+id/bard_text_entry"
-                        android:layout_below="@id/coordinator_container"
+                        android:layout_below="@id/preview_timeline_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="10dp"
@@ -147,14 +110,27 @@
                                                                   android:background="@android:color/transparent"
                                                                   android:completionThreshold="1"
                                                                   android:hint="@string/edit_message"/>
+            <Button
+                    android:id="@+id/play_message_btn"
+                    android:onClick="playMessage"
+                    android:enabled="false"
+                    android:background="@drawable/selector_play_all"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginEnd="10dp"
+                    android:minWidth="70dp"
+                    android:text="@string/button_play_all"
+                    android:layout_gravity="top|right"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp" />
 
         </LinearLayout>
+
 
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/word_list_dictionary"
                 android:padding="10dp"
                 android:background="@drawable/word_choice_background"
-                android:layout_below="@+id/bard_text_entry"
+                android:layout_below="@id/bard_text_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
