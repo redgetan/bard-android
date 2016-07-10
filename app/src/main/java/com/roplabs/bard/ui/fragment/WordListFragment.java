@@ -7,18 +7,13 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.WordsLayoutManager;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
 import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
-import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.Segment;
@@ -30,9 +25,6 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
 
 public class WordListFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     // Store instance variables
@@ -175,15 +167,15 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             }
         };
 
-        wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, 1000);
+        wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, 500);
     }
 
     public void queryWordPreview(WordTag wordTag) {
         if (wordTag == null) return;
 
         try {
+            EventBus.getDefault().post(new FetchWordClipEvent(wordTag));
             BardClient.getQuery(wordTag.toString(), Setting.getCurrentIndexToken(ClientApp.getContext()), true);
-            EventBus.getDefault().post(new ReplaceWordEvent(wordTag));
         } catch (IOException e) {
             e.printStackTrace();
         }

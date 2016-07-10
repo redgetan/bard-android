@@ -4,14 +4,10 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
-import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
-import android.provider.ContactsContract;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
@@ -67,7 +63,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     private String applicationDir;
     private String moviesDir;
     private String ffmpegPath;
-    private ProgressBar progressBar;
+    public ProgressBar progressBar;
     private RecyclerView recyclerView;
     private SmartFragmentStatePagerAdapter adapterViewPager;
     private LinearLayout editTextContainer;
@@ -828,7 +824,8 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
     }
 
     @Subscribe
-    public void onEvent(ReplaceWordEvent event) {
+    public void onEvent(FetchWordClipEvent event) {
+        progressBar.setVisibility(View.VISIBLE);
         int tokenIndex = editText.getTokenIndex();
         WordTag wordTag = wordTagList.get(tokenIndex);
         wordTag.tag = event.wordTag.tag;
