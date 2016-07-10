@@ -435,9 +435,6 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
             if (wordTag != null && wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
                 WordTag targetWordTag = getWordTagSelector().findNextWord(lastWord);
                 if (targetWordTag != null) {
-                    wordTag.tag = targetWordTag.tag;
-                    recyclerView.scrollToPosition(targetWordTag.position);
-
                     // if number of enabled imageview in timeline is less than number of words in wordtaglist
                     // insert at current index a new bitmap slot for onVideoThumbnail changed to fill,
                     // else change current bitmap slot
@@ -449,7 +446,7 @@ public class InputActivity extends BaseActivity implements WordListFragment.OnRe
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
                     progressBar.setVisibility(View.VISIBLE);
-                    getWordListFragment().setWordTag(wordTag);
+                    getWordListFragment().setWordTag(targetWordTag);
                 }
             }
         } else {
