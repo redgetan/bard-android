@@ -67,9 +67,16 @@ public class WordTagSelector {
        return wordTagMap.get(currentWord).get(currentWordTagIndex);
     }
 
-    public void setWordTag(WordTag wordTag) {
-        currentWord = wordTag.word;
-        currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTag);
+    public boolean setWordTag(WordTag wordTag) {
+        boolean wordTagValid = (wordTag != null) && (!wordTag.tag.isEmpty());
+
+        if (wordTagValid) {
+            currentWord = wordTag.word;
+            currentWordTagIndex = wordTagMap.get(currentWord).indexOf(wordTag);
+            return true;
+        }
+
+        return false;
     }
 
     public WordTag findNextWord(String word) {

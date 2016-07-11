@@ -146,8 +146,9 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     public void setWordTag(WordTag wordTag) {
-        wordTagSelector.setWordTag(wordTag);
-        onWordTagChanged(wordTag);
+        if (wordTagSelector.setWordTag(wordTag)) {
+            onWordTagChanged(wordTag);
+        }
     }
 
     public void onWordTagChanged(final WordTag wordTag) {
