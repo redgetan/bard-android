@@ -45,7 +45,7 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class InputActivity extends BaseActivity implements WordListFragment.OnReadyListener {
+public class BardEditorActivity extends BaseActivity implements WordListFragment.OnReadyListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";

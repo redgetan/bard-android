@@ -15,10 +15,10 @@ public class SaveActivity extends BaseActivity {
         setContentView(R.layout.activity_save);
 
         Intent intent = getIntent();
-        String token = intent.getStringExtra(InputActivity.EXTRA_REPO_TOKEN);
-        String videoUrl = intent.getStringExtra(InputActivity.EXTRA_VIDEO_URL);
-        String videoPath = intent.getStringExtra(InputActivity.EXTRA_VIDEO_PATH);
-        String wordList = intent.getStringExtra(InputActivity.EXTRA_WORD_LIST);
+        String token = intent.getStringExtra(BardEditorActivity.EXTRA_REPO_TOKEN);
+        String videoUrl = intent.getStringExtra(BardEditorActivity.EXTRA_VIDEO_URL);
+        String videoPath = intent.getStringExtra(BardEditorActivity.EXTRA_VIDEO_PATH);
+        String wordList = intent.getStringExtra(BardEditorActivity.EXTRA_WORD_LIST);
 
         Repo.create(token, videoUrl, videoPath, wordList, Calendar.getInstance().getTime());
 

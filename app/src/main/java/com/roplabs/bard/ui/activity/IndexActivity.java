@@ -28,7 +28,6 @@ import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
-import java.io.EOFException;
 import java.io.IOException;
 import java.util.List;
 
@@ -85,7 +84,7 @@ public class IndexActivity extends BaseActivity {
     public void onEvent(IndexSelectEvent event) {
         Index index = event.index;
         Setting.setCurrentIndexToken(this, index.getToken());
-        Intent intent = new Intent(this, InputActivity.class);
+        Intent intent = new Intent(this, BardEditorActivity.class);
         intent.putExtra("indexName",index.getName());
         startActivity(intent);
     }

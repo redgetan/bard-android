@@ -26,32 +26,25 @@ import java.io.IOException;
 import java.util.List;
 
 interface BardService {
-    @GET("query")
-    Call<List<Segment>> query(@Query("text") String text, @Query("bundle_token") String bundleToken);
-
-    @GET("bundles")
-    Call<List<Index>> listIndex();
-}
-
-interface AccountService {
     @POST("users/sign_in")
     Call<User> login(@Body User user);
 
     @POST("users")
     Call<User> signUp(@Body User user);
+
+    @GET("bundles")
+    Call<List<Index>> listIndex();
 }
 
 public class BardClient {
-    static BardService  codecService;
-    static AccountService accountService;
+    static BardService  bardService;
 
-    public static final String CODEC_BASE_URL = "http://madchat.z9kt2x3bxp.us-west-2.elasticbeanstalk.com";
-    public static final String ACCOUNT_BASE_URL = "http://bard.zrqp9xghrt.us-west-2.elasticbeanstalk.com";
+    public static final String BASE_URL = "http://localhost:3000";
     private static final OkHttpClient client = new OkHttpClient();
 
 
     public static void getIndexList() throws IOException {
-        Call<List<Index>> call = getCodecService().listIndex();
+        Call<List<Index>> call = getBardService().listIndex();
         call.enqueue(new Callback<List<Index>>() {
             @Override
             public void onResponse(Call<List<Index>> call, Response<List<Index>> response) {
@@ -66,30 +59,8 @@ public class BardClient {
         });
     }
 
-    public static void getQuery(final String text, String indexToken, final boolean isPreview) throws IOException {
-        Call<List<Segment>> call = getCodecService().query(text, indexToken);
-        call.enqueue(new Callback<List<Segment>>() {
-            @Override
-            public void onResponse(Call<List<Segment>> call, Response<List<Segment>> response) {
-                List<Segment> segments = response.body();
-                if(!response.isSuccess()){
-                    String msg = response.raw().message() + " - " + text;
-                    EventBus.getDefault().post(new VideoQueryEvent(null, msg, isPreview));
-                } else {
-                    EventBus.getDefault().post(new VideoQueryEvent(segments, null, isPreview));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<List<Segment>> call, Throwable throwable) {
-                Log.d("Mimic", "failure on getQuery ");
-                EventBus.getDefault().post(new VideoQueryEvent(null, "timeout", isPreview));
-            }
-        });
-    }
-
     public static void doLoginIn(String email, String password) {
-        Call<User> call = getAccountService().login(new User(email, password));
+        Call<User> call = getBardService().login(new User(email, password));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -110,7 +81,7 @@ public class BardClient {
     }
 
     public static void doSignUp(String username, String email, String password) {
-        Call<User> call = getAccountService().signUp(new User(username, email, password));
+        Call<User> call = getBardService().signUp(new User(username, email, password));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
@@ -130,30 +101,17 @@ public class BardClient {
         });
     }
 
-    private static BardService  getCodecService() {
-        if (codecService == null) {
+    private static BardService  getBardService() {
+        if (bardService == null) {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(CODEC_BASE_URL)
+                    .baseUrl(BASE_URL)
                     .addConverterFactory(getGsonConverterFactory())
                     .client(getHTTPClient(true))
                     .build();
-            codecService = retrofit.create(BardService .class);
+            bardService = retrofit.create(BardService .class);
         }
 
-        return codecService;
-    }
-
-    private static AccountService getAccountService() {
-        if (accountService == null) {
-            Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(ACCOUNT_BASE_URL)
-                    .addConverterFactory(getGsonConverterFactory())
-                    .client(getHTTPClient(false))
-                    .build();
-            accountService = retrofit.create(AccountService.class);
-        }
-
-        return accountService;
+        return bardService;
     }
 
     private static OkHttpClient getHTTPClient(final Boolean isAuthenticated) {
