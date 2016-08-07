@@ -1,6 +1,7 @@
 package com.roplabs.bard.ui.activity;
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -17,10 +18,14 @@ import butterknife.ButterKnife;
 import butterknife.Bind;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.events.LoginEvent;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.models.User;
+import com.roplabs.bard.util.Helper;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
@@ -75,8 +80,38 @@ public class LoginActivity extends AppCompatActivity {
 
         String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
+        final Context self = this;
 
-        BardClient.doLoginIn(email, password);
+        Call<User> call = BardClient.getBardService().login(new User(email, password));
+        call.enqueue(new Callback<User>() {
+            @Override
+            public void onResponse(Call<User> call, Response<User> response) {
+                progressDialog.dismiss();
+                if (!response.isSuccess()) {
+                    String error = Helper.parseError(response);
+                    displayError(error);
+                } else {
+                    User user = response.body();
+                    Setting.setUserCredentials(self, user);
+                    _loginButton.setEnabled(true);
+                    setResult(RESULT_OK, null);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<User> call, Throwable t) {
+                progressDialog.dismiss();
+                displayError("timeout");
+            }
+        });
+    }
+
+    void displayError(String message) {
+        Toast toast = Toast.makeText(getBaseContext(), message, Toast.LENGTH_LONG);
+        toast.setGravity(Gravity.TOP, 0, 10);
+        toast.show();
+        _loginButton.setEnabled(true);
     }
 
 
@@ -133,22 +168,4 @@ public class LoginActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Subscribe
-    public void onEvent(LoginEvent event) {
-        progressDialog.dismiss();
-
-        if (event.error != null) {
-            Toast toast = Toast.makeText(getBaseContext(), event.error, Toast.LENGTH_LONG);
-            toast.setGravity(Gravity.TOP, 0, 10);
-            toast.show();
-            _loginButton.setEnabled(true);
-        } else {
-            Setting.setAuthenticationToken(this, event.user.getAuthenticationToken());
-            Setting.setUsername(this, event.user.getUsername());
-            Setting.setEmail(this, event.user.getEmail());
-            _loginButton.setEnabled(true);
-            setResult(RESULT_OK, null);
-            finish();
-        }
-    }
 }

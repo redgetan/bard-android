@@ -2,16 +2,9 @@ package com.roplabs.bard.api;
 
 import com.google.gson.*;
 import com.roplabs.bard.ClientApp;
-import com.roplabs.bard.events.LoginEvent;
-import com.roplabs.bard.events.SignUpEvent;
 import com.roplabs.bard.models.*;
-import com.roplabs.bard.util.Helper;
 import io.realm.RealmObject;
 import okhttp3.*;
-import org.greenrobot.eventbus.EventBus;
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -23,48 +16,6 @@ public class BardClient {
     public static final String BASE_URL = "http://localhost:3000";
     private static final OkHttpClient client = new OkHttpClient();
 
-
-    public static void doLoginIn(String email, String password) {
-        Call<User> call = getBardService().login(new User(email, password));
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (!response.isSuccess()) {
-                    String error = Helper.parseError(response);
-                    EventBus.getDefault().post(new LoginEvent(null,error));
-                } else {
-                    User user = response.body();
-                    EventBus.getDefault().post(new LoginEvent(user,null));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                EventBus.getDefault().post(new LoginEvent(null,"timeout"));
-            }
-        });
-    }
-
-    public static void doSignUp(String username, String email, String password) {
-        Call<User> call = getBardService().signUp(new User(username, email, password));
-        call.enqueue(new Callback<User>() {
-            @Override
-            public void onResponse(Call<User> call, Response<User> response) {
-                if (!response.isSuccess()) {
-                    String error = Helper.parseError(response);
-                    EventBus.getDefault().post(new SignUpEvent(null,error));
-                } else {
-                    User user = response.body();
-                    EventBus.getDefault().post(new SignUpEvent(user,null));
-                }
-            }
-
-            @Override
-            public void onFailure(Call<User> call, Throwable t) {
-                EventBus.getDefault().post(new SignUpEvent(null,"timeout"));
-            }
-        });
-    }
 
     public static BardService  getBardService() {
         if (bardService == null) {

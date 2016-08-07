@@ -9,6 +9,12 @@ public class Setting {
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
 
+    public static void setUserCredentials(Context context, User user) {
+        Setting.setAuthenticationToken(context, user.getAuthenticationToken());
+        Setting.setUsername(context, user.getUsername());
+        Setting.setEmail(context, user.getEmail());
+    }
+
     public static String getAuthenticationToken(Context context) {
         return get(context, AUTHENTICATION_TOKEN);
     }
