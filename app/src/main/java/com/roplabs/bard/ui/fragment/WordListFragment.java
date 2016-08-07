@@ -174,12 +174,11 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     public void queryWordPreview(WordTag wordTag) {
         if (wordTag == null) return;
 
-        try {
+//        try {
             EventBus.getDefault().post(new FetchWordClipEvent(wordTag));
-            BardClient.getQuery(wordTag.toString(), Setting.getCurrentIndexToken(ClientApp.getContext()), true);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     public void playPreview(Segment segment) {

@@ -5,6 +5,7 @@ import android.content.Context;
 import com.crashlytics.android.Crashlytics;
 import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
+import com.roplabs.bard.db.DBMigration;
 import com.squareup.leakcanary.LeakCanary;
 import io.fabric.sdk.android.Fabric;
 import com.google.android.gms.analytics.GoogleAnalytics;
@@ -23,7 +24,12 @@ public class ClientApp extends Application {
         instance = this;
         LeakCanary.install(this);
         Fabric.with(this, new Crashlytics());
-        RealmConfiguration config = new RealmConfiguration.Builder(this).build();
+        RealmConfiguration config = new RealmConfiguration.Builder(this)
+                .schemaVersion(1)
+                .migration(new DBMigration())
+                .build();
+
+        Realm realm = Realm.getInstance(config);
         Realm.setDefaultConfiguration(config);
 
         new Instabug.Builder(this, "aa977106b63d2bcb32d9e9c1319d9142")

@@ -15,6 +15,10 @@ public class Repo extends RealmObject {
     private String token;
     private String url;
     private String filePath;
+    private String username;
+    private Boolean isPublished;
+    private String characterToken;
+    private String sceneToken;
     private String wordList;
     private String error;
     private Date createdAt;
@@ -65,6 +69,39 @@ public class Repo extends RealmObject {
     public String getFilePath() {
         return filePath;
     }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setIsPublished(Boolean isPublished) {
+        this.isPublished = isPublished;
+    }
+
+    public Boolean getIsPublished() {
+        return isPublished;
+    }
+
+    public void setCharacterToken(String characterToken) {
+        this.characterToken = characterToken;
+    }
+
+    public String getCharacterToken() {
+        return characterToken;
+    }
+
+    public void setSceneToken(String sceneToken) {
+        this.sceneToken = sceneToken;
+    }
+
+    public String getSceneToken() {
+        return sceneToken;
+    }
+
     /**
      *
      * @return

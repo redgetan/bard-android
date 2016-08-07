@@ -18,7 +18,6 @@ public class Scene extends RealmObject implements Serializable {
     private String characterToken;
     private String wordList;
     private String thumbnailUrl;
-    private String error;
     private Date createdAt;
 
     @Ignore
@@ -101,15 +100,6 @@ public class Scene extends RealmObject implements Serializable {
 
         this.createdAt = createdAt;
     }
-
-    public String getError() {
-        return error;
-    }
-
-    public void setError(String error) {
-        this.error = error;
-    }
-
 
     public String getToken() {
         return this.token;

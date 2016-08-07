@@ -16,7 +16,6 @@ public class Character extends RealmObject implements Serializable {
     private String token;
     private String name;
     private String description;
-    private String error;
     private Boolean isBundleDownloaded;
     private Date createdAt;
 
@@ -67,58 +66,31 @@ public class Character extends RealmObject implements Serializable {
     public String getName() {
         return name;
     }
-    /**
-     *
-     * @return createdAt
-     * The url
-     */
+
     public Date getCreatedAt() {
         return createdAt;
     }
 
-    /**
-     *
-     * @param createdAt
-     * The url
-     */
+
     public void setCreatedAt(Date createdAt) {
 
         this.createdAt = createdAt;
     }
 
-    /**
-     *
-     * @return
-     * The error
-     */
-    public String getError() {
-        return error;
-    }
-
-    /**
-     *
-     * @param error
-     * The error
-     */
-    public void setError(String error) {
-        this.error = error;
-    }
-    /**
-     *
-     * @return
-     * The description
-     */
     public String getDescription() {
         return description;
     }
 
-    /**
-     *
-     * @param description
-     * The word_list
-     */
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public Boolean getIsBundleDownloaded() {
+        return this.isBundleDownloaded;
+    }
+
+    public void setIsBundleDownloaded(Boolean isBundleDownloaded) {
+        this.isBundleDownloaded = isBundleDownloaded;
     }
 
     public String getToken() {
