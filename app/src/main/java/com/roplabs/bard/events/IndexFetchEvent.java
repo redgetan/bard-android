@@ -1,15 +1,15 @@
 package com.roplabs.bard.events;
 
-import com.roplabs.bard.models.Index;
+import com.roplabs.bard.models.Character;
 
 import java.util.List;
 
 public class IndexFetchEvent {
-    public final List<Index> indexList;
+    public final List<Character> characterList;
     public final String error;
 
-    public IndexFetchEvent(List<Index> indexList, String error) {
-        this.indexList = indexList;
+    public IndexFetchEvent(List<Character> characterList, String error) {
+        this.characterList = characterList;
         this.error = error;
     }
 

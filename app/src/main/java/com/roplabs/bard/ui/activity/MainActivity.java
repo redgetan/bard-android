@@ -5,7 +5,7 @@ import android.content.res.AssetManager;
 import android.os.Bundle;
 import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.R;
-import com.roplabs.bard.models.Index;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.util.FileManager;
 import com.roplabs.bard.util.Helper;
@@ -79,15 +79,15 @@ public class MainActivity extends BaseActivity {
 
         JSONObject obj = new JSONObject(FileManager.readInputStream(input));
 
-        Index.create(obj.getString("token"),
+        Character.create(obj.getString("token"),
                 obj.getString("name"),
                 obj.getString("description"),
                 obj.getString("wordList"));
     }
 
     public void initWordIndex() {
-        RealmResults<Index> indexResults = Index.findAll();
-        if (indexResults.size() == 0) {
+        RealmResults<Character> characterResults = Character.findAll();
+        if (characterResults.size() == 0) {
             try {
                 populateWordIndex("harry_styles_index.json");
                 populateWordIndex("kevin_hart_index.json");
@@ -104,7 +104,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void setDefaultIndex() {
-        Setting.setCurrentIndexToken(this,Index.findFirst().getToken());
+        Setting.setCurrentIndexToken(this, Character.findFirst().getToken());
     }
 
 

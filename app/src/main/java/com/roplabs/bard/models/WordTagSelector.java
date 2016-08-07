@@ -96,7 +96,7 @@ public class WordTagSelector {
     }
 
     // see if word exists on the map
-    // if exists, update index
+    // if exists, update character
     // return word
     public WordTag findWord(String word, String direction) {
         if (isWordNotInDatabase(word)) return null;
@@ -123,7 +123,7 @@ public class WordTagSelector {
     }
 
     private void updateWordTagIndex(String word, String direction) {
-        // reset index if word changed
+        // reset character if word changed
         if (direction.equals(NEXT_DIRECTION)) {
             currentWordTagIndex++;
         } else if (direction.equals(PREV_DIRECTION)) {

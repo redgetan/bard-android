@@ -7,10 +7,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import com.roplabs.bard.R;
-import com.roplabs.bard.events.IndexSelectEvent;
-import com.roplabs.bard.models.Index;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Setting;
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -18,14 +16,14 @@ public class IndexListAdapter extends
         RecyclerView.Adapter<IndexListAdapter.ViewHolder> {
 
     // Store a member variable for the contacts
-    private List<Index> indexList;
+    private List<Character> characterList;
     private Context context;
     private View selectedView;
 
     // Pass in the contact array into the constructor
-    public IndexListAdapter(Context context, List<Index> indexList) {
+    public IndexListAdapter(Context context, List<Character> characterList) {
         this.context = context;
-        this.indexList = indexList;
+        this.characterList = characterList;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -44,13 +42,13 @@ public class IndexListAdapter extends
     @Override
     public void onBindViewHolder(IndexListAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
-        Index index = indexList.get(position);
+        Character character = characterList.get(position);
 
         // Set item views based on the data model
         TextView textView = viewHolder.indexNameView;
-        textView.setText(index.getName());
+        textView.setText(character.getName());
 
-        if (index.getToken().equals(Setting.getCurrentIndexToken(context))) {
+        if (character.getToken().equals(Setting.getCurrentIndexToken(context))) {
             selectedView = viewHolder.itemView;
             selectedView.setSelected(true);
         }
@@ -59,7 +57,17 @@ public class IndexListAdapter extends
     // Return the total count of items
     @Override
     public int getItemCount() {
-        return indexList.size();
+        return characterList.size();
+    }
+
+    private static OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position, Character character);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     // Provide a direct reference to each of the views within a data item
@@ -86,7 +94,7 @@ public class IndexListAdapter extends
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            Index index = indexList.get(position);
+            Character character = characterList.get(position);
 
             if (selectedView != null) {
                 selectedView.setSelected(false);
@@ -95,7 +103,9 @@ public class IndexListAdapter extends
             selectedView = v;
 
             selectedView.setSelected(true);
-            EventBus.getDefault().post(new IndexSelectEvent(index,null));
+            if (listener != null) {
+                listener.onItemClick(v, position, character);
+            }
         }
     }
 }

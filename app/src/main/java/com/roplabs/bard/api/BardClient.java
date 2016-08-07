@@ -1,13 +1,12 @@
 package com.roplabs.bard.api;
 
-import android.util.Log;
 import com.google.gson.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.events.IndexFetchEvent;
 import com.roplabs.bard.events.LoginEvent;
 import com.roplabs.bard.events.SignUpEvent;
-import com.roplabs.bard.events.VideoQueryEvent;
 import com.roplabs.bard.models.*;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.util.Helper;
 import io.realm.RealmObject;
 import okhttp3.*;
@@ -20,21 +19,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 import retrofit2.http.Body;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
-import retrofit2.http.Query;
 
 import java.io.IOException;
 import java.util.List;
-
-interface BardService {
-    @POST("users/sign_in")
-    Call<User> login(@Body User user);
-
-    @POST("users")
-    Call<User> signUp(@Body User user);
-
-    @GET("bundles")
-    Call<List<Index>> listIndex();
-}
 
 public class BardClient {
     static BardService  bardService;
@@ -42,22 +29,6 @@ public class BardClient {
     public static final String BASE_URL = "http://localhost:3000";
     private static final OkHttpClient client = new OkHttpClient();
 
-
-    public static void getIndexList() throws IOException {
-        Call<List<Index>> call = getBardService().listIndex();
-        call.enqueue(new Callback<List<Index>>() {
-            @Override
-            public void onResponse(Call<List<Index>> call, Response<List<Index>> response) {
-                List<Index> indexList = response.body();
-                EventBus.getDefault().post(new IndexFetchEvent(indexList, null));
-            }
-
-            @Override
-            public void onFailure(Call<List<Index>> call, Throwable t) {
-                EventBus.getDefault().post(new IndexFetchEvent(null, "failure"));
-            }
-        });
-    }
 
     public static void doLoginIn(String email, String password) {
         Call<User> call = getBardService().login(new User(email, password));
@@ -101,7 +72,7 @@ public class BardClient {
         });
     }
 
-    private static BardService  getBardService() {
+    public static BardService  getBardService() {
         if (bardService == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(BASE_URL)

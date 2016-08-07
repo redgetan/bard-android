@@ -9,52 +9,51 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Index extends RealmObject {
+public class Character extends RealmObject {
 
     private String token;
     private String name;
     private String description;
     private String error;
-    private String wordList;
+    private Boolean isBundleDownloaded;
     private Date createdAt;
 
     @Ignore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public Index(){
+    public Character(){
 
     }
 
-    public Index(String name, String description){
+    public Character(String name, String description){
         this.name = name;
         this.description = description;
     }
 
-    public static RealmResults<Index> findAll() {
+    public static RealmResults<Character> findAll() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Index.class).findAll();
+        return realm.where(Character.class).findAll();
     }
 
-    public static Index findFirst() {
+    public static Character findFirst() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Index.class).findFirst();
+        return realm.where(Character.class).findFirst();
     }
 
-    public static Index forToken(String token) {
+    public static Character forToken(String token) {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Index.class).equalTo("token", token).findFirst();
+        return realm.where(Character.class).equalTo("token", token).findFirst();
     }
 
-    public static void create(String token, String name, String description, String wordList) {
+    public static void create(String token, String name, String description) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
 
-        Index index = realm.createObject(Index.class);
-        index.setToken(token);
-        index.setName(name);
-        index.setDescription(description);
-        index.setWordList(wordList);
+        Character character = realm.createObject(Character.class);
+        character.setToken(token);
+        character.setName(name);
+        character.setDescription(description);
 
         realm.commitTransaction();
     }
@@ -118,14 +117,6 @@ public class Index extends RealmObject {
      */
     public void setDescription(String description) {
         this.description = description;
-    }
-
-    public String getWordList() {
-        return this.wordList;
-    }
-
-    public void setWordList(String wordList) {
-        this.wordList = wordList;
     }
 
     public String getToken() {

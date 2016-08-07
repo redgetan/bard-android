@@ -31,6 +31,7 @@ import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.*;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.fragment.VideoResultFragment;
 import com.roplabs.bard.ui.fragment.WordListFragment;
 import com.roplabs.bard.ui.widget.InputViewPager;
@@ -236,7 +237,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     private void initChatText() {
         clearChatCursor();
-        initAutocompleteWords();
+//        initAutocompleteWords();
     }
 
     private void clearChatCursor() {
@@ -262,10 +263,10 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
             @Override
             protected Void doInBackground(Void... params) {
-                availableWordList = Index.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
-
-                uniqueWordList = buildUniqueWordList();
-                wordTrie = buildWordTrie();
+//                availableWordList = Character.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
+//
+//                uniqueWordList = buildUniqueWordList();
+//                wordTrie = buildWordTrie();
 
                 return null;
             }
@@ -385,7 +386,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     @Subscribe
     public void onEvent(TagClickEvent event) throws IOException {
-        // insert word in current index
+        // insert word in current character
         //   - wordTagList
         //   - editText
         skipOnTextChangeCallback = true;
@@ -436,7 +437,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                 WordTag targetWordTag = getWordTagSelector().findNextWord(lastWord);
                 if (targetWordTag != null) {
                     // if number of enabled imageview in timeline is less than number of words in wordtaglist
-                    // insert at current index a new bitmap slot for onVideoThumbnail changed to fill,
+                    // insert at current character a new bitmap slot for onVideoThumbnail changed to fill,
                     // else change current bitmap slot
                     if (getTimelineEnabledImageViewCount() < wordTagList.size()) {
                         ImageView emptyImageView = createPreviewImageView(null);
@@ -703,7 +704,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                 showVideoResultFragment();
 
                 String message = getWordMessage();
-                BardClient.getQuery(message, Setting.getCurrentIndexToken(this), false);
             } else {
                 notifyUserOnUnavailableWord();
             }

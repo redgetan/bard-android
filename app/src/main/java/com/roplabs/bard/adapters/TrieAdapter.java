@@ -234,10 +234,10 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
     }
 
     /**
-     * Inserts the specified object at the specified index in the array.
+     * Inserts the specified object at the specified character in the array.
      *
      * @param object The object to insert into the array.
-     * @param index The index at which the object must be inserted.
+     * @param index The character at which the object must be inserted.
      */
     public void insert(T object, int index) {
         synchronized (mLock) {

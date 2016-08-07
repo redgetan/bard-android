@@ -19,14 +19,16 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.IndexFetchEvent;
-import com.roplabs.bard.events.IndexSelectEvent;
-import com.roplabs.bard.models.Index;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.IndexListAdapter;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.IOException;
 import java.util.List;
@@ -48,14 +50,26 @@ public class IndexActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
 
-        RealmResults<Index> indexResults = Index.findAll();
-        displayIndexList(indexResults);
+        RealmResults<Character> characterResults = Character.findAll();
+        displayIndexList(characterResults);
         initNavigationViewDrawer();
 
     }
 
     private void getIndexList() throws IOException {
-        BardClient.getIndexList();
+        Call<List<Character>> call = BardClient.getBardService().listIndex();
+        call.enqueue(new Callback<List<Character>>() {
+            @Override
+            public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
+                List<Character> characterList = response.body();
+                displayIndexList(characterList);
+            }
+
+            @Override
+            public void onFailure(Call<List<Character>> call, Throwable t) {
+                Toast.makeText(getApplicationContext(), "failure", Toast.LENGTH_SHORT).show();
+            }
+        });
     }
 
     @Override
@@ -70,25 +84,6 @@ public class IndexActivity extends BaseActivity {
         super.onPause();
     }
 
-    @Subscribe
-    public void onEvent(IndexFetchEvent event) {
-        if (event.error != null) {
-            Toast.makeText(getApplicationContext(), event.error, Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        displayIndexList(event.indexList);
-    }
-
-    @Subscribe
-    public void onEvent(IndexSelectEvent event) {
-        Index index = event.index;
-        Setting.setCurrentIndexToken(this, index.getToken());
-        Intent intent = new Intent(this, BardEditorActivity.class);
-        intent.putExtra("indexName",index.getName());
-        startActivity(intent);
-    }
-
     @Override
     public void onBackPressed() {
         // Disable going back to the MainActivity
@@ -96,9 +91,19 @@ public class IndexActivity extends BaseActivity {
     }
 
 
-    public void displayIndexList(List<Index> indexList) {
+    public void displayIndexList(List<Character> characterList) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
-        IndexListAdapter adapter = new IndexListAdapter(this, indexList);
+        IndexListAdapter adapter = new IndexListAdapter(this, characterList);
+        final Context self = this;
+        adapter.setOnItemClickListener(new IndexListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position, Character character) {
+                Setting.setCurrentIndexToken(self, character.getToken());
+                Intent intent = new Intent(self, BardEditorActivity.class);
+                intent.putExtra("indexName", character.getName());
+                startActivity(intent);
+            }
+        });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_GRID_COLUMNS));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
