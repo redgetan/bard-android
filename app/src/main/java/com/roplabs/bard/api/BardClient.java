@@ -2,11 +2,9 @@ package com.roplabs.bard.api;
 
 import com.google.gson.*;
 import com.roplabs.bard.ClientApp;
-import com.roplabs.bard.events.IndexFetchEvent;
 import com.roplabs.bard.events.LoginEvent;
 import com.roplabs.bard.events.SignUpEvent;
 import com.roplabs.bard.models.*;
-import com.roplabs.bard.models.Character;
 import com.roplabs.bard.util.Helper;
 import io.realm.RealmObject;
 import okhttp3.*;
@@ -16,12 +14,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
 
 import java.io.IOException;
-import java.util.List;
 
 public class BardClient {
     static BardService  bardService;

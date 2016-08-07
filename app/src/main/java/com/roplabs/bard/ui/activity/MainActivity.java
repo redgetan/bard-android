@@ -41,7 +41,7 @@ public class MainActivity extends BaseActivity {
         String authToken = Setting.getAuthenticationToken(this);
 
         if (authToken.length() > 0) {
-            intent = new Intent(this, IndexActivity.class);
+            intent = new Intent(this, CharacterSelectActivity.class);
         } else {
             intent = new Intent(this, LoginActivity.class);
         }

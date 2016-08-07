@@ -17,6 +17,6 @@ public interface BardService {
     Call<User> signUp(@Body User user);
 
     @GET("bundles")
-    Call<List<Character>> listIndex();
+    Call<List<Character>> listCharacters();
 }
 

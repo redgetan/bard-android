@@ -12,8 +12,8 @@ import com.roplabs.bard.models.Setting;
 
 import java.util.List;
 
-public class IndexListAdapter extends
-        RecyclerView.Adapter<IndexListAdapter.ViewHolder> {
+public class CharacterListAdapter extends
+        RecyclerView.Adapter<CharacterListAdapter.ViewHolder> {
 
     // Store a member variable for the contacts
     private List<Character> characterList;
@@ -21,14 +21,14 @@ public class IndexListAdapter extends
     private View selectedView;
 
     // Pass in the contact array into the constructor
-    public IndexListAdapter(Context context, List<Character> characterList) {
+    public CharacterListAdapter(Context context, List<Character> characterList) {
         this.context = context;
         this.characterList = characterList;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
     @Override
-    public IndexListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public CharacterListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
@@ -40,7 +40,7 @@ public class IndexListAdapter extends
 
     // Involves populating data into the item through holder
     @Override
-    public void onBindViewHolder(IndexListAdapter.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(CharacterListAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
         Character character = characterList.get(position);
 

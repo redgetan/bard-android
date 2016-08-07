@@ -18,14 +18,12 @@ import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.events.IndexFetchEvent;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
-import com.roplabs.bard.adapters.IndexListAdapter;
+import com.roplabs.bard.adapters.CharacterListAdapter;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,7 +31,7 @@ import retrofit2.Response;
 import java.io.IOException;
 import java.util.List;
 
-public class IndexActivity extends BaseActivity {
+public class CharacterSelectActivity extends BaseActivity {
     private final int NUM_GRID_COLUMNS = 2;
     public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
     public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
@@ -51,18 +49,18 @@ public class IndexActivity extends BaseActivity {
         setContentView(R.layout.activity_index);
 
         RealmResults<Character> characterResults = Character.findAll();
-        displayIndexList(characterResults);
+        displayCharacterList(characterResults);
         initNavigationViewDrawer();
 
     }
 
-    private void getIndexList() throws IOException {
-        Call<List<Character>> call = BardClient.getBardService().listIndex();
+    private void getCharacterList() throws IOException {
+        Call<List<Character>> call = BardClient.getBardService().listCharacters();
         call.enqueue(new Callback<List<Character>>() {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
-                displayIndexList(characterList);
+                displayCharacterList(characterList);
             }
 
             @Override
@@ -91,11 +89,11 @@ public class IndexActivity extends BaseActivity {
     }
 
 
-    public void displayIndexList(List<Character> characterList) {
+    public void displayCharacterList(List<Character> characterList) {
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
-        IndexListAdapter adapter = new IndexListAdapter(this, characterList);
+        CharacterListAdapter adapter = new CharacterListAdapter(this, characterList);
         final Context self = this;
-        adapter.setOnItemClickListener(new IndexListAdapter.OnItemClickListener() {
+        adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Character character) {
                 Setting.setCurrentIndexToken(self, character.getToken());
@@ -155,7 +153,7 @@ public class IndexActivity extends BaseActivity {
                                 Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
                                 break;
                             case CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, IndexActivity.class);
+                                intent = new Intent(mContext, CharacterSelectActivity.class);
                                 startActivity(intent);
                                 break;
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
