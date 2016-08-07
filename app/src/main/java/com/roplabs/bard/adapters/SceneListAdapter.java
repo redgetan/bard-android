@@ -8,27 +8,27 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
+import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
 
 import java.util.List;
 
-public class CharacterListAdapter extends
-        RecyclerView.Adapter<CharacterListAdapter.ViewHolder> {
+public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.ViewHolder> {
 
     // Store a member variable for the contacts
-    private List<Character> characterList;
+    private List<Scene> sceneList;
     private Context context;
     private View selectedView;
 
     // Pass in the contact array into the constructor
-    public CharacterListAdapter(Context context, List<Character> characterList) {
+    public SceneListAdapter(Context context, List<Scene> sceneList) {
         this.context = context;
-        this.characterList = characterList;
+        this.sceneList = sceneList;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
     @Override
-    public CharacterListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public SceneListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
@@ -40,26 +40,26 @@ public class CharacterListAdapter extends
 
     // Involves populating data into the item through holder
     @Override
-    public void onBindViewHolder(CharacterListAdapter.ViewHolder viewHolder, int position) {
+    public void onBindViewHolder(SceneListAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
-        Character character = characterList.get(position);
+        Scene scene = sceneList.get(position);
 
         // Set item views based on the data model
         TextView textView = viewHolder.indexNameView;
-        textView.setText(character.getName());
+        textView.setText(scene.getName());
 
     }
 
     // Return the total count of items
     @Override
     public int getItemCount() {
-        return characterList.size();
+        return sceneList.size();
     }
 
     private static OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(View itemView, int position, Character character);
+        void onItemClick(View itemView, int position, Scene scene);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -90,7 +90,7 @@ public class CharacterListAdapter extends
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            Character character = characterList.get(position);
+            Scene scene = sceneList.get(position);
 
             if (selectedView != null) {
                 selectedView.setSelected(false);
@@ -100,7 +100,7 @@ public class CharacterListAdapter extends
 
             selectedView.setSelected(true);
             if (listener != null) {
-                listener.onItemClick(v, position, character);
+                listener.onItemClick(v, position, scene);
             }
         }
     }

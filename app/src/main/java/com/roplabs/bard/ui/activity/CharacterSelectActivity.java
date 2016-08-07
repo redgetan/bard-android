@@ -6,6 +6,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.Toast;
@@ -96,14 +97,13 @@ public class CharacterSelectActivity extends BaseActivity {
         adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Character character) {
-                Setting.setCurrentIndexToken(self, character.getToken());
                 Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("indexName", character.getName());
+                intent.putExtra("Character", character);
                 startActivity(intent);
             }
         });
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new GridLayoutManager(this, NUM_GRID_COLUMNS));
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
         recyclerView.addItemDecoration(itemDecoration);
     }

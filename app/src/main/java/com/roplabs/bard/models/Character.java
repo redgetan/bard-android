@@ -5,11 +5,13 @@ import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Character extends RealmObject {
+@SuppressWarnings("serial")
+public class Character extends RealmObject implements Serializable {
 
     private String token;
     private String name;

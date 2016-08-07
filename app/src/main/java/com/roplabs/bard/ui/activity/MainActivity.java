@@ -30,7 +30,6 @@ public class MainActivity extends BaseActivity {
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + "ffmpeg";
         initFFmpeg();
-        initWordIndex();
     }
 
     @Override
@@ -72,41 +71,5 @@ public class MainActivity extends BaseActivity {
             Helper.runCmd(new String[] { "/system/bin/chmod", "744", ffmpegPath});
         }
     }
-
-    public void populateWordIndex(String indexFileName) throws IOException, JSONException {
-        AssetManager assetManager = getAssets();
-        InputStream input = assetManager.open(indexFileName);
-
-        JSONObject obj = new JSONObject(FileManager.readInputStream(input));
-
-        Character.create(obj.getString("token"),
-                obj.getString("name"),
-                obj.getString("description"),
-                obj.getString("wordList"));
-    }
-
-    public void initWordIndex() {
-        RealmResults<Character> characterResults = Character.findAll();
-        if (characterResults.size() == 0) {
-            try {
-                populateWordIndex("harry_styles_index.json");
-                populateWordIndex("kevin_hart_index.json");
-                populateWordIndex("emma_watson_index.json");
-                populateWordIndex("tom_hiddleston_index.json");
-
-                setDefaultIndex();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-    }
-
-    public void setDefaultIndex() {
-        Setting.setCurrentIndexToken(this, Character.findFirst().getToken());
-    }
-
-
 
 }

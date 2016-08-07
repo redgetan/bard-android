@@ -9,14 +9,6 @@ public class Setting {
     private static final String USERNAME = "username";
     private static final String EMAIL = "email";
 
-    public static String getCurrentIndexToken(Context context) {
-        return get(context, CURRENT_INDEX_TOKEN);
-    }
-
-    public static void setCurrentIndexToken(Context context, String token) {
-        set(context,CURRENT_INDEX_TOKEN,token);
-    }
-
     public static String getAuthenticationToken(Context context) {
         return get(context, AUTHENTICATION_TOKEN);
     }

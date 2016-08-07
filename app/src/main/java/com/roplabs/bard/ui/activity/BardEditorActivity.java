@@ -84,6 +84,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     private LinkedList<WordTag> wordTagList;
     private boolean skipOnTextChangeCallback;
 
+    private Character character;
+    private Scene scene;
     private Repo repo;
     private String[] availableWordList;
     private String[] uniqueWordList;
@@ -127,7 +129,9 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
 
         Intent intent = getIntent();
-        indexName = intent.getStringExtra("indexName");
+        character = (Character) intent.getSerializableExtra("Character");
+        scene = (Scene) intent.getSerializableExtra("Scene");
+
         setTitle(indexName);
 
         initPreviewTimeline();
@@ -263,7 +267,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
             @Override
             protected Void doInBackground(Void... params) {
-//                availableWordList = Character.forToken(Setting.getCurrentIndexToken(context)).getWordList().split(",");
+//                availableWordList = Character.forToken(this.characterToken).getWordList().split(",");
 //
 //                uniqueWordList = buildUniqueWordList();
 //                wordTrie = buildWordTrie();
