@@ -13,7 +13,7 @@ import java.io.IOException;
 public class BardClient {
     static BardService  bardService;
 
-    public static final String BASE_URL = "http://localhost:3000";
+    public static final String BASE_URL = "http://10.20.37.59:3000";
     private static final OkHttpClient client = new OkHttpClient();
 
 

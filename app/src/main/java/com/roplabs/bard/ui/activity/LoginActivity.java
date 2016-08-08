@@ -21,8 +21,6 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
 import com.roplabs.bard.util.Helper;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -136,15 +134,7 @@ public class LoginActivity extends AppCompatActivity {
     public boolean validate() {
         boolean valid = true;
 
-        String email = _emailText.getText().toString();
         String password = _passwordText.getText().toString();
-
-        if (email.isEmpty() || !android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            _emailText.setError("enter a valid email address");
-            valid = false;
-        } else {
-            _emailText.setError(null);
-        }
 
         if (password.isEmpty() || password.length() < 4 || password.length() > 10) {
             _passwordText.setError("between 4 and 10 alphanumeric characters");
@@ -159,12 +149,10 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
-        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 

@@ -26,6 +26,12 @@ public class CharacterListAdapter extends
         this.characterList = characterList;
     }
 
+    public void swap(List<Character> characters){
+        characterList.clear();
+        characterList.addAll(characters);
+        notifyDataSetChanged();
+    }
+
     // Usually involves inflating a layout from XML and returning the holder
     @Override
     public CharacterListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

@@ -26,6 +26,12 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         this.sceneList = sceneList;
     }
 
+    public void swap(List<Scene> scenes){
+        sceneList.clear();
+        sceneList.addAll(scenes);
+        notifyDataSetChanged();
+    }
+
     // Usually involves inflating a layout from XML and returning the holder
     @Override
     public SceneListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

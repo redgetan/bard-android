@@ -1,5 +1,5 @@
 [ ] android
-  [ ] migrate realm db from old schema to new schema
+  [x] migrate realm db from old schema to new schema
   [ ] should list character/scenes
   [ ] dont hit getQuery, go directly to cdn
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly

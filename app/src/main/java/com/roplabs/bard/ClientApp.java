@@ -25,7 +25,7 @@ public class ClientApp extends Application {
         LeakCanary.install(this);
         Fabric.with(this, new Crashlytics());
         RealmConfiguration config = new RealmConfiguration.Builder(this)
-                .schemaVersion(1)
+                .schemaVersion(2)
                 .migration(new DBMigration())
                 .build();
 

@@ -41,6 +41,7 @@ public class CharacterSelectActivity extends BaseActivity {
 
     private Context mContext;
     private DrawerLayout mDrawerLayout;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,17 +52,19 @@ public class CharacterSelectActivity extends BaseActivity {
 
         RealmResults<Character> characterResults = Character.findAll();
         displayCharacterList(characterResults);
-        initNavigationViewDrawer();
+        syncRemoteData();
 
+        initNavigationViewDrawer();
     }
 
-    private void getCharacterList() throws IOException {
+    private void syncRemoteData() {
         Call<List<Character>> call = BardClient.getBardService().listCharacters();
         call.enqueue(new Callback<List<Character>>() {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
-                displayCharacterList(characterList);
+                Character.copyToRealmOrUpdate(characterList);
+                ((CharacterListAdapter) recyclerView.getAdapter()).swap(characterList);
             }
 
             @Override
@@ -89,7 +92,7 @@ public class CharacterSelectActivity extends BaseActivity {
 
 
     public void displayCharacterList(List<Character> characterList) {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
+        recyclerView = (RecyclerView) findViewById(R.id.index_list);
         CharacterListAdapter adapter = new CharacterListAdapter(this, characterList);
         final Context self = this;
         adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {

@@ -19,8 +19,6 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
 import com.roplabs.bard.util.Helper;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -146,12 +144,10 @@ public class SignupActivity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        EventBus.getDefault().register(this);
     }
 
     @Override
     public void onPause() {
-        EventBus.getDefault().unregister(this);
         super.onPause();
     }
 }

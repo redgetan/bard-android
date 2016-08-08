@@ -8,6 +8,7 @@ import io.realm.annotations.Ignore;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("serial")
@@ -44,6 +45,13 @@ public class Scene extends RealmObject implements Serializable {
     public static Scene forToken(String token) {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Scene.class).equalTo("token", token).findFirst();
+    }
+
+    public static void copyToRealmOrUpdate(List<Scene> scenes) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        realm.copyToRealmOrUpdate(scenes);
+        realm.commitTransaction();
     }
 
     public static void create(String token, String characterToken, String name, String thumbnailUrl) {

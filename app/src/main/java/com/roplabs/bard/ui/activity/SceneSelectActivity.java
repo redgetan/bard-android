@@ -27,6 +27,7 @@ public class SceneSelectActivity extends BaseActivity {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
     private Character character;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,13 +44,14 @@ public class SceneSelectActivity extends BaseActivity {
 
     }
 
-    private void getSceneList() throws IOException {
+    private void syncRemoteData() throws IOException {
         Call<List<Scene>> call = BardClient.getBardService().listScenes(character.getToken());
         call.enqueue(new Callback<List<Scene>>() {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
                 List<Scene> sceneList = response.body();
-                displaySceneList(sceneList);
+                Scene.copyToRealmOrUpdate(sceneList);
+                ((SceneListAdapter) recyclerView.getAdapter()).swap(sceneList);
             }
 
             @Override
@@ -77,7 +79,7 @@ public class SceneSelectActivity extends BaseActivity {
 
 
     public void displaySceneList(List<Scene> sceneList) {
-        RecyclerView recyclerView = (RecyclerView) findViewById(R.id.index_list);
+        recyclerView = (RecyclerView) findViewById(R.id.index_list);
         SceneListAdapter adapter = new SceneListAdapter(this, sceneList);
         final Context self = this;
         adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
