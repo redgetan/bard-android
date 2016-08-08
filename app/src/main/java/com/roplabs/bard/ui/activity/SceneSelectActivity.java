@@ -26,7 +26,7 @@ import java.util.List;
 public class SceneSelectActivity extends BaseActivity {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
-    private Character character;
+    private String characterToken;
     private RecyclerView recyclerView;
 
     @Override
@@ -34,18 +34,20 @@ public class SceneSelectActivity extends BaseActivity {
         mContext = this;
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_index);
+        setContentView(R.layout.activity_scene_select);
+        toolbar.setTitle(R.string.choose_scene);
 
         Intent intent = getIntent();
-        character = (Character) intent.getSerializableExtra("Character");
+        characterToken = intent.getStringExtra("characterToken");
 
         RealmResults<Scene> sceneResults = Scene.findAll();
         displaySceneList(sceneResults);
 
+        syncRemoteData();
     }
 
-    private void syncRemoteData() throws IOException {
-        Call<List<Scene>> call = BardClient.getBardService().listScenes(character.getToken());
+    private void syncRemoteData() {
+        Call<List<Scene>> call = BardClient.getBardService().listScenes(characterToken);
         call.enqueue(new Callback<List<Scene>>() {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
@@ -56,7 +58,9 @@ public class SceneSelectActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<Scene>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "failure", Toast.LENGTH_SHORT).show();
+                if (Scene.findAll().size() == 0) {
+                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_SHORT).show();
+                }
             }
         });
     }
@@ -79,15 +83,15 @@ public class SceneSelectActivity extends BaseActivity {
 
 
     public void displaySceneList(List<Scene> sceneList) {
-        recyclerView = (RecyclerView) findViewById(R.id.index_list);
+        recyclerView = (RecyclerView) findViewById(R.id.scene_list);
         SceneListAdapter adapter = new SceneListAdapter(this, sceneList);
         final Context self = this;
         adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("Character", character);
-                intent.putExtra("Scene", scene);
+                intent.putExtra("characterToken", characterToken);
+                intent.putExtra("sceneToken", scene.getToken());
                 startActivity(intent);
             }
         });

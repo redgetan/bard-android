@@ -27,8 +27,7 @@ public class CharacterListAdapter extends
     }
 
     public void swap(List<Character> characters){
-        characterList.clear();
-        characterList.addAll(characters);
+        characterList = characters;
         notifyDataSetChanged();
     }
 

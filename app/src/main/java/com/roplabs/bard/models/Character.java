@@ -4,6 +4,8 @@ import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.RealmClass;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -12,8 +14,9 @@ import java.util.List;
 import java.util.Map;
 
 @SuppressWarnings("serial")
-public class Character extends RealmObject implements Serializable {
+public class Character extends RealmObject {
 
+    @PrimaryKey
     private String token;
     private String name;
     private String description;
@@ -49,8 +52,9 @@ public class Character extends RealmObject implements Serializable {
 
     public static void copyToRealmOrUpdate(List<Character> characters) {
         Realm realm = Realm.getDefaultInstance();
+
         realm.beginTransaction();
-        realm.copyToRealmOrUpdate(characters);
+        List<Character> realmResult = realm.copyToRealmOrUpdate(characters);
         realm.commitTransaction();
     }
 

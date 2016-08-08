@@ -1,9 +1,11 @@
 package com.roplabs.bard.models;
 
+import com.google.gson.annotations.SerializedName;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
+import io.realm.annotations.PrimaryKey;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -11,9 +13,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@SuppressWarnings("serial")
-public class Scene extends RealmObject implements Serializable {
+public class Scene extends RealmObject {
 
+    @PrimaryKey
     private String token;
     private String name;
     private String characterToken;

@@ -5,7 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
@@ -27,8 +29,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
     }
 
     public void swap(List<Scene> scenes){
-        sceneList.clear();
-        sceneList.addAll(scenes);
+        sceneList = scenes;
         notifyDataSetChanged();
     }
 
@@ -38,7 +39,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
-        View contactView = inflater.inflate(R.layout.index_list_item, parent, false);
+        View contactView = inflater.inflate(R.layout.scene_list_item, parent, false);
 
         // Return a new holder instance
         return new ViewHolder(this.context, contactView);
@@ -51,8 +52,15 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         Scene scene = sceneList.get(position);
 
         // Set item views based on the data model
-        TextView textView = viewHolder.indexNameView;
+        TextView textView = viewHolder.sceneNameView;
         textView.setText(scene.getName());
+
+        ImageView thumbnail = viewHolder.sceneThumbnail;
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+                .load(scene.getThumbnailUrl())
+                .crossFade()
+                .into(thumbnail);
 
     }
 
@@ -77,7 +85,8 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
-        public TextView indexNameView;
+        public TextView sceneNameView;
+        public ImageView sceneThumbnail;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -86,7 +95,8 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
             // Stores the itemView in a public final member variable that can be used
             // to access the context from any ViewHolder instance.
             super(itemView);
-            indexNameView = (TextView) itemView.findViewById(R.id.index_name);
+            sceneNameView = (TextView) itemView.findViewById(R.id.scene_title);
+            sceneThumbnail = (ImageView) itemView.findViewById(R.id.scene_thumbnail);
 
             this.context = context;
             itemView.setOnClickListener(this);

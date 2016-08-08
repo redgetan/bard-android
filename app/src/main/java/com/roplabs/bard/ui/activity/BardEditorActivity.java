@@ -84,13 +84,14 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     private LinkedList<WordTag> wordTagList;
     private boolean skipOnTextChangeCallback;
 
+    private String characterToken;
+    private String sceneToken;
     private Character character;
     private Scene scene;
     private Repo repo;
     private String[] availableWordList;
     private String[] uniqueWordList;
     Set<String> invalidWords;
-    private String indexName;
     private Button playMessageBtn;
     private ImageView showKeyboardBtn;
     private ImageView showWordChoiceBtn;
@@ -129,15 +130,23 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
 
         Intent intent = getIntent();
-        character = (Character) intent.getSerializableExtra("Character");
-        scene = (Scene) intent.getSerializableExtra("Scene");
-
-        setTitle(indexName);
+        characterToken = intent.getStringExtra("characterToken");
+        sceneToken = intent.getStringExtra("sceneToken");
+        character  = Character.forToken(characterToken);
+        scene      = Scene.forToken(sceneToken);
 
         initPreviewTimeline();
         initVideoStorage();
         initAnalytics();
         initViewPager();
+    }
+
+    private void setCharacterOrSceneTitle() {
+        if (sceneToken.length() != 0) {
+            setTitle(scene.getName());
+        } else {
+            setTitle(character.getName());
+        }
     }
 
     private void hideKeyboard() {
@@ -809,7 +818,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
             vpPager.setCurrentItem(0, true);
         }
 
-        setTitle(indexName);
+        setCharacterOrSceneTitle();
         if (shareMenuItem != null) shareMenuItem.setVisible(false);
     }
 

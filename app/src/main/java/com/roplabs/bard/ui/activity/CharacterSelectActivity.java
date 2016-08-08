@@ -49,6 +49,7 @@ public class CharacterSelectActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
+        toolbar.setTitle(R.string.choose_character);
 
         RealmResults<Character> characterResults = Character.findAll();
         displayCharacterList(characterResults);
@@ -69,7 +70,9 @@ public class CharacterSelectActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<Character>> call, Throwable t) {
-                Toast.makeText(getApplicationContext(), "failure", Toast.LENGTH_SHORT).show();
+                if (Character.findAll().size() == 0) {
+                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }
@@ -98,8 +101,8 @@ public class CharacterSelectActivity extends BaseActivity {
         adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Character character) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("Character", character);
+                Intent intent = new Intent(self, SceneSelectActivity.class);
+                intent.putExtra("characterToken", character.getToken());
                 startActivity(intent);
             }
         });

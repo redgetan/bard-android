@@ -54,7 +54,6 @@ public class BardClient {
 
     private static GsonConverterFactory getGsonConverterFactory() {
         Gson gson = new GsonBuilder()
-                .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .setExclusionStrategies(new ExclusionStrategy() {
                     @Override
                     public boolean shouldSkipField(FieldAttributes f) {
