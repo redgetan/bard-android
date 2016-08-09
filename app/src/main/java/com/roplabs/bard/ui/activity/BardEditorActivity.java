@@ -48,7 +48,6 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.*;
-import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -110,7 +109,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_input);
+        setContentView(R.layout.activity_bard_editor);
         mContext = this;
 
         debugView = (TextView) findViewById(R.id.display_debug);

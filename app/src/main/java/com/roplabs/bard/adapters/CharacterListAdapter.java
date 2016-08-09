@@ -8,7 +8,6 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
-import com.roplabs.bard.models.Setting;
 
 import java.util.List;
 
@@ -37,7 +36,7 @@ public class CharacterListAdapter extends
         LayoutInflater inflater = LayoutInflater.from(context);
 
         // Inflate the custom layout
-        View contactView = inflater.inflate(R.layout.index_list_item, parent, false);
+        View contactView = inflater.inflate(R.layout.character_list_item, parent, false);
 
         // Return a new holder instance
         return new ViewHolder(this.context, contactView);
