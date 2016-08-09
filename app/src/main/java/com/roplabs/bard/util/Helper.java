@@ -1,7 +1,10 @@
 package com.roplabs.bard.util;
 
+import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import com.roplabs.bard.ClientApp;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,6 +40,13 @@ public class Helper {
         }
 
         return result;
+    }
+
+    public static Boolean isConnectedToInternet() {
+        ConnectivityManager connMgr = (ConnectivityManager) ClientApp.getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+
+        return networkInfo != null && networkInfo.isConnected();
     }
 
 

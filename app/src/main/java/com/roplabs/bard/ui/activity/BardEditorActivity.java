@@ -799,11 +799,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
 
     public void playMessage(View view) throws IOException {
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-        if (networkInfo != null && networkInfo.isConnected()) {
+        if (Helper.isConnectedToInternet()) {
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);
 
@@ -851,6 +847,11 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     }
 
     private void playRemoteVideo(String url) {
+        if (!Helper.isConnectedToInternet()) {
+            debugView.setText(R.string.no_network_connection);
+            return;
+        }
+
         if (getWordListFragment() != null) {
             getWordListFragment().playPreview(url);
         }

@@ -46,28 +46,10 @@
         </FrameLayout>
 
 
-        <HorizontalScrollView
-                android:id="@+id/preview_timeline_container"
-                android:layout_below="@id/vp_pager_container"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-        >
-            <LinearLayout
-                    android:id="@+id/preview_timeline"
-                    android:background="@color/iron"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-                    android:orientation="horizontal" >
-                <!-- child views in here -->
-            </LinearLayout>
-        </HorizontalScrollView>
-
         <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:tools="http://schemas.android.com/tools"
                         android:id="@+id/bard_text_entry"
-                        android:layout_below="@id/preview_timeline_container"
+                        android:layout_below="@id/vp_pager_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="10dp"
@@ -125,12 +107,30 @@
 
         </LinearLayout>
 
+        <HorizontalScrollView
+                android:id="@+id/preview_timeline_container"
+                android:layout_below="@id/bard_text_entry"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+        >
+            <LinearLayout
+                    android:id="@+id/preview_timeline"
+                    android:background="@color/iron"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:orientation="horizontal" >
+                <!-- child views in here -->
+            </LinearLayout>
+        </HorizontalScrollView>
+
 
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/word_list_dictionary"
                 android:padding="10dp"
                 android:background="@drawable/word_choice_background"
-                android:layout_below="@id/bard_text_entry"
+                android:layout_below="@id/preview_timeline_container"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 
