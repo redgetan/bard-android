@@ -144,6 +144,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         initVideoStorage();
         initAnalytics();
         initViewPager();
+        setCharacterOrSceneTitle();
     }
 
     private void setCharacterOrSceneTitle() {
@@ -312,7 +313,9 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
                 @Override
                 public void onFailure(Call<Scene> call, Throwable t) {
-                    Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_SHORT).show();
+                    progressBar.setVisibility(View.VISIBLE);
+                    debugView.setText("");
+                    Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_LONG).show();
                 }
             });
         } else {

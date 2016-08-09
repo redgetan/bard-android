@@ -52,7 +52,14 @@ public class Scene extends RealmObject {
     public static void copyToRealmOrUpdate(List<Scene> scenes) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
-        realm.copyToRealmOrUpdate(scenes);
+
+        for (Scene scene : scenes) {
+            Scene obj = Scene.forToken(scene.getToken());
+            if (obj == null) {
+                Scene.create(scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl());
+            }
+        }
+
         realm.commitTransaction();
     }
 
