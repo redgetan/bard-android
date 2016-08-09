@@ -52,7 +52,7 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class BardEditorActivity extends BaseActivity implements WordListFragment.OnReadyListener {
+public class BardEditorActivity extends BaseActivity implements WordListFragment.OnReadyListener, WordListFragment.OnWordTagChanged {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -176,6 +176,12 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
         WordListAdapter adapter = new WordListAdapter(this, availableWordList);
         adapter.setIsWordTagged(true);
+        adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position, WordTag wordTag) {
+                onWordTagClick(wordTag);
+            }
+        });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
@@ -486,22 +492,32 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         }
     }
 
-    @Subscribe
-    public void onEvent(TagClickEvent event) throws IOException {
+    private void onWordTagClick(WordTag wordTag) {
         // insert word in current character
         //   - wordTagList
         //   - editText
         skipOnTextChangeCallback = true;
-        editText.insertText(event.wordTag.word + " ");
+        editText.insertText(wordTag.word + " ");
         skipOnTextChangeCallback = false;
 
         currentTokenIndex = editText.getTokenIndex();
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
-        wordTagList.add(currentTokenIndex,event.wordTag);
-        getWordListFragment().setWordTag(event.wordTag);
+        wordTagList.add(currentTokenIndex,wordTag);
+        getWordListFragment().setWordTag(wordTag);
+
+        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
     }
 
+    @Override
+    public void onWordTagChanged(WordTag wordTag) {
+        int tokenIndex = editText.getTokenIndex();
+        WordTag currentWordTag = wordTagList.get(tokenIndex);
+        currentWordTag.tag = wordTag.tag;
+        recyclerView.scrollToPosition(wordTag.position);
+
+        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+    }
 
     private void updateWordTagList(CharSequence s, int start) {
         String character = editText.getAddedChar(start);
@@ -633,17 +649,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         }
 
         return enabledCount;
-    }
-
-    private String getWordMessage() {
-        TextUtils.join(" ", wordTagList);
-        List<String> wordTagStringList = new ArrayList<String>();
-
-        for (WordTag wordTag : wordTagList) {
-            wordTagStringList.add(wordTag.toString());
-        }
-
-        return TextUtils.join(" ", wordTagStringList);
     }
 
     private void updateInvalidWords() {
@@ -805,7 +810,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
                 showVideoResultFragment();
 
-                String message = getWordMessage();
+                List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
+                VideoDownloader.fetchSegments(segments);
             } else {
                 notifyUserOnUnavailableWord();
             }
@@ -845,6 +851,12 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         return (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
     }
 
+    private void playRemoteVideo(String url) {
+        if (getWordListFragment() != null) {
+            getWordListFragment().playPreview(url);
+        }
+    }
+
     public void playLocalVideo(String filePath) {
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
@@ -862,23 +874,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     public void onPause() {
         EventBus.getDefault().unregister(this);
         super.onPause();
-    }
-
-    @Subscribe
-    public void onEvent(VideoQueryEvent event) {
-        if (event.error != null) {
-            progressBar.setVisibility(View.GONE);
-            debugView.setText(event.error);
-        } else {
-            if (event.isPreview) {
-                progressBar.setVisibility(View.GONE);
-                if (getWordListFragment() != null) {
-                    getWordListFragment().playPreview(event.segments.get(0));
-                }
-            } else {
-                VideoDownloader.fetchSegments(event.segments);
-            }
-        }
     }
 
     private void showVideoResultFragment() {
@@ -922,15 +917,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         } else if (event.segments != null) {
             joinSegments(event.segments);
         }
-    }
-
-    @Subscribe
-    public void onEvent(FetchWordClipEvent event) {
-        progressBar.setVisibility(View.VISIBLE);
-        int tokenIndex = editText.getTokenIndex();
-        WordTag wordTag = wordTagList.get(tokenIndex);
-        wordTag.tag = event.wordTag.tag;
-        recyclerView.scrollToPosition(event.wordTag.position);
     }
 
     private void setVideoError(String error) {
@@ -977,10 +963,11 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     @Override
     public void onWordListFragmentReady() {
         initChatText();
+        getWordListFragment().setOnWordTagChangedListener(this);
     }
 
 
-    // click on word in edittext -> getTokenIndex -> PreviewWordEvent -> WordListFragment#queryWordPreview -> BardClient.getQuery -> VideoQueryEvent -> WordListFragment#playPreview -> onVideoThumbnailChanged
+
 
     @Override
     public void onVideoThumbnailChanged(Bitmap bitmap) {
@@ -1025,6 +1012,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                 if (tokenIndex < wordTagList.size()) {
                     WordTag wordTag = wordTagList.get(tokenIndex);
                     getWordListFragment().setWordTag(wordTag);
+                    playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
                 }
             }
         });
@@ -1041,4 +1029,5 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
         lastImageView = currentImageView;
     }
+
 }

@@ -1,23 +1,13 @@
 package com.roplabs.bard.adapters;
 
 import android.content.Context;
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
-import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
-import com.roplabs.bard.events.TagClickEvent;
 import com.roplabs.bard.models.WordTag;
-import org.greenrobot.eventbus.EventBus;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -80,10 +70,21 @@ public class WordListAdapter extends
     }
 
     public void setIsWordTagged(boolean isWordTagged) {
+
         this.isWordTagged = isWordTagged;
     }
 
-    // Provide a direct reference to each of the views within a data item
+    private static OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position, WordTag wordTag);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
+    }
+
+        // Provide a direct reference to each of the views within a data item
     // Used to cache the views within the item layout for fast access
     public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         // Your holder should contain a member variable
@@ -111,7 +112,9 @@ public class WordListAdapter extends
             String wordTagString = wordList.get(position);
             WordTag wordTag = new WordTag(wordTagString);
 
-            EventBus.getDefault().post(new TagClickEvent(wordTag));
+            if (listener != null) {
+                listener.onItemClick(v, position, wordTag);
+            }
         }
 
     }

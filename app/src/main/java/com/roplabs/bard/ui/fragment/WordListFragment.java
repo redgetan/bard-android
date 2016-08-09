@@ -46,6 +46,16 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     private OnReadyListener listener;
 
+    private OnWordTagChanged wordTagChangedListener;
+
+    public interface OnWordTagChanged {
+        void onWordTagChanged(WordTag wordTag);
+    }
+
+    public void setOnWordTagChangedListener(OnWordTagChanged listener) {
+        this.wordTagChangedListener = listener;
+    }
+
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
         previewSurface = new Surface(surface);
@@ -147,10 +157,10 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     public void setWordTag(WordTag wordTag) {
-        if (wordTagSelector.setWordTag(wordTag)) {
-            onWordTagChanged(wordTag);
-        }
+        wordTagSelector.setWordTag(wordTag);
+        drawPagination();
     }
+
 
     public void onWordTagChanged(final WordTag wordTag) {
         if (wordTag == null) return;
@@ -164,7 +174,9 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         fetchWordTagSegmentUrl = new Runnable(){
             @Override
             public void run(){
-                queryWordPreview(wordTag);
+                if (wordTagChangedListener != null) {
+                    wordTagChangedListener.onWordTagChanged(wordTag);
+                }
                 fetchWordTagSegmentUrl = null;
             }
         };
@@ -172,19 +184,9 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, 500);
     }
 
-    public void queryWordPreview(WordTag wordTag) {
-        if (wordTag == null) return;
-
-//        try {
-            EventBus.getDefault().post(new FetchWordClipEvent(wordTag));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-    }
-
-    public void playPreview(Segment segment) {
+    public void playPreview(String url) {
         if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
-        playVideo(segment.getSourceUrl());
+        playVideo(url);
     }
 
     private void drawPagination() {

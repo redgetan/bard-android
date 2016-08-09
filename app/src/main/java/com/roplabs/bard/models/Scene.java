@@ -49,6 +49,11 @@ public class Scene extends RealmObject {
         return realm.where(Scene.class).equalTo("token", token).findFirst();
     }
 
+    public static Scene forWordTagString(String wordTagString) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Scene.class).contains("wordList", wordTagString).findFirst();
+    }
+
     public static RealmResults<Scene> forCharacterToken(String characterToken) {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Scene.class).equalTo("characterToken", characterToken).findAll();

@@ -1,15 +1,50 @@
 package com.roplabs.bard.models;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class Segment {
+
+    public static final String cdnPath = "https://d22z4oll34c07f.cloudfront.net";
 
     private String word;
     private String sourceUrl;
     private String filePath;
     private String error;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
+
+    public static List<Segment> buildFromWordTagList(List<WordTag> wordTagList) {
+        List<Segment> segments = new ArrayList<Segment>();
+
+        for (WordTag wordTag : wordTagList) {
+            Segment segment = buildFromWordTagString(wordTag.toString());
+            segments.add(segment);
+        }
+
+        return segments;
+    }
+
+    public static Segment buildFromWordTagString(String wordTagString) {
+        Segment segment =  new Segment();
+        String[] tokens = wordTagString.split(":");
+        String word = tokens[0];
+        String tag = tokens[1];
+        segment.setWord(word);
+        segment.setSourceUrl(sourceUrlFromWordTagString(wordTagString));
+        return segment;
+    }
+
+    public static String sourceUrlFromWordTagString(String wordTagString) {
+        Scene givenScene = Scene.forWordTagString(wordTagString);
+
+        String tag = wordTagString.split(":")[1];
+
+        return cdnPath + "/segments/" +  givenScene.getToken() + "/" + tag + ".mp4";
+    }
+
+
 
     /**
      *

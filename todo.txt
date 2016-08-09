@@ -1,9 +1,10 @@
 [ ] android
   [x] migrate realm db from old schema to new schema
   [x] should list character/scenes
+  [x] dont hit getQuery, go directly to cdn
+  [ ] remove lag when selecting character/scene
   [ ] bardeditor should fetch wordlist (scenes/all)
   [ ] repo saved should be namespaced by username
-  [ ] dont hit getQuery, go directly to cdn
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
   [ ] i click wordtag, crappy segment would show up, its not obvious i can switch it (left/right toggle not visible)
   [ ] default view is library
