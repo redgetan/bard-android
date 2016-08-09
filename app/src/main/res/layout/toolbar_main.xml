@@ -11,6 +11,9 @@
             android:layout_height="wrap_content"
             android:textColor="@color/white"
             android:textSize="18dp"
+            android:maxLength="25"
+            android:ellipsize="end"
+            android:singleLine="true"
             android:text="Toolbar Title"
             android:layout_gravity="center"
             android:id="@+id/toolbar_title" />

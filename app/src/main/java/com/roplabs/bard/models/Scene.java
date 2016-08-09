@@ -49,6 +49,11 @@ public class Scene extends RealmObject {
         return realm.where(Scene.class).equalTo("token", token).findFirst();
     }
 
+    public static RealmResults<Scene> forCharacterToken(String characterToken) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Scene.class).equalTo("characterToken", characterToken).findAll();
+    }
+
     public static void copyToRealmOrUpdate(List<Scene> scenes) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
@@ -56,25 +61,19 @@ public class Scene extends RealmObject {
         for (Scene scene : scenes) {
             Scene obj = Scene.forToken(scene.getToken());
             if (obj == null) {
-                Scene.create(scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl());
+                Scene.create(realm, scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl());
             }
         }
 
         realm.commitTransaction();
     }
 
-    public static void create(String token, String characterToken, String name, String thumbnailUrl) {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
+    public static void create(Realm realm, String token, String characterToken, String name, String thumbnailUrl) {
         Scene scene = realm.createObject(Scene.class);
         scene.setToken(token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
         scene.setThumbnailUrl(thumbnailUrl);
-
-        realm.commitTransaction();
     }
 
     public void setName(String name) {

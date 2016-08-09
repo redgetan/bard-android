@@ -38,6 +38,7 @@ import com.roplabs.bard.ui.widget.InputViewPager;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.greenrobot.eventbus.EventBus;
@@ -149,7 +150,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     private void setCharacterOrSceneTitle() {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        if (sceneToken.length() != 0) {
+        if (!sceneToken.isEmpty()) {
             title.setText(scene.getName());
         } else {
             title.setText(character.getName());
@@ -313,7 +314,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
                 @Override
                 public void onFailure(Call<Scene> call, Throwable t) {
-                    progressBar.setVisibility(View.VISIBLE);
+                    progressBar.setVisibility(View.GONE);
                     debugView.setText("");
                     Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_LONG).show();
                 }
@@ -325,13 +326,64 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     }
 
     private void initCharacterWordList() {
+        if (character.getIsBundleDownloaded()) {
+            RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
+            for (Scene scene : scenes) {
+                addWordListToDictionary(scene.getWordList());
+            }
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            debugView.setText("Initializing Available Word List");
+
+            Call<HashMap<String, String>> call = BardClient.getBardService().getCharacterWordList(characterToken);
+            call.enqueue(new Callback<HashMap<String, String>>() {
+                @Override
+                public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                    HashMap<String, String> wordListBySceneToken = response.body();
+                    for (Map.Entry<String, String> wordListEntry : wordListBySceneToken.entrySet()) {
+                        String givenSceneToken = wordListEntry.getKey();
+                        String givenWordList = wordListEntry.getValue();
+
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        Scene.forToken(givenSceneToken).setWordList(givenWordList);
+                        realm.commitTransaction();
+
+                        addWordListToDictionary(givenWordList);
+                    }
+
+                    // mark character bundle as downloaded (full wordlist available)
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    character.setIsBundleDownloaded(true);
+                    realm.commitTransaction();
+
+                    progressBar.setVisibility(View.GONE);
+                    debugView.setText("");
+
+                    onWordListAvailable();
+                }
+
+                @Override
+                public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+                    debugView.setText("");
+                    Toast.makeText(getApplicationContext(), "Failed to download word list", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
 
     }
 
     private void addWordListToDictionary(String wordList) {
-        availableWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
-        uniqueWordList = buildUniqueWordList();
-        wordTrie = buildWordTrie();
+        List<String> givenWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
+        if (availableWordList != null) {
+
+        } else {
+            availableWordList = givenWordList;
+            uniqueWordList = buildUniqueWordList();
+            wordTrie = buildWordTrie();
+        }
     }
 
     private String[] buildUniqueWordList() {

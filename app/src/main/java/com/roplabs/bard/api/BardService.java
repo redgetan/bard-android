@@ -9,6 +9,7 @@ import retrofit2.http.GET;
 import retrofit2.http.POST;
 import retrofit2.http.Path;
 
+import java.util.HashMap;
 import java.util.List;
 
 public interface BardService {
@@ -26,5 +27,8 @@ public interface BardService {
 
     @GET("bundles/{characterToken}/scenes/{sceneToken}/word_list")
     Call<Scene> getSceneWordList(@Path("characterToken") String characterToken, @Path("sceneToken") String sceneToken);
+
+    @GET("bundles/{characterToken}/word_list")
+    Call<HashMap<String, String>> getCharacterWordList(@Path("characterToken") String characterToken);
 }
 

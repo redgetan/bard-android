@@ -12,7 +12,7 @@
     <TextView
             android:id="@+id/index_name"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="25dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
     />
