@@ -14,9 +14,52 @@
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
+        <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
+                        xmlns:tools="http://schemas.android.com/tools"
+                        android:id="@+id/preview_timeline_container"
+                        android:background="@color/black"
+                        android:layout_width="match_parent"
+                        android:layout_height="40dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+            <HorizontalScrollView
+                    android:layout_width="0dp"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+            >
+                <LinearLayout
+                        android:id="@+id/preview_timeline"
+                        android:background="@color/iron"
+                        android:layout_width="wrap_content"
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal" >
+                    <!-- child views in here -->
+                </LinearLayout>
+            </HorizontalScrollView>
+
+            <Button
+                    android:id="@+id/play_message_btn"
+                    android:onClick="playMessage"
+                    android:enabled="false"
+                    android:background="@drawable/selector_play_all"
+                    android:textColor="@color/white"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:minWidth="70dp"
+                    android:textAllCaps="false"
+                    android:text="@string/button_play_all"
+                    android:layout_width="wrap_content"
+                    android:layout_height="25dp" />
+
+        </LinearLayout>
+
+
+
         <FrameLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                        xmlns:tools="http://schemas.android.com/tools"
                        android:id="@+id/vp_pager_container"
+                       android:layout_below="@id/preview_timeline_container"
                        android:layout_width="fill_parent"
                        android:layout_height="200dp"
                        android:orientation="vertical"
@@ -31,6 +74,7 @@
 
             <TextView android:id="@+id/display_debug"
                       android:layout_gravity = "center_vertical|center_horizontal"
+                      android:textColor="@color/white"
                       android:layout_marginTop="30dp"
                       android:layout_width="wrap_content"
                       android:layout_height="wrap_content"/>
@@ -92,45 +136,36 @@
                                                                   android:background="@android:color/transparent"
                                                                   android:completionThreshold="1"
                                                                   android:hint="@string/edit_message"/>
-            <Button
-                    android:id="@+id/play_message_btn"
-                    android:onClick="playMessage"
-                    android:enabled="false"
-                    android:background="@drawable/selector_play_all"
-                    android:layout_marginRight="10dp"
-                    android:layout_marginEnd="10dp"
-                    android:minWidth="70dp"
-                    android:text="@string/button_play_all"
-                    android:layout_gravity="top|right"
+
+            <ImageView
+                    android:id="@+id/btn_find_prev"
+                    android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
+                    android:alpha="0.3"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="25dp" />
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/find_prev_string"/>
+
+            <ImageView
+                    android:id="@+id/btn_find_next"
+                    android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                    android:alpha="0.3"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/find_next_string"/>
+
 
         </LinearLayout>
-
-        <HorizontalScrollView
-                android:id="@+id/preview_timeline_container"
-                android:layout_below="@id/bard_text_entry"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-        >
-            <LinearLayout
-                    android:id="@+id/preview_timeline"
-                    android:background="@color/iron"
-                    android:layout_width="wrap_content"
-                    android:layout_height="match_parent"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-                    android:orientation="horizontal" >
-                <!-- child views in here -->
-            </LinearLayout>
-        </HorizontalScrollView>
 
 
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/word_list_dictionary"
                 android:padding="10dp"
                 android:background="@drawable/word_choice_background"
-                android:layout_below="@id/preview_timeline_container"
+                android:layout_below="@id/bard_text_entry"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content" />
 

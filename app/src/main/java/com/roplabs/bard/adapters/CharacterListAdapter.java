@@ -60,7 +60,7 @@ public class CharacterListAdapter extends
         return characterList.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Character character);

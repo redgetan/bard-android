@@ -51,7 +51,10 @@ import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class BardEditorActivity extends BaseActivity implements WordListFragment.OnReadyListener, WordListFragment.OnWordTagChanged {
+public class BardEditorActivity extends BaseActivity implements
+        WordListFragment.OnReadyListener,
+        WordListFragment.OnWordTagChanged,
+        WordListFragment.OnPreviewPlayerPreparedListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -61,6 +64,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     private Context mContext;
     private RelativeLayout inputContainer;
+    private ImageView findNextBtn;
+    private ImageView findPrevBtn;
     private InputViewPager vpPager;
     private FrameLayout vpPagerContainer;
     private TextView debugView;
@@ -101,7 +106,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     private ImageView showKeyboardBtn;
     private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
-    private FrameLayout previewTimelineContainer;
+    private LinearLayout previewTimelineContainer;
     private WordListAdapter.ViewHolder lastViewHolder;
 
     ShareActionProvider mShareActionProvider;
@@ -130,8 +135,10 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
         showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
-        previewTimelineContainer = (FrameLayout) findViewById(R.id.preview_timeline_container);
+        previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
+        findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
+        findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
 
 
         Intent intent = getIntent();
@@ -145,6 +152,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         initAnalytics();
         initViewPager();
         setCharacterOrSceneTitle();
+        updatePlayMessageBtnState();
     }
 
     private void setCharacterOrSceneTitle() {
@@ -416,6 +424,28 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     public void initFindInPage() {
         getWordListFragment().initFindInPage(availableWordList);
+
+        findNextBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WordTag targetWordTag = getWordTagSelector().findNextWord();
+                if (targetWordTag != null) {
+                    getWordListFragment().setWordTag(targetWordTag);
+                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
+                }
+            }
+        });
+
+        findPrevBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                WordTag targetWordTag = getWordTagSelector().findPrevWord();
+                if (targetWordTag != null) {
+                    getWordListFragment().setWordTag(targetWordTag);
+                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
+                }
+            }
+        });
     }
 
     private void initMultiAutoComplete() {
@@ -452,6 +482,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
                         getWordListFragment().setWordTag(wordTag);
+                        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
                     }
                 }
             }
@@ -471,11 +502,13 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         });
     }
 
-    private void updatePlayAllBtnState() {
-        if (getTimelineEnabledImageViewCount() > 0) {
+    private void updatePlayMessageBtnState() {
+        if (getTimelineEnabledImageViewCount() > 1) {
             playMessageBtn.setEnabled(true);
+            playMessageBtn.setVisibility(View.VISIBLE);
         } else {
             playMessageBtn.setEnabled(false);
+            playMessageBtn.setVisibility(View.GONE);
         }
     }
 
@@ -563,8 +596,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                     } else {
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
-                    progressBar.setVisibility(View.VISIBLE);
                     getWordListFragment().setWordTag(targetWordTag);
+                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
                 }
             }
         } else {
@@ -593,7 +626,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
                 if (imageView != null) {
                     previewTimeline.removeView(imageView);
                     previewTimeline.addView(createPreviewImageView(null));
-                    updatePlayAllBtnState();
+                    updatePlayMessageBtnState();
                 }
 
             } else {
@@ -852,6 +885,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
             return;
         }
 
+        progressBar.setVisibility(View.VISIBLE);
+
         if (getWordListFragment() != null) {
             getWordListFragment().playPreview(url);
         }
@@ -898,7 +933,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         if (showKeyboardBtn.isShown()) {
             recyclerView.setVisibility(View.VISIBLE);
         }
-        playMessageBtn.setVisibility(View.VISIBLE);
+        updatePlayMessageBtnState();
 
         if (vpPager.getCurrentItem() != 0) {
             vpPager.setCurrentItem(0, true);
@@ -964,6 +999,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     public void onWordListFragmentReady() {
         initChatText();
         getWordListFragment().setOnWordTagChangedListener(this);
+        getWordListFragment().setOnPreviewPlayerPreparedListener(this);
     }
 
 
@@ -974,7 +1010,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         if (currentImageView != null) {
             currentImageView.setImageBitmap(bitmap);
             currentImageView.setEnabled(true);
-            updatePlayAllBtnState();
+            updatePlayMessageBtnState();
         } else {
             currentImageView = createPreviewImageView(bitmap);
             previewTimeline.addView(currentImageView, currentTokenIndex);
@@ -1030,4 +1066,8 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         lastImageView = currentImageView;
     }
 
+    @Override
+    public void onPreviewPlayerPrepared() {
+        progressBar.setVisibility(View.GONE);
+    }
 }

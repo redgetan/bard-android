@@ -14,7 +14,7 @@
                    android:gravity="center_vertical|center_horizontal"
     >
         <TextureView android:id="@+id/preview_tag_view"
-            android:background="@color/iron"
+            android:background="@color/black"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
@@ -22,18 +22,21 @@
                   android:layout_width="wrap_content"
                   android:background="@color/black"
                   android:textColor="@color/white"
-                  android:padding="3dp"
+                  android:paddingLeft="5dp"
+                  android:paddingRight="5dp"
+                  android:paddingTop="3dp"
+                  android:paddingBottom="3dp"
                   android:alpha="0.8"
                   android:layout_height="wrap_content"
-                  android:layout_marginTop="5dp"
-                  android:layout_gravity="top|center_horizontal"
+                  android:layout_marginBottom="10dp"
+                  android:layout_gravity="bottom|center_horizontal"
                   android:text=""
                   android:gravity="center"
-                  android:textSize="12sp"/>
+                  android:textSize="18sp"/>
 
         <View
                 android:id="@+id/preview_video_overlay"
-                android:background="@color/iron"
+                android:background="@color/black"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 />
@@ -42,28 +45,10 @@
                   android:background="@android:color/holo_red_light"
                   android:textColor="@android:color/white"
                   android:visibility="visible"
-                  android:layout_gravity="bottom|center_horizontal"
+                  android:layout_gravity="top|center_horizontal"
                   android:layout_margin="10dp"
                   android:layout_width="wrap_content"
                   android:layout_height="wrap_content"/>
-
-        <ImageView
-                android:id="@+id/btn_find_prev"
-                android:src="@drawable/ic_keyboard_arrow_left_white_24dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="10dp"
-                android:layout_gravity="center_vertical|left"
-                android:contentDescription="@string/find_prev_string"/>
-
-        <ImageView
-                android:id="@+id/btn_find_next"
-                android:src="@drawable/ic_keyboard_arrow_right_white_24dp"
-                android:padding="10dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical|right"
-                android:contentDescription="@string/find_next_string"/>
 
     </FrameLayout>
 

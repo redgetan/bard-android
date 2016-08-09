@@ -2,6 +2,7 @@
   [x] migrate realm db from old schema to new schema
   [x] should list character/scenes
   [x] dont hit getQuery, go directly to cdn
+  [ ] sorting of character/scenes should be fixed (currently keeps changing between local/remote)
   [ ] remove lag when selecting character/scene
   [ ] bardeditor should fetch wordlist (scenes/all)
   [ ] repo saved should be namespaced by username

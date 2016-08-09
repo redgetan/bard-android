@@ -52,6 +52,16 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         void onWordTagChanged(WordTag wordTag);
     }
 
+    private OnPreviewPlayerPreparedListener previewPlayerPreparedListener;
+
+    public interface OnPreviewPlayerPreparedListener  {
+        void onPreviewPlayerPrepared();
+    }
+
+    public void setOnPreviewPlayerPreparedListener(OnPreviewPlayerPreparedListener listener) {
+        this.previewPlayerPreparedListener = listener;
+    }
+
     public void setOnWordTagChangedListener(OnWordTagChanged listener) {
         this.wordTagChangedListener = listener;
     }
@@ -86,6 +96,10 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     public void onPrepared(MediaPlayer mp) {
         previewTagView.setBackgroundColor(Color.TRANSPARENT);
         isVideoReady = true;
+
+        if (this.previewPlayerPreparedListener != null) {
+            this.previewPlayerPreparedListener.onPreviewPlayerPrepared();
+        }
     }
 
     @Override
@@ -127,8 +141,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         display_word_error = (TextView) view.findViewById(R.id.display_word_error);
         word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
         previewTagView = (TextureView) view.findViewById(R.id.preview_tag_view);
-        findNextBtn = (ImageView) view.findViewById(R.id.btn_find_next);
-        findPrevBtn = (ImageView) view.findViewById(R.id.btn_find_prev);
         previewOverlay = view.findViewById(R.id.preview_video_overlay);
         wordTagPlayHandler = new Handler();
 
@@ -192,12 +204,12 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     private void drawPagination() {
         StringBuilder builder = new StringBuilder();
 
-        builder.append(wordTagSelector.getCurrentWord());
-        builder.append(" (");
+//        builder.append(wordTagSelector.getCurrentWord());
+//        builder.append(" (");
         builder.append(wordTagSelector.getCurrentWordTagIndex() + 1);
-        builder.append(" / ");
+        builder.append(" of ");
         builder.append(wordTagSelector.getCurrentWordTagCount());
-        builder.append(" )");
+//        builder.append(" )");
 
         word_tag_status.setText(builder.toString());
     }
@@ -281,31 +293,10 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     public void initFindInPage(List<String> availableWordList) {
         wordTagSelector = new WordTagSelector(availableWordList);
-        initFindInPageListener();
     }
 
     public WordTagSelector getWordTagSelector() {
         return wordTagSelector;
-    }
-
-    public void initFindInPageListener() {
-        findNextBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WordTag targetWordTag = wordTagSelector.findNextWord();
-                if (targetWordTag != null) onWordTagChanged(targetWordTag);
-            }
-        });
-
-        findPrevBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                WordTag targetWordTag = wordTagSelector.findPrevWord();
-                if (targetWordTag != null) onWordTagChanged(targetWordTag);
-            }
-        });
-
-
     }
 
 }
