@@ -4,7 +4,9 @@
               android:paddingTop="2dp"
               android:paddingBottom="2dp"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content">
+              android:layout_height="wrap_content"
+              android:background="@drawable/selector_grid"
+>
 
     <ImageView
             android:id="@+id/scene_thumbnail"

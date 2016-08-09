@@ -107,6 +107,7 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView showWordChoiceBtn;
     private LinearLayout previewTimeline;
     private LinearLayout previewTimelineContainer;
+    private HorizontalScrollView previewTimelineScrollView;
     private WordListAdapter.ViewHolder lastViewHolder;
 
     ShareActionProvider mShareActionProvider;
@@ -136,10 +137,11 @@ public class BardEditorActivity extends BaseActivity implements
         showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
+        previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
-
+        previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
 
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
@@ -305,6 +307,7 @@ public class BardEditorActivity extends BaseActivity implements
         initMultiAutoComplete();
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
+        previewTimelineScrollView.setHorizontalScrollBarEnabled(true);
     }
 
     private void initSceneWordList() {

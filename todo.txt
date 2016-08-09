@@ -2,12 +2,12 @@
   [x] migrate realm db from old schema to new schema
   [x] should list character/scenes
   [x] dont hit getQuery, go directly to cdn
+  [x] i click wordtag, crappy segment would show up, its not obvious i can switch it (left/right toggle not visible)
   [ ] sorting of character/scenes should be fixed (currently keeps changing between local/remote)
   [ ] remove lag when selecting character/scene
   [ ] bardeditor should fetch wordlist (scenes/all)
   [ ] repo saved should be namespaced by username
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
-  [ ] i click wordtag, crappy segment would show up, its not obvious i can switch it (left/right toggle not visible)
   [ ] default view is library
   [ ] implement logout
   [ ] add mixpanel (measure duration of generateBardVideo, what character, words they used)

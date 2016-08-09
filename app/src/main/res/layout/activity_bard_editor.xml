@@ -23,6 +23,7 @@
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
             <HorizontalScrollView
+                    android:id="@+id/preview_timeline_scrollview"
                     android:layout_width="0dp"
                     android:layout_weight="1"
                     android:layout_height="match_parent"

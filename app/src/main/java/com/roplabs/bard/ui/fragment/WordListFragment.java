@@ -100,6 +100,8 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         if (this.previewPlayerPreparedListener != null) {
             this.previewPlayerPreparedListener.onPreviewPlayerPrepared();
         }
+
+        mp.start();
     }
 
     @Override
@@ -248,8 +250,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             mediaPlayer.reset();
             mediaPlayer.setDataSource(sourceUrl);
             mediaPlayer.setSurface(previewSurface);
-            mediaPlayer.prepare();
-            mediaPlayer.start();
+            mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
             Crashlytics.logException(e);
