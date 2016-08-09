@@ -65,7 +65,7 @@ public class Scene extends RealmObject {
         scene.setToken(token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
-        scene.setThumbnailUrl(characterToken);
+        scene.setThumbnailUrl(thumbnailUrl);
 
         realm.commitTransaction();
     }

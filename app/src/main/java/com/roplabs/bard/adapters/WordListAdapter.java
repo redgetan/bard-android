@@ -35,6 +35,11 @@ public class WordListAdapter extends
         this.context = context;
     }
 
+    public void swap(List<String> wordTagList){
+        wordList = wordTagList;
+        notifyDataSetChanged();
+    }
+
     // Usually involves inflating a layout from XML and returning the holder
     @Override
     public WordListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {

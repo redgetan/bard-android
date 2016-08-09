@@ -1,11 +1,14 @@
 [ ] android
   [x] migrate realm db from old schema to new schema
-  [ ] should list character/scenes
+  [x] should list character/scenes
+  [ ] bardeditor should fetch wordlist (scenes/all)
+  [ ] repo saved should be namespaced by username
   [ ] dont hit getQuery, go directly to cdn
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
   [ ] i click wordtag, crappy segment would show up, its not obvious i can switch it (left/right toggle not visible)
   [ ] choose actor/choose scene
   [ ] default view is library
+  [ ] implement logout
   [ ] add mixpanel (measure duration of generateBardVideo, what character, words they used)
   [ ] add instabug feedback form in about page
   [ ] add tell friends/follow/privacy/logout rows in about page

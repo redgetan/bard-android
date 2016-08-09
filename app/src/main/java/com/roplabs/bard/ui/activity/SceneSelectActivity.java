@@ -4,9 +4,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
@@ -35,7 +37,9 @@ public class SceneSelectActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scene_select);
-        toolbar.setTitle(R.string.choose_scene);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(R.string.choose_scene);
 
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");

@@ -59,6 +59,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(context)
                 .load(scene.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
                 .crossFade()
                 .into(thumbnail);
 

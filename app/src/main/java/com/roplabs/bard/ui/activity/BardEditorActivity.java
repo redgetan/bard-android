@@ -37,12 +37,17 @@ import com.roplabs.bard.ui.fragment.WordListFragment;
 import com.roplabs.bard.ui.widget.InputViewPager;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
+import io.realm.Realm;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -89,7 +94,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     private Character character;
     private Scene scene;
     private Repo repo;
-    private String[] availableWordList;
+    private List<String> availableWordList;
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private Button playMessageBtn;
@@ -142,10 +147,11 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     }
 
     private void setCharacterOrSceneTitle() {
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         if (sceneToken.length() != 0) {
-            setTitle(scene.getName());
+            title.setText(scene.getName());
         } else {
-            setTitle(character.getName());
+            title.setText(character.getName());
         }
     }
 
@@ -162,11 +168,11 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     }
 
 
-    private void initScrollableWordList() {
+    private void initWordTagView() {
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
 
-        WordListAdapter adapter = new WordListAdapter(this, new ArrayList<String>(Arrays.asList(availableWordList)));
+        WordListAdapter adapter = new WordListAdapter(this, availableWordList);
         adapter.setIsWordTagged(true);
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
@@ -250,7 +256,7 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     private void initChatText() {
         clearChatCursor();
-//        initAutocompleteWords();
+        initDictionary();
     }
 
     private void clearChatCursor() {
@@ -267,32 +273,62 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
         }
     }
 
-    private void initAutocompleteWords() {
+    private void initDictionary() {
         progressBar.setVisibility(View.VISIBLE);
         debugView.setText("Initializing Available Word List");
-        final Context context = this;
 
-        (new AsyncTask<Void, Void, Void>() {
+        if (!sceneToken.isEmpty()) {
+            initSceneWordList();
+        } else {
+            initCharacterWordList();
+        }
+    }
 
-            @Override
-            protected Void doInBackground(Void... params) {
-//                availableWordList = Character.forToken(this.characterToken).getWordList().split(",");
-//
-//                uniqueWordList = buildUniqueWordList();
-//                wordTrie = buildWordTrie();
+    private void onWordListAvailable() {
+        initFindInPage();
+        initWordTagView();
+        initMultiAutoComplete();
+        progressBar.setVisibility(View.GONE);
+        debugView.setText("");
+    }
 
-                return null;
-            }
+    private void initSceneWordList() {
+        if (scene.getWordList() == null) {
+            Call<Scene> call = BardClient.getBardService().getSceneWordList(characterToken, sceneToken);
+            call.enqueue(new Callback<Scene>() {
+                @Override
+                public void onResponse(Call<Scene> call, Response<Scene> response) {
+                    Scene remoteScene = response.body();
+                    String wordList = remoteScene.getWordList();
 
-            @Override
-            protected void onPostExecute(Void result) {
-                initFindInPage();
-                initMultiAutoComplete();
-                progressBar.setVisibility(View.GONE);
-                debugView.setText("");
-            }
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    scene.setWordList(wordList);
+                    realm.commitTransaction();
 
-        }).execute();
+                    addWordListToDictionary(wordList);
+                    onWordListAvailable();
+                }
+
+                @Override
+                public void onFailure(Call<Scene> call, Throwable t) {
+                    Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_SHORT).show();
+                }
+            });
+        } else {
+            addWordListToDictionary(scene.getWordList());
+            onWordListAvailable();
+        }
+    }
+
+    private void initCharacterWordList() {
+
+    }
+
+    private void addWordListToDictionary(String wordList) {
+        availableWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
+        uniqueWordList = buildUniqueWordList();
+        wordTrie = buildWordTrie();
     }
 
     private String[] buildUniqueWordList() {
@@ -311,7 +347,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
 
     private Trie<String, String> buildWordTrie() {
         Trie<String, String> trie = new PatriciaTrie<String>();
-        String[] words = new String[] { "shit", "today", "is", "isnt", "it", "hot", "cant", "you", "event", "smell", "what", "the", "rock", "is", "cooking", "extravaganza" };
         for (String word : uniqueWordList ) {
             trie.put(word, null);
         }
@@ -324,7 +359,6 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
     }
 
     private void initMultiAutoComplete() {
-        initScrollableWordList();
 
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
@@ -802,7 +836,9 @@ public class BardEditorActivity extends BaseActivity implements WordListFragment
             vpPager.setCurrentItem(1, true);
         }
 
-        setTitle(R.string.share);
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(R.string.share);
+
         if (shareMenuItem != null) shareMenuItem.setVisible(true);
     }
 

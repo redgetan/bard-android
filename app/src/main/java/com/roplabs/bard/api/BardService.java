@@ -23,5 +23,8 @@ public interface BardService {
 
     @GET("bundles/{characterToken}/scenes")
     Call<List<Scene>> listScenes(@Path("characterToken") String characterToken);
+
+    @GET("bundles/{characterToken}/scenes/{sceneToken}/word_list")
+    Call<Scene> getSceneWordList(@Path("characterToken") String characterToken, @Path("sceneToken") String sceneToken);
 }
 

@@ -25,6 +25,7 @@ import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
 import java.io.IOException;
+import java.util.List;
 
 public class WordListFragment extends Fragment implements TextureView.SurfaceTextureListener, MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
     // Store instance variables
@@ -276,7 +277,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
 
-    public void initFindInPage(String[] availableWordList) {
+    public void initFindInPage(List<String> availableWordList) {
         wordTagSelector = new WordTagSelector(availableWordList);
         initFindInPageListener();
     }

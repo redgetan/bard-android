@@ -5,10 +5,12 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
@@ -49,7 +51,13 @@ public class CharacterSelectActivity extends BaseActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_index);
-        toolbar.setTitle(R.string.choose_character);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(R.string.choose_character);
+//        ActionBar actionBar = getSupportActionBar();
+//        if (actionBar != null) {
+//            actionBar.setTitle(R.string.choose_character);
+//        }
 
         RealmResults<Character> characterResults = Character.findAll();
         displayCharacterList(characterResults);

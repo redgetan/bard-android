@@ -13,7 +13,7 @@ public class WordTagSelector {
     private static final String NEXT_DIRECTION = "next";
     private static final String PREV_DIRECTION = "prev";
 
-    public WordTagSelector(String[] wordTags) {
+    public WordTagSelector(List<String> wordTags) {
         this.currentWord = "";
         this.currentWordTagIndex = 0;
         this.currentScrollPosition = -1;
@@ -41,14 +41,14 @@ public class WordTagSelector {
         return wordTagMap.get(currentWord).size();
     }
 
-    public void initWordTagMap(String[] wordTags) {
+    public void initWordTagMap(List<String> wordTags) {
         this.wordTagMap = new HashMap<String, ArrayList<WordTag>>();
 
         ArrayList<WordTag> wordTagList;
 
         int i = 0;
-        while (i < wordTags.length) {
-            String wordTagString = wordTags[i];
+        while (i < wordTags.size()) {
+            String wordTagString = wordTags.get(i);
             WordTag wordTag = new WordTag(wordTagString, i);
 
             if ((wordTagList = wordTagMap.get(wordTag.word)) != null) {
