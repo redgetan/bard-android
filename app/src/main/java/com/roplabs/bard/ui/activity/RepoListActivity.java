@@ -13,10 +13,12 @@ import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.mikepenz.iconics.IconicsDrawable;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
@@ -33,10 +35,11 @@ public class RepoListActivity extends BaseActivity {
     public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
     public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
     public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
-    public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
+    public static final int NEW_BARD_DRAWER_ITEM_IDENTIFIER = 4;
+    public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
+    public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
 
     private FrameLayout emptyStateContainer;
-    private Context mContext;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
 
     @Override
@@ -105,8 +108,10 @@ public class RepoListActivity extends BaseActivity {
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_info_outline_black_24dp)
+                        new PrimaryDrawerItem().withName(R.string.new_bard).withIdentifier(NEW_BARD_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new DividerDrawerItem(),
+                        new PrimaryDrawerItem().withName(R.string.tell_friend).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override
@@ -115,15 +120,23 @@ public class RepoListActivity extends BaseActivity {
                         Intent intent;
 
                         switch ((int) drawerItem.getIdentifier()) {
-                            case CREATE_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
+                            case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(getApplicationContext(), CharacterSelectActivity.class);
+                                startActivity(intent);
                                 break;
-                            case CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, CharacterSelectActivity.class);
+                            case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:
+                                Intent shareIntent = new Intent();
+                                shareIntent.setAction(Intent.ACTION_SEND);
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey, you should check out https://bard.co");
+                                shareIntent.setType("text/plain");
+                                startActivity(shareIntent);
+                                break;
+                            case PROFILE_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(getApplicationContext(), ProfileActivity.class);
                                 startActivity(intent);
                                 break;
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, RepoListActivity.class);
+                                intent = new Intent(getApplicationContext(), RepoListActivity.class);
                                 startActivity(intent);
                                 break;
                             case ABOUT_DRAWER_ITEM_IDENTIFIER:

@@ -32,8 +32,9 @@
     <string name="find_next_string">Next</string>
     <string name="my_projects_string">Projects</string>
     <string name="create_string">Create</string>
+    <string name="new_bard">New Bard</string>
     <string name="settings_string">Settings</string>
-    <string name="about_string">About</string>
+    <string name="profile">Profile</string>
     <string name="choose_character">Choose Actor</string>
     <string name="choose_scene">Choose Scene</string>
     <string name="feedback_btn_string">Give Feedback</string>
@@ -43,4 +44,11 @@
     <string name="empty_state_repo_description">To start using the text-to-video app, click the button on upper-right
         corner.
     </string>
+    <string name="tell_friend">Invite Friends</string>
+    <string name="feedback">Feedback</string>
+    <string name="follow_facebook">Follow us on Facebook</string>
+    <string name="follow_twitter">Follow us on Twitter</string>
+    <string name="about">About</string>
+    <string name="privacy_policy">Privacy Policy</string>
+    <string name="logout">Logout</string>
 </resources>

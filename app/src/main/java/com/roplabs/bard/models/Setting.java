@@ -2,6 +2,7 @@ package com.roplabs.bard.models;
 
 import android.content.Context;
 import android.preference.PreferenceManager;
+import com.roplabs.bard.ui.activity.ProfileActivity;
 
 public class Setting {
     private static final String CURRENT_INDEX_TOKEN = "current_index_token";
@@ -13,6 +14,12 @@ public class Setting {
         Setting.setAuthenticationToken(context, user.getAuthenticationToken());
         Setting.setUsername(context, user.getUsername());
         Setting.setEmail(context, user.getEmail());
+    }
+
+    public static void clearUserCredentials(Context context) {
+        Setting.setAuthenticationToken(context, "");
+        Setting.setUsername(context, "");
+        Setting.setEmail(context, "");
     }
 
     public static String getAuthenticationToken(Context context) {
