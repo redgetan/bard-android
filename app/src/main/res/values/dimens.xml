@@ -3,6 +3,7 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="character_item_offset">2dp</dimen>
+    <dimen name="scene_item_offset">3dp</dimen>
     <dimen name="item_offset">5dp</dimen>
     <dimen name="square_album_spacing">10dp</dimen>
 </resources>

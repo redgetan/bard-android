@@ -2,6 +2,7 @@ package com.roplabs.bard.models;
 
 import com.google.gson.annotations.SerializedName;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 import io.realm.annotations.Ignore;
@@ -58,6 +59,12 @@ public class Scene extends RealmObject {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Scene.class).equalTo("characterToken", characterToken).findAll();
     }
+
+//    public static RealmResults<Scene>  forCharacterToken(String characterToken) {
+//        Realm realm = Realm.getDefaultInstance();
+//        RealmResults<Scene> results = realm.where(Scene.class).equalTo("characterToken", characterToken).findAllAsync();
+//        return results;
+//    }
 
     public static void copyToRealmOrUpdate(List<Scene> scenes) {
         Realm realm = Realm.getDefaultInstance();

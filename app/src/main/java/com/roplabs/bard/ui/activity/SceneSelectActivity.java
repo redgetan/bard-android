@@ -16,6 +16,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
 import retrofit2.Call;
@@ -44,10 +45,17 @@ public class SceneSelectActivity extends BaseActivity {
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
 
-        RealmResults<Scene> sceneResults = Scene.findAll();
-        displaySceneList(sceneResults);
+        final RealmResults<Scene> sceneResults = Scene.forCharacterToken(characterToken);
+//
+// RealmChangeListener changeListener = new RealmChangeListener() {
+//            @Override
+//            public void onChange() {
+//            }
+//        };
+//        sceneResults.addChangeListener(changeListener);
 
-        syncRemoteData();
+        displaySceneList(sceneResults);
+//        syncRemoteData();
     }
 
     private void syncRemoteData() {
@@ -101,7 +109,7 @@ public class SceneSelectActivity extends BaseActivity {
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.item_offset);
+        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
         recyclerView.addItemDecoration(itemDecoration);
     }
 
