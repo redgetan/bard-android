@@ -55,16 +55,11 @@ public class Scene extends RealmObject {
         return realm.where(Scene.class).contains("wordList", wordTagString).findFirst();
     }
 
-    public static RealmResults<Scene> forCharacterToken(String characterToken) {
+    public static RealmResults<Scene>  forCharacterToken(String characterToken) {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Scene.class).equalTo("characterToken", characterToken).findAll();
+        RealmResults<Scene> results = realm.where(Scene.class).equalTo("characterToken", characterToken).findAllAsync();
+        return results;
     }
-
-//    public static RealmResults<Scene>  forCharacterToken(String characterToken) {
-//        Realm realm = Realm.getDefaultInstance();
-//        RealmResults<Scene> results = realm.where(Scene.class).equalTo("characterToken", characterToken).findAllAsync();
-//        return results;
-//    }
 
     public static void copyToRealmOrUpdate(List<Scene> scenes) {
         Realm realm = Realm.getDefaultInstance();

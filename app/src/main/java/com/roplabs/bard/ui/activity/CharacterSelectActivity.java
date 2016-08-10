@@ -32,34 +32,21 @@ import java.util.List;
 
 public class CharacterSelectActivity extends BaseActivity {
     private final int NUM_GRID_COLUMNS = 2;
-    public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
-    public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
-    public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
-    public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
 
-    private Context mContext;
-    private DrawerLayout mDrawerLayout;
     private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        mContext = this;
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_character_select);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_character);
-//        ActionBar actionBar = getSupportActionBar();
-//        if (actionBar != null) {
-//            actionBar.setTitle(R.string.choose_character);
-//        }
 
         RealmResults<Character> characterResults = Character.findAll();
         displayCharacterList(characterResults);
         syncRemoteData();
 
-        initNavigationViewDrawer();
     }
 
     private void syncRemoteData() {
@@ -130,58 +117,5 @@ public class CharacterSelectActivity extends BaseActivity {
 //        return super.onOptionsItemSelected(item);
 //    }
 
-    private void initNavigationViewDrawer() {
-// Create the AccountHeader
-        AccountHeader headerResult = new AccountHeaderBuilder()
-                .withActivity(this)
-                .withHeaderBackground(R.drawable.profile_header)
-                .withSelectionListEnabledForSingleProfile(false)
-                .addProfiles(
-                        new ProfileDrawerItem().withName(Setting.getUsername(this)).withEmail(Setting.getEmail(this)) // .withIcon(getResources().getDrawable(R.drawable.profile))
-                )
-                .withHeightDp(150)
-                .build();
-
-        new DrawerBuilder()
-                .withActivity(this)
-                .withAccountHeader(headerResult)
-                .withToolbar(toolbar)
-                .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.my_projects_string).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.about_string).withIdentifier(ABOUT_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_info_outline_black_24dp)
-                )
-                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
-                    @Override
-                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
-                        // do something with the clicked item :D
-                        Intent intent;
-
-                        switch ((int) drawerItem.getIdentifier()) {
-                            case CREATE_DRAWER_ITEM_IDENTIFIER:
-                                Toast.makeText(getApplicationContext(),"Create",Toast.LENGTH_SHORT).show();
-                                break;
-                            case CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, CharacterSelectActivity.class);
-                                startActivity(intent);
-                                break;
-                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(mContext, RepoListActivity.class);
-                                startActivity(intent);
-                                break;
-                            case ABOUT_DRAWER_ITEM_IDENTIFIER:
-                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://bard.co"));
-                                startActivity(browserIntent);
-                                break;
-                            default:
-                                break;
-                        }
-
-                        // allows drawer to close
-                        return false;
-                    }
-                })
-                .build();
-
-    }
 
 }

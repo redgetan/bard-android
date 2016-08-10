@@ -61,15 +61,15 @@
         </activity>
         <activity
                 android:name=".ui.activity.CharacterSelectActivity"
-                android:label="@string/app_name">
+                android:label="@string/app_name"
+                android:parentActivityName=".ui.activity.RepoListActivity">
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.activity.RepoListActivity" />
         </activity>
         <activity
                 android:name="com.roplabs.bard.ui.activity.RepoListActivity"
-                android:label="@string/title_project_list"
-                android:parentActivityName=".ui.activity.BardEditorActivity" >
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.BardEditorActivity" />
+                android:label="@string/title_project_list">
         </activity>
         <activity
                 android:name="com.roplabs.bard.ui.activity.VideoPlayerActivity"
