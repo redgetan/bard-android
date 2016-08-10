@@ -3,6 +3,7 @@ package com.roplabs.bard.models;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
+import io.realm.Sort;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
@@ -37,7 +38,7 @@ public class Character extends RealmObject {
 
     public static RealmResults<Character> findAll() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Character.class).findAll();
+        return realm.where(Character.class).findAllSorted("createdAt", Sort.DESCENDING);
     }
 
     public static Character findFirst() {

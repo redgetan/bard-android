@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -43,6 +44,10 @@ public class CharacterSelectActivity extends BaseActivity {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_character);
 
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
+
+
         RealmResults<Character> characterResults = Character.findAll();
         displayCharacterList(characterResults);
         syncRemoteData();
@@ -56,7 +61,7 @@ public class CharacterSelectActivity extends BaseActivity {
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
                 Character.createOrUpdate(characterList);
-                ((CharacterListAdapter) recyclerView.getAdapter()).swap(characterList);
+                ((CharacterListAdapter) recyclerView.getAdapter()).swap(Character.findAll());
             }
 
             @Override

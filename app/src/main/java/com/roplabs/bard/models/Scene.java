@@ -1,10 +1,7 @@
 package com.roplabs.bard.models;
 
 import com.google.gson.annotations.SerializedName;
-import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
+import io.realm.*;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 
@@ -37,7 +34,7 @@ public class Scene extends RealmObject {
 
     public static RealmResults<Scene> findAll() {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Scene.class).findAll();
+        return realm.where(Scene.class).findAllSorted("createdAt", Sort.DESCENDING);
     }
 
     public static Scene findFirst() {

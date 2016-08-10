@@ -10,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -34,6 +35,7 @@ public class RepoListActivity extends BaseActivity {
     public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
     public static final int CHOOSE_CHARACTER_DRAWER_ITEM_IDENTIFIER = 4;
 
+    private FrameLayout emptyStateContainer;
     private Context mContext;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
 
@@ -41,6 +43,8 @@ public class RepoListActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_list);
+
+        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_repo_container);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.bard_library);
@@ -51,6 +55,11 @@ public class RepoListActivity extends BaseActivity {
 
     public void displayRepoList() {
         final List<Repo> repos = Repo.findAll();
+
+        if (repos.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+            return;
+        }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_projects);
         RepoListAdapter adapter = new RepoListAdapter(this, repos);
