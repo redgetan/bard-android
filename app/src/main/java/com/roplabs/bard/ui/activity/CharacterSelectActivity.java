@@ -55,7 +55,7 @@ public class CharacterSelectActivity extends BaseActivity {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
-                Character.copyToRealmOrUpdate(characterList);
+                Character.createOrUpdate(characterList);
                 ((CharacterListAdapter) recyclerView.getAdapter()).swap(characterList);
             }
 

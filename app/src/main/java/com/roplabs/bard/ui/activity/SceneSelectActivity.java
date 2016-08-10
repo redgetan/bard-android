@@ -65,7 +65,7 @@ public class SceneSelectActivity extends BaseActivity {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
                 List<Scene> sceneList = response.body();
-                Scene.copyToRealmOrUpdate(sceneList);
+                Scene.createOrUpdate(sceneList);
                 ((SceneListAdapter) recyclerView.getAdapter()).swap(sceneList);
             }
 

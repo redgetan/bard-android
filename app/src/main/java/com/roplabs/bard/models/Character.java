@@ -50,25 +50,26 @@ public class Character extends RealmObject {
         return realm.where(Character.class).equalTo("token", token).findFirst();
     }
 
-    public static void copyToRealmOrUpdate(List<Character> characters) {
+    public static void createOrUpdate(List<Character> characters) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
-        List<Character> realmResult = realm.copyToRealmOrUpdate(characters);
+
+        for (Character character : characters) {
+            Character obj = Character.forToken(character.getToken());
+            if (obj == null) {
+                Character.create(realm, character.getToken(), character.getName(), character.getDescription());
+            }
+        }
         realm.commitTransaction();
     }
 
-    public static void create(String token, String name, String description) {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
+    public static void create(Realm realm, String token, String name, String description) {
         Character character = realm.createObject(Character.class);
         character.setToken(token);
         character.setName(name);
         character.setDescription(description);
-
-        realm.commitTransaction();
+        character.setCreatedAt(new Date(System.currentTimeMillis()));
     }
 
     public void setName(String name) {

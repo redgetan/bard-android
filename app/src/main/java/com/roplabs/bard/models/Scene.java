@@ -61,7 +61,7 @@ public class Scene extends RealmObject {
         return results;
     }
 
-    public static void copyToRealmOrUpdate(List<Scene> scenes) {
+    public static void createOrUpdate(List<Scene> scenes) {
         Realm realm = Realm.getDefaultInstance();
         realm.beginTransaction();
 
@@ -81,6 +81,7 @@ public class Scene extends RealmObject {
         scene.setName(name);
         scene.setCharacterToken(characterToken);
         scene.setThumbnailUrl(thumbnailUrl);
+        scene.setCreatedAt(new Date(System.currentTimeMillis()));
     }
 
     public void setName(String name) {
