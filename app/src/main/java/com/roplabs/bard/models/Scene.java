@@ -4,6 +4,7 @@ import com.google.gson.annotations.SerializedName;
 import io.realm.*;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
+import io.realm.annotations.Required;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -14,6 +15,7 @@ import java.util.Map;
 public class Scene extends RealmObject {
 
     @PrimaryKey
+    @Required
     private String token;
     private String name;
     private String characterToken;
@@ -52,9 +54,10 @@ public class Scene extends RealmObject {
         return realm.where(Scene.class).contains("wordList", wordTagString).findFirst();
     }
 
-    public static RealmResults<Scene>  forCharacterToken(String characterToken) {
+    public static RealmResults<Scene>  forCharacterToken(String characterToken, RealmChangeListener<RealmResults<Scene>> listener) {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Scene> results = realm.where(Scene.class).equalTo("characterToken", characterToken).findAllAsync();
+        results.addChangeListener(listener);
         return results;
     }
 

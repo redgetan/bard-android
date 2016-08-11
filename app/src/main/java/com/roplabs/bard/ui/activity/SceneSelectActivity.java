@@ -45,16 +45,12 @@ public class SceneSelectActivity extends BaseActivity {
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
 
-        final RealmResults<Scene> sceneResults = Scene.forCharacterToken(characterToken);
-
-        RealmChangeListener changeListener = new RealmChangeListener() {
+        Scene.forCharacterToken(characterToken, new RealmChangeListener<RealmResults<Scene>>() {
             @Override
-            public void onChange() {
-                displaySceneList(sceneResults);
+            public void onChange(RealmResults<Scene> scenes) {
+                displaySceneList(scenes);
             }
-        };
-
-        sceneResults.addChangeListener(changeListener);
+        });
 
         syncRemoteData();
     }

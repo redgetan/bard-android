@@ -102,12 +102,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             this.previewPlayerPreparedListener.onPreviewPlayerPrepared();
         }
 
+        listener.onVideoThumbnailChanged(previewTagView.getBitmap(100,100));
+
         mp.start();
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        listener.onVideoThumbnailChanged(previewTagView.getBitmap(100,100));
     }
 
     // Define the events that the fragment will use to communicate

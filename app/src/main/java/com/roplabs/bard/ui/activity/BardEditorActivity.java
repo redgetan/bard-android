@@ -38,6 +38,7 @@ import com.roplabs.bard.ui.widget.InputViewPager;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -96,6 +97,7 @@ public class BardEditorActivity extends BaseActivity implements
     private LinkedList<WordTag> wordTagList;
     private boolean skipOnTextChangeCallback;
 
+    private Boolean isWordTagListContainerBlocked;
     private String characterToken;
     private String sceneToken;
     private Character character;
@@ -144,6 +146,7 @@ public class BardEditorActivity extends BaseActivity implements
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
         previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
+        isWordTagListContainerBlocked = false;
 
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
@@ -211,6 +214,23 @@ public class BardEditorActivity extends BaseActivity implements
 //                    getWordTagSelector().setCurrentScrollPosition(-1);
 //                }
                 super.onScrolled(recyclerView, dx, dy);
+            }
+        });
+
+        recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
+            @Override
+            public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+                return isWordTagListContainerBlocked;
+            }
+
+            @Override
+            public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+
+            }
+
+            @Override
+            public void onRequestDisallowInterceptTouchEvent(boolean disallowIntercept) {
+
             }
         });
     }
@@ -345,10 +365,14 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initCharacterWordList() {
         if (character.getIsBundleDownloaded()) {
-            RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
-            for (Scene scene : scenes) {
-                addWordListToDictionary(scene.getWordList());
-            }
+            Scene.forCharacterToken(characterToken, new RealmChangeListener<RealmResults<Scene>>() {
+                @Override
+                public void onChange(RealmResults<Scene> scenes) {
+                    for (Scene scene : scenes) {
+                        addWordListToDictionary(scene.getWordList());
+                    }
+                }
+            });
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
@@ -530,9 +554,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
-        // insert word in current character
-        //   - wordTagList
-        //   - editText
+        isWordTagListContainerBlocked = true;
+
         skipOnTextChangeCallback = true;
         editText.insertText(wordTag.word + " ");
         skipOnTextChangeCallback = false;
@@ -1051,6 +1074,8 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         currentImageView.setSelected(true);
+
+        isWordTagListContainerBlocked = false;
     }
 
     public ImageView createPreviewImageView(Bitmap bitmap) {

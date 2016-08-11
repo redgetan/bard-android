@@ -7,6 +7,7 @@ import io.realm.Sort;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
+import io.realm.annotations.Required;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -18,6 +19,7 @@ import java.util.Map;
 public class Character extends RealmObject {
 
     @PrimaryKey
+    @Required
     private String token;
     private String name;
     private String description;
