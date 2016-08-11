@@ -846,8 +846,13 @@ public class BardEditorActivity extends BaseActivity implements
                 showVideoResultFragment();
                 Analytics.timeEvent("generateBardVideo");
 
-                List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
-                VideoDownloader.fetchSegments(segments);
+                Runnable runnable = new Runnable() {
+                    public void run() {
+                        VideoDownloader.fetchSegments(Segment.buildFromWordTagList(wordTagList));
+                    }
+                };
+
+                new Thread(runnable).start();
             } else {
                 notifyUserOnUnavailableWord();
             }
