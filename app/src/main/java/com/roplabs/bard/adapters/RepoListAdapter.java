@@ -50,7 +50,7 @@ public class RepoListAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.repoTitleView;
-        textView.setText(repo.getWordList());
+        textView.setText(repo.getTitle());
 
         ImageView thumbnail = viewHolder.repoThumbnail;
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);

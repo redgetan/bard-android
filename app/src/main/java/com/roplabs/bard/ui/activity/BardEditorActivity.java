@@ -746,7 +746,7 @@ public class BardEditorActivity extends BaseActivity implements
                 if ((new File(outputFilePath)).exists()) {
                     final long endTime = System.currentTimeMillis();
                     BardLogger.log(String.valueOf(endTime - startTime) + " seconds" );
-                    onJoinSegmentsSuccess(outputFilePath, wordList);
+                    onJoinSegmentsSuccess(outputFilePath);
                 } else {
                     // report error
                     Crashlytics.logException(new Throwable(result));
@@ -757,8 +757,8 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
-    private void onJoinSegmentsSuccess(String outputFilePath, String wordList) {
-        repo = saveRepo(outputFilePath, wordList);
+    private void onJoinSegmentsSuccess(String outputFilePath) {
+        repo = saveRepo(outputFilePath);
         shareMenuItem.setVisible(true);
 
         trackGenerateBardVideo();
@@ -773,7 +773,8 @@ public class BardEditorActivity extends BaseActivity implements
         return TextUtils.join(" ", list);
     }
 
-    private Repo saveRepo(String videoPath, String wordList) {
+    private Repo saveRepo(String videoPath) {
+        String wordList = TextUtils.join(",", wordTagList);
         return Repo.create(null, null, characterToken, sceneToken, videoPath, wordList, Calendar.getInstance().getTime());
     }
 
