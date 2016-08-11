@@ -73,7 +73,7 @@ public class Repo extends RealmObject {
         return repo;
     }
 
-    public String getTitle() {
+    public String title() {
         List<String> phrase = new ArrayList<String>();
 
         String[] wordTagStrings = getWordList().split(",");

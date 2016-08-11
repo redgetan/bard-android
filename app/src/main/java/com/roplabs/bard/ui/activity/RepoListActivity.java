@@ -66,10 +66,23 @@ public class RepoListActivity extends BaseActivity {
             emptyStateContainer.setVisibility(View.GONE);
         }
 
+        final Context self = this;
+
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_projects);
         RepoListAdapter adapter = new RepoListAdapter(this, repos);
+        adapter.setOnItemClickListener(new RepoListAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position, Repo repo) {
+                Intent intent = new Intent(self, VideoPlayerActivity.class);
+                intent.putExtra("title", repo.title());
+                intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
+                self.startActivity(intent);
+            }
+        });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+
 
         // http://stackoverflow.com/a/27037230
         recyclerView.addItemDecoration(new DividerItemDecoration(this));

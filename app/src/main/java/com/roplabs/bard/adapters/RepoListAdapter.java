@@ -50,7 +50,7 @@ public class RepoListAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.repoTitleView;
-        textView.setText(repo.getTitle());
+        textView.setText(repo.title());
 
         ImageView thumbnail = viewHolder.repoThumbnail;
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -64,6 +64,16 @@ public class RepoListAdapter extends
     @Override
     public int getItemCount() {
         return repos.size();
+    }
+
+    private static OnItemClickListener listener;
+
+    public interface OnItemClickListener {
+        void onItemClick(View itemView, int position, Repo repo);
+    }
+
+    public void setOnItemClickListener(OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     // Provide a direct reference to each of the views within a data item
@@ -95,10 +105,9 @@ public class RepoListAdapter extends
             int position = getLayoutPosition();
             Repo repo = repos.get(position);
 
-            Intent intent = new Intent(this.context, VideoPlayerActivity.class);
-            intent.putExtra("title", repo.getTitle());
-            intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
-            this.context.startActivity(intent);
+            if (listener != null) {
+                listener.onItemClick(v, position, repo);
+            }
         }
 
     }
