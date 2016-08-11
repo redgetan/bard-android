@@ -20,9 +20,13 @@
   [x] implement logout
     [x] clear credentials
     [x] should navigate back to mainactivity
-  [ ] repo saved should be namespaced by username
-  [ ] add mixpanel (measure duration of generateBardVideo, what character, words they used)
+  [x] repo saved should be namespaced by username
+  [x] remove lag when selecting scene
+  [ ] add mixpanel
+    [x] setup
+    [ ] identify user
+    [x] measure duration of generateBardVideo, what character, words they used
+  [ ] all scenes
   [ ] initializing wordlist is too slow (find out why, and improve)
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
-  [ ] remove lag when selecting scene
   [ ] joining 3 videos takes 7.5 seconds (so slow...)

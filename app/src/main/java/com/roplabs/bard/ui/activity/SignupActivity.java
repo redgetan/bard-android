@@ -18,10 +18,13 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
+import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.Helper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
+
+import java.util.Calendar;
 
 public class SignupActivity extends AppCompatActivity {
     private static final String TAG = "SignupActivity";
@@ -86,6 +89,7 @@ public class SignupActivity extends AppCompatActivity {
                 } else {
                     User user = response.body();
                     Setting.setUserCredentials(self, user);
+                    Analytics.identify(Calendar.getInstance().getTime());
                     _signupButton.setEnabled(true);
                     setResult(RESULT_OK, null);
                     finish();

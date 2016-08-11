@@ -20,6 +20,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
+import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.Helper;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -91,6 +92,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     User user = response.body();
                     Setting.setUserCredentials(self, user);
+                    Analytics.identify();
                     _loginButton.setEnabled(true);
                     setResult(RESULT_OK, null);
                     finish();

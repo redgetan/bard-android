@@ -43,6 +43,8 @@ import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
+import org.json.JSONException;
+import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -758,6 +760,8 @@ public class BardEditorActivity extends BaseActivity implements
     private void onJoinSegmentsSuccess(String outputFilePath, String wordList) {
         repo = saveRepo(outputFilePath, wordList);
         shareMenuItem.setVisible(true);
+
+        trackGenerateBardVideo();
         playLocalVideo(outputFilePath);
     }
 
@@ -840,6 +844,7 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.VISIBLE);
 
                 showVideoResultFragment();
+                Analytics.timeEvent("generateBardVideo");
 
                 List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
                 VideoDownloader.fetchSegments(segments);
@@ -851,6 +856,26 @@ public class BardEditorActivity extends BaseActivity implements
             debugView.setText(R.string.no_network_connection);
             return;
         }
+    }
+
+    private void trackGenerateBardVideo() {
+
+        JSONObject properties = new JSONObject();
+
+        try {
+            properties.put("wordTags", wordTagList);
+            properties.put("characterToken", characterToken);
+            properties.put("sceneToken", sceneToken);
+            properties.put("character", character.getName());
+            if (scene != null) {
+                properties.put("scene", scene.getName());
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Crashlytics.logException(e);
+        }
+
+        Analytics.track("generateBardVideo", properties);
     }
 
     // return false if wordtag missing and unable to find match. true otherwise
