@@ -12,6 +12,7 @@ import android.widget.BaseAdapter;
 import android.widget.Filter;
 import android.widget.Filterable;
 import android.widget.TextView;
+import com.roplabs.bard.util.BardLogger;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -393,9 +394,9 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
                 text = (TextView) view.findViewById(mFieldId);
             }
         } catch (ClassCastException e) {
-            Log.e("ArrayAdapter", "You must supply a resource ID for a TextView");
+            BardLogger.log("You must supply a resource ID for a TextView");
             throw new IllegalStateException(
-                    "ArrayAdapter requires the resource ID to be a TextView", e);
+                    "TrieAdapter requires the resource ID to be a TextView", e);
         }
 
         T item = getItem(position);
@@ -504,7 +505,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
             FilterResults results = new FilterResults();
 
             if (prefix == null || prefix.length() == 0) {
-//                Log.w("Mimic", "perform filtering - prefix empty");
+//                BardLogger.log("perform filtering - prefix empty");
                 Trie<String, T> values = mOriginalValues;;
 
                 Set<String> set = values.prefixMap("").keySet();
@@ -513,7 +514,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
                 results.values = newValues;
                 results.count = newValues.size();
             } else {
-//                Log.w("Mimic", "perform filtering - prefix present");
+//                BardLogger.log("perform filtering - prefix present");
                 String prefixString = prefix.toString().toLowerCase();
 
                 Trie<String, T> values = mOriginalValues;;
@@ -532,7 +533,7 @@ public class TrieAdapter<T> extends BaseAdapter implements Filterable, ThemedSpi
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
-//            Log.w("Mimic", "publishResults");
+//            BardLogger.log("publishResults");
             //noinspection unchecked
             mObjects = (List<T>) results.values;
             if (results.count > 0) {

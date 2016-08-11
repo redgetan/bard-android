@@ -5,6 +5,7 @@ import android.os.Environment;
 import android.util.Log;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.events.VideoDownloadEvent;
+import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.Helper;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -44,7 +45,7 @@ public class VideoDownloader {
             client.newCall(request).enqueue(new okhttp3.Callback() {
                 @Override
                 public void onFailure(okhttp3.Call call, IOException e) {
-                    Log.d("Bard", "failure on fetchSegments ");
+                   BardLogger.log("failure on fetchSegments ");
                 }
 
                 @Override

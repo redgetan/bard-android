@@ -11,15 +11,15 @@ public class Analytics {
     private static MixpanelAPI mixpanel;
 
     public static void identify() {
-        mixpanel.getPeople().identify(Setting.getUsername(ClientApp.getContext()));
-        mixpanel.getPeople().set("$name", Setting.getUsername(ClientApp.getContext()));
-        mixpanel.getPeople().set("$email", Setting.getEmail(ClientApp.getContext()));
+        getMixpanelInstance().getPeople().identify(Setting.getUsername(ClientApp.getContext()));
+        getMixpanelInstance().getPeople().set("$name", Setting.getUsername(ClientApp.getContext()));
+        getMixpanelInstance().getPeople().set("$email", Setting.getEmail(ClientApp.getContext()));
 
     }
 
     public static void identify(Date createdAt) {
         identify();
-        mixpanel.getPeople().set("$created", createdAt);
+        getMixpanelInstance().getPeople().set("$created", createdAt);
     }
 
     public static MixpanelAPI getMixpanelInstance() {

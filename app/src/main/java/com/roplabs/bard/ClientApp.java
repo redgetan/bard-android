@@ -2,6 +2,7 @@ package com.roplabs.bard;
 
 import android.app.Application;
 import android.content.Context;
+import android.support.multidex.MultiDexApplication;
 import com.crashlytics.android.Crashlytics;
 import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
@@ -14,7 +15,7 @@ import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
 
-public class ClientApp extends Application {
+public class ClientApp extends MultiDexApplication {
     private Tracker mTracker;
     private static ClientApp instance;
 

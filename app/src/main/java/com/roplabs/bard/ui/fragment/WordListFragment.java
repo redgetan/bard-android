@@ -20,6 +20,7 @@ import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.WordTag;
 import com.roplabs.bard.models.WordTagSelector;
+import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.OnSwipeTouchListener;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -278,7 +279,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         }
         int xoff = (viewWidth - newWidth) / 2;
         int yoff = (viewHeight - newHeight) / 2;
-        Log.v("Mimic", "video=" + videoWidth + "x" + videoHeight +
+        BardLogger.log("video=" + videoWidth + "x" + videoHeight +
                 " view=" + viewWidth + "x" + viewHeight +
                 " newView=" + newWidth + "x" + newHeight +
                 " off=" + xoff + "," + yoff);

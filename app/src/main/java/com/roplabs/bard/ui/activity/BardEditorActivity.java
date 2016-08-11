@@ -287,7 +287,7 @@ public class BardEditorActivity extends BaseActivity implements
             mCursorDrawableRes.setAccessible(true);
             mCursorDrawableRes.setInt(editText, 0);
         } catch (Exception e) {
-            Log.e("Mimic", e.getMessage());
+            BardLogger.log(e.getMessage());
             e.printStackTrace();
         }
     }
@@ -732,7 +732,7 @@ public class BardEditorActivity extends BaseActivity implements
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
         final long startTime = System.currentTimeMillis();
-        Log.e("Mimic", TextUtils.join(",",cmd));
+        BardLogger.log(TextUtils.join(",",cmd));
 
         (new AsyncTask<String[], Integer, String>() {
             @Override
@@ -745,7 +745,7 @@ public class BardEditorActivity extends BaseActivity implements
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
                     final long endTime = System.currentTimeMillis();
-                    Log.e("Mimic", String.valueOf(endTime - startTime) + " seconds" );
+                    BardLogger.log(String.valueOf(endTime - startTime) + " seconds" );
                     onJoinSegmentsSuccess(outputFilePath, wordList);
                 } else {
                     // report error
