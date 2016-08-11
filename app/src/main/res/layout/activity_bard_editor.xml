@@ -40,7 +40,7 @@
 
             <Button
                     android:id="@+id/play_message_btn"
-                    android:onClick="playMessage"
+                    android:onClick="generateBardVideo"
                     android:enabled="false"
                     android:background="@drawable/selector_play_all"
                     android:textColor="@color/white"

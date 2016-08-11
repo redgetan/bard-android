@@ -838,7 +838,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
 
-    public void playMessage(View view) throws IOException {
+    public void generateBardVideo(View view) throws IOException {
         if (Helper.isConnectedToInternet()) {
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);

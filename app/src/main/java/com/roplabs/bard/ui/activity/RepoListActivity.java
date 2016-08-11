@@ -62,6 +62,8 @@ public class RepoListActivity extends BaseActivity {
         if (repos.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);
             return;
+        } else {
+            emptyStateContainer.setVisibility(View.GONE);
         }
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_projects);

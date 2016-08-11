@@ -11,7 +11,7 @@ public class Analytics {
     private static MixpanelAPI mixpanel;
 
     public static void identify() {
-        getMixpanelInstance().getPeople().identify(Setting.getUsername(ClientApp.getContext()));
+        getMixpanelInstance().identify(Setting.getUsername(ClientApp.getContext()));
         getMixpanelInstance().getPeople().set("$name", Setting.getUsername(ClientApp.getContext()));
         getMixpanelInstance().getPeople().set("$email", Setting.getEmail(ClientApp.getContext()));
 
@@ -40,5 +40,9 @@ public class Analytics {
 
     public static void track(String event, JSONObject properties) {
         getMixpanelInstance().track(event, properties);
+    }
+
+    public static void sendQueuedEvents() {
+        getMixpanelInstance().flush();
     }
 }

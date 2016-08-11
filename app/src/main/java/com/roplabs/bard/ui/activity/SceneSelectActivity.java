@@ -104,7 +104,11 @@ public class SceneSelectActivity extends BaseActivity {
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent(self, BardEditorActivity.class);
                 intent.putExtra("characterToken", characterToken);
-                intent.putExtra("sceneToken", scene.getToken());
+                if (scene != null) {
+                    intent.putExtra("sceneToken", scene.getToken());
+                } else {
+                    intent.putExtra("sceneToken", "");
+                }
                 startActivity(intent);
             }
         });

@@ -1,6 +1,8 @@
 package com.roplabs.bard.adapters;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -8,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
@@ -48,27 +51,39 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
     // Involves populating data into the item through holder
     @Override
     public void onBindViewHolder(SceneListAdapter.ViewHolder viewHolder, int position) {
-        // Get the data model based on position
-        Scene scene = sceneList.get(position);
+        if (position == 0) {
+            TextView textView = viewHolder.sceneNameView;
+            textView.setText("All");
 
-        // Set item views based on the data model
-        TextView textView = viewHolder.sceneNameView;
-        textView.setText(scene.getName());
+            ImageView thumbnail = viewHolder.sceneThumbnail;
+            Bitmap bitmap = BitmapFactory.decodeResource(ClientApp.getContext().getResources(),
+                                                         R.drawable.thumbnail_placeholder);
+            thumbnail.setImageBitmap(bitmap);
+        } else {
 
-        ImageView thumbnail = viewHolder.sceneThumbnail;
-        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(context)
-                .load(scene.getThumbnailUrl())
-                .placeholder(R.drawable.thumbnail_placeholder)
-                .crossFade()
-                .into(thumbnail);
+            // Get the data model based on position
+            Scene scene = sceneList.get(position - 1);
+
+            // Set item views based on the data model
+            TextView textView = viewHolder.sceneNameView;
+            textView.setText(scene.getName());
+
+            ImageView thumbnail = viewHolder.sceneThumbnail;
+            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            Glide.with(context)
+                    .load(scene.getThumbnailUrl())
+                    .placeholder(R.drawable.thumbnail_placeholder)
+                    .crossFade()
+                    .into(thumbnail);
+        }
+
 
     }
 
     // Return the total count of items
     @Override
     public int getItemCount() {
-        return sceneList.size();
+        return sceneList.size() + 1;
     }
 
     private static OnItemClickListener listener;
@@ -107,7 +122,12 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            Scene scene = sceneList.get(position);
+            Scene scene = null;
+
+            // position 0 is reserved for "All" scene, anything greater must be adjusted to 0-index
+            if (position > 0) {
+                scene = sceneList.get(position - 1);
+            }
 
             if (selectedView != null) {
                 selectedView.setSelected(false);

@@ -22,11 +22,13 @@
     [x] should navigate back to mainactivity
   [x] repo saved should be namespaced by username
   [x] remove lag when selecting scene
-  [ ] add mixpanel
+  [x] add mixpanel
     [x] setup
-    [ ] identify user
+    [x] identify user
     [x] measure duration of generateBardVideo, what character, words they used
-  [ ] all scenes
+  [x] replace default profile with something else
+  [x] all scenes
+  [ ] play -> videoresultactivity blocked UI thread
   [ ] initializing wordlist is too slow (find out why, and improve)
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
   [ ] joining 3 videos takes 7.5 seconds (so slow...)

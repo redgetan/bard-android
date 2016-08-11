@@ -8,6 +8,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.FileManager;
 import com.roplabs.bard.util.Helper;
 import io.realm.Realm;
@@ -43,6 +44,7 @@ public class MainActivity extends BaseActivity {
         String authToken = Setting.getAuthenticationToken(this);
 
         if (authToken.length() > 0) {
+            Analytics.identify();
             intent = new Intent(this, RepoListActivity.class);
         } else {
             intent = new Intent(this, LoginActivity.class);
@@ -54,6 +56,12 @@ public class MainActivity extends BaseActivity {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Analytics.sendQueuedEvents();
+        super.onDestroy();
     }
 
     public void initFFmpeg() {
