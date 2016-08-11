@@ -12,15 +12,17 @@
   [x] scene empty state (no internet, show error)
   [x] library empty state (create first bard)
   [x] bardeditor should fetch wordlist (scenes/all)
-  [ ] profile activity
+  [x] profile activity
     - Invite friends in (haha)
     - http://stackoverflow.com/questions/33461245/android-material-design-profile-page
+  [x] add instabug feedback form in about page
+  [x] add tell friends/follow/privacy/logout rows in about page
+  [x] implement logout
+    [x] clear credentials
+    [x] should navigate back to mainactivity
   [ ] repo saved should be namespaced by username
-  [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
-  [ ] implement logout
   [ ] add mixpanel (measure duration of generateBardVideo, what character, words they used)
-  [ ] add instabug feedback form in about page
-  [ ] add tell friends/follow/privacy/logout rows in about page
   [ ] initializing wordlist is too slow (find out why, and improve)
+  [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
   [ ] remove lag when selecting scene
   [ ] joining 3 videos takes 7.5 seconds (so slow...)
