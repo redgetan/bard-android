@@ -1,5 +1,6 @@
 package com.roplabs.bard.models;
 
+import com.roplabs.bard.ClientApp;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -44,7 +45,15 @@ public class Repo extends RealmObject {
         return results;
     }
 
-    public static Repo create(String token, String videoUrl, String videoPath, String wordList, Date createdAt) {
+    public static RealmResults<Repo> forUsername(String username) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmResults<Repo> results = realm.where(Repo.class).equalTo("username", username).findAll();
+        results.sort("createdAt", Sort.DESCENDING);
+        return results;
+    }
+
+    public static Repo create(String token, String repoUrl, String characterToken, String sceneToken,
+                              String videoPath, String wordList, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
@@ -52,7 +61,10 @@ public class Repo extends RealmObject {
         Repo repo = realm.createObject(Repo.class);
 
         repo.setToken(token);
-        repo.setUrl(videoUrl);
+        repo.setUsername(Setting.getUsername(ClientApp.getContext()));
+        repo.setCharacterToken(characterToken);
+        repo.setSceneToken(sceneToken);
+        repo.setUrl(repoUrl);
         repo.setFilePath(videoPath);
         repo.setWordList(wordList);
         repo.setCreatedAt(createdAt);

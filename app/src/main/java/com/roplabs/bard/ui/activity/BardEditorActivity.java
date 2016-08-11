@@ -770,7 +770,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private Repo saveRepo(String videoPath, String wordList) {
-        return Repo.create(null, null, videoPath, wordList, Calendar.getInstance().getTime());
+        return Repo.create(null, null, characterToken, sceneToken, videoPath, wordList, Calendar.getInstance().getTime());
     }
 
 

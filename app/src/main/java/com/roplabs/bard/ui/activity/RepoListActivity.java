@@ -57,7 +57,7 @@ public class RepoListActivity extends BaseActivity {
     }
 
     public void displayRepoList() {
-        final List<Repo> repos = Repo.findAll();
+        final List<Repo> repos = Repo.forUsername(Setting.getUsername(this));
 
         if (repos.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);

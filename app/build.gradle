@@ -64,6 +64,9 @@ dependencies {
         transitive = true;
     }
     compile 'com.google.android.gms:play-services-analytics:8.4.0'
+    compile 'com.google.android.gms:play-services-base:8.4.0'
+    compile 'com.google.android.gms:play-services-gcm:8.4.0'
+    compile "com.mixpanel.android:mixpanel-android:4.9.1"
 
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
@@ -74,7 +77,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
 
     compile 'org.apmem.tools:layouts:1.10@aar'
-    compile 'com.instabug.library:instabug:2+'
+    compile 'com.instabug.library:instabug:2.6.0'
 
 }
 
