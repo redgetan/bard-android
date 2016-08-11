@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.MediaController;
+import android.widget.TextView;
 import android.widget.VideoView;
 import com.roplabs.bard.R;
 
@@ -22,6 +23,10 @@ public class VideoPlayerActivity extends BaseActivity {
 
         Intent intent = getIntent();
         this.videoLocation = intent.getStringExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE);
+        String repoTitle = intent.getStringExtra("title");
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(repoTitle);
 
         VideoView videoView = (VideoView) findViewById(R.id.video_view);
         videoView.setMediaController(new MediaController(this));

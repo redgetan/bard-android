@@ -96,6 +96,7 @@ public class RepoListAdapter extends
             Repo repo = repos.get(position);
 
             Intent intent = new Intent(this.context, VideoPlayerActivity.class);
+            intent.putExtra("title", repo.getTitle());
             intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
             this.context.startActivity(intent);
         }

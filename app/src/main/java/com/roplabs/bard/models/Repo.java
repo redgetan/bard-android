@@ -1,5 +1,6 @@
 package com.roplabs.bard.models;
 
+import android.text.TextUtils;
 import com.roplabs.bard.ClientApp;
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -7,9 +8,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import io.realm.annotations.Ignore;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class Repo extends RealmObject {
 
@@ -72,6 +71,18 @@ public class Repo extends RealmObject {
         realm.commitTransaction();
 
         return repo;
+    }
+
+    public String getTitle() {
+        List<String> phrase = new ArrayList<String>();
+
+        String[] wordTagStrings = getWordList().split(",");
+        for (String wordTagString : wordTagStrings) {
+           String word = wordTagString.split(":")[0];
+            phrase.add(word);
+        }
+
+        return TextUtils.join(" ",phrase);
     }
 
     public void setFilePath(String filePath) {

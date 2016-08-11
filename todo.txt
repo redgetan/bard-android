@@ -27,8 +27,11 @@
     [x] identify user
     [x] measure duration of generateBardVideo, what character, words they used
   [x] replace default profile with something else
-  [x] all scenes
-  [ ] play -> videoresultactivity blocked UI thread
-  [ ] initializing wordlist is too slow (find out why, and improve)
+  [x] play -> videoresultactivity blocked UI thread
+  [ ] all scenes
+    [x] show scene "all"
+    [ ] bardeditor for "all" should work
   [ ] if i click multiple wordtag too fast, imageplaceholder wont work properly
+    [ ] disable recyclerview (http://stackoverflow.com/a/36357156/803865)
+  [ ] initializing wordlist is too slow (find out why, and improve)
   [ ] joining 3 videos takes 7.5 seconds (so slow...)
