@@ -887,6 +887,16 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
+    private String formatWordTagListTitle(List<WordTag> wordTags) {
+        List<String> phrase = new ArrayList<String>();
+
+        for (WordTag wordTag : wordTags) {
+            phrase.add(wordTag.word);
+        }
+
+        return TextUtils.join(" ",phrase);
+    }
+
     private void trackGenerateBardVideo() {
 
         JSONObject properties = new JSONObject();
@@ -979,7 +989,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(R.string.share);
+        title.setText(formatWordTagListTitle(wordTagList));
 
         if (shareMenuItem != null) shareMenuItem.setVisible(true);
     }
