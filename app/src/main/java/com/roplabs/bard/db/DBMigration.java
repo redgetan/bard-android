@@ -41,15 +41,13 @@ public class DBMigration implements RealmMigration {
 
         if (oldVersion == 1) {
             schema.get("Character")
-                    .addPrimaryKey("token");
+                    .addPrimaryKey("token")
+                    .renameField("description","details");
 
             schema.get("Scene")
                     .addPrimaryKey("token");
-        }
 
-        if (oldVersion == 2) {
-            schema.get("Character")
-                    .renameField("description","details");
+            oldVersion++;
         }
 
     }
