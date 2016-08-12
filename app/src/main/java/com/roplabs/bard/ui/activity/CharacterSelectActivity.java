@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -25,6 +26,7 @@ import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.CharacterListAdapter;
 import com.roplabs.bard.util.Analytics;
+import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -36,6 +38,7 @@ public class CharacterSelectActivity extends BaseActivity {
     private final int NUM_GRID_COLUMNS = 2;
 
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,13 +51,23 @@ public class CharacterSelectActivity extends BaseActivity {
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
 
+        progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
+
 
         Analytics.track("compose");
 
-        RealmResults<Character> characterResults = Character.findAll();
-        displayCharacterList(characterResults);
-        syncRemoteData();
+        Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
+            @Override
+            public void onChange(RealmResults<Character> characters) {
+                displayCharacterList(characters);
 
+                if (characters.size() == 0) {
+                   progressBar.setVisibility(View.VISIBLE);
+                }
+
+                syncRemoteData();
+            }
+        });
     }
 
     private void syncRemoteData() {
@@ -64,14 +77,26 @@ public class CharacterSelectActivity extends BaseActivity {
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
                 Character.createOrUpdate(characterList);
-                ((CharacterListAdapter) recyclerView.getAdapter()).swap(Character.findAll());
+                Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
+                    @Override
+                    public void onChange(RealmResults<Character> characters) {
+                        progressBar.setVisibility(View.GONE);
+                        ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);
+                    }
+                });
             }
 
             @Override
             public void onFailure(Call<List<Character>> call, Throwable t) {
-                if (Character.findAll().size() == 0) {
-                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
-                }
+                Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
+                    @Override
+                    public void onChange(RealmResults<Character> characters) {
+                        progressBar.setVisibility(View.GONE);
+                        if (characters.isEmpty()) {
+                            Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
+                        }
+                    }
+                });
             }
         });
     }

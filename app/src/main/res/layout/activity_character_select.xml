@@ -9,11 +9,26 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <android.support.v7.widget.RecyclerView
-            android:id="@+id/index_list"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:clipToPadding="false"
-            android:padding="@dimen/item_offset"
-    />
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 xmlns:tools="http://schemas.android.com/tools"
+                 android:layout_width="match_parent"
+                 android:layout_height="match_parent">
+
+        <ProgressBar
+                android:id="@+id/character_progress_bar"
+                android:layout_gravity = "center"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+        />
+
+        <android.support.v7.widget.RecyclerView
+                android:id="@+id/index_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:clipToPadding="false"
+                android:padding="@dimen/item_offset"
+        />
+    </FrameLayout>
+
 </LinearLayout>

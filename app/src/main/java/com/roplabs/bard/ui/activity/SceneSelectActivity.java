@@ -8,6 +8,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.roplabs.bard.R;
@@ -31,6 +32,7 @@ public class SceneSelectActivity extends BaseActivity {
     private DrawerLayout mDrawerLayout;
     private String characterToken;
     private RecyclerView recyclerView;
+    private ProgressBar progressBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +44,8 @@ public class SceneSelectActivity extends BaseActivity {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_scene);
 
+        progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
+
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
 
@@ -49,10 +53,14 @@ public class SceneSelectActivity extends BaseActivity {
             @Override
             public void onChange(RealmResults<Scene> scenes) {
                 displaySceneList(scenes);
+
+                if (scenes.size() == 0) {
+                    progressBar.setVisibility(View.VISIBLE);
+                }
+
+                syncRemoteData();
             }
         });
-
-        syncRemoteData();
     }
 
     private void syncRemoteData() {
@@ -62,6 +70,7 @@ public class SceneSelectActivity extends BaseActivity {
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
                 List<Scene> sceneList = response.body();
                 Scene.createOrUpdate(sceneList);
+                progressBar.setVisibility(View.GONE);
                 ((SceneListAdapter) recyclerView.getAdapter()).swap(sceneList);
             }
 

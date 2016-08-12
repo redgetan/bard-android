@@ -1,9 +1,6 @@
 package com.roplabs.bard.models;
 
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
-import io.realm.Sort;
+import io.realm.*;
 import io.realm.annotations.Ignore;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmClass;
@@ -38,9 +35,13 @@ public class Character extends RealmObject {
         this.description = description;
     }
 
-    public static RealmResults<Character> findAll() {
+    public static RealmResults<Character> findAll(RealmChangeListener<RealmResults<Character>> listener) {
         Realm realm = Realm.getDefaultInstance();
-        return realm.where(Character.class).findAllSorted("createdAt", Sort.DESCENDING);
+        RealmResults<Character> results = realm.where(Character.class)
+                                               .findAllSortedAsync("createdAt", Sort.DESCENDING);
+        results.addChangeListener(listener);
+
+        return results;
     }
 
     public static Character findFirst() {
@@ -69,6 +70,7 @@ public class Character extends RealmObject {
 
     public static void create(Realm realm, String token, String name, String description) {
         Character character = realm.createObject(Character.class);
+        character.setIsBundleDownloaded(false);
         character.setToken(token);
         character.setName(name);
         character.setDescription(description);
