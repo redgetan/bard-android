@@ -26,7 +26,7 @@ public class ClientApp extends MultiDexApplication {
         LeakCanary.install(this);
         Fabric.with(this, new Crashlytics());
         RealmConfiguration config = new RealmConfiguration.Builder(this)
-                .schemaVersion(2)
+                .schemaVersion(3)
                 .migration(new DBMigration())
                 .build();
 

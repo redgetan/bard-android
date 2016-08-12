@@ -47,6 +47,11 @@ public class DBMigration implements RealmMigration {
                     .addPrimaryKey("token");
         }
 
+        if (oldVersion == 2) {
+            schema.get("Character")
+                    .renameField("description","details");
+        }
+
     }
 }
 

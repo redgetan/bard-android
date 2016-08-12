@@ -19,7 +19,7 @@ public class Character extends RealmObject {
     @Required
     private String token;
     private String name;
-    private String description;
+    private String details;
     private Boolean isBundleDownloaded;
     private Date createdAt;
 
@@ -30,9 +30,9 @@ public class Character extends RealmObject {
 
     }
 
-    public Character(String name, String description){
+    public Character(String name, String details){
         this.name = name;
-        this.description = description;
+        this.details = details;
     }
 
     public static RealmResults<Character> findAll(RealmChangeListener<RealmResults<Character>> listener) {
@@ -62,18 +62,18 @@ public class Character extends RealmObject {
         for (Character character : characters) {
             Character obj = Character.forToken(character.getToken());
             if (obj == null) {
-                Character.create(realm, character.getToken(), character.getName(), character.getDescription());
+                Character.create(realm, character.getToken(), character.getName(), character.getDetails());
             }
         }
         realm.commitTransaction();
     }
 
-    public static void create(Realm realm, String token, String name, String description) {
+    public static void create(Realm realm, String token, String name, String details) {
         Character character = realm.createObject(Character.class);
         character.setIsBundleDownloaded(false);
         character.setToken(token);
         character.setName(name);
-        character.setDescription(description);
+        character.setDetails(details);
         character.setCreatedAt(new Date(System.currentTimeMillis()));
     }
 
@@ -95,12 +95,12 @@ public class Character extends RealmObject {
         this.createdAt = createdAt;
     }
 
-    public String getDescription() {
-        return description;
+    public String getDetails() {
+        return details;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setDetails(String details) {
+        this.details = details;
     }
 
     public Boolean getIsBundleDownloaded() {

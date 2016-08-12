@@ -2,6 +2,7 @@ package com.roplabs.bard.api;
 
 import com.google.gson.*;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.*;
 import io.realm.RealmObject;
 import okhttp3.*;
@@ -13,14 +14,13 @@ import java.io.IOException;
 public class BardClient {
     static BardService  bardService;
 
-    public static final String BASE_URL = "https://bard.co";
     private static final OkHttpClient client = new OkHttpClient();
 
 
     public static BardService  getBardService() {
         if (bardService == null) {
             Retrofit retrofit = new Retrofit.Builder()
-                    .baseUrl(BASE_URL)
+                    .baseUrl(Configuration.bardAPIBaseURL())
                     .addConverterFactory(getGsonConverterFactory())
                     .client(getHTTPClient(true))
                     .build();
