@@ -8,6 +8,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.instabug.library.Instabug;
 import com.mikepenz.materialdrawer.view.BezelImageView;
@@ -108,8 +109,12 @@ public class ProfileActivity extends BaseActivity {
                 case 4:
                     textView.setText(R.string.about);
 
-                    ViewGroup.MarginLayoutParams params = (ViewGroup.MarginLayoutParams) profileRow.getLayoutParams();
-                    params.topMargin = 15;
+                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0, 25, 0, 0);
+                    profileRow.setLayoutParams(params);
 
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
