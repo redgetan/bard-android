@@ -510,8 +510,10 @@ public class BardEditorActivity extends BaseActivity implements
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
-                        getWordListFragment().setWordTag(wordTag);
-                        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+                        if (wordTag.isFilled()) {
+                            getWordListFragment().setWordTag(wordTag);
+                            playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+                        }
                     }
                 }
             }
@@ -1116,8 +1118,10 @@ public class BardEditorActivity extends BaseActivity implements
 
                 if (tokenIndex < wordTagList.size()) {
                     WordTag wordTag = wordTagList.get(tokenIndex);
-                    getWordListFragment().setWordTag(wordTag);
-                    playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+                    if (wordTag.isFilled()) {
+                        getWordListFragment().setWordTag(wordTag);
+                        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+                    }
                 }
             }
         });

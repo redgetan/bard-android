@@ -23,6 +23,10 @@ public class WordTag  {
         this.position = position;
     }
 
+    public boolean isFilled() {
+        return this.tag.length() > 0;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
