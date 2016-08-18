@@ -33,6 +33,10 @@ public class WordTagSelector {
         return currentWord;
     }
 
+    public void setCurrentWordTagIndex(int index) {
+        this.currentWordTagIndex = index;
+    }
+
     public int getCurrentWordTagIndex() {
         return currentWordTagIndex;
     }

@@ -176,6 +176,11 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         drawPagination();
     }
 
+    public void setWordTag(WordTag wordTag, int wordTagIndex) {
+        wordTagSelector.setWordTag(wordTag);
+        wordTagSelector.setCurrentWordTagIndex(wordTagIndex);
+        drawPagination();
+    }
 
     public void onWordTagChanged(final WordTag wordTag) {
         if (wordTag == null) return;

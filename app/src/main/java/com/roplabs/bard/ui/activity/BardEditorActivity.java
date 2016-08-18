@@ -556,6 +556,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
+        progressBar.setVisibility(View.VISIBLE);
         isWordTagListContainerBlocked = true;
 
         skipOnTextChangeCallback = true;
@@ -566,7 +567,7 @@ public class BardEditorActivity extends BaseActivity implements
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
         wordTagList.add(currentTokenIndex,wordTag);
-        getWordListFragment().setWordTag(wordTag);
+        getWordListFragment().setWordTag(wordTag, 0);
 
         playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
     }
@@ -626,7 +627,7 @@ public class BardEditorActivity extends BaseActivity implements
                     } else {
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                     }
-                    getWordListFragment().setWordTag(targetWordTag);
+                    getWordListFragment().setWordTag(targetWordTag, 0);
                     playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
                 }
             }
@@ -917,6 +918,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         Analytics.track("generateBardVideo", properties);
+        Analytics.sendQueuedEvents();
     }
 
     // return false if wordtag missing and unable to find match. true otherwise
