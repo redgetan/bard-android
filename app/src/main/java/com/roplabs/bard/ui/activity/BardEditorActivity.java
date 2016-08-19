@@ -35,6 +35,7 @@ import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.fragment.VideoResultFragment;
 import com.roplabs.bard.ui.fragment.WordListFragment;
 import com.roplabs.bard.ui.widget.InputViewPager;
+import com.roplabs.bard.ui.widget.SquareImageView;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
@@ -1093,7 +1094,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public ImageView createPreviewImageView(Bitmap bitmap) {
-        ImageView imageView = new ImageView(this);
+        ImageView imageView = new SquareImageView(this);
 
         if (bitmap != null) {
             imageView.setImageBitmap(bitmap);
@@ -1102,7 +1103,8 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         imageView.setBackgroundResource(R.drawable.selector_preview_image);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(80, LinearLayout.LayoutParams.MATCH_PARENT);
+        int targetSideLength = imageView.getMeasuredHeight();
+        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
         imageView.setOnClickListener(new View.OnClickListener() {
