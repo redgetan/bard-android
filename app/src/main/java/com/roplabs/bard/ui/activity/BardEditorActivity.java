@@ -1103,7 +1103,6 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         imageView.setBackgroundResource(R.drawable.selector_preview_image);
-        int targetSideLength = imageView.getMeasuredHeight();
         LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
         imageView.setLayoutParams(layoutParams);
         imageView.setScaleType(ImageView.ScaleType.FIT_XY);
