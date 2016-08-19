@@ -32,7 +32,7 @@ public class MainActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         applicationDir = getApplicationInfo().dataDir;
-        ffmpegPath = applicationDir + "/" + "ffmpeg";
+        ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
         initFFmpeg();
     }
 
@@ -65,7 +65,7 @@ public class MainActivity extends BaseActivity {
     }
 
     public void initFFmpeg() {
-        String binary = "ffmpeg";
+        String binary = Helper.ffmpegBinaryName();
 
         if (!(new File(ffmpegPath)).exists()) {
 

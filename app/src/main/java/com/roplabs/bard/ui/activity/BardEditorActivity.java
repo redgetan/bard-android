@@ -128,7 +128,7 @@ public class BardEditorActivity extends BaseActivity implements
         packageDir = getExternalFilesDir(null).getAbsolutePath();
 
         applicationDir = getApplicationInfo().dataDir;
-        ffmpegPath = applicationDir + "/" + "ffmpeg";
+        ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
 
         inputContainer = (RelativeLayout) findViewById(R.id.input_container);
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);

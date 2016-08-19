@@ -99,6 +99,16 @@ public class Helper {
         inputStream.close();
     }
 
+    public static String ffmpegBinaryName() {
+        String arch = System.getProperty("os.arch");
+        if ((arch.contains("x86")) || (arch.contains("i686"))) {
+            return "ffmpeg_x86";
+        } else {
+            return "ffmpeg";
+        }
+    }
+
+
     public static File getSafeOutputFile(String directory, String filename) {
         String filepath;
         if(directory.lastIndexOf(File.separator) != directory.length() - 1){
