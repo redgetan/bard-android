@@ -573,6 +573,8 @@ public class BardEditorActivity extends BaseActivity implements
         if (afterTokenCount > beforeTokenCount) {
             previewTimeline.addView(createPreviewImageView(null), currentTokenIndex);
             wordTagList.add(currentTokenIndex,wordTag);
+        } else {
+            wordTagList.set(currentTokenIndex,wordTag);
         }
 
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
@@ -616,30 +618,28 @@ public class BardEditorActivity extends BaseActivity implements
         WordTag wordTag = null;
 
         if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
+            wordTag = getWordTagSelector().findNextWord(lastWord);
+
             if (editText.getTokenCount() > wordTagList.size()) {
                 // ADD wordTag (when token count increases)
-                wordTag = new WordTag(lastWord);
                 wordTagList.add(tokenIndex, wordTag);
             } else if (!lastWord.isEmpty()) {
-                wordTag = wordTagList.get(tokenIndex);
+                wordTagList.set(tokenIndex, wordTag);
             }
 
-            if (wordTag != null && wordTag.tag.isEmpty() && !lastWord.isEmpty()) {
-                WordTag targetWordTag = getWordTagSelector().findNextWord(lastWord);
-                if (targetWordTag != null) {
-                    // if number of enabled imageview in timeline is less than number of words in wordtaglist
-                    // insert at current character a new bitmap slot for onVideoThumbnail changed to fill,
-                    // else change current bitmap slot
-                    if (getTimelineEnabledImageViewCount() < wordTagList.size()) {
-                        ImageView emptyImageView = createPreviewImageView(null);
-                        previewTimeline.addView(emptyImageView, tokenIndex);
-                        setCurrentImageView(emptyImageView);
-                    } else {
-                        setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
-                    }
-                    getWordListFragment().setWordTag(targetWordTag, 0);
-                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
+            if (wordTag != null) {
+                // if number of enabled imageview in timeline is less than number of words in wordtaglist
+                // insert at current character a new bitmap slot for onVideoThumbnail changed to fill,
+                // else change current bitmap slot
+                if (getTimelineEnabledImageViewCount() < wordTagList.size()) {
+                    ImageView emptyImageView = createPreviewImageView(null);
+                    previewTimeline.addView(emptyImageView, tokenIndex);
+                    setCurrentImageView(emptyImageView);
+                } else {
+                    setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                 }
+                getWordListFragment().setWordTag(wordTag, 0);
+                playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
             }
         } else {
             int tokenCount = editText.getTokenCount();
