@@ -87,7 +87,7 @@ public class SignupActivity extends AppCompatActivity {
                 } else {
                     User user = response.body();
                     Setting.setUserCredentials(self, user);
-                    Analytics.identify(Calendar.getInstance().getTime());
+                    Analytics.identify(self, Calendar.getInstance().getTime());
                     _signupButton.setEnabled(true);
                     setResult(RESULT_OK, null);
                     finish();

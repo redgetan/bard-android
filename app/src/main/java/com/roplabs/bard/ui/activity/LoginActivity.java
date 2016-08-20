@@ -90,7 +90,7 @@ public class LoginActivity extends AppCompatActivity {
                 } else {
                     User user = response.body();
                     Setting.setUserCredentials(self, user);
-                    Analytics.identify();
+                    Analytics.identify(self);
                     _loginButton.setEnabled(true);
                     setResult(RESULT_OK, null);
                     finish();

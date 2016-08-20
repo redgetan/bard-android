@@ -44,7 +44,7 @@ public class MainActivity extends BaseActivity {
         String authToken = Setting.getAuthenticationToken(this);
 
         if (authToken.length() > 0) {
-            Analytics.identify();
+            Analytics.identify(this);
             intent = new Intent(this, RepoListActivity.class);
         } else {
             intent = new Intent(this, LoginActivity.class);
@@ -60,7 +60,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        Analytics.sendQueuedEvents();
+        Analytics.sendQueuedEvents(this);
         super.onDestroy();
     }
 

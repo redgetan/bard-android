@@ -54,7 +54,7 @@ public class CharacterSelectActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
 
 
-        Analytics.track("compose");
+        Analytics.track(this, "compose");
 
         Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
             @Override

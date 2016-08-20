@@ -560,14 +560,23 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.VISIBLE);
         isWordTagListContainerBlocked = true;
 
+        int beforeTokenCount = editText.getTokenCount();
+
         skipOnTextChangeCallback = true;
-        editText.insertText(wordTag.word + " ");
+        editText.replaceSelectedText(" " + wordTag.word + " ");
         skipOnTextChangeCallback = false;
 
+        int afterTokenCount = editText.getTokenCount();
+
         currentTokenIndex = editText.getTokenIndex();
+
+        if (afterTokenCount > beforeTokenCount) {
+            previewTimeline.addView(createPreviewImageView(null), currentTokenIndex);
+            wordTagList.add(currentTokenIndex,wordTag);
+        }
+
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
-        wordTagList.add(currentTokenIndex,wordTag);
         getWordListFragment().setWordTag(wordTag, 0);
 
         playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
@@ -594,7 +603,7 @@ public class BardEditorActivity extends BaseActivity implements
         // when adding character, always make sure there's a space right after, if not, add one (to preserve token count)
         if (!isBackspacePressed && !nextCharacter.equals("") && !nextCharacter.equals(" ")) {
             skipOnTextChangeCallback = true;
-            editText.insertText(" ");
+            editText.replaceSelectedText(" ");
             editText.setSelection(start + 1);
             skipOnTextChangeCallback = false;
         }
@@ -872,7 +881,7 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.VISIBLE);
 
                 showVideoResultFragment();
-                Analytics.timeEvent("generateBardVideo");
+                Analytics.timeEvent(this, "generateBardVideo");
 
                 Runnable runnable = new Runnable() {
                     public void run() {
@@ -918,8 +927,8 @@ public class BardEditorActivity extends BaseActivity implements
             Crashlytics.logException(e);
         }
 
-        Analytics.track("generateBardVideo", properties);
-        Analytics.sendQueuedEvents();
+        Analytics.track(this, "generateBardVideo", properties);
+        Analytics.sendQueuedEvents(this);
     }
 
     // return false if wordtag missing and unable to find match. true otherwise

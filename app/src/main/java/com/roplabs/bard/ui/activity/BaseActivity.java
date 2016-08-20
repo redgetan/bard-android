@@ -4,7 +4,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import com.facebook.stetho.Stetho;
 import com.roplabs.bard.R;
 
 public class BaseActivity extends AppCompatActivity {
@@ -13,7 +12,6 @@ public class BaseActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Stetho.initializeWithDefaults(this);
 
         setVolumeControlStream(AudioManager.STREAM_MUSIC);
     }
