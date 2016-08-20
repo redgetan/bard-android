@@ -1059,7 +1059,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 return true;
             case R.id.menu_item_share:
-                startActivity(getRepoShareIntent());
+                startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

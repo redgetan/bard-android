@@ -47,7 +47,7 @@ public class VideoPlayerActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_share:
-                startActivity(getShareIntent());
+                startActivity(Intent.createChooser(getShareIntent(), "Share"));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
