@@ -59,7 +59,7 @@ public class ProfileActivity extends BaseActivity {
         ViewGroup container = (ViewGroup) findViewById(R.id.profile_details_container);
         assert container != null;
 
-        for (int i = 0; i <= 6; i++) {
+        for (int i = 0; i <= 7; i++) {
             View profileRow = getLayoutInflater().inflate(R.layout.profile_row_item, null);
             TextView textView = (TextView) profileRow.findViewById(R.id.profile_detail_text);
 
@@ -135,6 +135,16 @@ public class ProfileActivity extends BaseActivity {
                     });
                     break;
                 case 6:
+                    textView.setText(R.string.terms_of_use);
+                    profileRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://bard.co/terms"));
+                            startActivity(browserIntent);
+                        }
+                    });
+                    break;
+                case 7:
                     textView.setText(R.string.logout);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
