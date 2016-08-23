@@ -15,23 +15,17 @@
             android:paddingLeft="24dp"
             android:paddingRight="24dp">
 
-        <RelativeLayout
-                android:id="@+id/bard_header"
+        <TextView
+                android:id="@+id/bard_logo"
                 android:layout_above="@+id/main_layout"
+                android:text="@string/app_name"
+                android:textAppearance="?android:attr/textAppearanceLarge"
                 android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
-                android:gravity="center"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-                <TextView
-                        android:id="@+id/bard_logo"
-                        android:text="@string/app_name"
-                        android:textSize="24sp"
-                        android:layout_margin="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                />
-        </RelativeLayout>
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+        />
 
         <LinearLayout
                 android:id="@id/main_layout"
@@ -45,10 +39,9 @@
                     android:id="@+id/email_input_container"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:layout_marginBottom="8dp">
                 <EditText android:id="@+id/input_email"
-                          android:inputType="text"
+                          android:inputType="textVisiblePassword"
                           android:layout_width="match_parent"
                           android:layout_height="wrap_content"
                           android:hint="Username or Email" tools:ignore="TextFields"/>
