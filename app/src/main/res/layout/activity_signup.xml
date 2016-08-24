@@ -85,6 +85,7 @@
                         android:layout_marginTop="12dp"
                         android:layout_marginBottom="12dp"
                         android:padding="12dp"
+                        android:textColor="@color/jet"
                         android:text="Create Account"/>
 
                 <TextView
@@ -94,7 +95,6 @@
                           android:layout_height="wrap_content"
                           android:text="@string/agree_to_terms_description"
                           android:gravity="center"
-                          android:textColor="@color/jet"
                           android:textSize="16dip"/>
         </LinearLayout>
 
