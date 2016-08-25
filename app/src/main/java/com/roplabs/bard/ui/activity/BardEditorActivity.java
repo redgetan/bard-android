@@ -670,7 +670,7 @@ public class BardEditorActivity extends BaseActivity implements
                     updatePlayMessageBtnState();
                 }
 
-            } else {
+            } else if (tokenCount == wordTagList.size() && tokenCount != 0) {
                 // UPDATE wordTag (when word changed)
                 String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
                 WordTag nextWordTag = wordTagList.get(tokenIndex);
@@ -685,10 +685,9 @@ public class BardEditorActivity extends BaseActivity implements
                 if (nextImmediateWord.equals(nextWordInWordTagList)) {
                     // dont change word tag (might be used again)
                 } else {
-                    wordTag = wordTagList.get(tokenIndex);
-                    if (!wordTag.word.equals(lastWord)) {
-                        wordTag.tag = "";
-                        wordTag.word = lastWord;
+                    if (!nextWordTag.word.equals(lastWord)) {
+                        nextWordTag.tag = "";
+                        nextWordTag.word = lastWord;
                     }
                 }
 
@@ -739,7 +738,7 @@ public class BardEditorActivity extends BaseActivity implements
         invalidWords.clear();
 
         for (String word : words) {
-            if (!wordTrie.containsKey(word)) {
+            if (!word.isEmpty() && !wordTrie.containsKey(word)) {
                 invalidWords.add(word);
             }
         }

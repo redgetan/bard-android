@@ -11,7 +11,6 @@
             android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
             android:paddingLeft="24dp"
             android:paddingRight="24dp">
 
@@ -19,12 +18,16 @@
                 android:id="@+id/bard_logo"
                 android:layout_above="@+id/main_layout"
                 android:text="@string/app_name"
-                android:textAppearance="?android:attr/textAppearanceLarge"
+                android:textSize="30sp"
+                android:layout_marginTop="36dp"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
                 android:layout_centerVertical="true"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:includeFontPadding="false"
+                android:baselineAligned="false"
+                android:layout_gravity="fill"
         />
 
         <LinearLayout
@@ -34,39 +37,27 @@
                 android:layout_centerVertical="true"
                 android:orientation="vertical">
 
-            <!--  Email Label -->
-            <android.support.design.widget.TextInputLayout
-                    android:id="@+id/email_input_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp">
-                <EditText android:id="@+id/input_email"
-                          android:inputType="textVisiblePassword"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:hint="Username or Email" tools:ignore="TextFields"/>
-            </android.support.design.widget.TextInputLayout>
+            <EditText android:id="@+id/input_email"
+                      android:inputType="textVisiblePassword"
+                      android:layout_width="match_parent"
+                      android:padding="15dp"
+                      android:layout_height="wrap_content"
+                      android:hint="Username or Email" tools:ignore="TextFields"/>
 
             <!--  Password Label -->
-            <android.support.design.widget.TextInputLayout
-                    android:id="@+id/password_input_container"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp">
-                <EditText android:id="@+id/input_password"
-                          android:layout_width="match_parent"
-                          android:layout_height="wrap_content"
-                          android:inputType="textPassword"
-                          android:hint="Password"/>
-            </android.support.design.widget.TextInputLayout>
+            <EditText android:id="@+id/input_password"
+                      android:layout_width="match_parent"
+                      android:layout_height="wrap_content"
+                      android:padding="15dp"
+                      android:inputType="textPassword"
+                      android:hint="Password"/>
 
             <android.support.v7.widget.AppCompatButton
                     android:id="@+id/btn_login"
                     android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
                     android:textColor="@color/jet"
                     android:padding="12dp"
                     android:text="Login"/>
