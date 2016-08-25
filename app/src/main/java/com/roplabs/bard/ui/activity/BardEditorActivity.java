@@ -461,7 +461,6 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
                     getWordListFragment().setWordTag(targetWordTag);
-                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
                 }
             }
         });
@@ -472,7 +471,6 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
                     getWordListFragment().setWordTag(targetWordTag);
-                    playRemoteVideo(Segment.sourceUrlFromWordTagString(targetWordTag.toString()));
                 }
             }
         });
@@ -513,7 +511,6 @@ public class BardEditorActivity extends BaseActivity implements
                         WordTag wordTag = wordTagList.get(tokenIndex);
                         if (wordTag.isFilled()) {
                             getWordListFragment().setWordTag(wordTag);
-                            playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
                         }
                     }
                 }
@@ -580,8 +577,6 @@ public class BardEditorActivity extends BaseActivity implements
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
         getWordListFragment().setWordTag(wordTag, 0);
-
-        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
     }
 
     @Override
@@ -639,7 +634,6 @@ public class BardEditorActivity extends BaseActivity implements
                     setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                 }
                 getWordListFragment().setWordTag(wordTag, 0);
-                playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
             }
         } else {
             int tokenCount = editText.getTokenCount();
@@ -1131,7 +1125,6 @@ public class BardEditorActivity extends BaseActivity implements
                     WordTag wordTag = wordTagList.get(tokenIndex);
                     if (wordTag.isFilled()) {
                         getWordListFragment().setWordTag(wordTag);
-                        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
                     }
                 }
             }

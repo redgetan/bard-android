@@ -173,13 +173,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     public void setWordTag(WordTag wordTag) {
         wordTagSelector.setWordTag(wordTag);
-        drawPagination();
+        onWordTagChanged(wordTag);
     }
 
     public void setWordTag(WordTag wordTag, int wordTagIndex) {
         wordTagSelector.setWordTag(wordTag);
         wordTagSelector.setCurrentWordTagIndex(wordTagIndex);
-        drawPagination();
+        onWordTagChanged(wordTag);
     }
 
     public void onWordTagChanged(final WordTag wordTag) {
