@@ -16,6 +16,7 @@ import android.support.v7.widget.ShareActionProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -481,6 +482,10 @@ public class BardEditorActivity extends BaseActivity implements
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
 //        editText.setAutoCompleteWords(wordTrie);
+        editText.setScroller(new Scroller(this));
+        editText.setMaxLines(1);
+        editText.setVerticalScrollBarEnabled(true);
+        editText.setMovementMethod(new ScrollingMovementMethod());
         editText.setTokenizer(new SpaceTokenizer());
         editText.addTextChangedListener(new TextWatcher() {
             @Override
@@ -509,7 +514,7 @@ public class BardEditorActivity extends BaseActivity implements
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
-                        if (wordTag.isFilled()) {
+                        if (wordTag != null && wordTag.isFilled()) {
                             getWordListFragment().setWordTag(wordTag);
                         }
                     }
