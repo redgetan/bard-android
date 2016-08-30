@@ -17,6 +17,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
+import com.roplabs.bard.util.BardLogger;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
@@ -33,9 +34,12 @@ public class SceneSelectActivity extends BaseActivity {
     private String characterToken;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private RealmChangeListener<RealmResults<Scene>> realmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        BardLogger.log("Scene Select onCreate");
+
         mContext = this;
 
         super.onCreate(savedInstanceState);
@@ -49,7 +53,7 @@ public class SceneSelectActivity extends BaseActivity {
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
 
-        Scene.forCharacterToken(characterToken, new RealmChangeListener<RealmResults<Scene>>() {
+        realmListener = new RealmChangeListener<RealmResults<Scene>>() {
             @Override
             public void onChange(RealmResults<Scene> scenes) {
                 displaySceneList(scenes);
@@ -60,7 +64,10 @@ public class SceneSelectActivity extends BaseActivity {
 
                 syncRemoteData();
             }
-        });
+        };
+
+        BardLogger.log("realm listener for scene: " + realmListener.toString());
+        Scene.forCharacterToken(characterToken, realmListener);
     }
 
     private void syncRemoteData() {
@@ -85,6 +92,7 @@ public class SceneSelectActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
+        BardLogger.log("Scene Select onResume");
         super.onResume();
     }
 
@@ -101,6 +109,8 @@ public class SceneSelectActivity extends BaseActivity {
 
 
     public void displaySceneList(List<Scene> sceneList) {
+        BardLogger.log("displaying scenes count: " + sceneList.size());
+
         recyclerView = (RecyclerView) findViewById(R.id.scene_list);
         SceneListAdapter adapter = new SceneListAdapter(this, sceneList);
         final Context self = this;

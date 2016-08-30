@@ -39,6 +39,7 @@ public class CharacterSelectActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private RealmChangeListener<RealmResults<Character>> realmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,7 +57,7 @@ public class CharacterSelectActivity extends BaseActivity {
 
         Analytics.track(this, "compose");
 
-        Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
+        realmListener = new RealmChangeListener<RealmResults<Character>>() {
             @Override
             public void onChange(RealmResults<Character> characters) {
                 displayCharacterList(characters);
@@ -67,7 +68,9 @@ public class CharacterSelectActivity extends BaseActivity {
 
                 syncRemoteData();
             }
-        });
+        };
+
+        Character.findAll(realmListener);
     }
 
     private void syncRemoteData() {

@@ -67,6 +67,7 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
+    private RealmChangeListener<RealmResults<Scene>> realmListener;
     private Context mContext;
     private RelativeLayout inputContainer;
     private ImageView findNextBtn;
@@ -367,14 +368,15 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initCharacterWordList() {
         if (character.getIsBundleDownloaded()) {
-            Scene.forCharacterToken(characterToken, new RealmChangeListener<RealmResults<Scene>>() {
+            realmListener = new RealmChangeListener<RealmResults<Scene>>() {
                 @Override
                 public void onChange(RealmResults<Scene> scenes) {
                     for (Scene scene : scenes) {
                         addWordListToDictionary(scene.getWordList());
                     }
                 }
-            });
+            };
+            Scene.forCharacterToken(characterToken, realmListener);
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
