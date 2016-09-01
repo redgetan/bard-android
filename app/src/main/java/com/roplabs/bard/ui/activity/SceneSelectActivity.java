@@ -34,7 +34,6 @@ public class SceneSelectActivity extends BaseActivity {
     private String characterToken;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private RealmChangeListener<RealmResults<Scene>> realmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -53,21 +52,14 @@ public class SceneSelectActivity extends BaseActivity {
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
 
-        realmListener = new RealmChangeListener<RealmResults<Scene>>() {
-            @Override
-            public void onChange(RealmResults<Scene> scenes) {
-                displaySceneList(scenes);
+        RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
+        displaySceneList(scenes);
 
-                if (scenes.size() == 0) {
-                    progressBar.setVisibility(View.VISIBLE);
-                }
+        if (scenes.size() == 0) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
-                syncRemoteData();
-            }
-        };
-
-        BardLogger.log("realm listener for scene: " + realmListener.toString());
-        Scene.forCharacterToken(characterToken, realmListener);
+        syncRemoteData();
     }
 
     private void syncRemoteData() {

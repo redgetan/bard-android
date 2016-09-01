@@ -40,7 +40,6 @@ public class CharacterSelectActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
-    private RealmChangeListener<RealmResults<Character>> realmListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,21 +59,14 @@ public class CharacterSelectActivity extends BaseActivity {
 
         Analytics.track(this, "compose");
 
-        realmListener = new RealmChangeListener<RealmResults<Character>>() {
-            @Override
-            public void onChange(RealmResults<Character> characters) {
-                displayCharacterList(characters);
+        RealmResults<Character> characters = Character.findAll();
+        displayCharacterList(characters);
 
-                if (characters.size() == 0) {
-                   progressBar.setVisibility(View.VISIBLE);
-                }
+        if (characters.size() == 0) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
 
-                syncRemoteData();
-            }
-        };
-
-        BardLogger.log("realm listener for character: " + realmListener.toString());
-        Character.findAll(realmListener);
+        syncRemoteData();
     }
 
     private void syncRemoteData() {
@@ -84,26 +76,18 @@ public class CharacterSelectActivity extends BaseActivity {
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
                 Character.createOrUpdate(characterList);
-                Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
-                    @Override
-                    public void onChange(RealmResults<Character> characters) {
-                        progressBar.setVisibility(View.GONE);
-                        ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);
-                    }
-                });
+                RealmResults<Character> characters = Character.findAll();
+                progressBar.setVisibility(View.GONE);
+                ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);
             }
 
             @Override
             public void onFailure(Call<List<Character>> call, Throwable t) {
-                Character.findAll(new RealmChangeListener<RealmResults<Character>>() {
-                    @Override
-                    public void onChange(RealmResults<Character> characters) {
-                        progressBar.setVisibility(View.GONE);
-                        if (characters.isEmpty()) {
-                            Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
-                        }
-                    }
-                });
+                RealmResults<Character> characters = Character.findAll();
+                progressBar.setVisibility(View.GONE);
+                if (characters.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
+                }
             }
         });
     }

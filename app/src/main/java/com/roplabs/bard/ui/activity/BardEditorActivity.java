@@ -68,7 +68,6 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
-    private RealmChangeListener<RealmResults<Scene>> realmListener;
     private Context mContext;
     private RelativeLayout inputContainer;
     private ImageView findNextBtn;
@@ -160,7 +159,6 @@ public class BardEditorActivity extends BaseActivity implements
         character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
 
-//        checkKeyboardHeight(editorRootLayout);
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
         initPreviewTimeline();
@@ -374,15 +372,10 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initCharacterWordList() {
         if (character.getIsBundleDownloaded()) {
-            realmListener = new RealmChangeListener<RealmResults<Scene>>() {
-                @Override
-                public void onChange(RealmResults<Scene> scenes) {
-                    for (Scene scene : scenes) {
-                        addWordListToDictionary(scene.getWordList());
-                    }
-                }
-            };
-            Scene.forCharacterToken(characterToken, realmListener);
+            RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
+            for (Scene scene : scenes) {
+                addWordListToDictionary(scene.getWordList());
+            }
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
@@ -1153,45 +1146,13 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.GONE);
     }
 
-
-    private void checkKeyboardHeight(final View parentLayout)
-    {
-        parentLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout()
-            {
-                Rect r = new Rect();
-
-                parentLayout.getWindowVisibleDisplayFrame(r);
-
-                int screenHeight = parentLayout.getRootView().getHeight();
-                int keyboardHeight = screenHeight - (r.bottom);
-
-//                if (previousHeightDiffrence - keyboardHeight > 50)
-//                {
-//                    // Do some stuff here
-//                }
-//
-//                previousHeightDiffrence = keyboardHeight;
-                if (keyboardHeight > 100)
-                {
-                    onKeyboardVisible(keyboardHeight);
-                }
-//                else
-//                {
-//                    isKeyBoardVisible = false;
-//                }
-            }
-        });
-    }
-
-    private void onKeyboardVisible(int keyboardHeight) {
-        Log.d("asdf","hasdf");
-    }
-
     @Override
     public void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight) {
-        BardLogger.log("wordTagListview height: " + recyclerView.getHeight());
-        BardLogger.log("keyboard height: " + keyboardHeight);
+        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight();
+        if (keyboardWordTagDiff > 0) {
+            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+            params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;
+            vpPagerContainer.setLayoutParams(params);
+        }
     }
 }

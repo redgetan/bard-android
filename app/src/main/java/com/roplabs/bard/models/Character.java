@@ -35,13 +35,9 @@ public class Character extends RealmObject {
         this.details = details;
     }
 
-    public static RealmResults<Character> findAll(RealmChangeListener<RealmResults<Character>> listener) {
+    public static RealmResults<Character> findAll() {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Character> results = realm.where(Character.class)
-                                               .findAllSortedAsync("createdAt", Sort.DESCENDING);
-        results.addChangeListener(listener);
-
-        return results;
+        return realm.where(Character.class).findAllSorted("createdAt", Sort.DESCENDING);
     }
 
     public static Character findFirst() {
