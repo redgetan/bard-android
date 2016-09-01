@@ -81,6 +81,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-gcm:8.4.0'
     compile "com.mixpanel.android:mixpanel-android:4.9.1"
 
+    debugCompile 'com.squareup.haha:haha:2.0.3'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'
     releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
     testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.4-beta2'
