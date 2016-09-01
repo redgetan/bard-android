@@ -495,6 +495,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                BardLogger.log("onTextChanged...");
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
                     updateWordTagList(s, start);
@@ -596,6 +597,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void updateWordTagList(CharSequence s, int start) {
+        BardLogger.log(android.os.Process.getThreadPriority(android.os.Process.myTid()) + " - wordTagList: " + wordTagList.toString());
         String character = editText.getAddedChar(start);
         String nextCharacter = editText.getNextChar(s, start);
         boolean isLeaderPressed = character.equals(" ");
@@ -614,10 +616,18 @@ public class BardEditorActivity extends BaseActivity implements
             wordTag = getWordTagSelector().findNextWord(lastWord);
 
             if (editText.getTokenCount() > wordTagList.size()) {
-                // ADD wordTag (when token count increases)
-                wordTagList.add(tokenIndex, wordTag);
-            } else if (!lastWord.isEmpty()) {
-                wordTagList.set(tokenIndex, wordTag);
+                if (wordTag != null) {
+                    // will reach here if (before: iam, after: i am, char: " ")
+                    // must insert new wordtag
+                    wordTagList.add(tokenIndex, wordTag);
+                } else {
+                    wordTagList.add(tokenIndex, new WordTag(lastWord));
+                }
+
+                // also update next neighboring wordtag
+                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
+                wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
+                wordTagList.get(tokenIndex + 1).tag = "";
             }
 
             if (wordTag != null) {
@@ -677,7 +687,7 @@ public class BardEditorActivity extends BaseActivity implements
                 if (nextImmediateWord.equals(nextWordInWordTagList)) {
                     // dont change word tag (might be used again)
                 } else {
-                    if (!nextWordTag.word.equals(lastWord)) {
+                    if (nextWordTag != null && !nextWordTag.word.equals(lastWord)) {
                         nextWordTag.tag = "";
                         nextWordTag.word = lastWord;
                     }
@@ -725,7 +735,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
-        String[] words = text.toString().trim().split("\\s+");
+        String[] words = text.toString().toLowerCase().trim().split("\\s+");
 
         invalidWords.clear();
 

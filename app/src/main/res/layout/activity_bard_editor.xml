@@ -138,6 +138,7 @@
                                                                   android:layout_weight="1"
                                                                   android:background="@android:color/transparent"
                                                                   android:completionThreshold="1"
+                                                                  android:inputType="textNoSuggestions"
                                                                   android:hint="@string/edit_message"/>
 
             <ImageView

@@ -74,12 +74,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         } else {
             result = getText().toString().subSequence(start + 1, start + 2).toString();
         }
-        return result;
+        return result.toLowerCase();
     }
 
     public String getPrevWord(int start) {
         String[] tokens = getText().toString().subSequence(0,start).toString().trim().split("\\s+");
-        return tokens[tokens.length - 1];
+        return tokens[tokens.length - 1].toLowerCase();
     }
 
     private class MyWatcher implements TextWatcher {
@@ -180,7 +180,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public String getAddedChar(int start) {
-        return getText().subSequence(start,getSelectionEnd()).toString();
+        return getText().subSequence(start,getSelectionEnd()).toString().toLowerCase();
     }
 
     public int getTokenIndex() {
@@ -209,11 +209,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         if (end > start) {
             // 1st method
-            return getText().subSequence(start, end).toString();
+            return getText().subSequence(start, end).toString().toLowerCase();
         } else {
             // 2nd method (if cursor in empty space, such not near a word)
             String[] words = getText().subSequence(0, end).toString().trim().split("\\s+");
-            return words[words.length - 1];
+            return words[words.length - 1].toLowerCase();
         }
 
     }
