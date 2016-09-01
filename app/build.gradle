@@ -40,7 +40,7 @@ android {
 
     productFlavors {
         dev {
-            minSdkVersion 21
+            minSdkVersion 14
             return true
         }
         prod {

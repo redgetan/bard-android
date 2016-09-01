@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -59,7 +60,7 @@ import java.util.*;
 public class BardEditorActivity extends BaseActivity implements
         WordListFragment.OnReadyListener,
         WordListFragment.OnWordTagChanged,
-        WordListFragment.OnPreviewPlayerPreparedListener {
+        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -116,6 +117,7 @@ public class BardEditorActivity extends BaseActivity implements
     private LinearLayout previewTimelineContainer;
     private HorizontalScrollView previewTimelineScrollView;
     private WordListAdapter.ViewHolder lastViewHolder;
+    private LinearLayout editorRootLayout;
 
     ShareActionProvider mShareActionProvider;
 
@@ -126,6 +128,7 @@ public class BardEditorActivity extends BaseActivity implements
         mContext = this;
 
         debugView = (TextView) findViewById(R.id.display_debug);
+        editorRootLayout = (LinearLayout) findViewById(R.id.editor_root_layout);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
@@ -156,6 +159,9 @@ public class BardEditorActivity extends BaseActivity implements
         sceneToken = intent.getStringExtra("sceneToken");
         character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
+
+//        checkKeyboardHeight(editorRootLayout);
+        Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
         initPreviewTimeline();
         initVideoStorage();
@@ -603,14 +609,6 @@ public class BardEditorActivity extends BaseActivity implements
         boolean isBackspacePressed = character.equals("");
         String lastWord = editText.getLastWord();
         int tokenIndex = editText.getTokenIndex();
-
-        // when adding character, always make sure there's a space right after, if not, add one (to preserve token count)
-        if (!isBackspacePressed && !nextCharacter.equals("") && !nextCharacter.equals(" ")) {
-            skipOnTextChangeCallback = true;
-            editText.replaceSelectedText(" ");
-            editText.setSelection(start + 1);
-            skipOnTextChangeCallback = false;
-        }
 
         if (isLeaderPressed && !nextCharacter.equals(" ") && !nextCharacter.equals("")) {
             lastWord = editText.getPrevWord(start);
@@ -1153,5 +1151,47 @@ public class BardEditorActivity extends BaseActivity implements
     @Override
     public void onPreviewPlayerPrepared() {
         progressBar.setVisibility(View.GONE);
+    }
+
+
+    private void checkKeyboardHeight(final View parentLayout)
+    {
+        parentLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout()
+            {
+                Rect r = new Rect();
+
+                parentLayout.getWindowVisibleDisplayFrame(r);
+
+                int screenHeight = parentLayout.getRootView().getHeight();
+                int keyboardHeight = screenHeight - (r.bottom);
+
+//                if (previousHeightDiffrence - keyboardHeight > 50)
+//                {
+//                    // Do some stuff here
+//                }
+//
+//                previousHeightDiffrence = keyboardHeight;
+                if (keyboardHeight > 100)
+                {
+                    onKeyboardVisible(keyboardHeight);
+                }
+//                else
+//                {
+//                    isKeyBoardVisible = false;
+//                }
+            }
+        });
+    }
+
+    private void onKeyboardVisible(int keyboardHeight) {
+        Log.d("asdf","hasdf");
+    }
+
+    @Override
+    public void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight) {
+        BardLogger.log("wordTagListview height: " + recyclerView.getHeight());
+        BardLogger.log("keyboard height: " + keyboardHeight);
     }
 }

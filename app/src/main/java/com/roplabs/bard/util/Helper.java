@@ -1,10 +1,14 @@
 package com.roplabs.bard.util;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.view.View;
+import android.view.ViewTreeObserver;
 import com.roplabs.bard.ClientApp;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -125,5 +129,38 @@ public class Helper {
             e.printStackTrace();
             throw new Error("Can not get an valid output file");
         }
+    }
+
+    public interface KeyboardVisibilityListener {
+        void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight);
+    }
+
+    public static void setKeyboardVisibilityListener(Activity activity, final View parentLayout) {
+        final KeyboardVisibilityListener keyboardVisibilityListener = (KeyboardVisibilityListener) activity;
+        parentLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            private int mPreviousKeyboardHeight = 0;
+
+            @Override
+            public void onGlobalLayout() {
+                Rect r = new Rect();
+
+                parentLayout.getWindowVisibleDisplayFrame(r);
+
+                int screenHeight = parentLayout.getRootView().getHeight();
+                int keyboardHeight = screenHeight - (r.bottom);
+                if (keyboardHeight > mPreviousKeyboardHeight) {
+                    // Height decreased: keyboard was shown (difference > 100 - assume keyboard)
+                    BardLogger.log("height show: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
+                    keyboardVisibilityListener.onKeyboardVisibilityChanged(true, keyboardHeight);
+                } else if (keyboardHeight < mPreviousKeyboardHeight) {
+                    BardLogger.log("height hide: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
+                    // Height increased: keyboard was hidden
+                    keyboardVisibilityListener.onKeyboardVisibilityChanged(false, keyboardHeight);
+                } else {
+                    // No change
+                }
+                mPreviousKeyboardHeight = keyboardHeight;
+            }
+        });
     }
 }

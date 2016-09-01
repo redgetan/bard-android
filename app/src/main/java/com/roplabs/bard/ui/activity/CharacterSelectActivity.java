@@ -26,6 +26,7 @@ import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.CharacterListAdapter;
 import com.roplabs.bard.util.Analytics;
+import com.roplabs.bard.util.BardLogger;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
@@ -43,6 +44,8 @@ public class CharacterSelectActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        BardLogger.log("CharacterSelect onCreate");
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_character_select);
 
@@ -70,6 +73,7 @@ public class CharacterSelectActivity extends BaseActivity {
             }
         };
 
+        BardLogger.log("realm listener for character: " + realmListener.toString());
         Character.findAll(realmListener);
     }
 
@@ -122,6 +126,8 @@ public class CharacterSelectActivity extends BaseActivity {
 
 
     public void displayCharacterList(List<Character> characterList) {
+        BardLogger.log("displaying characters count: " + characterList.size());
+
         recyclerView = (RecyclerView) findViewById(R.id.index_list);
         CharacterListAdapter adapter = new CharacterListAdapter(this, characterList);
         final Context self = this;
