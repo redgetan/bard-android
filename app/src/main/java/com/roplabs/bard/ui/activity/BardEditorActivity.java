@@ -167,6 +167,24 @@ public class BardEditorActivity extends BaseActivity implements
         initViewPager();
         setCharacterOrSceneTitle();
         updatePlayMessageBtnState();
+        initControls();
+    }
+
+    private void initControls() {
+        if (!sceneToken.isEmpty()) {
+            // scene editor
+            editText.setVisibility(View.GONE);
+            showKeyboardBtn.setVisibility(View.GONE);
+            showWordChoiceBtn.setVisibility(View.GONE);
+//            ViewGroup.LayoutParams lp = editTextContainer.getLayoutParams();
+//            lp.gravity = Gravity.CENTER_HORIZONTAL;
+//            editTextContainer.setLayoutParams(lp);
+            editTextContainer.setGravity(Gravity.CENTER_HORIZONTAL);
+            // center horizontal
+        } else {
+            // character editor
+
+        }
     }
 
     private void setCharacterOrSceneTitle() {
