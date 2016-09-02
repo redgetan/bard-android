@@ -390,6 +390,11 @@ public class BardEditorActivity extends BaseActivity implements
             for (Scene scene : scenes) {
                 addWordListToDictionary(scene.getWordList());
             }
+
+            progressBar.setVisibility(View.GONE);
+            debugView.setText("");
+
+            onWordListAvailable();
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
