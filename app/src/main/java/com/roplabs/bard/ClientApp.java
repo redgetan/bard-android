@@ -34,7 +34,7 @@ public class ClientApp extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
 
         new Instabug.Builder(this, "aa977106b63d2bcb32d9e9c1319d9142")
-                .setInvocationEvent(IBGInvocationEvent.IBGInvocationEventShake)
+                .setInvocationEvent(IBGInvocationEvent.IBGInvocationEventNone)
                 .build();
     }
 
