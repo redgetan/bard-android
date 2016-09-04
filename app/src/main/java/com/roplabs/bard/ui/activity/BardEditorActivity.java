@@ -167,7 +167,7 @@ public class BardEditorActivity extends BaseActivity implements
         initViewPager();
         setCharacterOrSceneTitle();
         updatePlayMessageBtnState();
-        initControls();
+//        initControls();
     }
 
     private void initControls() {
