@@ -4,9 +4,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Rect;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
@@ -18,7 +15,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
@@ -41,7 +37,6 @@ import com.roplabs.bard.ui.widget.SquareImageView;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -385,16 +380,31 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void initCharacterWordList() {
+
         if (character.getIsBundleDownloaded()) {
             RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
+
+            final List<String> combinedWordList = new ArrayList<String>();
             for (Scene scene : scenes) {
-                addWordListToDictionary(scene.getWordList());
+                combinedWordList.add(scene.getWordList());
             }
 
-            progressBar.setVisibility(View.GONE);
-            debugView.setText("");
+            (new AsyncTask<String, Integer, Void>() {
+                @Override
+                protected Void doInBackground(String... wordListCombined) {
+                    addWordListToDictionary(TextUtils.join(",", wordListCombined));
+                    return null;
+                }
 
-            onWordListAvailable();
+                @Override
+                protected void onPostExecute(Void v) {
+                    progressBar.setVisibility(View.GONE);
+                    debugView.setText("");
+
+                    onWordListAvailable();
+                }
+
+            }).execute(TextUtils.join(",",combinedWordList));
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
@@ -404,6 +414,7 @@ public class BardEditorActivity extends BaseActivity implements
                 @Override
                 public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                     HashMap<String, String> wordListBySceneToken = response.body();
+                    List<String> combinedWordList = new ArrayList<String>();
                     for (Map.Entry<String, String> wordListEntry : wordListBySceneToken.entrySet()) {
                         String givenSceneToken = wordListEntry.getKey();
                         String givenWordList = wordListEntry.getValue();
@@ -412,20 +423,32 @@ public class BardEditorActivity extends BaseActivity implements
                         realm.beginTransaction();
                         Scene.forToken(givenSceneToken).setWordList(givenWordList);
                         realm.commitTransaction();
-
-                        addWordListToDictionary(givenWordList);
+                        combinedWordList.add(givenWordList);
                     }
 
-                    // mark character bundle as downloaded (full wordlist available)
-                    Realm realm = Realm.getDefaultInstance();
-                    realm.beginTransaction();
-                    character.setIsBundleDownloaded(true);
-                    realm.commitTransaction();
+                    (new AsyncTask<String, Integer, Void>() {
+                        @Override
+                        protected Void doInBackground(String... wordListCombined) {
+                            addWordListToDictionary(TextUtils.join(",", wordListCombined));
+                            return null;
+                        }
 
-                    progressBar.setVisibility(View.GONE);
-                    debugView.setText("");
+                        @Override
+                        protected void onPostExecute(Void v) {
+                            // mark character bundle as downloaded (full wordlist available)
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.beginTransaction();
+                            character.setIsBundleDownloaded(true);
+                            realm.commitTransaction();
 
-                    onWordListAvailable();
+                            progressBar.setVisibility(View.GONE);
+                            debugView.setText("");
+
+                            onWordListAvailable();
+                        }
+
+                    }).execute(TextUtils.join(",",combinedWordList));
+
                 }
 
                 @Override
