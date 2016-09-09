@@ -38,19 +38,20 @@
                 android:label="@string/app_name"
                 android:configChanges="orientation|screenSize"
                 android:windowSoftInputMode="adjustResize"
-                android:parentActivityName=".ui.activity.SceneSelectActivity" >
+                android:parentActivityName=".ui.activity.CharacterSelectActivity" >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.SceneSelectActivity" />
+                    android:value=".ui.activity.CharacterSelectActivity" />
         </activity>
 
         <activity
                 android:name=".ui.activity.SceneSelectActivity"
                 android:label="@string/app_name"
-                android:parentActivityName=".ui.activity.CharacterSelectActivity" >
+                android:parentActivityName=".ui.activity.BardEditorActivity" >
+                >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.CharacterSelectActivity" />
+                    android:value=".ui.activity.BardEditorActivity" />
         </activity>
         <activity
                 android:name=".ui.activity.CharacterSelectActivity"

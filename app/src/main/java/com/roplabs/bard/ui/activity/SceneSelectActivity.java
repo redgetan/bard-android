@@ -7,6 +7,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,6 +33,7 @@ public class SceneSelectActivity extends BaseActivity {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
     private String characterToken;
+    private String previousSceneToken;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
 
@@ -44,6 +46,10 @@ public class SceneSelectActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scene_select);
 
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
+
+
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_scene);
 
@@ -51,6 +57,7 @@ public class SceneSelectActivity extends BaseActivity {
 
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
+        previousSceneToken = intent.getStringExtra("previousSceneToken");
 
         RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
         displaySceneList(scenes);
@@ -60,6 +67,31 @@ public class SceneSelectActivity extends BaseActivity {
         }
 
         syncRemoteData();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                returnToBardEditor();
+                return(true);
+        }
+
+        return(super.onOptionsItemSelected(item));
+    }
+
+    @Override
+    public void onBackPressed() {
+        returnToBardEditor();
+    }
+
+    private void returnToBardEditor() {
+        Intent intent = new Intent();
+        intent.putExtra("characterToken", characterToken);
+        BardLogger.log("prev sceneToken: " + previousSceneToken);
+        intent.putExtra("sceneToken", previousSceneToken);
+        setResult(RESULT_OK, intent);
+        finish();
     }
 
     private void syncRemoteData() {
@@ -93,13 +125,6 @@ public class SceneSelectActivity extends BaseActivity {
         super.onPause();
     }
 
-    @Override
-    public void onBackPressed() {
-        // Disable going back to the MainActivity
-        moveTaskToBack(true);
-    }
-
-
     public void displaySceneList(List<Scene> sceneList) {
         BardLogger.log("displaying scenes count: " + sceneList.size());
 
@@ -109,14 +134,15 @@ public class SceneSelectActivity extends BaseActivity {
         adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
+                Intent intent = new Intent();
                 intent.putExtra("characterToken", characterToken);
                 if (scene != null) {
                     intent.putExtra("sceneToken", scene.getToken());
                 } else {
                     intent.putExtra("sceneToken", "");
                 }
-                startActivity(intent);
+                setResult(RESULT_OK, intent);
+                finish();
             }
         });
         recyclerView.setAdapter(adapter);

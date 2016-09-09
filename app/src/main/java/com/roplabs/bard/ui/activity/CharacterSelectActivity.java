@@ -118,8 +118,9 @@ public class CharacterSelectActivity extends BaseActivity {
         adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Character character) {
-                Intent intent = new Intent(self, SceneSelectActivity.class);
+                Intent intent = new Intent(self, BardEditorActivity.class);
                 intent.putExtra("characterToken", character.getToken());
+                intent.putExtra("sceneToken", "");
                 startActivity(intent);
             }
         });

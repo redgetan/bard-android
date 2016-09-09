@@ -128,6 +128,18 @@
                     android:src="@drawable/ic_event_note_black_24dp"
                     android:contentDescription="@string/button_word_list"/>
 
+            <ImageView
+                    android:id="@+id/scene_select_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:onClick="startSceneSelect"
+                    android:alpha="0.3"
+                    android:src="@drawable/ic_info_black_24dp"
+                    android:contentDescription="@string/scene_select"/>
+
             <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
                                                                   android:layout_width="0dp"
                                                                   android:layout_marginLeft="5dp"

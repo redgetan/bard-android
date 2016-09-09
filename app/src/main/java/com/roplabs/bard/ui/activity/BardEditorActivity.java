@@ -62,6 +62,8 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
+    private final int SCENE_SELECT_REQUEST_CODE = 20;
+
 
     private Context mContext;
     private RelativeLayout inputContainer;
@@ -86,6 +88,8 @@ public class BardEditorActivity extends BaseActivity implements
     private MenuItem shareMenuItem;
     private Handler mHandler = new Handler();
 
+    private boolean isEditTextInitialized = false;
+    private boolean isWordNavigatorInitialized = false;
     private NavigationView navigationView;
     private ListView mDrawerList;
     private String[] mDrawerItems;
@@ -124,7 +128,6 @@ public class BardEditorActivity extends BaseActivity implements
         debugView = (TextView) findViewById(R.id.display_debug);
         editorRootLayout = (LinearLayout) findViewById(R.id.editor_root_layout);
 
-        editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         packageDir = getExternalFilesDir(null).getAbsolutePath();
 
         applicationDir = getApplicationInfo().dataDir;
@@ -143,6 +146,13 @@ public class BardEditorActivity extends BaseActivity implements
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
+        recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
+        initWordTagViewListeners();
+
+        editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
+        editText.setEnableAutocomplete(false);
+        editText.setRecyclerView(recyclerView);
+
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
         previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
@@ -178,6 +188,23 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putString("characterToken", characterToken);
+        savedInstanceState.putString("sceneToken", characterToken);
+
+        super.onSaveInstanceState(savedInstanceState);
+    }
+
+    @Override
+    public void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+
+        characterToken = savedInstanceState.getString("characterToken");
+        sceneToken = savedInstanceState.getString("sceneToken");
+
+    }
+
     private void setCharacterOrSceneTitle() {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         if (!sceneToken.isEmpty()) {
@@ -201,9 +228,6 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     private void initWordTagView() {
-        editText.setEnableAutocomplete(false);
-        editText.setRecyclerView(recyclerView);
-
         WordListAdapter adapter = new WordListAdapter(this, availableWordList);
         adapter.setIsWordTagged(true);
         adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
@@ -213,26 +237,9 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
-        recyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                super.onScrollStateChanged(recyclerView, newState);
-            }
+    }
 
-            @Override
-            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-//                if (getWordTagSelector().getCurrentScrollPosition() != -1) {
-//                    WordListAdapter.ViewHolder viewHolder = (WordListAdapter.ViewHolder) recyclerView.findViewHolderForAdapterPosition(getWordTagSelector().getCurrentScrollPosition());
-//                    viewHolder.tagView.setBackgroundColor(Color.YELLOW);
-//                    if (lastViewHolder != null) lastViewHolder.tagView.setBackgroundColor(Color.TRANSPARENT);
-//                    lastViewHolder = viewHolder;
-//                    getWordTagSelector().setCurrentScrollPosition(-1);
-//                }
-                super.onScrolled(recyclerView, dx, dy);
-            }
-        });
-
+    private void initWordTagViewListeners() {
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
@@ -473,6 +480,14 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
+    private void refreshWordListDictionary() {
+        availableWordList = null;
+        uniqueWordList = null;
+        wordTrie = null;
+        initDictionary();
+        setCharacterOrSceneTitle();
+    }
+
     private String[] buildUniqueWordList() {
         String word = "";
         Set<String> wordSet = new HashSet<String>();
@@ -498,6 +513,15 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void initFindInPage() {
         getWordListFragment().initFindInPage(availableWordList);
+        initWordNavigatorListeners();
+    }
+
+    private void initWordNavigatorListeners() {
+        if (isWordNavigatorInitialized) {
+            return;
+        } else {
+            isWordNavigatorInitialized = true;
+        }
 
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -525,6 +549,13 @@ public class BardEditorActivity extends BaseActivity implements
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
 //        editText.setAutoCompleteWords(wordTrie);
+
+        if (isEditTextInitialized) {
+            return;
+        } else {
+            isEditTextInitialized = true;
+        }
+
         editText.setScroller(new Scroller(this));
         editText.setMaxLines(1);
         editText.setVerticalScrollBarEnabled(true);
@@ -752,6 +783,23 @@ public class BardEditorActivity extends BaseActivity implements
         showWordChoiceBtn.setVisibility(View.GONE);
         recyclerView.setVisibility(View.VISIBLE);
         this.hideKeyboard();
+    }
+
+    public void startSceneSelect(View view) {
+        Intent intent = new Intent(this, SceneSelectActivity.class);
+        intent.putExtra("characterToken", character.getToken());
+        intent.putExtra("previousSceneToken", sceneToken);
+        startActivityForResult(intent, SCENE_SELECT_REQUEST_CODE);
+//        startActivity(intent);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
+            sceneToken = data.getExtras().getString("sceneToken");
+            scene = Scene.forToken(sceneToken);
+            refreshWordListDictionary();
+        }
     }
 
     private int getTimelineEnabledImageViewCount() {
