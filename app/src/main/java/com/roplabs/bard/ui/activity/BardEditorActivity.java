@@ -109,8 +109,7 @@ public class BardEditorActivity extends BaseActivity implements
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private Button playMessageBtn;
-    private ImageView showKeyboardBtn;
-    private ImageView showWordChoiceBtn;
+    private ImageView toggleWordListBtn;
     private LinearLayout previewTimeline;
     private LinearLayout previewTimelineContainer;
     private HorizontalScrollView previewTimelineScrollView;
@@ -140,8 +139,7 @@ public class BardEditorActivity extends BaseActivity implements
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         playMessageBtn = (Button) findViewById(R.id.play_message_btn);
-        showKeyboardBtn = (ImageView) findViewById(R.id.show_keyboard_btn);
-        showWordChoiceBtn = (ImageView) findViewById(R.id.show_word_choice_btn);
+        toggleWordListBtn = (ImageView) findViewById(R.id.toggleWordListBtn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
@@ -179,8 +177,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (!sceneToken.isEmpty()) {
             // scene editor
             editText.setVisibility(View.GONE);
-            showKeyboardBtn.setVisibility(View.GONE);
-            showWordChoiceBtn.setVisibility(View.GONE);
+            toggleWordListBtn.setVisibility(View.GONE);
             editTextContainer.setGravity(Gravity.CENTER_HORIZONTAL);
         } else {
             // character editor
@@ -600,9 +597,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                if (showKeyboardBtn.isShown()) {
-                    showKeyboardBtn.setVisibility(View.GONE);
-                    showWordChoiceBtn.setVisibility(View.VISIBLE);
+                if (recyclerView.isShown()) {
                     recyclerView.setVisibility(View.GONE);
                 }
 
@@ -771,18 +766,14 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    public void showKeyboard(View view) {
-        showKeyboardBtn.setVisibility(View.GONE);
-        showWordChoiceBtn.setVisibility(View.VISIBLE);
-        recyclerView.setVisibility(View.GONE);
-        this.showKeyboard();
-    }
-
-    public void showWordChoice(View view) {
-        showKeyboardBtn.setVisibility(View.VISIBLE);
-        showWordChoiceBtn.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.VISIBLE);
-        this.hideKeyboard();
+    public void toggleWordList(View view) {
+        if (recyclerView.isShown()) {
+            recyclerView.setVisibility(View.GONE);
+            this.showKeyboard();
+        } else {
+            recyclerView.setVisibility(View.VISIBLE);
+            this.hideKeyboard();
+        }
     }
 
     public void startSceneSelect(View view) {
@@ -1102,7 +1093,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void showWordListFragment() {
         editTextContainer.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
-        if (showKeyboardBtn.isShown()) {
+        if (!recyclerView.isShown()) {
             recyclerView.setVisibility(View.VISIBLE);
         }
         updatePlayMessageBtnState();

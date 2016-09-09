@@ -104,45 +104,33 @@
                         android:orientation="horizontal"
         >
             <ImageView
-                    android:id="@+id/show_keyboard_btn"
+                    android:id="@+id/toggleWordListBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginLeft="10dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginEnd="5dp"
-                    android:onClick="showKeyboard"
+                    android:onClick="toggleWordList"
                     android:alpha="0.3"
-                    android:src="@drawable/ic_keyboard_black_24dp"
+                    android:src="@drawable/ic_add_circle_outline_black_24dp"
                     android:contentDescription="@string/button_keyboard"/>
 
-            <ImageView
-                    android:id="@+id/show_word_choice_btn"
-                    android:visibility="gone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:onClick="showWordChoice"
-                    android:alpha="0.3"
-                    android:src="@drawable/ic_event_note_black_24dp"
-                    android:contentDescription="@string/button_word_list"/>
 
             <ImageView
                     android:id="@+id/scene_select_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
+                    android:layout_marginLeft="0dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginEnd="5dp"
                     android:onClick="startSceneSelect"
                     android:alpha="0.3"
-                    android:src="@drawable/ic_info_black_24dp"
+                    android:src="@drawable/ic_crop_original_black_24dp"
                     android:contentDescription="@string/scene_select"/>
 
             <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
                                                                   android:layout_width="0dp"
-                                                                  android:layout_marginLeft="5dp"
+                                                                  android:layout_marginLeft="0dp"
                                                                   android:layout_marginStart="5dp"
                                                                   android:textSize="12sp"
                                                                   android:layout_marginRight="5dp"
@@ -168,7 +156,7 @@
                     android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
                     android:alpha="0.3"
                     android:paddingLeft="3dp"
-                    android:paddingRight="3dp"
+                    android:paddingRight="7dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/find_next_string"/>
