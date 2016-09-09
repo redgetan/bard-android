@@ -481,6 +481,9 @@ public class BardEditorActivity extends BaseActivity implements
         availableWordList = null;
         uniqueWordList = null;
         wordTrie = null;
+
+        // this is so that there's no annoying horizontal scrollbar showing up for a few seconds (will be re-enabled later)
+        previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
         initDictionary();
         setCharacterOrSceneTitle();
     }
