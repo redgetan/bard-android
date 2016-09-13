@@ -100,7 +100,7 @@ public class SceneSelectActivity extends BaseActivity {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
                 List<Scene> sceneList = response.body();
-                Scene.createOrUpdate(sceneList);
+                Scene.setNameAndThumbnails(sceneList);
                 progressBar.setVisibility(View.GONE);
                 ((SceneListAdapter) recyclerView.getAdapter()).swap(sceneList);
             }

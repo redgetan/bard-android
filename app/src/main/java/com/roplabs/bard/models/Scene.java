@@ -73,13 +73,32 @@ public class Scene extends RealmObject {
         realm.commitTransaction();
     }
 
-    public static void create(Realm realm, String token, String characterToken, String name, String thumbnailUrl) {
+    public static void setNameAndThumbnails(List<Scene> scenes) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        for (Scene scene : scenes) {
+            Scene obj = Scene.forToken(scene.getToken());
+            if (obj.getName().isEmpty()) {
+                obj.setName(scene.getName());
+            }
+
+            if (obj.getThumbnailUrl().isEmpty()) {
+                obj.setThumbnailUrl(scene.getThumbnailUrl());
+            }
+        }
+
+        realm.commitTransaction();
+    }
+
+    public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl) {
         Scene scene = realm.createObject(Scene.class);
         scene.setToken(token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
         scene.setThumbnailUrl(thumbnailUrl);
         scene.setCreatedAt(new Date(System.currentTimeMillis()));
+        return scene;
     }
 
     public void setName(String name) {
