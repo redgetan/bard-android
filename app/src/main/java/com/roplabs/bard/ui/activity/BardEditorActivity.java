@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -673,9 +674,19 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onWordTagChanged(WordTag wordTag) {
+        drawWordTagNavigatorState();
         recyclerView.scrollToPosition(wordTag.position);
-
         playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+    }
+
+    private void drawWordTagNavigatorState() {
+        if (getWordTagSelector().getCurrentWordTagCount() > 1) {
+            findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
+            findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
+        } else {
+            findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));
+            findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));
+        }
     }
 
     private void updateWordTagList(CharSequence s, int start) {
