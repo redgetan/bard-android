@@ -12,4 +12,8 @@ public class BardLogger {
             Log.e(TAG, message);
         }
     }
+
+    public static void trace(String message) {
+        Log.e(TAG, message);
+    }
 }

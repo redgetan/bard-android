@@ -532,6 +532,7 @@ public class BardEditorActivity extends BaseActivity implements
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BardLogger.trace("[findNext] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
                     getWordListFragment().setWordTag(targetWordTag);
@@ -542,6 +543,7 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BardLogger.trace("[findPrev] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
                     getWordListFragment().setWordTag(targetWordTag);
@@ -589,6 +591,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                BardLogger.trace("[editText click] - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd());
                 if (editText.getTokenizer() != null) {
                     int tokenIndex = editText.getTokenIndex();
                     if (tokenIndex < wordTagList.size()) {
@@ -674,7 +677,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void updateWordTagList(CharSequence s, int start) {
-        BardLogger.log(android.os.Process.getThreadPriority(android.os.Process.myTid()) + " - wordTagList: " + wordTagList.toString());
+        BardLogger.trace("[updateWordTag] editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
         String character = editText.getAddedChar(start);
         String nextCharacter = editText.getNextChar(s, start);
         boolean isLeaderPressed = character.equals(" ");
@@ -967,6 +970,8 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     public void generateBardVideo(View view) throws IOException {
+        BardLogger.trace("[generateBardVideo] editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
+
         if (Helper.isConnectedToInternet()) {
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);
@@ -1213,6 +1218,8 @@ public class BardEditorActivity extends BaseActivity implements
                 v.setSelected(true);
 
                 int tokenIndex = previewTimeline.indexOfChild(v);
+
+                BardLogger.trace("[imageView click] image: " + tokenIndex + " editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
 
                 HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
                 if (result.get("start") >= 0 && result.get("stop") >= 0) {
