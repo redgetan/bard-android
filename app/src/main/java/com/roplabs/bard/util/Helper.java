@@ -150,10 +150,10 @@ public class Helper {
                 int keyboardHeight = screenHeight - (r.bottom);
                 if (keyboardHeight > mPreviousKeyboardHeight) {
                     // Height decreased: keyboard was shown (difference > 100 - assume keyboard)
-                    BardLogger.log("height show: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
+//                    BardLogger.log("height show: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
                     keyboardVisibilityListener.onKeyboardVisibilityChanged(true, keyboardHeight);
                 } else if (keyboardHeight < mPreviousKeyboardHeight) {
-                    BardLogger.log("height hide: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
+//                    BardLogger.log("height hide: " + keyboardHeight + " - " + mPreviousKeyboardHeight);
                     // Height increased: keyboard was hidden
                     keyboardVisibilityListener.onKeyboardVisibilityChanged(false, keyboardHeight);
                 } else {

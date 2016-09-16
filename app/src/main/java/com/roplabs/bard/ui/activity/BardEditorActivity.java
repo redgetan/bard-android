@@ -576,7 +576,6 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-                BardLogger.log("onTextChanged...");
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
                     updateWordTagList(s, start);
@@ -591,7 +590,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BardLogger.trace("[editText click] - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd());
+                BardLogger.trace("[editText click] - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                 if (editText.getTokenizer() != null) {
                     int tokenIndex = editText.getTokenIndex();
                     if (tokenIndex < wordTagList.size()) {
@@ -661,6 +660,8 @@ public class BardEditorActivity extends BaseActivity implements
             wordTagList.set(currentTokenIndex,wordTag);
         }
 
+        BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
         getWordListFragment().setWordTag(wordTag, 0);
@@ -677,7 +678,6 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void updateWordTagList(CharSequence s, int start) {
-        BardLogger.trace("[updateWordTag] editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
         String character = editText.getAddedChar(start);
         String nextCharacter = editText.getNextChar(s, start);
         boolean isLeaderPressed = character.equals(" ");
@@ -701,6 +701,7 @@ public class BardEditorActivity extends BaseActivity implements
                     // must insert new wordtag
                     wordTagList.add(tokenIndex, wordTag);
                 } else {
+                    // will reach here if (before: iam, after: i am, char: " "), but word is not in dictionary
                     wordTagList.add(tokenIndex, new WordTag(lastWord));
                 }
 
@@ -721,6 +722,9 @@ public class BardEditorActivity extends BaseActivity implements
                 } else {
                     setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                 }
+
+                // assign tag
+                wordTagList.get(tokenIndex).tag = wordTag.tag;
                 getWordListFragment().setWordTag(wordTag, 0);
             }
         } else {
@@ -776,6 +780,8 @@ public class BardEditorActivity extends BaseActivity implements
             }
 
         }
+
+        BardLogger.trace("[updateWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
     }
 
     public void toggleWordList(View view) {
@@ -970,7 +976,7 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     public void generateBardVideo(View view) throws IOException {
-        BardLogger.trace("[generateBardVideo] editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
+        BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
         if (Helper.isConnectedToInternet()) {
             if (addMissingWordTag()) {
@@ -1219,7 +1225,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 int tokenIndex = previewTimeline.indexOfChild(v);
 
-                BardLogger.trace("[imageView click] image: " + tokenIndex + " editText: " + editText.getText() + ", wordTagList: " + wordTagList.toString());
+                BardLogger.trace("[imageView click] image: " + tokenIndex + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
                 HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
                 if (result.get("start") >= 0 && result.get("stop") >= 0) {
