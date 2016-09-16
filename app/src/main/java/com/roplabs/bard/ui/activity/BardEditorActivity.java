@@ -820,6 +820,15 @@ public class BardEditorActivity extends BaseActivity implements
             sceneToken = data.getExtras().getString("sceneToken");
             scene = Scene.forToken(sceneToken);
             refreshWordListDictionary();
+
+            JSONObject properties = new JSONObject();
+            try {
+                properties.put("sceneToken", sceneToken);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Instabug.reportException(e);
+            }
+            Analytics.track(this, "sceneSelect", properties);
         }
     }
 
