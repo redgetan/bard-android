@@ -535,6 +535,8 @@ public class BardEditorActivity extends BaseActivity implements
                 BardLogger.trace("[findNext] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
+                    int tokenIndex = editText.getTokenIndex();
+                    wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTag(targetWordTag);
                 }
             }
@@ -546,6 +548,8 @@ public class BardEditorActivity extends BaseActivity implements
                 BardLogger.trace("[findPrev] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
+                    int tokenIndex = editText.getTokenIndex();
+                    wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTag(targetWordTag);
                 }
             }
@@ -669,9 +673,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onWordTagChanged(WordTag wordTag) {
-        int tokenIndex = editText.getTokenIndex();
-        WordTag currentWordTag = wordTagList.get(tokenIndex);
-        currentWordTag.tag = wordTag.tag;
         recyclerView.scrollToPosition(wordTag.position);
 
         playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
