@@ -19,9 +19,9 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
+import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
@@ -897,7 +897,7 @@ public class BardEditorActivity extends BaseActivity implements
                     onJoinSegmentsSuccess(outputFilePath);
                 } else {
                     // report error
-                    Crashlytics.logException(new Throwable(result));
+                    Instabug.reportException(new Throwable(result));
                 }
             }
 
@@ -1038,7 +1038,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         } catch (JSONException e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
+            Instabug.reportException(e);
         }
 
         Analytics.track(this, "generateBardVideo", properties);
@@ -1143,7 +1143,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (event.error != null) {
             setVideoError(event.error);
             progressBar.setVisibility(View.GONE);
-            Crashlytics.logException(new Throwable(event.error));
+            Instabug.reportException(new Throwable(event.error));
         } else if (event.segments != null) {
             joinSegments(event.segments);
         }

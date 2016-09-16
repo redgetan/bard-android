@@ -3,12 +3,10 @@ package com.roplabs.bard;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
-import com.crashlytics.android.Crashlytics;
 import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
 import com.roplabs.bard.db.DBMigration;
 import com.squareup.leakcanary.LeakCanary;
-import io.fabric.sdk.android.Fabric;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
 import io.realm.Realm;
@@ -24,7 +22,6 @@ public class ClientApp extends MultiDexApplication {
         super.onCreate();
         instance = this;
         LeakCanary.install(this);
-        Fabric.with(this, new Crashlytics());
         RealmConfiguration config = new RealmConfiguration.Builder(this)
                 .schemaVersion(2)
                 .migration(new DBMigration())

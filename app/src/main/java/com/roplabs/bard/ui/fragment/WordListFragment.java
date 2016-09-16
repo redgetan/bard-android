@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.crashlytics.android.Crashlytics;
+import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
@@ -259,7 +259,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
-            Crashlytics.logException(e);
+            Instabug.reportException(e);
         }
     }
 

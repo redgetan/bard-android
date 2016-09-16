@@ -3,7 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Bundle;
-import com.crashlytics.android.Crashlytics;
+import com.instabug.library.Instabug;
 import com.roplabs.bard.R;
 import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.Character;
@@ -76,7 +76,7 @@ public class MainActivity extends BaseActivity {
                 Helper.writeToFile(inputStream, file);
             } catch (IOException e) {
                 e.printStackTrace();
-                Crashlytics.logException(e);
+                Instabug.reportException(e);
             }
 
             Helper.runCmd(new String[] { "/system/bin/chmod", "744", ffmpegPath});

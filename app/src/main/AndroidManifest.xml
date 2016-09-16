@@ -16,9 +16,6 @@
         android:name="com.roplabs.bard.ClientApp"
         android:theme="@style/AppTheme" >
 
-        <meta-data
-                android:name="io.fabric.ApiKey"
-                android:value="bf06d741fa30b7cb5be2fe488dfe67d7f1952540" />
         <activity
             android:name="com.roplabs.bard.ui.activity.MainActivity"
             android:theme="@style/SplashTheme"
