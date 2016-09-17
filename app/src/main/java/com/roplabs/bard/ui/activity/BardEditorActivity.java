@@ -539,9 +539,9 @@ public class BardEditorActivity extends BaseActivity implements
         findNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BardLogger.trace("[findNext] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
+                    BardLogger.trace("[findNext] " + targetWordTag.toString());
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTag(targetWordTag);
@@ -552,9 +552,9 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BardLogger.trace("[findPrev] " + getWordTagSelector().getCurrentWordTag().toString());
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
+                    BardLogger.trace("[findPrev] " + targetWordTag.toString());
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTag(targetWordTag);
