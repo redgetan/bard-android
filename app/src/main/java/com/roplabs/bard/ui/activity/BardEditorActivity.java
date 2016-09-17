@@ -1048,6 +1048,10 @@ public class BardEditorActivity extends BaseActivity implements
                 new Thread(runnable).start();
             } else {
                 notifyUserOnUnavailableWord();
+
+                if (invalidWords.isEmpty()) {
+                    EventBus.getDefault().post(new InvalidWordEvent("Something's wrong. Please clear your sentence and restart from beginning"));
+                }
             }
         } else {
             // display error
