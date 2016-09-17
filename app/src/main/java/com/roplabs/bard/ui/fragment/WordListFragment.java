@@ -95,6 +95,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        BardLogger.trace("mediaplayer onPrepared");
         previewTagView.setBackgroundColor(Color.TRANSPARENT);
         isVideoReady = true;
 
@@ -107,6 +108,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        BardLogger.trace("mediaplayer onCompletion");
         listener.onVideoThumbnailChanged(previewTagView.getBitmap(100,100));
     }
 

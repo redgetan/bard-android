@@ -4,6 +4,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -12,6 +13,11 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.roplabs.bard.R;
+import com.roplabs.bard.models.WordTag;
+import com.roplabs.bard.ui.activity.BardEditorActivity;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class VideoResultFragment extends Fragment {
     // Store instance variables

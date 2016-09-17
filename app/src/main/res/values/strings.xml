@@ -11,7 +11,7 @@
     <string name="title_index">Choose a Character</string>
     <string name="title_project_list">My Projects</string>
     <string name="button_play_video">Play Video</string>
-    <string name="button_play_all">Play</string>
+    <string name="button_play_all">Generate</string>
     <string name="no_network_connection">No network connection. </string>
     <string-array name="drawer_items">
         <item>Create</item>
@@ -55,4 +55,6 @@
     <string name="agree_to_terms_description">
         <![CDATA[by signing up, you agree to the <a href="https://bard.co/terms">Terms of Use</a> and <a href="https://bard.co/privacy">Privacy Policy</a>]]></string>
     <string name="scene_select">Scene Select</string>
+    <string name="close_editor">close</string>
+    <string name="back">back</string>
 </resources>

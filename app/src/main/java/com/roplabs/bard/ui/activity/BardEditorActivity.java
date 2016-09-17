@@ -86,7 +86,6 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView lastImageView;
     private int currentTokenIndex;
 
-    private MenuItem shareMenuItem;
     private Handler mHandler = new Handler();
 
     private boolean isEditTextInitialized = false;
@@ -99,6 +98,7 @@ public class BardEditorActivity extends BaseActivity implements
     private Trie<String, String> wordTrie;
     private LinkedList<WordTag> wordTagList;
     private boolean skipOnTextChangeCallback;
+    private TextView repoTitle;
 
     private Boolean isWordTagListContainerBlocked;
     private String characterToken;
@@ -113,6 +113,8 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView toggleWordListBtn;
     private LinearLayout previewTimeline;
     private LinearLayout previewTimelineContainer;
+    private LinearLayout videoResultHeader;
+    private LinearLayout videoResultContent;
     private HorizontalScrollView previewTimelineScrollView;
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
@@ -143,11 +145,15 @@ public class BardEditorActivity extends BaseActivity implements
         toggleWordListBtn = (ImageView) findViewById(R.id.toggleWordListBtn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
+        videoResultHeader = (LinearLayout) findViewById(R.id.video_result_header);
+        videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
+        repoTitle = (TextView) findViewById(R.id.repo_title);
         previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         initWordTagViewListeners();
 
+        videoResultHeader.setVisibility(View.GONE);
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
@@ -169,7 +175,7 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoStorage();
         initAnalytics();
         initViewPager();
-        setCharacterOrSceneTitle();
+//        setCharacterOrSceneTitle();
         updatePlayMessageBtnState();
 //        initControls();
     }
@@ -492,7 +498,7 @@ public class BardEditorActivity extends BaseActivity implements
         // this is so that there's no annoying horizontal scrollbar showing up for a few seconds (will be re-enabled later)
         previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
         initDictionary();
-        setCharacterOrSceneTitle();
+//        setCharacterOrSceneTitle();
     }
 
     private String[] buildUniqueWordList() {
@@ -796,6 +802,10 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("[updateWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
     }
 
+    public void shareRepo(View view) {
+        startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
+    }
+
     public void toggleWordList(View view) {
         if (recyclerView.isShown()) {
             recyclerView.setVisibility(View.GONE);
@@ -916,11 +926,27 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onJoinSegmentsSuccess(String outputFilePath) {
         repo = saveRepo(outputFilePath);
-        shareMenuItem.setVisible(true);
 
         trackGenerateBardVideo();
+        showVideoResultFragment();
+        setRepoTitle();
         playLocalVideo(outputFilePath);
     }
+
+    private void setRepoTitle() {
+        repoTitle.setText(formatWordTagListTitle(wordTagList));
+    }
+
+    private String formatWordTagListTitle(List<WordTag> wordTags) {
+        List<String> phrase = new ArrayList<String>();
+
+        for (WordTag wordTag : wordTags) {
+            phrase.add(wordTag.word);
+        }
+
+        return TextUtils.join(" ",phrase);
+    }
+
 
     private String getWordListFromSegments(List<Segment> segments) {
         List<String> list = new ArrayList<String>();
@@ -995,6 +1021,9 @@ public class BardEditorActivity extends BaseActivity implements
         return moviesDir + Helper.getTimestamp() + ".mp4";
     }
 
+    public void closeEditor(View view) {
+        finish();
+    }
 
     public void generateBardVideo(View view) throws IOException {
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
@@ -1003,7 +1032,6 @@ public class BardEditorActivity extends BaseActivity implements
             if (addMissingWordTag()) {
                 progressBar.setVisibility(View.VISIBLE);
 
-                showVideoResultFragment();
                 Analytics.timeEvent(this, "generateBardVideo");
 
                 Runnable runnable = new Runnable() {
@@ -1023,14 +1051,8 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private String formatWordTagListTitle(List<WordTag> wordTags) {
-        List<String> phrase = new ArrayList<String>();
-
-        for (WordTag wordTag : wordTags) {
-            phrase.add(wordTag.word);
-        }
-
-        return TextUtils.join(" ",phrase);
+    public List<WordTag> getWordTagList() {
+        return wordTagList;
     }
 
     private void trackGenerateBardVideo() {
@@ -1121,17 +1143,18 @@ public class BardEditorActivity extends BaseActivity implements
         recyclerView.setVisibility(View.GONE);
         playMessageBtn.setVisibility(View.GONE);
 
+        videoResultHeader.setVisibility(View.VISIBLE);
+        videoResultContent.setVisibility(View.VISIBLE);
+
         if (vpPager.getCurrentItem() != 1) {
             vpPager.setCurrentItem(1, true);
         }
-
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(formatWordTagListTitle(wordTagList));
-
-        if (shareMenuItem != null) shareMenuItem.setVisible(true);
     }
 
-    private void showWordListFragment() {
+    public void showWordListFragment(View view) {
+        videoResultHeader.setVisibility(View.GONE);
+        videoResultContent.setVisibility(View.GONE);
+
         editTextContainer.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
         if (!recyclerView.isShown()) {
@@ -1143,8 +1166,7 @@ public class BardEditorActivity extends BaseActivity implements
             vpPager.setCurrentItem(0, true);
         }
 
-        setCharacterOrSceneTitle();
-        if (shareMenuItem != null) shareMenuItem.setVisible(false);
+//        setCharacterOrSceneTitle();
     }
 
     @Subscribe
@@ -1160,33 +1182,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void setVideoError(String error) {
         debugView.setText(error);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_mimic, menu);
-        shareMenuItem = menu.findItem(R.id.menu_item_share);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                if (vpPager.getCurrentItem() == 0) {
-                    // wordListFragment
-                    finish();
-                } else if (vpPager.getCurrentItem() == 1) {
-                    showWordListFragment();
-                }
-
-                return true;
-            case R.id.menu_item_share:
-                startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
     }
 
     public Intent getRepoShareIntent() {
@@ -1289,4 +1284,5 @@ public class BardEditorActivity extends BaseActivity implements
             vpPagerContainer.setLayoutParams(params);
         }
     }
+
 }
