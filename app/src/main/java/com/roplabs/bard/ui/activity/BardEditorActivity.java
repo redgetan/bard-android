@@ -716,7 +716,7 @@ public class BardEditorActivity extends BaseActivity implements
         WordTag wordTag = null;
 
         if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
-            wordTag = getWordTagSelector().findNextWord(lastWord);
+            wordTag = getWordTagSelector().findRandomWord(lastWord);
 
             if (editText.getTokenCount() > wordTagList.size()) {
                 if (wordTag != null) {
@@ -1089,7 +1089,7 @@ public class BardEditorActivity extends BaseActivity implements
     public boolean addMissingWordTag() {
         for (WordTag wordTag : wordTagList) {
             if (wordTag.tag.isEmpty()) {
-                WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
+                WordTag targetWordTag = getWordTagSelector().findRandomWord(wordTag.word);
                 if (targetWordTag == null) {
                     return false;
                 } else {

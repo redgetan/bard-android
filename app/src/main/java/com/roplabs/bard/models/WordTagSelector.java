@@ -3,6 +3,7 @@ package com.roplabs.bard.models;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Random;
 
 public class WordTagSelector {
     HashMap<String, ArrayList<WordTag>> wordTagMap;
@@ -67,10 +68,6 @@ public class WordTagSelector {
         }
     }
 
-    public WordTag getCurrentWordTag() {
-       return wordTagMap.get(currentWord).get(currentWordTagIndex);
-    }
-
     public boolean setWordTag(WordTag wordTag) {
         boolean wordTagValid = (wordTag != null) && (!wordTag.tag.isEmpty());
 
@@ -105,14 +102,27 @@ public class WordTagSelector {
     public WordTag findWord(String word, String direction) {
         if (isWordNotInDatabase(word)) return null;
 
+        currentWord = word;
+
         if (isWordChanged(word)) {
-            currentWord = word;
-            currentWordTagIndex = 0;
+            resetWordTagIndex();
         } else {
             updateWordTagIndex(word, direction);
         }
 
-        WordTag wordTag = getCurrentWordTag();
+        WordTag wordTag = wordTagMap.get(word).get(currentWordTagIndex);
+        setCurrentScrollPosition(wordTag.position);
+
+        return wordTag;
+    }
+
+    public WordTag findRandomWord(String word) {
+        if (isWordNotInDatabase(word)) return null;
+
+        currentWord = word;
+        currentWordTagIndex = new Random().nextInt(getCurrentWordTagCount());
+
+        WordTag wordTag = wordTagMap.get(word).get(currentWordTagIndex);
         setCurrentScrollPosition(wordTag.position);
 
         return wordTag;
@@ -124,6 +134,10 @@ public class WordTagSelector {
 
     private boolean isWordChanged(String word) {
         return !currentWord.equals(word);
+    }
+
+    private void resetWordTagIndex() {
+        currentWordTagIndex = 0;
     }
 
     private void updateWordTagIndex(String word, String direction) {
