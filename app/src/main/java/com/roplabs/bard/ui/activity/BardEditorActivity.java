@@ -160,6 +160,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
+        findNextBtn.setVisibility(View.GONE);
+        findPrevBtn.setVisibility(View.GONE);
         previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
         isWordTagListContainerBlocked = false;
 
@@ -686,6 +688,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void drawWordTagNavigatorState() {
+        findNextBtn.setVisibility(View.VISIBLE);
+        findPrevBtn.setVisibility(View.VISIBLE);
+
         if (getWordTagSelector().getCurrentWordTagCount() > 1) {
             findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
             findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
@@ -1142,6 +1147,8 @@ public class BardEditorActivity extends BaseActivity implements
         previewTimelineContainer.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
         playMessageBtn.setVisibility(View.GONE);
+        findNextBtn.setVisibility(View.GONE);
+        findPrevBtn.setVisibility(View.GONE);
 
         videoResultHeader.setVisibility(View.VISIBLE);
         videoResultContent.setVisibility(View.VISIBLE);
@@ -1155,6 +1162,8 @@ public class BardEditorActivity extends BaseActivity implements
         videoResultHeader.setVisibility(View.GONE);
         videoResultContent.setVisibility(View.GONE);
 
+        findNextBtn.setVisibility(View.VISIBLE);
+        findPrevBtn.setVisibility(View.VISIBLE);
         editTextContainer.setVisibility(View.VISIBLE);
         previewTimelineContainer.setVisibility(View.VISIBLE);
         if (!recyclerView.isShown()) {

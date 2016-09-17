@@ -135,6 +135,31 @@
                     android:visibility="gone"
             />
 
+            <ImageView
+                    android:id="@+id/btn_find_prev"
+                    android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
+                    android:tint="@color/md_grey_500"
+                    android:background="@drawable/word_tag_navigator_left"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/find_prev_string"/>
+
+            <ImageView
+                    android:id="@+id/btn_find_next"
+                    android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                    android:tint="@color/md_grey_500"
+                    android:layout_gravity="center_vertical|right"
+                    android:background="@drawable/word_tag_navigator_right"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="7dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@string/find_next_string"/>
+
+
         </FrameLayout>
 
 
@@ -151,24 +176,16 @@
         >
 
             <ImageView
-                    android:id="@+id/btn_find_prev"
-                    android:src="@drawable/ic_keyboard_arrow_left_black_24dp"
-                    android:tint="@color/md_grey_500"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="3dp"
+                    android:id="@+id/scene_select_btn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:contentDescription="@string/find_prev_string"/>
-
-            <ImageView
-                    android:id="@+id/btn_find_next"
-                    android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
-                    android:tint="@color/md_grey_500"
-                    android:paddingLeft="3dp"
-                    android:paddingRight="7dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/find_next_string"/>
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginEnd="5dp"
+                    android:onClick="startSceneSelect"
+                    android:alpha="0.3"
+                    android:src="@drawable/ic_crop_original_black_24dp"
+                    android:contentDescription="@string/scene_select"/>
 
 
             <com.roplabs.bard.ui.widget.WordsAutoCompleteTextView android:id="@+id/edit_message"
@@ -185,28 +202,17 @@
                                                                   android:hint="@string/edit_message"/>
 
             <ImageView
-                    android:id="@+id/scene_select_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:onClick="startSceneSelect"
-                    android:alpha="0.3"
-                    android:src="@drawable/ic_crop_original_black_24dp"
-                    android:contentDescription="@string/scene_select"/>
-
-            <ImageView
                     android:id="@+id/toggleWordListBtn"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginEnd="5dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_marginEnd="10dp"
                     android:onClick="toggleWordList"
                     android:alpha="0.3"
-                    android:src="@drawable/ic_add_circle_outline_black_24dp"
+                    android:src="@drawable/ic_keyboard_black_24dp"
                     android:contentDescription="@string/button_keyboard"/>
+
 
 
         </LinearLayout>
