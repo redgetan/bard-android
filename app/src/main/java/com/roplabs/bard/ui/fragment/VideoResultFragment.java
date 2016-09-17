@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.roplabs.bard.R;
@@ -22,6 +23,7 @@ import java.util.List;
 public class VideoResultFragment extends Fragment {
     // Store instance variables
     private VideoView videoView;
+    private ImageView playBtn;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
 
@@ -38,6 +40,8 @@ public class VideoResultFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_video_result, container, false);
 
         videoView = (VideoView) view.findViewById(R.id.video_view);
+        playBtn = (ImageView) view.findViewById(R.id.video_result_play_btn);
+        playBtn.setVisibility(View.GONE);
 
         initVideoPlayer();
 
@@ -49,6 +53,20 @@ public class VideoResultFragment extends Fragment {
     }
 
     private void initVideoPlayer() {
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replayVideo();
+            }
+        });
+
+        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+            @Override
+            public void onCompletion(MediaPlayer mediaPlayer) {
+                playBtn.setVisibility(View.VISIBLE);
+            }
+        });
+
         videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
             public void onPrepared(MediaPlayer mp) {
@@ -66,8 +84,7 @@ public class VideoResultFragment extends Fragment {
                 if (event.getAction() == MotionEvent.ACTION_UP) {
                     if (!isVideoReady) return false;
 
-                    mediaPlayer.seekTo(0);
-                    mediaPlayer.start();
+                    replayVideo();
 
                     return false;
                 } else {
@@ -76,6 +93,13 @@ public class VideoResultFragment extends Fragment {
 
             }
         });
+    }
+
+    public void replayVideo() {
+        playBtn.setVisibility(View.GONE);
+
+        mediaPlayer.seekTo(0);
+        mediaPlayer.start();
     }
 
 
