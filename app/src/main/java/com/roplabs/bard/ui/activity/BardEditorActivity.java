@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.activity;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -76,7 +77,6 @@ public class BardEditorActivity extends BaseActivity implements
     private WordsAutoCompleteTextView editText;
     private String packageDir;
     private String applicationDir;
-    private String moviesDir;
     private String ffmpegPath;
     public ProgressBar progressBar;
     private RecyclerView recyclerView;
@@ -275,14 +275,16 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void initVideoStorage() {
-        moviesDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
-                .getAbsolutePath() + "/" +  getResources().getString(R.string.app_name) + "/";
-
-        File moviesDirFile = new File(moviesDir);
+        File moviesDirFile = new File(getSharedMoviesDir());
 
         if (!moviesDirFile.exists()) {
             moviesDirFile.mkdirs();
         }
+    }
+
+    private String getSharedMoviesDir() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                   .getAbsolutePath() + "/" +  getResources().getString(R.string.app_name) + "/";
     }
 
     public void initAnalytics() {
@@ -930,7 +932,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onJoinSegmentsSuccess(String outputFilePath) {
-        repo = saveRepo(outputFilePath);
+//        repo = saveRepo(outputFilePath);
 
         trackGenerateBardVideo();
         showVideoResultFragment();
@@ -971,6 +973,7 @@ public class BardEditorActivity extends BaseActivity implements
         List<String> cmd = new ArrayList<String>();
 
         cmd.add(ffmpegPath);
+        cmd.add("-y");
 
         for (Segment segment : segments) {
             cmd.add("-i");
@@ -1017,13 +1020,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public String getJoinedOutputFilePath(List<Segment> segments) {
-        List<String> wordList = new ArrayList<String>();
-
-        for (Segment segment: segments) {
-            wordList.add(segment.getWord());
-        }
-
-        return moviesDir + Helper.getTimestamp() + ".mp4";
+        String filesDir = this.getApplicationContext().getFilesDir().getAbsolutePath();
+        return filesDir + "/merge_result.mp4";
     }
 
     public void closeEditor(View view) {
