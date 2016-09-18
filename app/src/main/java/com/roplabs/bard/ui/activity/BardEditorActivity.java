@@ -677,7 +677,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
 
-        getWordListFragment().setWordTag(wordTag, 0);
+        getWordListFragment().setWordTag(wordTag);
     }
 
     @Override
@@ -748,7 +748,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 // assign tag
                 wordTagList.get(tokenIndex).tag = wordTag.tag;
-                getWordListFragment().setWordTag(wordTag, 0);
+                getWordListFragment().setWordTag(wordTag);
             }
         } else {
             int tokenCount = editText.getTokenCount();

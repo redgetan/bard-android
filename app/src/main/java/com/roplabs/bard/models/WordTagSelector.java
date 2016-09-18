@@ -110,7 +110,7 @@ public class WordTagSelector {
             updateWordTagIndex(word, direction);
         }
 
-        WordTag wordTag = wordTagMap.get(word).get(currentWordTagIndex);
+        WordTag wordTag = getWordTagFromMap(word, currentWordTagIndex);
         setCurrentScrollPosition(wordTag.position);
 
         return wordTag;
@@ -122,10 +122,17 @@ public class WordTagSelector {
         currentWord = word;
         currentWordTagIndex = new Random().nextInt(getCurrentWordTagCount());
 
-        WordTag wordTag = wordTagMap.get(word).get(currentWordTagIndex);
+        WordTag wordTag = getWordTagFromMap(word, currentWordTagIndex);
         setCurrentScrollPosition(wordTag.position);
 
         return wordTag;
+    }
+
+    public WordTag getWordTagFromMap(String word, int index) {
+        List<WordTag> list = wordTagMap.get(word);
+
+        WordTag wordTag = list.get(index);
+        return new WordTag(wordTag.toString()); // return a copy (we dont want original wordTag from dict to be modified)
     }
 
     private boolean isWordNotInDatabase(String word) {
