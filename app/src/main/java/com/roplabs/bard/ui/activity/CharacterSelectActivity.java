@@ -134,7 +134,6 @@ public class CharacterSelectActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
-            setResult(RESULT_OK);
             finish();
         }
     }

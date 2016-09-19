@@ -31,6 +31,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.DividerItemDecoration;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.adapters.RepoListAdapter;
+import com.roplabs.bard.util.BardLogger;
 
 import java.util.List;
 
@@ -42,6 +43,8 @@ public class RepoListActivity extends BaseActivity {
     public static final int NEW_BARD_DRAWER_ITEM_IDENTIFIER = 4;
     public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
+    private static final int REQUEST_WRITE_STORAGE = 1;
+
 
     private FrameLayout emptyStateContainer;
     private RepoListAdapter adapter;
@@ -64,7 +67,11 @@ public class RepoListActivity extends BaseActivity {
 
     }
 
-    private static final int REQUEST_WRITE_STORAGE = 1;
+    @Override
+    protected void onResume() {
+        super.onResume();
+        adapter.notifyDataSetChanged();
+    }
 
     private void askStoragePermission() {
         if (ContextCompat.checkSelfPermission(this,
@@ -165,17 +172,10 @@ public class RepoListActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_compose:
                 Intent intent = new Intent(this, CharacterSelectActivity.class);
-                startActivityForResult(intent,CHARACTER_SELECT_REQUEST_CODE);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
-        }
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == CHARACTER_SELECT_REQUEST_CODE) {
-            adapter.notifyDataSetChanged();
         }
     }
 
@@ -210,7 +210,7 @@ public class RepoListActivity extends BaseActivity {
                         switch ((int) drawerItem.getIdentifier()) {
                             case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(getApplicationContext(), CharacterSelectActivity.class);
-                                startActivityForResult(intent,CHARACTER_SELECT_REQUEST_CODE);
+                                startActivity(intent);
                                 break;
                             case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:
                                 Intent shareIntent = new Intent();

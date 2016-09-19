@@ -969,6 +969,8 @@ public class BardEditorActivity extends BaseActivity implements
         trackGenerateBardVideo();
         showVideoResultFragment();
         playLocalVideo(outputFilePath);
+
+        playMessageBtn.setEnabled(true);
     }
 
 //    private void setRepoTitle() {
@@ -1070,8 +1072,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public String getJoinedOutputFilePath() {
-        String filesDir = this.getApplicationContext().getFilesDir().getAbsolutePath();
-        return filesDir + "/merge_result.mp4";
+        return getSharedMoviesDir() + "/last_merge.mp4";
     }
 
     public void closeEditor(View view) {
@@ -1080,6 +1081,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void generateBardVideo(View view) throws IOException {
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+        playMessageBtn.setEnabled(false);
 
         if (Helper.isConnectedToInternet()) {
             if (addMissingWordTag()) {
@@ -1095,6 +1097,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 new Thread(runnable).start();
             } else {
+                playMessageBtn.setEnabled(true);
                 notifyUserOnUnavailableWord();
 
                 if (invalidWords.isEmpty()) {
@@ -1102,6 +1105,7 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             }
         } else {
+            playMessageBtn.setEnabled(true);
             // display error
             debugView.setText(R.string.no_network_connection);
             return;
