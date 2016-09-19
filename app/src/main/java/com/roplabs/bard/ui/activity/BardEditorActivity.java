@@ -193,11 +193,17 @@ public class BardEditorActivity extends BaseActivity implements
         // { name: "messenger", icon: "" }
 
 
-//        List<ResolveInfo> apps = packageManager.queryIntentActivities(intent, 0);
+//        PackageManager packageManager = getPackageManager();
+//        Intent shareIntent = new Intent();
+//        shareIntent.setAction(Intent.ACTION_SEND);
+//        shareIntent.putExtra(Intent.EXTRA_STREAM, "");
+//        shareIntent.setType("video/mp4");
+//
+//        List<ResolveInfo> items = packageManager.queryIntentActivities(shareIntent, 0);
 
 //        apps = sortAppSharing(apps);
 
-        String apps[] = new String[] { "messenger", "whatsapp", "vine", "facebook", "twitter", "tumblr"} ;
+        String apps[] = new String[] { "messenger", "whatsapp", "kik", "facebook", "twitter", "tumblr"} ;
 
         ShareListAdapter shareListAdapter = new ShareListAdapter(this, apps);
         shareListView.setAdapter(shareListAdapter);
@@ -1364,8 +1370,8 @@ public class BardEditorActivity extends BaseActivity implements
             startMessengerShare();
         } else if (app.equals("whatsapp")) {
             startWhatsappShare();
-        } else if (app.equals("vine")) {
-            startVineShare();
+        } else if (app.equals("kik")) {
+            startKikShare();
         } else if (app.equals("facebook")) {
             startFacebookShare();
         } else if (app.equals("twitter")) {
@@ -1401,7 +1407,15 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void startFacebookShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setPackage("com.facebook.katana");
 
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Facebook", Toast.LENGTH_LONG).show();
+        }
     }
 
     private void startTwitterShare() {
@@ -1416,15 +1430,15 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void startVineShare() {
+    private void startKikShare() {
         Intent intent = getRepoShareIntent();
-        intent.setPackage("co.vine.android");
+        intent.setPackage("kik.android");
 
         try {
             startActivity(intent);
         }
         catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Vine", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Please Install Kik", Toast.LENGTH_LONG).show();
         }
     }
 

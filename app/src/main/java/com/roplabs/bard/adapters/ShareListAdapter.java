@@ -44,8 +44,8 @@ public class ShareListAdapter extends ArrayAdapter<String> {
             shareIcon.setBackgroundResource(R.drawable.whatsapp);
         } else if (app.equals("facebook")) {
             shareIcon.setBackgroundResource(R.drawable.facebook);
-        } else if (app.equals("vine")) {
-            shareIcon.setBackgroundResource(R.drawable.vine);
+        } else if (app.equals("kik")) {
+            shareIcon.setBackgroundResource(R.drawable.kik);
         } else if (app.equals("tumblr")) {
             shareIcon.setBackgroundResource(R.drawable.tumblr);
         } else {
