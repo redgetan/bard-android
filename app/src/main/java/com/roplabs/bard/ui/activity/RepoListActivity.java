@@ -44,7 +44,9 @@ public class RepoListActivity extends BaseActivity {
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
 
     private FrameLayout emptyStateContainer;
+    private RepoListAdapter adapter;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
+    private final int CHARACTER_SELECT_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -133,7 +135,7 @@ public class RepoListActivity extends BaseActivity {
         final Context self = this;
 
         RecyclerView recyclerView = (RecyclerView) findViewById(R.id.user_projects);
-        RepoListAdapter adapter = new RepoListAdapter(this, repos);
+        adapter = new RepoListAdapter(this, repos);
         adapter.setOnItemClickListener(new RepoListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Repo repo) {
@@ -163,10 +165,17 @@ public class RepoListActivity extends BaseActivity {
         switch (item.getItemId()) {
             case R.id.menu_item_compose:
                 Intent intent = new Intent(this, CharacterSelectActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent,CHARACTER_SELECT_REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == CHARACTER_SELECT_REQUEST_CODE) {
+            adapter.notifyDataSetChanged();
         }
     }
 
@@ -201,7 +210,7 @@ public class RepoListActivity extends BaseActivity {
                         switch ((int) drawerItem.getIdentifier()) {
                             case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(getApplicationContext(), CharacterSelectActivity.class);
-                                startActivity(intent);
+                                startActivityForResult(intent,CHARACTER_SELECT_REQUEST_CODE);
                                 break;
                             case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:
                                 Intent shareIntent = new Intent();

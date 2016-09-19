@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.roplabs.bard.R;
@@ -25,6 +26,7 @@ public class VideoResultFragment extends Fragment {
     private VideoView videoView;
     private ImageView playBtn;
     private MediaPlayer mediaPlayer;
+    private LinearLayout videoResultHeader;
     private boolean isVideoReady = false;
 
     // Store instance variables based on arguments passed
@@ -39,6 +41,7 @@ public class VideoResultFragment extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_video_result, container, false);
 
+        videoResultHeader = (LinearLayout) view.findViewById(R.id.video_result_header);
         videoView = (VideoView) view.findViewById(R.id.video_view);
         playBtn = (ImageView) view.findViewById(R.id.video_result_play_btn);
         playBtn.setVisibility(View.GONE);

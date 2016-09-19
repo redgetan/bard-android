@@ -37,6 +37,7 @@ import java.util.List;
 
 public class CharacterSelectActivity extends BaseActivity {
     private final int NUM_GRID_COLUMNS = 2;
+    private final int BARD_EDITOR_REQUEST_CODE = 1;
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -121,13 +122,21 @@ public class CharacterSelectActivity extends BaseActivity {
                 Intent intent = new Intent(self, BardEditorActivity.class);
                 intent.putExtra("characterToken", character.getToken());
                 intent.putExtra("sceneToken", "");
-                startActivity(intent);
+                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
             }
         });
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.character_item_offset);
         recyclerView.addItemDecoration(itemDecoration);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
+            setResult(RESULT_OK);
+            finish();
+        }
     }
 
     // http://developer.android.com/guide/topics/ui/menus.html

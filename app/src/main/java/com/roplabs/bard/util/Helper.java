@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import com.roplabs.bard.ClientApp;
@@ -129,6 +130,40 @@ public class Helper {
             e.printStackTrace();
             throw new Error("Can not get an valid output file");
         }
+    }
+
+    public static boolean copyFile(String inputPath, String outputPath) {
+
+        InputStream in = null;
+        OutputStream out = null;
+        try {
+
+            in = new FileInputStream(inputPath);
+            out = new FileOutputStream(outputPath);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            in.close();
+            in = null;
+
+            // write the output file (You have now copied the file)
+            out.flush();
+            out.close();
+            out = null;
+
+            return true;
+        }  catch (FileNotFoundException fnfe1) {
+            BardLogger.trace(fnfe1.getMessage());
+            return false;
+        }
+        catch (Exception e) {
+            BardLogger.trace(e.getMessage());
+            return false;
+        }
+
     }
 
     public interface KeyboardVisibilityListener {

@@ -1,9 +1,13 @@
 package com.roplabs.bard.ui.activity;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.net.Uri;
 import android.os.*;
@@ -26,6 +30,7 @@ import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
+import com.roplabs.bard.adapters.ShareListAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
@@ -57,7 +62,7 @@ import java.util.*;
 public class BardEditorActivity extends BaseActivity implements
         WordListFragment.OnReadyListener,
         WordListFragment.OnWordTagChanged,
-        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener {
+        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener, AdapterView.OnItemClickListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -113,11 +118,12 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView toggleWordListBtn;
     private LinearLayout previewTimeline;
     private LinearLayout previewTimelineContainer;
-    private LinearLayout videoResultHeader;
     private LinearLayout videoResultContent;
     private HorizontalScrollView previewTimelineScrollView;
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
+    private GridView shareListView;
+    private Button saveRepoBtn;
 
     ShareActionProvider mShareActionProvider;
 
@@ -145,18 +151,18 @@ public class BardEditorActivity extends BaseActivity implements
         toggleWordListBtn = (ImageView) findViewById(R.id.toggleWordListBtn);
         previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
-        videoResultHeader = (LinearLayout) findViewById(R.id.video_result_header);
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
-        repoTitle = (TextView) findViewById(R.id.repo_title);
         previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         initWordTagViewListeners();
 
-        videoResultHeader.setVisibility(View.GONE);
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
+
+        shareListView = (GridView) findViewById(R.id.social_share_list);
+        saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
 
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
@@ -180,7 +186,35 @@ public class BardEditorActivity extends BaseActivity implements
 //        setCharacterOrSceneTitle();
         updatePlayMessageBtnState();
 //        initControls();
+        initShare();
     }
+
+    private void initShare() {
+        // { name: "messenger", icon: "" }
+
+
+//        List<ResolveInfo> apps = packageManager.queryIntentActivities(intent, 0);
+
+//        apps = sortAppSharing(apps);
+
+        String apps[] = new String[] { "messenger", "whatsapp", "vine", "facebook", "twitter", "tumblr"} ;
+
+        ShareListAdapter shareListAdapter = new ShareListAdapter(this, apps);
+        shareListView.setAdapter(shareListAdapter);
+        shareListView.setOnItemClickListener(this);
+    }
+
+//    private List<ResolveInfo> sortAppSharing(List<ResolveInfo> apps) {
+//        List<ResolveInfo> sortedApps = new ArrayList<ResolveInfo>();
+//
+//        for (ResolveInfo app : apps) {
+//            if (app.activityInfo.packageName.equals("com.facebook.orca")) {
+//                sortedApps.add(app);
+//            }
+//        }
+//
+//        return sortedApps;
+//    }
 
     private void initControls() {
         if (!sceneToken.isEmpty()) {
@@ -902,7 +936,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(List<Segment> segments) {
-        final String outputFilePath = getJoinedOutputFilePath(segments);
+        final String outputFilePath = getJoinedOutputFilePath();
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
         final long startTime = System.currentTimeMillis();
@@ -932,17 +966,14 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onJoinSegmentsSuccess(String outputFilePath) {
-//        repo = saveRepo(outputFilePath);
-
         trackGenerateBardVideo();
         showVideoResultFragment();
-        setRepoTitle();
         playLocalVideo(outputFilePath);
     }
 
-    private void setRepoTitle() {
-        repoTitle.setText(formatWordTagListTitle(wordTagList));
-    }
+//    private void setRepoTitle() {
+//        repoTitle.setText(formatWordTagListTitle(wordTagList));
+//    }
 
     private String formatWordTagListTitle(List<WordTag> wordTags) {
         List<String> phrase = new ArrayList<String>();
@@ -963,9 +994,28 @@ public class BardEditorActivity extends BaseActivity implements
         return TextUtils.join(" ", list);
     }
 
-    private Repo saveRepo(String videoPath) {
+    public void saveRepo(View view) {
+        String filePath = getSharedMoviesDir() + Helper.getTimestamp() + ".mp4";
         String wordList = TextUtils.join(",", wordTagList);
-        return Repo.create(null, null, characterToken, sceneToken, videoPath, wordList, Calendar.getInstance().getTime());
+
+        if (Helper.copyFile(getJoinedOutputFilePath(),filePath)) {
+            saveRepoBtn.setText("Saved");
+            saveRepoBtn.setEnabled(false);
+            this.repo = Repo.create(null, null, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    setResult(RESULT_OK);
+                    finish();
+                }
+            }, 500);
+
+        } else {
+            Toast.makeText(this,"Unable to save", Toast.LENGTH_LONG).show();
+            Instabug.reportException(new Throwable("Unable to save repo"));
+        }
     }
 
 
@@ -1019,7 +1069,7 @@ public class BardEditorActivity extends BaseActivity implements
         return concatFilterGraph;
     }
 
-    public String getJoinedOutputFilePath(List<Segment> segments) {
+    public String getJoinedOutputFilePath() {
         String filesDir = this.getApplicationContext().getFilesDir().getAbsolutePath();
         return filesDir + "/merge_result.mp4";
     }
@@ -1145,6 +1195,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void showVideoResultFragment() {
+        hideKeyboard();
+
         editTextContainer.setVisibility(View.GONE);
         previewTimelineContainer.setVisibility(View.GONE);
         recyclerView.setVisibility(View.GONE);
@@ -1152,7 +1204,6 @@ public class BardEditorActivity extends BaseActivity implements
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
 
-        videoResultHeader.setVisibility(View.VISIBLE);
         videoResultContent.setVisibility(View.VISIBLE);
 
         if (vpPager.getCurrentItem() != 1) {
@@ -1161,7 +1212,6 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void showWordListFragment(View view) {
-        videoResultHeader.setVisibility(View.GONE);
         videoResultContent.setVisibility(View.GONE);
 
         findNextBtn.setVisibility(View.VISIBLE);
@@ -1196,7 +1246,13 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public Intent getRepoShareIntent() {
-        Uri videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
+        Uri videoUri;
+
+        if (this.repo == null) {
+            videoUri = Uri.fromFile(new File(getJoinedOutputFilePath()));
+        } else {
+            videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
+        }
         // Create share intent as described above
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);
@@ -1296,4 +1352,87 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+        String app = (String) view.getTag();
+
+        if (app.equals("messenger")) {
+            startMessengerShare();
+        } else if (app.equals("whatsapp")) {
+            startWhatsappShare();
+        } else if (app.equals("vine")) {
+            startVineShare();
+        } else if (app.equals("facebook")) {
+            startFacebookShare();
+        } else if (app.equals("twitter")) {
+            startTwitterShare();
+        } else if (app.equals("tumblr")) {
+            startTumblrShare();
+        }
+
+    }
+
+    private void startMessengerShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setPackage("com.facebook.orca");
+
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Facebook Messenger", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startWhatsappShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setPackage("com.whatsapp");
+
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Whatsapp", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startFacebookShare() {
+
+    }
+
+    private void startTwitterShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setClassName("com.twitter.android", "com.twitter.android.composer.ComposerActivity");
+
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Twitter", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startVineShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setPackage("co.vine.android");
+
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Vine", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void startTumblrShare() {
+        Intent intent = getRepoShareIntent();
+        intent.setPackage("com.tumblr");
+
+        try {
+            startActivity(intent);
+        }
+        catch (android.content.ActivityNotFoundException ex) {
+            Toast.makeText(this,"Please Install Tumblr", Toast.LENGTH_LONG).show();
+        }
+    }
 }

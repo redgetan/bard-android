@@ -37,17 +37,11 @@ public class Repo extends RealmObject {
         this.createdAt = createdAt;
     }
 
-    public static RealmResults<Repo> findAll() {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Repo> results = realm.where(Repo.class).findAll();
-        results.sort("createdAt", Sort.DESCENDING);
-        return results;
-    }
-
     public static RealmResults<Repo> forUsername(String username) {
         Realm realm = Realm.getDefaultInstance();
-        RealmResults<Repo> results = realm.where(Repo.class).equalTo("username", username).findAll();
-        results.sort("createdAt", Sort.DESCENDING);
+        RealmResults<Repo> results = realm.where(Repo.class)
+                                          .equalTo("username", username)
+                                          .findAllSorted("createdAt", Sort.DESCENDING);
         return results;
     }
 
