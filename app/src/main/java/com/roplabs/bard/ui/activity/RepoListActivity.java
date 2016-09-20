@@ -70,7 +70,12 @@ public class RepoListActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if (adapter != null) {
+        boolean wasEmptyBeforeButFilledNow = adapter == null && !Repo.forUsername(Setting.getUsername(this)).isEmpty();
+        boolean wasNotEmptyBefore = adapter != null;
+
+        if (wasEmptyBeforeButFilledNow) {
+            displayRepoList();
+        } else if (wasNotEmptyBefore) {
             adapter.notifyDataSetChanged();
         }
     }
