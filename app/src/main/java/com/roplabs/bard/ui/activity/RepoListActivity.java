@@ -70,7 +70,9 @@ public class RepoListActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        adapter.notifyDataSetChanged();
+        if (adapter != null) {
+            adapter.notifyDataSetChanged();
+        }
     }
 
     private void askStoragePermission() {
