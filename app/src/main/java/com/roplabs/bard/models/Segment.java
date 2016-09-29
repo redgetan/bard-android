@@ -7,7 +7,7 @@ import java.util.Map;
 
 public class Segment {
 
-    public static final String cdnPath = "https://d22z4oll34c07f.cloudfront.net";
+    public static final String cdnPath = "https://segments.bard.co";
 
     private String word;
     private String sourceUrl;
