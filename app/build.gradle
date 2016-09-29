@@ -85,6 +85,8 @@ dependencies {
 
     compile 'org.apmem.tools:layouts:1.10@aar'
     compile 'com.instabug.library:instabug:2.6.0'
+    compile 'com.amazonaws:aws-android-sdk-core:2.2.+'
+    compile 'com.amazonaws:aws-android-sdk-s3:2.2.+'
 
     compile 'com.android.support:multidex:1.0.1'
 

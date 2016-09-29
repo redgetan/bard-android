@@ -71,7 +71,7 @@ public class CharacterSelectActivity extends BaseActivity {
     }
 
     private void syncRemoteData() {
-        Call<List<Character>> call = BardClient.getBardService().listCharacters();
+        Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters();
         call.enqueue(new Callback<List<Character>>() {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {

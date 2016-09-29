@@ -10,24 +10,39 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.concurrent.TimeUnit;
 
 public class BardClient {
-    static BardService  bardService;
+    static BardService  nonauthenticatedBardService;
+    static BardService  authenticatedBardService;
 
     private static final OkHttpClient client = new OkHttpClient();
 
-
-    public static BardService  getBardService() {
-        if (bardService == null) {
+    public static BardService  getAuthenticatedBardService() {
+        if (authenticatedBardService == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Configuration.bardAPIBaseURL())
                     .addConverterFactory(getGsonConverterFactory())
                     .client(getHTTPClient(true))
                     .build();
-            bardService = retrofit.create(BardService .class);
+            authenticatedBardService = retrofit.create(BardService .class);
         }
 
-        return bardService;
+        return authenticatedBardService;
+    }
+
+
+    public static BardService  getNonauthenticatedBardService() {
+        if (nonauthenticatedBardService == null) {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Configuration.bardAPIBaseURL())
+                    .addConverterFactory(getGsonConverterFactory())
+                    .client(getHTTPClient(false))
+                    .build();
+            nonauthenticatedBardService = retrofit.create(BardService .class);
+        }
+
+        return nonauthenticatedBardService;
     }
 
     private static OkHttpClient getHTTPClient(final Boolean isAuthenticated) {
@@ -38,7 +53,7 @@ public class BardClient {
                 builder.addHeader("Accept", "application/json");
 
                 if (isAuthenticated) {
-                    builder.addHeader("Authorization", Setting.getAuthenticationToken(ClientApp.getContext()));
+                    builder.addHeader("Authorization", "Token " + Setting.getAuthenticationToken(ClientApp.getContext()));
                 }
 
                 Request newRequest = builder.build();
@@ -48,6 +63,7 @@ public class BardClient {
 
         // Add the interceptor to OkHttpClient
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
+        builder.readTimeout(30,TimeUnit.SECONDS);
         builder.interceptors().add(interceptor);
         return builder.build();
     }

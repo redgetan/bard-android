@@ -1,6 +1,7 @@
 package com.roplabs.bard.ui.activity;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.ContextWrapper;
@@ -24,6 +25,13 @@ import android.text.method.ScrollingMovementMethod;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.bumptech.glide.Glide;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.instabug.library.Instabug;
@@ -34,6 +42,7 @@ import com.roplabs.bard.adapters.ShareListAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
@@ -90,6 +99,7 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView currentImageView;
     private ImageView lastImageView;
     private int currentTokenIndex;
+    private ProgressDialog progressDialog;
 
     private Handler mHandler = new Handler();
 
@@ -124,6 +134,7 @@ public class BardEditorActivity extends BaseActivity implements
     private LinearLayout editorRootLayout;
     private GridView shareListView;
     private Button saveRepoBtn;
+    private ImageView sceneSelectBtn;
 
     ShareActionProvider mShareActionProvider;
 
@@ -163,6 +174,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         shareListView = (GridView) findViewById(R.id.social_share_list);
         saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
+        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
 
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
@@ -405,7 +417,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initSceneWordList() {
         if (scene.getWordList() == null) {
-            Call<Scene> call = BardClient.getBardService().getSceneWordList(characterToken, sceneToken);
+            Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(characterToken, sceneToken);
             call.enqueue(new Callback<Scene>() {
                 @Override
                 public void onResponse(Call<Scene> call, Response<Scene> response) {
@@ -464,7 +476,7 @@ public class BardEditorActivity extends BaseActivity implements
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Initializing Available Word List");
 
-            Call<HashMap<String, String>> call = BardClient.getBardService().getCharacterWordList(characterToken);
+            Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().getCharacterWordList(characterToken);
             call.enqueue(new Callback<HashMap<String, String>>() {
                 @Override
                 public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
@@ -877,6 +889,7 @@ public class BardEditorActivity extends BaseActivity implements
             sceneToken = data.getExtras().getString("sceneToken");
             scene = Scene.forToken(sceneToken);
             refreshWordListDictionary();
+            loadSceneThumbnail(scene);
 
             JSONObject properties = new JSONObject();
             try {
@@ -887,6 +900,15 @@ public class BardEditorActivity extends BaseActivity implements
             }
             Analytics.track(this, "sceneSelect", properties);
         }
+    }
+
+    private void loadSceneThumbnail(Scene scene) {
+        Glide.with(this)
+                .load(scene.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(this.sceneSelectBtn);
+        this.sceneSelectBtn.setAlpha(1.0f);
     }
 
     private int getTimelineEnabledImageViewCount() {
@@ -1002,14 +1024,103 @@ public class BardEditorActivity extends BaseActivity implements
         return TextUtils.join(" ", list);
     }
 
+    private String getRepositoryS3Key(String uuid) {
+        return "repositories/" + Setting.getUsername(this) + "/" + uuid + ".mp4";
+    }
+
     public void saveRepo(View view) {
+        saveRepoBtn.setEnabled(false);
+        progressDialog = new ProgressDialog(this);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Saving...");
+        progressDialog.show();
+
+        final String wordList = TextUtils.join(",", wordTagList);
+
+        // upload to S3
+
+        final String uuid = UUID.randomUUID().toString();
+        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
+        TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
+        TransferObserver observer = transferUtility.upload(
+                Configuration.s3UserBucket(),
+                getRepositoryS3Key(uuid),
+                new File(getJoinedOutputFilePath())
+        );
+
+        observer.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                // do something
+                if (state == TransferState.COMPLETED) {
+                    saveRemoteRepo(uuid, wordList);
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                //Display percentage transfered to user
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // do something
+                displayError("Unable to upload to server", ex);
+            }
+
+        });
+
+    }
+
+    private void saveRemoteRepo(String uuid, final String wordList) {
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("uuid", uuid);
+        body.put("word_list", wordList);
+        body.put("character_token", this.characterToken);
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
+
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                if (!response.isSuccess()) {
+                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
+                } else {
+                    HashMap<String, String> result = response.body();
+                    saveLocalRepo(result.get("token"), result.get("url"), wordList);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                displayError("Unable to sync to remote server", t);
+            }
+        });
+    }
+
+    private void displayError(String message, Throwable t) {
+        saveRepoBtn.setEnabled(true);
+        progressDialog.dismiss();
+        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
+        Instabug.reportException(t);
+    }
+
+    private void displayError(String message) {
+        saveRepoBtn.setEnabled(true);
+        progressDialog.dismiss();
+        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
+        Instabug.reportException(new Throwable(message));
+    }
+
+    private void saveLocalRepo(String token, String url, String wordList) {
         String filePath = getSharedMoviesDir() + Helper.getTimestamp() + ".mp4";
-        String wordList = TextUtils.join(",", wordTagList);
 
         if (Helper.copyFile(getJoinedOutputFilePath(),filePath)) {
+            this.repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+
             saveRepoBtn.setText("Saved");
-            saveRepoBtn.setEnabled(false);
-            this.repo = Repo.create(null, null, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+            progressDialog.dismiss();
 
             final Handler handler = new Handler();
             handler.postDelayed(new Runnable() {
@@ -1021,8 +1132,7 @@ public class BardEditorActivity extends BaseActivity implements
             }, 500);
 
         } else {
-            Toast.makeText(this,"Unable to save", Toast.LENGTH_LONG).show();
-            Instabug.reportException(new Throwable("Unable to save repo"));
+            displayError("Unable to save to phone");
         }
     }
 

@@ -134,7 +134,7 @@ public class Repo extends RealmObject {
      * The url
      */
     public void setUrl(String url) {
-
+        this.url = url;
     }
 
     /**

@@ -16,6 +16,10 @@
         android:name="com.roplabs.bard.ClientApp"
         android:theme="@style/AppTheme" >
 
+        <service
+                android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
+                android:enabled="true" />
+
         <activity
             android:name="com.roplabs.bard.ui.activity.MainActivity"
             android:theme="@style/SplashTheme"

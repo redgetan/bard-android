@@ -30,5 +30,8 @@ public interface BardService {
 
     @GET("bundles/{characterToken}/word_list")
     Call<HashMap<String, String>> getCharacterWordList(@Path("characterToken") String characterToken);
+
+    @POST("repos")
+    Call<HashMap<String, String>> postRepo(@Body HashMap<String, String> body);
 }
 

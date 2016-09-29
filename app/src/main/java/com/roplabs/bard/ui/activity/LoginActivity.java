@@ -69,8 +69,7 @@ public class LoginActivity extends AppCompatActivity {
 
         _loginButton.setEnabled(false);
 
-        progressDialog = new ProgressDialog(LoginActivity.this,
-                R.style.AppTheme_Dark_Dialog);
+        progressDialog = new ProgressDialog(LoginActivity.this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Authenticating...");
         progressDialog.show();
@@ -79,7 +78,7 @@ public class LoginActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
         final Context self = this;
 
-        Call<User> call = BardClient.getBardService().login(new User(email, password));
+        Call<User> call = BardClient.getNonauthenticatedBardService().login(new User(email, password));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {

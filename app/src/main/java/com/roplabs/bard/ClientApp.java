@@ -6,6 +6,7 @@ import android.support.multidex.MultiDexApplication;
 import com.instabug.library.IBGInvocationEvent;
 import com.instabug.library.Instabug;
 import com.roplabs.bard.db.DBMigration;
+import com.roplabs.bard.models.AmazonCognito;
 import com.squareup.leakcanary.LeakCanary;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -29,6 +30,8 @@ public class ClientApp extends MultiDexApplication {
 
         Realm realm = Realm.getInstance(config);
         Realm.setDefaultConfiguration(config);
+
+        AmazonCognito.init(this);
 
         new Instabug.Builder(this, "aa977106b63d2bcb32d9e9c1319d9142")
                 .setInvocationEvent(IBGInvocationEvent.IBGInvocationEventNone)

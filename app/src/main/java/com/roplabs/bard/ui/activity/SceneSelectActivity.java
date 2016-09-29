@@ -95,7 +95,7 @@ public class SceneSelectActivity extends BaseActivity {
     }
 
     private void syncRemoteData() {
-        Call<List<Scene>> call = BardClient.getBardService().listScenes(characterToken);
+        Call<List<Scene>> call = BardClient.getAuthenticatedBardService().listScenes(characterToken);
         call.enqueue(new Callback<List<Scene>>() {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {

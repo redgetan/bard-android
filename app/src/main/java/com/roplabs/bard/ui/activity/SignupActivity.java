@@ -64,8 +64,7 @@ public class SignupActivity extends AppCompatActivity {
 
         _signupButton.setEnabled(false);
 
-        progressDialog = new ProgressDialog(SignupActivity.this,
-                R.style.AppTheme_Dark_Dialog);
+        progressDialog = new ProgressDialog(SignupActivity.this);
         progressDialog.setIndeterminate(true);
         progressDialog.setMessage("Creating Account...");
         progressDialog.show();
@@ -75,7 +74,7 @@ public class SignupActivity extends AppCompatActivity {
         String password = _passwordText.getText().toString();
         final Context self = this;
 
-        Call<User> call = BardClient.getBardService().signUp(new User(username, email, password));
+        Call<User> call = BardClient.getNonauthenticatedBardService().signUp(new User(username, email, password));
         call.enqueue(new Callback<User>() {
             @Override
             public void onResponse(Call<User> call, Response<User> response) {
