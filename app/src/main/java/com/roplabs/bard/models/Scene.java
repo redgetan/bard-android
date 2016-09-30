@@ -7,10 +7,7 @@ import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.Required;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Scene extends RealmObject {
 
@@ -131,6 +128,10 @@ public class Scene extends RealmObject {
 
     public String getWordList() {
         return this.wordList;
+    }
+
+    public List<String> getWordListAsList() {
+        return Arrays.asList(this.wordList.split(","));
     }
 
     public Date getCreatedAt() {

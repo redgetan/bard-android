@@ -195,9 +195,8 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoStorage();
         initAnalytics();
         initViewPager();
-//        setCharacterOrSceneTitle();
+        initMultiAutoComplete();
         updatePlayMessageBtnState();
-//        initControls();
         initShare();
     }
 
@@ -285,8 +284,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
 
-    private void initWordTagView() {
-        WordListAdapter adapter = new WordListAdapter(this, availableWordList);
+    private void reloadWordTagViewData(List<String> wordTagStringList) {
+        WordListAdapter adapter = new WordListAdapter(this, wordTagStringList);
         adapter.setIsWordTagged(true);
         adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
             @Override
@@ -406,10 +405,8 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void onWordListAvailable() {
-        initFindInPage();
-        initWordTagView();
-        initMultiAutoComplete();
+    private void onWordListAvailable(List<String> wordTagStringList) {
+        reloadWordTagViewData(wordTagStringList);
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
         previewTimelineScrollView.setHorizontalScrollBarEnabled(true);
@@ -429,8 +426,8 @@ public class BardEditorActivity extends BaseActivity implements
                     scene.setWordList(wordList);
                     realm.commitTransaction();
 
-                    addWordListToDictionary(wordList);
-                    onWordListAvailable();
+                    addSceneWordListToDictionary(wordList);
+                    onWordListAvailable(scene.getWordListAsList());
                 }
 
                 @Override
@@ -441,8 +438,8 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             });
         } else {
-            addWordListToDictionary(scene.getWordList());
-            onWordListAvailable();
+            addSceneWordListToDictionary(scene.getWordList());
+            onWordListAvailable(scene.getWordListAsList());
         }
     }
 
@@ -468,7 +465,7 @@ public class BardEditorActivity extends BaseActivity implements
                     progressBar.setVisibility(View.GONE);
                     debugView.setText("");
 
-                    onWordListAvailable();
+                    onWordListAvailable(availableWordList);
                 }
 
             }).execute(TextUtils.join(",",combinedWordList));
@@ -517,7 +514,7 @@ public class BardEditorActivity extends BaseActivity implements
                             progressBar.setVisibility(View.GONE);
                             debugView.setText("");
 
-                            onWordListAvailable();
+                            onWordListAvailable(availableWordList);
                         }
 
                     }).execute(TextUtils.join(",",combinedWordList));
@@ -544,17 +541,25 @@ public class BardEditorActivity extends BaseActivity implements
             uniqueWordList = buildUniqueWordList();
             wordTrie = buildWordTrie();
         }
+
+        initWordTagSelector(availableWordList);
     }
 
-    private void refreshWordListDictionary() {
-        availableWordList = null;
-        uniqueWordList = null;
-        wordTrie = null;
+    private void addSceneWordListToDictionary(String wordList) {
+        List<String> givenWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
 
+        this.getWordTagSelector().setSceneWordTagMap(givenWordList);
+    }
+
+    private void loadSceneDictionary() {
         // this is so that there's no annoying horizontal scrollbar showing up for a few seconds (will be re-enabled later)
         previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
-        initDictionary();
-//        setCharacterOrSceneTitle();
+
+        if (scene == null) {
+            this.getWordTagSelector().setSceneWordTagMap(new HashMap<String, List<WordTag>>());
+        } else {
+            initSceneWordList();
+        }
     }
 
     private String[] buildUniqueWordList() {
@@ -580,8 +585,8 @@ public class BardEditorActivity extends BaseActivity implements
         return trie;
     }
 
-    public void initFindInPage() {
-        getWordListFragment().initFindInPage(availableWordList);
+    public void initWordTagSelector(List<String> wordTagStringList) {
+        getWordListFragment().initWordTagSelector(availableWordList);
         initWordNavigatorListeners();
     }
 
@@ -888,7 +893,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
             sceneToken = data.getExtras().getString("sceneToken");
             scene = Scene.forToken(sceneToken);
-            refreshWordListDictionary();
+            loadSceneDictionary();
             loadSceneThumbnail(scene);
 
             JSONObject properties = new JSONObject();

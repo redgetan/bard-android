@@ -300,7 +300,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
 
-    public void initFindInPage(List<String> availableWordList) {
+    public void initWordTagSelector(List<String> availableWordList) {
         wordTagSelector = new WordTagSelector(availableWordList);
     }
 

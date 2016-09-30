@@ -6,7 +6,8 @@ import java.util.List;
 import java.util.Random;
 
 public class WordTagSelector {
-    HashMap<String, ArrayList<WordTag>> wordTagMap;
+    HashMap<String, List<WordTag>> wordTagMap;
+    HashMap<String, List<WordTag>> sceneWordTagMap;
     private int currentWordTagIndex;
     private String currentWord;
     private int currentScrollPosition;
@@ -18,6 +19,7 @@ public class WordTagSelector {
         this.currentWord = "";
         this.currentWordTagIndex = 0;
         this.currentScrollPosition = -1;
+        this.sceneWordTagMap = new HashMap<String, List<WordTag>>();
 
         initWordTagMap(wordTags);
     }
@@ -47,9 +49,9 @@ public class WordTagSelector {
     }
 
     public void initWordTagMap(List<String> wordTags) {
-        this.wordTagMap = new HashMap<String, ArrayList<WordTag>>();
+        this.wordTagMap = new HashMap<String, List<WordTag>>();
 
-        ArrayList<WordTag> wordTagList;
+        List<WordTag> wordTagList;
 
         int i = 0;
         while (i < wordTags.size()) {
@@ -66,6 +68,32 @@ public class WordTagSelector {
 
             i++;
         }
+    }
+
+    public void setSceneWordTagMap(List<String> wordTags) {
+        this.sceneWordTagMap = new HashMap<String, List<WordTag>>();
+
+        List<WordTag> wordTagList;
+
+        int i = 0;
+        while (i < wordTags.size()) {
+            String wordTagString = wordTags.get(i);
+            WordTag wordTag = new WordTag(wordTagString, i);
+
+            if ((wordTagList = this.sceneWordTagMap.get(wordTag.word)) != null) {
+                wordTagList.add(wordTag);
+            } else {
+                wordTagList = new ArrayList<WordTag>();
+                wordTagList.add(wordTag);
+                this.sceneWordTagMap.put(wordTag.word, wordTagList);
+            }
+
+            i++;
+        }
+    }
+
+    public void setSceneWordTagMap(HashMap<String, List<WordTag>> sceneWordTagMap) {
+        this.sceneWordTagMap = sceneWordTagMap;
     }
 
     public boolean setWordTag(WordTag wordTag) {
@@ -110,7 +138,7 @@ public class WordTagSelector {
             updateWordTagIndex(word, direction);
         }
 
-        WordTag wordTag = getWordTagFromMap(word, currentWordTagIndex);
+        WordTag wordTag = getWordTagFromList(wordTagMap.get(word), currentWordTagIndex);
         setCurrentScrollPosition(wordTag.position);
 
         return wordTag;
@@ -119,19 +147,37 @@ public class WordTagSelector {
     public WordTag findRandomWord(String word) {
         if (isWordNotInDatabase(word)) return null;
 
-        currentWord = word;
-        currentWordTagIndex = new Random().nextInt(getCurrentWordTagCount());
+        int randomIndex;
+        WordTag wordTag;
+        List<WordTag> wordTagList = wordTagMap.get(word);
 
-        WordTag wordTag = getWordTagFromMap(word, currentWordTagIndex);
+        if (sceneWordTagMap.isEmpty()) {
+            // get scene specific word variants of word
+            List<WordTag> sceneWordTagList = sceneWordTagMap.get(word);
+            if (sceneWordTagList != null) {
+                randomIndex = new Random().nextInt(sceneWordTagList.size());
+                wordTag = getWordTagFromList(sceneWordTagList, randomIndex);
+            } else {
+                // if sceneWordTagMap fails to find appropriate word, fall back to general wordTagMap
+                randomIndex = new Random().nextInt(wordTagList.size());
+                wordTag = getWordTagFromList(wordTagList, randomIndex);
+            }
+        } else {
+            randomIndex = new Random().nextInt(wordTagList.size());
+            wordTag = getWordTagFromList(wordTagList, randomIndex);
+        }
+
+
+        currentWord = word;
+        currentWordTagIndex = wordTagList.indexOf(wordTag);
+
         setCurrentScrollPosition(wordTag.position);
 
         return wordTag;
     }
 
-    public WordTag getWordTagFromMap(String word, int index) {
-        List<WordTag> list = wordTagMap.get(word);
-
-        WordTag wordTag = list.get(index);
+    public WordTag getWordTagFromList(List<WordTag> wordTagList, int index) {
+        WordTag wordTag = wordTagList.get(index);
         return new WordTag(wordTag.toString()); // return a copy (we dont want original wordTag from dict to be modified)
     }
 
