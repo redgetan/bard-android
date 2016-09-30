@@ -45,6 +45,11 @@ public class Repo extends RealmObject {
         return results;
     }
 
+    public static Repo forToken(String token) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Repo.class).equalTo("token", token).findFirst();
+    }
+
     public static Repo create(String token, String repoUrl, String characterToken, String sceneToken,
                               String videoPath, String wordList, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
@@ -65,6 +70,14 @@ public class Repo extends RealmObject {
         realm.commitTransaction();
 
         return repo;
+    }
+
+    public void delete() {
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+        this.deleteFromRealm();
+        realm.commitTransaction();
     }
 
     public String title() {

@@ -21,5 +21,39 @@
                                              android:layout_width="match_parent"
                                              android:layout_height="wrap_content"
         />
+        <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+        >
+            <TextView
+                    android:layout_width="fill_parent"
+                    android:layout_weight="1"
+                    android:layout_height="match_parent"
+                    />
+            <ImageView
+                    android:id="@+id/repo_share_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="0.1"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="match_parent"
+                    android:onClick="shareRepoInPlayer"
+                    android:src="@drawable/ic_share_white_36dp"
+                    android:contentDescription="@string/share"/>
+            <ImageView
+                    android:id="@+id/more_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_weight="0.1"
+                    android:padding="0dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginRight="10dp"
+                    android:layout_height="match_parent"
+                    android:onClick="onMoreBtnClick"
+                    android:src="@drawable/ic_more_vert_white_48dp"
+                    android:contentDescription="@string/share"/>
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>

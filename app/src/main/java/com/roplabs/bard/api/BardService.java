@@ -33,5 +33,8 @@ public interface BardService {
 
     @POST("repos")
     Call<HashMap<String, String>> postRepo(@Body HashMap<String, String> body);
+
+    @POST("repos/{repoToken}/delete")
+    Call<HashMap<String, String>> deleteRepo(@Path("repoToken") String repoToken);
 }
 

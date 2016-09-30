@@ -49,6 +49,8 @@ public class RepoListActivity extends BaseActivity {
     private FrameLayout emptyStateContainer;
     private RepoListAdapter adapter;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
+    public static final String REPO_TOKEN_MESSAGE = "com.roplabs.bard.REPO_TOKEN";
+    public static final String REPO_URL_MESSAGE = "com.roplabs.bard.REPO_URL";
     private final int CHARACTER_SELECT_REQUEST_CODE = 1;
 
     @Override
@@ -156,6 +158,8 @@ public class RepoListActivity extends BaseActivity {
                 Intent intent = new Intent(self, VideoPlayerActivity.class);
                 intent.putExtra("title", repo.title());
                 intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
+                intent.putExtra(RepoListActivity.REPO_URL_MESSAGE, repo.getUrl());
+                intent.putExtra(RepoListActivity.REPO_TOKEN_MESSAGE, repo.getToken());
                 self.startActivity(intent);
             }
         });
