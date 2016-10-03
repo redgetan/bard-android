@@ -45,7 +45,12 @@ public class WordTagSelector {
     }
 
     public int getCurrentWordTagCount() {
-        return wordTagMap.get(currentWord).size();
+        List<WordTag> wordTagList = wordTagMap.get(currentWord);
+        if (wordTagList == null) {
+            return 0;
+        } else {
+            return wordTagList.size();
+        }
     }
 
     public void initWordTagMap(List<String> wordTags) {
@@ -106,6 +111,11 @@ public class WordTagSelector {
         }
 
         return false;
+    }
+
+    public void clearWordTag() {
+        currentWord = "";
+        currentWordTagIndex = 0;
     }
 
     public WordTag findNextWord(String word) {

@@ -265,6 +265,10 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         }
     }
 
+    public void resetVideo() {
+        previewOverlay.setVisibility(View.VISIBLE);
+    }
+
 
     /**
      * Sets the TextureView transform to preserve the aspect ratio of the video.
