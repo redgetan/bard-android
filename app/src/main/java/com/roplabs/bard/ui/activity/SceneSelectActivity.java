@@ -138,8 +138,10 @@ public class SceneSelectActivity extends BaseActivity {
                 intent.putExtra("characterToken", characterToken);
                 if (scene != null) {
                     intent.putExtra("sceneToken", scene.getToken());
+                    BardLogger.trace("[sceneSelect] " + scene.getToken());
                 } else {
                     intent.putExtra("sceneToken", "");
+                    BardLogger.trace("[sceneSelect] - all");
                 }
                 setResult(RESULT_OK, intent);
                 finish();

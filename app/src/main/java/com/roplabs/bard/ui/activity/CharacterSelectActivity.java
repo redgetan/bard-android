@@ -122,6 +122,7 @@ public class CharacterSelectActivity extends BaseActivity {
                 Intent intent = new Intent(self, BardEditorActivity.class);
                 intent.putExtra("characterToken", character.getToken());
                 intent.putExtra("sceneToken", "");
+                BardLogger.trace("[characterSelect] " + character.getToken());
                 startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
             }
         });
