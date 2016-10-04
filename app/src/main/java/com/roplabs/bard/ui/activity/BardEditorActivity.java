@@ -220,7 +220,7 @@ public class BardEditorActivity extends BaseActivity implements
 
 //        apps = sortAppSharing(apps);
 
-        String apps[] = new String[] { "messenger", "whatsapp", "kik", "facebook", "twitter", "tumblr"} ;
+        String apps[] = new String[] { "messenger", "whatsapp", "kik", "telegram", "twitter", "tumblr"} ;
 
         ShareListAdapter shareListAdapter = new ShareListAdapter(this, apps);
         shareListView.setAdapter(shareListAdapter);
@@ -1578,8 +1578,8 @@ public class BardEditorActivity extends BaseActivity implements
             startWhatsappShare();
         } else if (app.equals("kik")) {
             startKikShare();
-        } else if (app.equals("facebook")) {
-            startFacebookShare();
+        } else if (app.equals("telegram")) {
+            startTelegramShare();
         } else if (app.equals("twitter")) {
             startTwitterShare();
         } else if (app.equals("tumblr")) {
@@ -1612,9 +1612,9 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void startFacebookShare() {
+    private void startTelegramShare() {
         Intent intent = getRepoShareIntent();
-        intent.setPackage("com.facebook.katana");
+        intent.setPackage("org.telegram.messenger");
 
         try {
             startActivity(intent);
