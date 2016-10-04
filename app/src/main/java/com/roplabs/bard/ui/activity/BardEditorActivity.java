@@ -1620,7 +1620,7 @@ public class BardEditorActivity extends BaseActivity implements
             startActivity(intent);
         }
         catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Facebook", Toast.LENGTH_LONG).show();
+            Toast.makeText(this,"Please Install Telegram", Toast.LENGTH_LONG).show();
         }
     }
 
