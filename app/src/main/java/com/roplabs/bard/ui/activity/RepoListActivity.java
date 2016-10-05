@@ -78,6 +78,8 @@ public class RepoListActivity extends BaseActivity {
         boolean wasEmptyBeforeButFilledNow = adapter == null && !Repo.forUsername(Setting.getUsername(this)).isEmpty();
         boolean wasNotEmptyBefore = adapter != null;
 
+        initNavigationViewDrawer();
+
         if (wasEmptyBeforeButFilledNow) {
             displayRepoList();
         } else if (wasNotEmptyBefore) {
@@ -196,7 +198,6 @@ public class RepoListActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
-            initNavigationViewDrawer();
         }
     }
 
