@@ -59,4 +59,5 @@
     <string name="back">back</string>
     <string name="copy_link">Copy Link</string>
     <string name="delete">Delete</string>
+    <string name="click_to_login">Click to Login</string>
 </resources>

@@ -50,7 +50,13 @@ public class ProfileActivity extends BaseActivity {
         assert profileUsername != null;
         assert profileEmail != null;
 
-        profileUsername.setText(Setting.getUsername(this));
+        String username = Setting.getUsername(this);
+        if (username.equals("anonymous")) {
+            profileUsername.setText(R.string.click_to_login);
+        } else {
+            profileUsername.setText(username);
+        }
+
         profileEmail.setText(Setting.getEmail(this));
     }
 
@@ -59,7 +65,9 @@ public class ProfileActivity extends BaseActivity {
         ViewGroup container = (ViewGroup) findViewById(R.id.profile_details_container);
         assert container != null;
 
-        for (int i = 0; i <= 7; i++) {
+        int numRows = Setting.isLogined(this) ? 7 : 6; // if not logged in, dont show last row (logout)
+
+        for (int i = 0; i <= numRows; i++) {
             View profileRow = getLayoutInflater().inflate(R.layout.profile_row_item, null);
             TextView textView = (TextView) profileRow.findViewById(R.id.profile_detail_text);
 

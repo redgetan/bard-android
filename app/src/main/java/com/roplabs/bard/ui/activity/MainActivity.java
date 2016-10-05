@@ -45,10 +45,9 @@ public class MainActivity extends BaseActivity {
 
         if (authToken.length() > 0) {
             Analytics.identify(this);
-            intent = new Intent(this, RepoListActivity.class);
-        } else {
-            intent = new Intent(this, LoginActivity.class);
         }
+
+        intent = new Intent(this, RepoListActivity.class);
 
         startActivity(intent);
     }

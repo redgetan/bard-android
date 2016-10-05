@@ -26,6 +26,8 @@ import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.DividerItemDecoration;
@@ -52,6 +54,7 @@ public class RepoListActivity extends BaseActivity {
     public static final String REPO_TOKEN_MESSAGE = "com.roplabs.bard.REPO_TOKEN";
     public static final String REPO_URL_MESSAGE = "com.roplabs.bard.REPO_URL";
     private final int CHARACTER_SELECT_REQUEST_CODE = 1;
+    private final int LOGIN_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -190,15 +193,40 @@ public class RepoListActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
+            initNavigationViewDrawer();
+        }
+    }
+
     private void initNavigationViewDrawer() {
+        String username = Setting.getUsername(this);
+        ProfileDrawerItem profileDrawerItem;
+
+        if (username.equals("anonymous")) {
+            profileDrawerItem = new ProfileDrawerItem().withName(getResources().getString(R.string.click_to_login)).withEmail(Setting.getEmail(this)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+        } else {
+            profileDrawerItem = new ProfileDrawerItem().withName(username).withEmail(Setting.getEmail(this)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+        }
+
+        final Context self = this;
 
         AccountHeader headerResult = new AccountHeaderBuilder()
                 .withActivity(this)
                 .withHeaderBackground(R.drawable.profile_header)
                 .withSelectionListEnabledForSingleProfile(false)
-                .addProfiles(
-                        new ProfileDrawerItem().withName(Setting.getUsername(this)).withEmail(Setting.getEmail(this)) // .withIcon(getResources().getDrawable(R.drawable.profile))
-                )
+                .addProfiles(profileDrawerItem)
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+                        if (!Setting.isLogined(self)) {
+                            Intent intent = new Intent(self, LoginActivity.class);
+                            startActivityForResult(intent, LOGIN_REQUEST_CODE);
+                        }
+                        return false;
+                    }
+                })
                 .withHeightDp(150)
                 .build();
 

@@ -19,6 +19,10 @@ public class BardClient {
     private static final OkHttpClient client = new OkHttpClient();
 
     public static BardService  getAuthenticatedBardService() {
+        if (Setting.getAuthenticationToken(ClientApp.getContext()).isEmpty()) {
+            return getNonauthenticatedBardService();
+        }
+
         if (authenticatedBardService == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Configuration.bardAPIBaseURL())

@@ -31,7 +31,16 @@ public class Setting {
     }
 
     public static String getUsername(Context context) {
-        return get(context, USERNAME);
+        String username = get(context, USERNAME);
+        if (username.isEmpty()) {
+            return "anonymous";
+        } else {
+            return username;
+        }
+    }
+
+    public static boolean isLogined(Context context) {
+        return !getAuthenticationToken(context).isEmpty();
     }
 
     public static void setUsername(Context context, String token) {
@@ -39,7 +48,8 @@ public class Setting {
     }
 
     public static String getEmail(Context context) {
-        return get(context, EMAIL);
+        String email = get(context, EMAIL);
+        return email;
     }
 
     public static void setEmail(Context context, String token) {
