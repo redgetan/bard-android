@@ -10,6 +10,8 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
@@ -563,6 +565,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         if (scene == null) {
             this.getWordTagSelector().setSceneWordTagMap(new HashMap<String, List<WordTag>>());
+            onWordListAvailable(availableWordList);
         } else {
             initSceneWordList();
         }
@@ -997,12 +1000,18 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void loadSceneThumbnail(Scene scene) {
-        Glide.with(this)
-                .load(scene.getThumbnailUrl())
-                .placeholder(R.drawable.thumbnail_placeholder)
-                .crossFade()
-                .into(this.sceneSelectBtn);
-        this.sceneSelectBtn.setAlpha(1.0f);
+        if (scene == null) {
+            Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_crop_original_black_24dp);
+            this.sceneSelectBtn.setImageBitmap(allSceneBitmap);
+            this.sceneSelectBtn.setAlpha(0.3f);
+        } else {
+            Glide.with(this)
+                    .load(scene.getThumbnailUrl())
+                    .placeholder(R.drawable.thumbnail_placeholder)
+                    .crossFade()
+                    .into(this.sceneSelectBtn);
+            this.sceneSelectBtn.setAlpha(1.0f);
+        }
     }
 
     private int getTimelineEnabledImageViewCount() {
