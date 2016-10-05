@@ -2,21 +2,21 @@ package com.roplabs.bard.ui.activity;
 
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ComponentName;
-import android.content.Context;
-import android.content.ContextWrapper;
-import android.content.Intent;
+import android.content.*;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.*;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
@@ -50,6 +50,7 @@ import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.fragment.VideoResultFragment;
 import com.roplabs.bard.ui.fragment.WordListFragment;
+import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.InputViewPager;
 import com.roplabs.bard.ui.widget.SquareImageView;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
@@ -115,6 +116,7 @@ public class BardEditorActivity extends BaseActivity implements
     private ListView mDrawerList;
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
+    private CustomDialog loginDialog;
 
     private Trie<String, String> wordTrie;
     private LinkedList<WordTag> wordTagList;
@@ -982,7 +984,13 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
+        if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
+            Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
+            loginDialog.dismiss();
+        } else if (resultCode == RESULT_OK && requestCode == CustomDialog.SIGNUP_REQUEST_CODE) {
+            Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
+            loginDialog.dismiss();
+        } else if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
             sceneToken = data.getExtras().getString("sceneToken");
             scene = Scene.forToken(sceneToken);
             loadSceneDictionary();
@@ -1131,7 +1139,38 @@ public class BardEditorActivity extends BaseActivity implements
         return "repositories/" + Setting.getUsername(this) + "/" + uuid + ".mp4";
     }
 
+    private void askUserToLogin() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("You must login in order to save the video to your profile")
+                .setTitle("Login");
+
+        builder.setPositiveButton("Login/Register", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User clicked OK button
+            }
+        });
+        builder.setNegativeButton(R.string.instabug_str_cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                // User cancelled the dialog
+            }
+        });
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
     public void saveRepo(View view) {
+        if (!Setting.isLogined(this)) {
+            loginDialog = new CustomDialog(this);
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+
+//            askUserToLogin();
+//            Intent intent = new Intent(this, LoginActivity.class);
+//            startActivityForResult(intent, LOGIN_REQUEST_CODE);
+            return;
+        }
+
         saveRepoBtn.setEnabled(false);
         progressDialog = new ProgressDialog(this);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
