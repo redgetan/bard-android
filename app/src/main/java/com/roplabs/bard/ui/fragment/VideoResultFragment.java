@@ -105,7 +105,6 @@ public class VideoResultFragment extends Fragment {
         mediaPlayer.start();
     }
 
-
     public void playLocalVideo(String filePath) {
         videoView.setVideoPath(filePath);
         videoView.start();

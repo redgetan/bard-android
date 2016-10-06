@@ -920,7 +920,6 @@ public class BardEditorActivity extends BaseActivity implements
         getWordTagSelector().clearWordTag();
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
-        getWordListFragment().resetVideo();
     }
 
     private void removeThumbnailFromTimeline(int tokenIndex) {
@@ -985,11 +984,23 @@ public class BardEditorActivity extends BaseActivity implements
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
-            Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
-            loginDialog.dismiss();
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
         } else if (resultCode == RESULT_OK && requestCode == CustomDialog.SIGNUP_REQUEST_CODE) {
-            Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
-            loginDialog.dismiss();
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
         } else if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
             sceneToken = data.getExtras().getString("sceneToken");
             scene = Scene.forToken(sceneToken);

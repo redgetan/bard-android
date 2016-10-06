@@ -4,7 +4,9 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -37,6 +39,9 @@ public class CustomDialog extends Dialog implements
             loginBtn = (Button) findViewById(R.id.login_btn);
             registerBtn = (Button) findViewById(R.id.register_btn);
             cancelBtn = (ImageView) findViewById(R.id.cancel_btn);
+
+            loginBtn.setBackgroundColor(ContextCompat.getColor(activity, R.color.purple));
+            registerBtn.setBackgroundColor(ContextCompat.getColor(activity, R.color.purple));
 
             loginBtn.setOnClickListener(this);
             registerBtn.setOnClickListener(this);
