@@ -1002,7 +1002,9 @@ public class BardEditorActivity extends BaseActivity implements
             JSONObject properties = new JSONObject();
             try {
                 properties.put("sceneToken", sceneToken);
-                properties.put("sceneName", scene.getName());
+                if (scene != null) {
+                    properties.put("sceneName", scene.getName());
+                }
             } catch (JSONException e) {
                 e.printStackTrace();
                 Instabug.reportException(e);
