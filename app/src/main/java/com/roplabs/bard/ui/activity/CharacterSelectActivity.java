@@ -58,8 +58,6 @@ public class CharacterSelectActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
 
 
-        Analytics.track(this, "compose");
-
         RealmResults<Character> characters = Character.findAll();
         displayCharacterList(characters);
 

@@ -201,6 +201,17 @@ public class BardEditorActivity extends BaseActivity implements
 
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
+        JSONObject properties = new JSONObject();
+        try {
+            properties.put("characterToken", characterToken);
+            properties.put("character", character.getName());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Instabug.reportException(e);
+        }
+        Analytics.track(this, "compose", properties);
+
+
         initPreviewTimeline();
         initVideoStorage();
         initAnalytics();
@@ -991,6 +1002,7 @@ public class BardEditorActivity extends BaseActivity implements
             JSONObject properties = new JSONObject();
             try {
                 properties.put("sceneToken", sceneToken);
+                properties.put("sceneName", scene.getName());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Instabug.reportException(e);
@@ -1252,6 +1264,17 @@ public class BardEditorActivity extends BaseActivity implements
 
         if (Helper.copyFile(getJoinedOutputFilePath(),filePath)) {
             this.repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+
+            JSONObject properties = new JSONObject();
+            try {
+                properties.put("wordTags", wordTagList);
+                properties.put("characterToken", characterToken);
+                properties.put("character", character.getName());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Instabug.reportException(e);
+            }
+            Analytics.track(this, "saveRepo", properties);
 
             saveRepoBtn.setText("Saved");
             progressDialog.dismiss();

@@ -3,6 +3,7 @@ package com.roplabs.bard.util;
 import android.content.Context;
 import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Setting;
 import org.json.JSONObject;
 
@@ -26,7 +27,7 @@ public class Analytics {
 
     public static MixpanelAPI getMixpanelInstance(Context context) {
         if (mixpanel == null ) {
-            mixpanel = MixpanelAPI.getInstance(context, "8492ff36260ca3f573d6eed22bb94ece");
+            mixpanel = MixpanelAPI.getInstance(context, Configuration.mixpanelAPIKey());
         }
 
         return mixpanel;

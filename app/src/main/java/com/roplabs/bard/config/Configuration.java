@@ -11,6 +11,14 @@ public class Configuration {
         }
     }
 
+    public static String mixpanelAPIKey() {
+        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+            return "8492ff36260ca3f573d6eed22bb94ece";
+        } else {
+            return "13ba4a4181b83c3569abf4336ef275d4";
+        }
+    }
+
     public static String cognitoIdentityPool() {
         if (BuildConfig.BUILD_TYPE.equals("debug")) {
             return "us-west-2:7bd4263f-57f2-4d08-9855-7672299d73d4";

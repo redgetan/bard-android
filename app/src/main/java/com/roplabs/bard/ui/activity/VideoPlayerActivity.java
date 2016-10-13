@@ -19,6 +19,9 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
+import com.roplabs.bard.util.Analytics;
+import org.json.JSONException;
+import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -152,6 +155,17 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
                         } else {
                             HashMap<String, String> result = response.body();
                             Repo repo = Repo.forToken(targetRepoToken);
+
+                            JSONObject properties = new JSONObject();
+                            try {
+                                properties.put("wordTags", repo.getWordList());
+                                properties.put("characterToken", repo.getCharacterToken());
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                                Instabug.reportException(e);
+                            }
+                            Analytics.track(ClientApp.getContext(), "deleteRepo", properties);
+
                             if(new File(repo.getFilePath()).delete()) {
                                 repo.delete();
                                 finish();
