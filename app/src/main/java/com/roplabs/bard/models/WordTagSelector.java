@@ -161,7 +161,7 @@ public class WordTagSelector {
         WordTag wordTag;
         List<WordTag> wordTagList = wordTagMap.get(word);
 
-        if (sceneWordTagMap.isEmpty()) {
+        if (!sceneWordTagMap.isEmpty()) {
             // get scene specific word variants of word
             List<WordTag> sceneWordTagList = sceneWordTagMap.get(word);
             if (sceneWordTagList != null) {

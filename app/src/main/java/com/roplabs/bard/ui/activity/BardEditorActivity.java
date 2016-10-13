@@ -757,6 +757,8 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onWordTagChanged(WordTag wordTag) {
+        if (!wordTag.isFilled()) return;
+        BardLogger.trace("onWordTagChanged: " + wordTag.toString());
         drawWordTagNavigatorState();
         recyclerView.scrollToPosition(wordTag.position);
         playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
@@ -854,31 +856,10 @@ public class BardEditorActivity extends BaseActivity implements
                 attemptAssignWordTagDelayed(lastWord, tokenIndex);
             } else if (tokenCount < wordTagList.size()) {
                 // DELETE wordTag (when token count decreases)
-                String nextWordInWordTagList = "";
-                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
-                if (tokenIndex + 1 < wordTagList.size()) {
-                    nextWordInWordTagList = wordTagList.get(tokenIndex + 1).word;
-                } else {
-                    nextWordInWordTagList = "";
+                int tokenIndexOfDeletedWord = tokenCount == 0 ? tokenCount : tokenIndex + 1;
+                if (tokenIndexOfDeletedWord < wordTagList.size()) {
+                    wordTagList.remove(tokenIndexOfDeletedWord);
                 }
-                if (nextImmediateWord.equals(nextWordInWordTagList)) {
-                    // if the wordtag were deleting is still tagged, it means the thumbnail hasnt been deleted yet
-                    // in the case, delete it
-                    // ie. deleting ("i:2093jasdf")
-                    //     deleting space between ["i:2093jasdf","was:xer93sd"]
-                    if (wordTagList.get(tokenIndex).isFilled()) {
-                        clearPreview();
-                        removeThumbnailFromTimeline(tokenIndex);
-                    }
-                    wordTagList.remove(tokenIndex);
-                } else {
-                    if (wordTagList.get(tokenIndex).isFilled()) {
-                        clearPreview();
-                        removeThumbnailFromTimeline(tokenIndex + 1);
-                    }
-                    wordTagList.remove(tokenIndex + 1);
-                }
-
             } else if (tokenCount == wordTagList.size() && tokenCount != 0) {
                 // UPDATE wordTag (when word changed)
                 String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();

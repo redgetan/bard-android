@@ -174,11 +174,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     public void setWordTag(WordTag wordTag) {
+        BardLogger.trace("setWordTag: " + wordTag.toString());
         wordTagSelector.setWordTag(wordTag);
         onWordTagChanged(wordTag);
     }
 
     public void setWordTag(WordTag wordTag, int wordTagIndex) {
+        if (!wordTag.isFilled()) return;
         wordTagSelector.setWordTag(wordTag);
         wordTagSelector.setCurrentWordTagIndex(wordTagIndex);
         onWordTagChanged(wordTag);
