@@ -15,7 +15,7 @@
                         android:id="@+id/preview_timeline_container"
                         android:background="@color/black"
                         android:layout_width="match_parent"
-                        android:layout_height="40dp"
+                        android:layout_height="50dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal">
             <ImageView
@@ -179,7 +179,7 @@
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/word_list_dictionary"
                 android:layout_alignParentBottom="true"
-                android:padding="10dp"
+                android:padding="20dp"
                 android:background="@drawable/word_choice_background"
                 android:layout_below="@id/bard_text_entry"
                 android:layout_width="match_parent"
