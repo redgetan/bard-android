@@ -96,7 +96,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     @Override
     public void onPrepared(MediaPlayer mp) {
         BardLogger.trace("mediaplayer onPrepared");
-        previewTagView.setBackgroundColor(Color.TRANSPARENT);
         isVideoReady = true;
 
         if (this.previewPlayerPreparedListener != null) {
