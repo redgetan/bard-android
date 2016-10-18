@@ -1,5 +1,7 @@
 package com.roplabs.bard.models;
 
+import com.roplabs.bard.util.Storage;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -33,6 +35,7 @@ public class Segment {
         String tag = tokens[1];
         segment.setWord(word);
         segment.setSourceUrl(sourceUrlFromWordTagString(wordTagString));
+        segment.setFilePath(Storage.getCachedVideoFilePath(wordTagString));
         return segment;
     }
 

@@ -107,15 +107,12 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Override
     public void onCompletion(MediaPlayer mp) {
-        BardLogger.trace("mediaplayer onCompletion");
-        listener.onVideoThumbnailChanged(previewTagView.getBitmap(100,100));
     }
 
     // Define the events that the fragment will use to communicate
     public interface OnReadyListener  {
         // This can be any number of events to be sent to the activity
         public void onWordListFragmentReady();
-        public void onVideoThumbnailChanged(Bitmap bitmap);
     }
 
     // Store instance variables based on arguments passed
@@ -157,7 +154,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Override
     public void onResume() {
-        super.onStart();
+        super.onResume();
         EventBus.getDefault().register(this);
     }
 
@@ -169,6 +166,12 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
     @Subscribe
     public void onEvent(InvalidWordEvent event) {
+        if (event.text.isEmpty()) {
+            display_word_error.setVisibility(View.GONE);
+        } else {
+            display_word_error.setVisibility(View.VISIBLE);
+        }
+
         display_word_error.setText(event.text);
     }
 
@@ -178,14 +181,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         onWordTagChanged(wordTag);
     }
 
-    public void setWordTag(WordTag wordTag, int wordTagIndex) {
-        if (!wordTag.isFilled()) return;
+    public void setWordTagWithDelay(WordTag wordTag, int delayInMilliSeconds) {
+        BardLogger.trace("setWordTag with delay: " + wordTag.toString());
         wordTagSelector.setWordTag(wordTag);
-        wordTagSelector.setCurrentWordTagIndex(wordTagIndex);
-        onWordTagChanged(wordTag);
+        onWordTagChanged(wordTag, delayInMilliSeconds);
     }
 
-    public void onWordTagChanged(final WordTag wordTag) {
+    public void onWordTagChanged(final WordTag wordTag, int delayInMilliSeconds) {
         if (wordTag == null) return;
 
         drawPagination();
@@ -204,7 +206,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             }
         };
 
-        wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, 500);
+        wordTagPlayHandler.postDelayed(fetchWordTagSegmentUrl, delayInMilliSeconds);
+    }
+
+    public void onWordTagChanged(final WordTag wordTag) {
+        if (wordTag == null) return;
+        drawPagination();
+        wordTagChangedListener.onWordTagChanged(wordTag);
     }
 
     public void playPreview(String url) {
@@ -233,13 +241,13 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             @Override
             public void onSwipeLeft() {
                 WordTag targetWordTag = wordTagSelector.findNextWord();
-                if (targetWordTag != null) onWordTagChanged(targetWordTag);
+                if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
             }
 
             @Override
             public void onSwipeRight() {
                 WordTag targetWordTag = wordTagSelector.findPrevWord();
-                if (targetWordTag != null) onWordTagChanged(targetWordTag);
+                if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
             }
 
             @Override

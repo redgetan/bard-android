@@ -13,10 +13,7 @@ import okio.BufferedSink;
 import okio.Okio;
 import org.greenrobot.eventbus.EventBus;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,6 +28,35 @@ public class VideoDownloader {
     public static void downloadVideo(String url) {
 
         new DownloadVideoTask().execute(url);
+    }
+
+    public interface OnDownloadListener  {
+        // This can be any number of events to be sent to the activity
+        public void onDownloadSuccess();
+        public void onDownloadFailure();
+    }
+
+    public static void downloadUrlToStream(String url, final OutputStream outputStream, final OnDownloadListener downloadListener) {
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+
+        client.newCall(request).enqueue(new okhttp3.Callback() {
+            @Override
+            public void onFailure(okhttp3.Call call, IOException e) {
+                BardLogger.log("failure on downloadUrlToStream ");
+                downloadListener.onDownloadFailure();
+            }
+
+            @Override
+            public void onResponse(okhttp3.Call call, okhttp3.Response response) throws IOException {
+                // http://stackoverflow.com/a/29012988/803865
+                BufferedSink sink = Okio.buffer(Okio.sink(outputStream));
+                sink.writeAll(response.body().source());
+                sink.close();
+                downloadListener.onDownloadSuccess();
+            }
+        });
     }
 
     public static void fetchSegments(List<Segment> segments) {

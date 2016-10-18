@@ -11,8 +11,10 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.*;
+import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
@@ -34,6 +36,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.bumptech.glide.Glide;
+import com.jakewharton.disklrucache.DiskLruCache;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
 import com.instabug.library.Instabug;
@@ -82,7 +85,6 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
     private final int SCENE_SELECT_REQUEST_CODE = 20;
-
 
     private Context mContext;
     private RelativeLayout inputContainer;
@@ -347,6 +349,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void initVideoStorage() {
+        // where merged videos would be stored
         File moviesDirFile = new File(getSharedMoviesDir());
 
         if (!moviesDirFile.exists()) {
@@ -417,7 +420,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initDictionary() {
         progressBar.setVisibility(View.VISIBLE);
-        debugView.setText("Initializing Available Word List");
+        debugView.setText("Initializing");
 
         if (!sceneToken.isEmpty()) {
             initSceneWordList();
@@ -627,7 +630,7 @@ public class BardEditorActivity extends BaseActivity implements
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
-                    getWordListFragment().setWordTag(targetWordTag);
+                    getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
             }
         });
@@ -640,7 +643,7 @@ public class BardEditorActivity extends BaseActivity implements
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
-                    getWordListFragment().setWordTag(targetWordTag);
+                    getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
             }
         });
@@ -734,12 +737,11 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 2000);
+        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 1500);
 
     }
 
     private void onWordTagClick(WordTag wordTag) {
-        progressBar.setVisibility(View.VISIBLE);
         isWordTagListContainerBlocked = true;
 
         int beforeTokenCount = editText.getTokenCount();
@@ -772,7 +774,7 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("onWordTagChanged: " + wordTag.toString());
         drawWordTagNavigatorState();
         recyclerView.scrollToPosition(wordTag.position);
-        playRemoteVideo(Segment.sourceUrlFromWordTagString(wordTag.toString()));
+        playRemoteVideo(wordTag.toString());
     }
 
     private void drawWordTagNavigatorState() {
@@ -1067,7 +1069,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void displayInvalidWords() {
         if (invalidWords.size() > 0) {
-            EventBus.getDefault().post(new InvalidWordEvent("Words not available: " + TextUtils.join(",",invalidWords)));
+            EventBus.getDefault().post(new InvalidWordEvent("Unavailable: " + TextUtils.join(",",invalidWords)));
         } else {
             EventBus.getDefault().post(new InvalidWordEvent(""));
         }
@@ -1363,14 +1365,8 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.VISIBLE);
 
                 Analytics.timeEvent(this, "generateBardVideo");
-
-                Runnable runnable = new Runnable() {
-                    public void run() {
-                        VideoDownloader.fetchSegments(Segment.buildFromWordTagList(wordTagList));
-                    }
-                };
-
-                new Thread(runnable).start();
+                List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
+                joinSegments(segments);
             } else {
                 playMessageBtn.setEnabled(true);
                 notifyUserOnUnavailableWord();
@@ -1441,18 +1437,44 @@ public class BardEditorActivity extends BaseActivity implements
         return (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
     }
 
-    private void playRemoteVideo(String url) {
+    private void playRemoteVideo(String wordTagString) {
+        BardLogger.trace("playRemoteVideo" + android.os.Process.getThreadPriority(android.os.Process.myTid()));
         if (!Helper.isConnectedToInternet()) {
             debugView.setText(R.string.no_network_connection);
             return;
         }
 
-        progressBar.setVisibility(View.VISIBLE);
+        String filePath = Storage.getCachedVideoFilePath(wordTagString);
+        if (new File(filePath).exists()) {
+            generatePreviewTimelineThumbnail(filePath);
+            playWordTag(filePath);
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+            Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
+                @Override
+                public void onCacheVideoSuccess(String filePath) {
+                    BardLogger.trace("video cached at " + filePath);
+                    generatePreviewTimelineThumbnail(filePath);
+                    playWordTag(filePath);
+                    progressBar.setVisibility(View.GONE);
+                }
 
+                @Override
+                public void onCacheVideoFailure() {
+                    Toast.makeText(ClientApp.getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+
+    }
+
+    private void playWordTag(String filePath) {
         if (getWordListFragment() != null) {
-            getWordListFragment().playPreview(url);
+            getWordListFragment().playPreview(filePath);
         }
     }
+
 
     public void playLocalVideo(String filePath) {
         progressBar.setVisibility(View.GONE);
@@ -1552,8 +1574,8 @@ public class BardEditorActivity extends BaseActivity implements
 
 
 
-    @Override
-    public void onVideoThumbnailChanged(Bitmap bitmap) {
+    public void generatePreviewTimelineThumbnail(String filePath) {
+        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MICRO_KIND);
         if (currentImageView != null) {
             currentImageView.setImageBitmap(bitmap);
             currentImageView.setEnabled(true);
@@ -1564,7 +1586,6 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         currentImageView.setSelected(true);
-
         isWordTagListContainerBlocked = false;
     }
 
