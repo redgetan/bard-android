@@ -1437,16 +1437,16 @@ public class BardEditorActivity extends BaseActivity implements
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         if (new File(filePath).exists()) {
-            generatePreviewTimelineThumbnail(filePath);
             playWordTag(filePath);
+            generatePreviewTimelineThumbnail(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
             Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
-                    generatePreviewTimelineThumbnail(filePath);
                     playWordTag(filePath);
+                    generatePreviewTimelineThumbnail(filePath);
                     progressBar.setVisibility(View.GONE);
                 }
 
