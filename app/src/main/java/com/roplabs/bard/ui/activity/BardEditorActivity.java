@@ -147,6 +147,8 @@ public class BardEditorActivity extends BaseActivity implements
     private GridView shareListView;
     private Button saveRepoBtn;
     private ImageView sceneSelectBtn;
+    private Runnable scrollToThumbnailRunnable;
+    private Handler scrollToThumbnailHandler;
 
     ShareActionProvider mShareActionProvider;
 
@@ -202,6 +204,7 @@ public class BardEditorActivity extends BaseActivity implements
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
         notifyInvalidWordsHandler = new Handler();
+        scrollToThumbnailHandler = new Handler();
 
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
@@ -888,31 +891,30 @@ public class BardEditorActivity extends BaseActivity implements
                         .split("\\s+")[0];
 
                 wordTag = wordTagList.get(tokenIndex);
+                WordTag previousWordTag = wordTagList.get(previousTokenIndex);
 
                 if (!isBackspacePressed && nextImmediateWord.equals(wordTag.word) && wordTag.isFilled()) {
-                   // this would happen if were adding/deleting and cursor is at beginning of a tagged word
+                   // this would happen if were adding and cursor is at beginning of a tagged word
                    // cursor denoted by [], are is already tagged (dont delete it)
                    // user's intent is to add or delete we word without affecting "are" word
                    // we[]are in
                     wordTagList.add(tokenIndex, new WordTag(lastWord));
+                } else if (isBackspacePressed && previousWordTag.word.length() == 1) {
+                    // remove entry from wordTagList if its empty
+                        wordTagList.remove(previousTokenIndex);
+                        removeThumbnailFromTimeline(previousTokenIndex);
                 } else if (wordTag != null && !wordTag.word.equals(lastWord)) {
                     // UPDATE the word at at current index
                     if (wordTag.isFilled()) {
                         // if the wordTag is previously filled, we need to reset wordTagSelector
                         // and also remove thumbnail from previewtimeline
                         clearPreview();
-                        removeThumbnailFromTimeline(tokenIndex);
                     }
 
-                    if (wordTag.word.length() == 1 && isBackspacePressed) {
-                        // remove entry from wordTagList if its empty
-                        wordTagList.remove(tokenIndex);
-                    } else {
-                        wordTag.tag = "";
-                        wordTag.word = lastWord;
-                        if (nextCharacter.equals("") || nextCharacter.equals(" ")) {
-                            attemptAssignWordTagDelayed(lastWord, tokenIndex);
-                        }
+                    wordTag.tag = "";
+                    wordTag.word = lastWord;
+                    if (nextCharacter.equals("") || nextCharacter.equals(" ")) {
+                        attemptAssignWordTagDelayed(lastWord, tokenIndex);
                     }
                 }
 
@@ -1634,7 +1636,7 @@ public class BardEditorActivity extends BaseActivity implements
         currentImageView.setSelected(true);
         isWordTagListContainerBlocked = false;
 
-        scrollPreviewTimelineToImage(currentImageView);
+        scrollPreviewTimelineToImageDelayed(currentImageView);
     }
 
     public void generatePreviewTimelineThumbnail(String filePath, int tokenIndex) {
@@ -1649,17 +1651,35 @@ public class BardEditorActivity extends BaseActivity implements
             previewTimeline.addView(imageView, tokenIndex);
         }
 
-        scrollPreviewTimelineToImage(imageView);
+        scrollPreviewTimelineToImageDelayed(imageView);
+    }
+
+    private void scrollPreviewTimelineToImageDelayed(final ImageView imageView) {
+        if (scrollToThumbnailRunnable != null) {
+            scrollToThumbnailHandler.removeCallbacks(scrollToThumbnailRunnable);
+        }
+
+        scrollToThumbnailRunnable = new Runnable(){
+            @Override
+            public void run(){
+                scrollPreviewTimelineToImage(imageView);
+                scrollToThumbnailRunnable = null;
+            }
+        };
+
+        scrollToThumbnailHandler.postDelayed(scrollToThumbnailRunnable, 300);
     }
 
     private void scrollPreviewTimelineToImage(ImageView imageView) {
-//        Rect scrollBounds = new Rect();
-//        previewTimeline.getHitRect(scrollBounds);
-//        if (!imageView.getLocalVisibleRect(scrollBounds)) {
-//            int endPos    = (int) imageView.getX();
-//            int halfWidth = (int) imageView.getWidth() / 2;
-//            previewTimeline.scrollTo(endPos + halfWidth - previewTimeline.getWidth() / 2, 0);
-//        }
+        Rect scrollBounds = new Rect();
+        previewTimelineScrollView.getHitRect(scrollBounds);
+        if (!imageView.getLocalVisibleRect(scrollBounds)) {
+            int endPos    = (int) imageView.getX();
+            int halfWidth = (int) imageView.getWidth() / 2;
+            int halfWidthScrollView = (int) previewTimelineScrollView.getWidth() / 2;
+            int scrollPos = endPos + halfWidth - halfWidthScrollView;
+            previewTimelineScrollView.scrollTo(scrollPos, 0);
+        }
     }
 
     public ImageView createPreviewImageView(Bitmap bitmap) {
