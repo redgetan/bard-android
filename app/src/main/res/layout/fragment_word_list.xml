@@ -41,7 +41,7 @@
                 />
 
         <TextView android:id="@+id/display_word_error"
-                  android:background="@android:color/darker_gray"
+                  android:background="@color/dark_gray"
                   android:paddingLeft="5dp"
                   android:paddingRight="5dp"
                   android:textColor="@android:color/white"

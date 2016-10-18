@@ -1,11 +1,13 @@
 package com.roplabs.bard.util;
 
+import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
 import com.instabug.library.Instabug;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.R;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.VideoDownloader;
 
@@ -19,6 +21,20 @@ public class Storage {
     private static final int VIDEO_CACHE_SIZE = 100 * 1024 * 1024; // 100mb
 
     private static DiskLruCache videoCache;
+
+    public static String getSharedMoviesDir() {
+        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
+                .getAbsolutePath() + "/" +  ClientApp.getContext().getResources().getString(R.string.app_name) + "/";
+    }
+
+    public static String getMergedOutputFilePath() {
+        return getSharedMoviesDir() + "last_merge.mp4";
+    }
+
+    public static String getLocalSavedFilePath() {
+        return getSharedMoviesDir() + Helper.getTimestamp() + ".mp4";
+    }
+
 
     // the filepath of cache entry is not publicly exposed by DiskLRUCache
     // but it can be easily determinted by the convention

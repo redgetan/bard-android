@@ -350,16 +350,11 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initVideoStorage() {
         // where merged videos would be stored
-        File moviesDirFile = new File(getSharedMoviesDir());
+        File moviesDirFile = new File(Storage.getSharedMoviesDir());
 
         if (!moviesDirFile.exists()) {
             moviesDirFile.mkdirs();
         }
-    }
-
-    private String getSharedMoviesDir() {
-        return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES)
-                   .getAbsolutePath() + "/" +  getResources().getString(R.string.app_name) + "/";
     }
 
     public void initAnalytics() {
@@ -1083,7 +1078,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(List<Segment> segments) {
-        final String outputFilePath = getJoinedOutputFilePath();
+        final String outputFilePath = Storage.getMergedOutputFilePath();
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
         final long startTime = System.currentTimeMillis();
@@ -1195,7 +1190,7 @@ public class BardEditorActivity extends BaseActivity implements
         TransferObserver observer = transferUtility.upload(
                 Configuration.s3UserBucket(),
                 getRepositoryS3Key(uuid),
-                new File(getJoinedOutputFilePath())
+                new File(Storage.getMergedOutputFilePath())
         );
 
         observer.setTransferListener(new TransferListener(){
@@ -1264,9 +1259,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void saveLocalRepo(String token, String url, String wordList) {
-        String filePath = getSharedMoviesDir() + Helper.getTimestamp() + ".mp4";
+        String filePath = Storage.getLocalSavedFilePath();
 
-        if (Helper.copyFile(getJoinedOutputFilePath(),filePath)) {
+        if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
             this.repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
             JSONObject properties = new JSONObject();
@@ -1346,10 +1341,6 @@ public class BardEditorActivity extends BaseActivity implements
         concatFilterGraph += " concat=n=" + segments.size() + ":v=1:a=1 [v] [a] ";
 
         return concatFilterGraph;
-    }
-
-    public String getJoinedOutputFilePath() {
-        return getSharedMoviesDir() + "/last_merge.mp4";
     }
 
     public void closeEditor(View view) {
@@ -1550,7 +1541,7 @@ public class BardEditorActivity extends BaseActivity implements
         Uri videoUri;
 
         if (this.repo == null) {
-            videoUri = Uri.fromFile(new File(getJoinedOutputFilePath()));
+            videoUri = Uri.fromFile(new File(Storage.getMergedOutputFilePath()));
         } else {
             videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
         }
