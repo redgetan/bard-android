@@ -76,12 +76,15 @@ public class Scene extends RealmObject {
 
         for (Scene scene : scenes) {
             Scene obj = Scene.forToken(scene.getToken());
-            if (obj.getName().isEmpty()) {
-                obj.setName(scene.getName());
-            }
+            // obj is null if there's a new scene that was not previously downloaded during BardEditorActivity#initCharacterWordList
+            if (obj != null) {
+                if (obj.getName().isEmpty()) {
+                    obj.setName(scene.getName());
+                }
 
-            if (obj.getThumbnailUrl().isEmpty()) {
-                obj.setThumbnailUrl(scene.getThumbnailUrl());
+                if (obj.getThumbnailUrl().isEmpty()) {
+                    obj.setThumbnailUrl(scene.getThumbnailUrl());
+                }
             }
         }
 
