@@ -732,7 +732,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 1500);
+        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 800);
 
     }
 
@@ -1351,8 +1351,27 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
         playMessageBtn.setEnabled(false);
 
+        if (attemptWordTagAssignRunnable != null) {
+            // a delayed wordTag assign function is currently in progress
+            // wait for it to finish
+            Handler handler = new Handler();
+            Runnable runnable = new Runnable(){
+                @Override
+                public void run(){
+                    generateBardVideo();
+                }
+            };
+
+            handler.postDelayed(runnable, 1500);
+        } else {
+            generateBardVideo();
+        }
+
+    }
+
+    public void generateBardVideo() {
         if (Helper.isConnectedToInternet()) {
-            if (addMissingWordTag()) {
+            if (!isWordTagMissing()) {
                 progressBar.setVisibility(View.VISIBLE);
 
                 Analytics.timeEvent(this, "generateBardVideo");
@@ -1400,20 +1419,17 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     // return false if wordtag missing and unable to find match. true otherwise
-    public boolean addMissingWordTag() {
+    public boolean isWordTagMissing() {
+        boolean result = false;
+
         for (WordTag wordTag : wordTagList) {
             if (wordTag.tag.isEmpty()) {
-                WordTag targetWordTag = getWordTagSelector().findRandomWord(wordTag.word);
-                if (targetWordTag == null) {
-                    return false;
-                } else {
-                    wordTag.tag = targetWordTag.tag;
-                }
+                result = true;
+                break;
             }
-
         }
 
-        return true;
+        return result;
     }
 
     private WordTagSelector getWordTagSelector() {
