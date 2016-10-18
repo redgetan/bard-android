@@ -847,10 +847,16 @@ public class BardEditorActivity extends BaseActivity implements
                     wordTagList.add(tokenIndex, new WordTag(lastWord));
                 }
 
-                // also update next neighboring wordtag
+                // also update next neighboring wordtag (tag it if available)
                 String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
-                wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
-                wordTagList.get(tokenIndex + 1).tag = "";
+                wordTag = getWordTagSelector().findRandomWord(nextImmediateWord);
+
+                if (wordTag != null) {
+                    wordTagList.set(tokenIndex + 1, wordTag);
+                } else {
+                    wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
+                    wordTagList.get(tokenIndex + 1).tag = "";
+                }
             } else {
                 // get here if word was previous untagged, and we want to tag it
                 onSuccessfulWordTagAssign(wordTag, tokenIndex);
@@ -880,9 +886,9 @@ public class BardEditorActivity extends BaseActivity implements
                     wordInWordTagList = "";
                 }
 
-                if (nextImmediateWord.equals(wordInWordTagList)) {
-                    // dont change word tag (might be used again)
-                } else {
+//                if (nextImmediateWord.equals(wordInWordTagList)) {
+//                    // dont change word tag (might be used again)
+//                } else {
                     if (wordTag != null && !wordTag.word.equals(lastWord)) {
                         // UPDATE the word at at current index
                         if (wordTag.isFilled()) {
@@ -896,7 +902,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                         attemptAssignWordTagDelayed(lastWord, tokenIndex);
                     }
-                }
+//                }
 
             }
 
@@ -1380,10 +1386,6 @@ public class BardEditorActivity extends BaseActivity implements
             } else {
                 playMessageBtn.setEnabled(true);
                 notifyUserOnUnavailableWord();
-
-                if (invalidWords.isEmpty()) {
-                    EventBus.getDefault().post(new InvalidWordEvent("Something's wrong. Please clear your sentence and restart from beginning"));
-                }
             }
         } else {
             playMessageBtn.setEnabled(true);
