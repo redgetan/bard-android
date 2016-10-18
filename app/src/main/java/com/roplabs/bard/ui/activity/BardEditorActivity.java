@@ -490,7 +490,7 @@ public class BardEditorActivity extends BaseActivity implements
             }).execute(TextUtils.join(",",combinedWordList));
         } else {
             progressBar.setVisibility(View.VISIBLE);
-            debugView.setText("Initializing Available Word List");
+            debugView.setText("Downloading");
 
             Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().getCharacterWordList(characterToken);
             call.enqueue(new Callback<HashMap<String, String>>() {
