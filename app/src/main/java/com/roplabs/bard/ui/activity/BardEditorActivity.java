@@ -9,6 +9,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.media.ThumbnailUtils;
@@ -86,6 +87,7 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
     private final int SCENE_SELECT_REQUEST_CODE = 20;
 
+    private int previousTokenIndex = 0;
     private Context mContext;
     private RelativeLayout inputContainer;
     private ImageView findNextBtn;
@@ -682,12 +684,13 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BardLogger.trace("[editText click] - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                 if (editText.getTokenizer() != null) {
                     int tokenIndex = editText.getTokenIndex();
+                    BardLogger.trace("[editText click] tokenIndex: " + tokenIndex + " - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                     if (tokenIndex < wordTagList.size()) {
                         setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
+                        previousTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
                         if (wordTag != null && wordTag.isFilled()) {
                             getWordListFragment().setWordTag(wordTag);
@@ -769,7 +772,7 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("onWordTagChanged: " + wordTag.toString());
         drawWordTagNavigatorState();
         recyclerView.scrollToPosition(wordTag.position);
-        playRemoteVideo(wordTag.toString());
+        playRemoteVideoAndDisplayThubmnail(wordTag.toString());
     }
 
     private void drawWordTagNavigatorState() {
@@ -790,7 +793,7 @@ public class BardEditorActivity extends BaseActivity implements
             setImageViewAndAddIfNeeded(tokenIndex);
 
             // assign tag
-            wordTagList.get(tokenIndex).tag = wordTag.tag;
+            wordTagList.set(tokenIndex, wordTag);
             getWordListFragment().setWordTag(wordTag);
         }
     }
@@ -848,15 +851,24 @@ public class BardEditorActivity extends BaseActivity implements
                 }
 
                 // also update next neighboring wordtag (tag it if available)
-                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
+                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length())
+                                                             .toString().trim()
+                                                             .split("\\s+")[0];
                 wordTag = getWordTagSelector().findRandomWord(nextImmediateWord);
-
-                if (wordTag != null) {
-                    wordTagList.set(tokenIndex + 1, wordTag);
+                WordTag nextWordTag =  wordTagList.get(tokenIndex + 1);
+                if (nextWordTag != null && nextWordTag.isFilled()) {
+                    // if next neighbor is already tagged, dont touch it
                 } else {
-                    wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
-                    wordTagList.get(tokenIndex + 1).tag = "";
+                    // try to tag it as well
+                    if (wordTag != null) {
+                        wordTagList.set(tokenIndex + 1, wordTag);
+                        cacheRemoteVideoAndDisplayThumbnail(wordTag.toString(), tokenIndex + 1);
+                    } else {
+                        wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
+                        wordTagList.get(tokenIndex + 1).tag = "";
+                    }
                 }
+
             } else {
                 // get here if word was previous untagged, and we want to tag it
                 onSuccessfulWordTagAssign(wordTag, tokenIndex);
@@ -868,47 +880,49 @@ public class BardEditorActivity extends BaseActivity implements
                 wordTag = new WordTag(lastWord);
                 wordTagList.add(tokenIndex, wordTag);
                 attemptAssignWordTagDelayed(lastWord, tokenIndex);
-            } else if (tokenCount < wordTagList.size()) {
-                // DELETE wordTag (when token count decreases)
-                int tokenIndexOfDeletedWord = tokenCount == 0 ? tokenCount : tokenIndex + 1;
-                if (tokenIndexOfDeletedWord < wordTagList.size()) {
-                    wordTagList.remove(tokenIndexOfDeletedWord);
-                }
-            } else if (tokenCount == wordTagList.size() && tokenCount != 0) {
-                // UPDATE wordTag (when word changed)
-                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length()).toString().trim();
+            } else {
+                // UPDATE or DELETE wordTag (when word changed)
+                int startOfNextWord = isBackspacePressed ? start : start + 1;
+                String nextImmediateWord = editText.getText().toString().subSequence(startOfNextWord, editText.length())
+                        .toString().trim()
+                        .split("\\s+")[0];
+
                 wordTag = wordTagList.get(tokenIndex);
-                String wordInWordTagList;
 
-                if (wordTag != null) {
-                    wordInWordTagList = wordTag.word;
-                } else {
-                    wordInWordTagList = "";
-                }
+                if (!isBackspacePressed && nextImmediateWord.equals(wordTag.word) && wordTag.isFilled()) {
+                   // this would happen if were adding/deleting and cursor is at beginning of a tagged word
+                   // cursor denoted by [], are is already tagged (dont delete it)
+                   // user's intent is to add or delete we word without affecting "are" word
+                   // we[]are in
+                    wordTagList.add(tokenIndex, new WordTag(lastWord));
+                } else if (wordTag != null && !wordTag.word.equals(lastWord)) {
+                    // UPDATE the word at at current index
+                    if (wordTag.isFilled()) {
+                        // if the wordTag is previously filled, we need to reset wordTagSelector
+                        // and also remove thumbnail from previewtimeline
+                        clearPreview();
+                        removeThumbnailFromTimeline(tokenIndex);
+                    }
 
-//                if (nextImmediateWord.equals(wordInWordTagList)) {
-//                    // dont change word tag (might be used again)
-//                } else {
-                    if (wordTag != null && !wordTag.word.equals(lastWord)) {
-                        // UPDATE the word at at current index
-                        if (wordTag.isFilled()) {
-                            // if the wordTag is previously filled, we need to reset wordTagSelector
-                            // and also remove thumbnail from previewtimeline
-                            clearPreview();
-                            removeThumbnailFromTimeline(tokenIndex);
-                        }
+                    if (wordTag.word.length() == 1 && isBackspacePressed) {
+                        // remove entry from wordTagList if its empty
+                        wordTagList.remove(tokenIndex);
+                    } else {
                         wordTag.tag = "";
                         wordTag.word = lastWord;
-
-                        attemptAssignWordTagDelayed(lastWord, tokenIndex);
+                        if (nextCharacter.equals("") || nextCharacter.equals(" ")) {
+                            attemptAssignWordTagDelayed(lastWord, tokenIndex);
+                        }
                     }
-//                }
+                }
 
             }
 
         }
 
-        BardLogger.trace("[updateWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+        previousTokenIndex = tokenIndex;
+
+        BardLogger.trace("[updateWordTag] tokenIndex: " + tokenIndex + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
     }
 
     private void clearPreview() {
@@ -937,7 +951,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        wordTagAssignHandler.postDelayed(attemptWordTagAssignRunnable, 1500);
+        wordTagAssignHandler.postDelayed(attemptWordTagAssignRunnable, 1000);
     }
 
     private void clearAssignWOrdTagRunnable() {
@@ -951,6 +965,7 @@ public class BardEditorActivity extends BaseActivity implements
         WordTag targetWordTag = getWordTagSelector().findRandomWord(word);
         if (targetWordTag != null) {
             onSuccessfulWordTagAssign(targetWordTag, tokenIndex);
+            BardLogger.trace("[attemptAssignWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
         }
     }
 
@@ -1446,7 +1461,7 @@ public class BardEditorActivity extends BaseActivity implements
         return (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
     }
 
-    private void playRemoteVideo(String wordTagString) {
+    private void playRemoteVideoAndDisplayThubmnail(String wordTagString) {
         BardLogger.trace("playRemoteVideo" + android.os.Process.getThreadPriority(android.os.Process.myTid()));
         if (!Helper.isConnectedToInternet()) {
             debugView.setText(R.string.no_network_connection);
@@ -1474,8 +1489,30 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             });
         }
+    }
 
+    private void cacheRemoteVideoAndDisplayThumbnail(String wordTagString, final int tokenIndex) {
+        if (!Helper.isConnectedToInternet()) {
+            return;
+        }
 
+        String filePath = Storage.getCachedVideoFilePath(wordTagString);
+        if (new File(filePath).exists()) {
+            generatePreviewTimelineThumbnail(filePath, tokenIndex);
+        } else {
+            Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
+                @Override
+                public void onCacheVideoSuccess(String filePath) {
+                    BardLogger.trace("video cached at " + filePath);
+                    generatePreviewTimelineThumbnail(filePath, tokenIndex);
+                }
+
+                @Override
+                public void onCacheVideoFailure() {
+                    Toast.makeText(ClientApp.getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
     }
 
     private void playWordTag(String filePath) {
@@ -1596,6 +1633,33 @@ public class BardEditorActivity extends BaseActivity implements
 
         currentImageView.setSelected(true);
         isWordTagListContainerBlocked = false;
+
+        scrollPreviewTimelineToImage(currentImageView);
+    }
+
+    public void generatePreviewTimelineThumbnail(String filePath, int tokenIndex) {
+        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MICRO_KIND);
+        ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
+        if (imageView != null) {
+            imageView.setImageBitmap(bitmap);
+            imageView.setEnabled(true);
+            updatePlayMessageBtnState();
+        } else {
+            imageView = createPreviewImageView(bitmap);
+            previewTimeline.addView(imageView, tokenIndex);
+        }
+
+        scrollPreviewTimelineToImage(imageView);
+    }
+
+    private void scrollPreviewTimelineToImage(ImageView imageView) {
+//        Rect scrollBounds = new Rect();
+//        previewTimeline.getHitRect(scrollBounds);
+//        if (!imageView.getLocalVisibleRect(scrollBounds)) {
+//            int endPos    = (int) imageView.getX();
+//            int halfWidth = (int) imageView.getWidth() / 2;
+//            previewTimeline.scrollTo(endPos + halfWidth - previewTimeline.getWidth() / 2, 0);
+//        }
     }
 
     public ImageView createPreviewImageView(Bitmap bitmap) {
@@ -1632,6 +1696,8 @@ public class BardEditorActivity extends BaseActivity implements
                         getWordListFragment().setWordTag(wordTag);
                     }
                 }
+
+                previousTokenIndex = tokenIndex;
             }
         });
 

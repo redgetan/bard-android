@@ -205,7 +205,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     public String getLastWord() {
         int start = mTokenizer.findTokenStart(getText(), getSelectionEnd());
-        int end = mTokenizer.findTokenEnd(getText(), getSelectionEnd());
+        int end   = getSelectionEnd();
 
         if (end > start) {
             // 1st method
