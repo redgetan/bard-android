@@ -1004,7 +1004,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void loadSceneThumbnail(Scene scene) {
         if (scene == null) {
-            Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_crop_original_black_24dp);
+            Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_add_black_24dp);
             this.sceneSelectBtn.setImageBitmap(allSceneBitmap);
             this.sceneSelectBtn.setAlpha(0.3f);
         } else {
@@ -1822,6 +1822,14 @@ public class BardEditorActivity extends BaseActivity implements
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
             params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;
             vpPagerContainer.setLayoutParams(params);
+        }
+
+        if (keyboardVisible) {
+            editText.setHint("Type a message...");
+//            editText.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
+        } else {
+            editText.setHint("Tap a word");
+//            editText.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
         }
     }
 

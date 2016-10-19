@@ -20,6 +20,7 @@ import org.w3c.dom.Text;
 
 // http://stackoverflow.com/a/34760299/803865
 public class ProfileActivity extends BaseActivity {
+    private final int LOGIN_REQUEST_CODE = 2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,7 +59,24 @@ public class ProfileActivity extends BaseActivity {
             profileUsername.setText(username);
         }
 
+        final Context self = this;
+
         profileEmail.setText(Setting.getEmail(this));
+        profileImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!Setting.isLogined(self)) {
+                    Intent intent = new Intent(self, LoginActivity.class);
+                    startActivityForResult(intent, LOGIN_REQUEST_CODE);
+                }
+            }
+        });
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
+        }
     }
 
     // http://stackoverflow.com/a/10816846/803865

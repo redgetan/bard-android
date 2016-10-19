@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.RecyclerView;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
@@ -35,6 +36,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     private ImageView findPrevBtn;
     private TextView word_tag_status;
     private TextView display_word_error;
+    private FrameLayout previewContainer;
 
     private WordTagSelector wordTagSelector;
     private TextureView previewTagView;
@@ -139,6 +141,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_word_list, container, false);
 
+        previewContainer = (FrameLayout) view.findViewById(R.id.preview_container);
         display_word_error = (TextView) view.findViewById(R.id.display_word_error);
         word_tag_status = (TextView) view.findViewById(R.id.word_tag_status);
         previewTagView = (TextureView) view.findViewById(R.id.preview_tag_view);
@@ -234,6 +237,8 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     private void initVideoPlayer() {
+
+        // video
         previewTagView.setOpaque(false);
         previewTagView.setSurfaceTextureListener(this);
 
