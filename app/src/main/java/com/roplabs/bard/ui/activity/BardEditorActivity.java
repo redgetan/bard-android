@@ -827,99 +827,54 @@ public class BardEditorActivity extends BaseActivity implements
     private void updateWordTagList(CharSequence s, int start) {
         clearAssignWOrdTagRunnable();
 
-        String character = editText.getAddedChar(start);
-        String nextCharacter = editText.getNextChar(s, start);
         boolean isLeaderPressed = character.equals(" ");
-        boolean isBackspacePressed = character.equals("");
-        String lastWord = editText.getLastWord();
+        int tokenCount = editText.getTokenCount();
         int tokenIndex = editText.getTokenIndex();
+        List<String> words = getUserTypedWords();
 
-        if (isLeaderPressed && !nextCharacter.equals(" ") && !nextCharacter.equals("")) {
-            lastWord = editText.getPrevWord(start);
-            tokenIndex--;
+        // DELETE ITEMS at correct position if needed
+
+        while (tokenCount < wordTagList.size()) {
+            int diff = wordTagList.size() - tokenCount ;
+            int tokenIndexToDelete = previousTokenIndex - diff + 1;
+            wordTagList.remove(tokenIndexToDelete);
+            removeThumbnailFromTimeline(tokenIndexToDelete);
         }
-        currentTokenIndex = tokenIndex;
-        WordTag wordTag = null;
 
-        if (isLeaderPressed && (wordTagList.size() > tokenIndex)) {
-            wordTag = getWordTagSelector().findRandomWord(lastWord);
+        // ADD ITEMS at correct position if needed
 
-            if (editText.getTokenCount() > wordTagList.size()) {
-                if (wordTag != null) {
-                    // will reach here if (before: iam, after: i am, char: " ")
-                    // must insert new wordtag
-                    onSuccessfulWordTagAdd(wordTag, tokenIndex);
-                } else {
-                    // will reach here if (before: iam, after: i am, char: " "), but word is not in dictionary
-                    wordTagList.add(tokenIndex, new WordTag(lastWord));
-                }
+        if (tokenCount > wordTagList.size()) {
+            int tokenIndexToAdd = tokenIndex;
+            wordTagList.add(tokenIndexToAdd, new WordTag(""));
+        }
 
-                // also update next neighboring wordtag (tag it if available)
-                String nextImmediateWord = editText.getText().toString().subSequence(start, editText.length())
-                                                             .toString().trim()
-                                                             .split("\\s+")[0];
-                wordTag = getWordTagSelector().findRandomWord(nextImmediateWord);
-                WordTag nextWordTag =  wordTagList.get(tokenIndex + 1);
-                if (nextWordTag != null && nextWordTag.isFilled()) {
-                    // if next neighbor is already tagged, dont touch it
-                } else {
-                    // try to tag it as well
-                    if (wordTag != null) {
-                        wordTagList.set(tokenIndex + 1, wordTag);
-                        cacheRemoteVideoAndDisplayThumbnail(wordTag.toString(), tokenIndex + 1);
-                    } else {
-                        wordTagList.get(tokenIndex + 1).word = nextImmediateWord;
-                        wordTagList.get(tokenIndex + 1).tag = "";
-                    }
-                }
+        // UDPATE ITEMS
 
-            } else {
-                // get here if word was previous untagged, and we want to tag it
-                onSuccessfulWordTagAssign(wordTag, tokenIndex);
+        String wordInWordTagList;
+        String userTypedWord;
+        WordTag wordTag;
+        for (int i = 0; i < words.size(); i++) {
+            wordInWordTagList = wordTagList.get(i).word;
+            userTypedWord     = words.get(i);
+            if (!userTypedWord.equals(wordInWordTagList)) {
+                wordTagList.set(i, new WordTag(userTypedWord));
+                clearPreview();
             }
-        } else {
-            int tokenCount = editText.getTokenCount();
-            if (tokenCount > wordTagList.size()) {
-                // ADD wordTag (when token count increases)
-                wordTag = new WordTag(lastWord);
-                wordTagList.add(tokenIndex, wordTag);
-                attemptAssignWordTagDelayed(lastWord, tokenIndex);
-            } else {
-                // UPDATE or DELETE wordTag (when word changed)
-                int startOfNextWord = isBackspacePressed ? start : start + 1;
-                String nextImmediateWord = editText.getText().toString().subSequence(startOfNextWord, editText.length())
-                        .toString().trim()
-                        .split("\\s+")[0];
 
-                wordTag = wordTagList.get(tokenIndex);
-                WordTag previousWordTag = wordTagList.get(previousTokenIndex);
-
-                if (!isBackspacePressed && nextImmediateWord.equals(wordTag.word) && wordTag.isFilled()) {
-                   // this would happen if were adding and cursor is at beginning of a tagged word
-                   // cursor denoted by [], are is already tagged (dont delete it)
-                   // user's intent is to add or delete we word without affecting "are" word
-                   // we[]are in
-                    wordTagList.add(tokenIndex, new WordTag(lastWord));
-                } else if (isBackspacePressed && previousWordTag.word.length() == 1) {
-                    // remove entry from wordTagList if its empty
-                        wordTagList.remove(previousTokenIndex);
-                        removeThumbnailFromTimeline(previousTokenIndex);
-                } else if (wordTag != null && !wordTag.word.equals(lastWord)) {
-                    // UPDATE the word at at current index
-                    if (wordTag.isFilled()) {
-                        // if the wordTag is previously filled, we need to reset wordTagSelector
-                        // and also remove thumbnail from previewtimeline
-                        clearPreview();
+            if (!wordTagList.get(i).isFilled()) {
+                if (tokenIndex == i) {
+                    attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+                } else {
+                    if ((wordTag = getWordTagSelector().findRandomWord(userTypedWord)) != null) {
+                        wordTagList.set(i, wordTag);
+                        cacheRemoteVideoAndDisplayThumbnail(wordTag.toString(), i);
                     }
-
-                    wordTag.tag = "";
-                    wordTag.word = lastWord;
-                    attemptAssignWordTagDelayed(lastWord, tokenIndex);
                 }
-
             }
 
         }
+
+
 
         previousTokenIndex = tokenIndex;
 
@@ -1062,7 +1017,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void updateInvalidWords() {
         Editable text = editText.getText();
-        List<String> words = Arrays.asList(text.toString().trim().split("\\s+"));
+        List<String> words = getUserTypedWords();
         invalidWords.retainAll(words);
 
         displayInvalidWords();
@@ -1070,7 +1025,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private boolean notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
-        String[] words = text.toString().toLowerCase().trim().split("\\s+");
+        List<String> words = getUserTypedWords();
 
         invalidWords.clear();
 
@@ -1392,9 +1347,21 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
+    public List<String> getUserTypedWords() {
+        String[] tokens = editText.getText().toString().toLowerCase().trim().split("\\s+");
+        List<String> result = new ArrayList<String>();
+        for (int i = 0; i < tokens.length; i++) {
+            if (!tokens[i].isEmpty()) {
+                result.add(tokens[i]);
+            }
+        }
+
+        return result;
+    }
+
     // list of hashmap where key = word, value = tokenIndex
     private HashMap<String, Integer> getUnassignedWords() {
-        String[] userTypedWords = editText.getText().toString().toLowerCase().trim().split("\\s+");
+        List<String> userTypedWords = getUserTypedWords();
 
         HashMap<String, Integer> result = new HashMap<String, Integer>();
         String word = "";
@@ -1403,8 +1370,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         for (WordTag wordTag : wordTagList) {
             if (!wordTag.isFilled()) {
-                if (index < userTypedWords.length) {
-                    word = userTypedWords[index];
+                if (index < userTypedWords.size()) {
+                    word = userTypedWords.get(index);
                     result.put(word, index);
                 } else {
                     // index exceeds what user typed (delete that entry)
