@@ -863,7 +863,11 @@ public class BardEditorActivity extends BaseActivity implements
 
             if (!wordTagList.get(i).isFilled()) {
                 if (tokenIndex == i) {
-                    attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+                    if (isLeaderPressed) {
+                        attemptAssignWordTag(userTypedWord, tokenIndex);
+                    } else {
+                        attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+                    }
                 } else {
                     if ((wordTag = getWordTagSelector().findRandomWord(userTypedWord)) != null) {
                         wordTagList.set(i, wordTag);
