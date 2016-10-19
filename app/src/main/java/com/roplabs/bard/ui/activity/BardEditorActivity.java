@@ -27,6 +27,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.ScrollingMovementMethod;
+import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
@@ -1824,12 +1825,16 @@ public class BardEditorActivity extends BaseActivity implements
             vpPagerContainer.setLayoutParams(params);
         }
 
-        if (keyboardVisible) {
+
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        int screenHeight = displayMetrics.heightPixels;
+
+        boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
+
+        if (isKeyboardVisible) {
             editText.setHint("Type a message...");
-//            editText.setGravity(Gravity.LEFT | Gravity.CENTER_VERTICAL);
         } else {
             editText.setHint("Tap a word");
-//            editText.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
         }
     }
 
