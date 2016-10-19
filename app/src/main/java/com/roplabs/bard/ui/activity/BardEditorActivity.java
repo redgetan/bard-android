@@ -74,6 +74,7 @@ import retrofit2.Response;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
+import java.util.concurrent.CountDownLatch;
 
 public class BardEditorActivity extends BaseActivity implements
         WordListFragment.OnReadyListener,
@@ -913,9 +914,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                     wordTag.tag = "";
                     wordTag.word = lastWord;
-                    if (nextCharacter.equals("") || nextCharacter.equals(" ")) {
-                        attemptAssignWordTagDelayed(lastWord, tokenIndex);
-                    }
+                    attemptAssignWordTagDelayed(lastWord, tokenIndex);
                 }
 
             }
@@ -1069,7 +1068,7 @@ public class BardEditorActivity extends BaseActivity implements
         displayInvalidWords();
     }
 
-    private void notifyUserOnUnavailableWord() {
+    private boolean notifyUserOnUnavailableWord() {
         Editable text = editText.getText();
         String[] words = text.toString().toLowerCase().trim().split("\\s+");
 
@@ -1082,6 +1081,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         displayInvalidWords();
+        return !invalidWords.isEmpty();
     }
 
 
@@ -1392,23 +1392,90 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
-    public void generateBardVideo() {
-        if (Helper.isConnectedToInternet()) {
-            if (!isWordTagMissing()) {
-                progressBar.setVisibility(View.VISIBLE);
+    // list of hashmap where key = word, value = tokenIndex
+    private HashMap<String, Integer> getUnassignedWords() {
+        String[] userTypedWords = editText.getText().toString().toLowerCase().trim().split("\\s+");
 
-                Analytics.timeEvent(this, "generateBardVideo");
-                List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
-                joinSegments(segments);
-            } else {
-                playMessageBtn.setEnabled(true);
-                notifyUserOnUnavailableWord();
+        HashMap<String, Integer> result = new HashMap<String, Integer>();
+        String word = "";
+
+        int index = 0;
+
+        for (WordTag wordTag : wordTagList) {
+            if (!wordTag.isFilled()) {
+                if (index < userTypedWords.length) {
+                    word = userTypedWords[index];
+                    result.put(word, index);
+                } else {
+                    // index exceeds what user typed (delete that entry)
+                    wordTagList.remove(index);
+                }
             }
+            index++;
+        }
+        return result;
+    }
+
+    public void generateBardVideo() {
+        int tokenIndex = 0;
+        WordTag wordTag;
+
+        if (Helper.isConnectedToInternet()) {
+            HashMap<String, Integer> unassignedWords = getUnassignedWords();
+            if (unassignedWords.size() > 0) {
+                final CountDownLatch responseCountDownLatch = new CountDownLatch(unassignedWords.size());;
+
+                for (String word : unassignedWords.keySet()) {
+                    tokenIndex = unassignedWords.get(word);
+                    wordTag = getWordTagSelector().findRandomWord(word);
+                    if (wordTag != null) {
+                        wordTagList.set(tokenIndex, wordTag);
+                        cacheRemoteVideoAndDisplayThumbnail(wordTag.toString(), tokenIndex, new Storage.OnCacheVideoListener() {
+                            @Override
+                            public void onCacheVideoSuccess(String fileUrl) {
+                                responseCountDownLatch.countDown();
+                            }
+
+                            @Override
+                            public void onCacheVideoFailure() {
+                                Instabug.reportException(new Throwable("unable to cache video for missing wordTag"));
+                            }
+                        });
+                    } else {
+                        responseCountDownLatch.countDown();
+                    }
+                }
+                try {
+                    responseCountDownLatch.await();
+                } catch (InterruptedException e) {
+                    BardLogger.trace(e.getMessage());
+                }
+
+                BardLogger.trace("[fillMissingWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+                performActualMerge();
+            } else {
+                performActualMerge();
+            }
+
         } else {
             playMessageBtn.setEnabled(true);
             // display error
             debugView.setText(R.string.no_network_connection);
             return;
+        }
+    }
+
+
+    private void performActualMerge() {
+        // there are invalid words
+        if (notifyUserOnUnavailableWord()) {
+            playMessageBtn.setEnabled(true);
+        } else {
+            progressBar.setVisibility(View.VISIBLE);
+
+            Analytics.timeEvent(this, "generateBardVideo");
+            List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
+            joinSegments(segments);
         }
     }
 
@@ -1507,6 +1574,32 @@ public class BardEditorActivity extends BaseActivity implements
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
                     generatePreviewTimelineThumbnail(filePath, tokenIndex);
+                }
+
+                @Override
+                public void onCacheVideoFailure() {
+                    Toast.makeText(ClientApp.getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+    }
+
+    private void cacheRemoteVideoAndDisplayThumbnail(String wordTagString, final int tokenIndex, final Storage.OnCacheVideoListener onCacheVideoListener) {
+        if (!Helper.isConnectedToInternet()) {
+            return;
+        }
+
+        String filePath = Storage.getCachedVideoFilePath(wordTagString);
+        if (new File(filePath).exists()) {
+            generatePreviewTimelineThumbnail(filePath, tokenIndex);
+            onCacheVideoListener.onCacheVideoSuccess(filePath);
+        } else {
+            Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
+                @Override
+                public void onCacheVideoSuccess(String filePath) {
+                    BardLogger.trace("video cached at " + filePath);
+                    generatePreviewTimelineThumbnail(filePath, tokenIndex);
+                    onCacheVideoListener.onCacheVideoSuccess(filePath);
                 }
 
                 @Override
