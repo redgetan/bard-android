@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_save">Save</string>
-    <string name="edit_message">says something</string>
+    <string name="edit_message">type something</string>
     <string name="button_send">Send</string>
     <string name="button_keyboard">Keyboard</string>
     <string name="button_word_list">Word List</string>
@@ -40,7 +40,7 @@
     <string name="feedback_btn_string">Give Feedback</string>
     <string name="bard_library">Library</string>
     <string name="compose">Compose</string>
-    <string name="empty_state_repo_title">Make an Actor say anything</string>
+    <string name="empty_state_repo_title">Make an actor say anything</string>
     <string name="empty_state_repo_description">To start, click the button on upper-right
         corner.
     </string>

@@ -1156,16 +1156,16 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void saveRepo(View view) {
-        if (!Setting.isLogined(this)) {
-            loginDialog = new CustomDialog(this);
-            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-            loginDialog.show();
-
-//            askUserToLogin();
-//            Intent intent = new Intent(this, LoginActivity.class);
-//            startActivityForResult(intent, LOGIN_REQUEST_CODE);
-            return;
-        }
+//        if (!Setting.isLogined(this)) {
+//            loginDialog = new CustomDialog(this);
+//            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+//            loginDialog.show();
+//
+////            askUserToLogin();
+////            Intent intent = new Intent(this, LoginActivity.class);
+////            startActivityForResult(intent, LOGIN_REQUEST_CODE);
+//            return;
+//        }
 
         saveRepoBtn.setEnabled(false);
         progressDialog = new ProgressDialog(this);
