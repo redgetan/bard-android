@@ -187,11 +187,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         int end = getSelectionEnd();
         boolean isInFrontOfWord = mTokenizer.findTokenEnd(getText(), end + 1) > end;
 
-        if (isInFrontOfWord) {
-            return getText().subSequence(0, end + 1).toString().trim().split("\\s+").length - 1;
-        } else {
-            return getText().subSequence(0, end).toString().trim().split("\\s+").length - 1;
-        }
+        return getText().subSequence(0, end).toString().trim().split("\\s+").length - 1;
     }
 
     public int getTokenCount() {

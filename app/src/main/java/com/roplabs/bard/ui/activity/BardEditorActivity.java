@@ -840,6 +840,15 @@ public class BardEditorActivity extends BaseActivity implements
             int tokenIndexToDelete = previousTokenIndex - diff + 1;
             wordTagList.remove(tokenIndexToDelete);
             removeThumbnailFromTimeline(tokenIndexToDelete);
+
+            // if you remove a thumbnail, make sure to select previous one if it exists
+            int tokenIndexToSelect = tokenIndexToDelete - 1;
+            if (tokenIndexToSelect > 0 && tokenIndexToSelect < previewTimeline.getChildCount()) {
+                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndexToSelect);
+                setCurrentImageView(imageView);
+                imageView.setSelected(true);
+                scrollPreviewTimelineToImageDelayed(imageView);
+            }
         }
 
         // ADD ITEMS at correct position if needed
@@ -1723,6 +1732,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void scrollPreviewTimelineToImageDelayed(final ImageView imageView) {
         if (scrollToThumbnailRunnable != null) {
             scrollToThumbnailHandler.removeCallbacks(scrollToThumbnailRunnable);
+            scrollToThumbnailRunnable = null;
         }
 
         scrollToThumbnailRunnable = new Runnable(){
