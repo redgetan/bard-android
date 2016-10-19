@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
@@ -14,6 +15,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -49,6 +51,7 @@ public class RepoListActivity extends BaseActivity {
 
 
     private FrameLayout emptyStateContainer;
+    private Button emptyStartBtn;
     private RepoListAdapter adapter;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
     public static final String REPO_TOKEN_MESSAGE = "com.roplabs.bard.REPO_TOKEN";
@@ -61,15 +64,18 @@ public class RepoListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_list);
 
-        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_repo_container);
-
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.bard_library);
 
+        initEmptyState();
         displayRepoList();
         initNavigationViewDrawer();
         askStoragePermission();
 
+    }
+
+    private void initEmptyState() {
+        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_repo_container);
     }
 
     @Override

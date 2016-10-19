@@ -208,6 +208,14 @@ public class BardEditorActivity extends BaseActivity implements
         notifyInvalidWordsHandler = new Handler();
         scrollToThumbnailHandler = new Handler();
 
+        // video container aspect ratio should be 1.7 of device width
+        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+        int deviceWidth = displayMetrics.widthPixels;
+        int playerHeight = (int) (deviceWidth / 1.7);
+        ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+        params.height = playerHeight;
+        vpPagerContainer.setLayoutParams(params);
+
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
         JSONObject properties = new JSONObject();
@@ -1818,7 +1826,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight) {
-        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight();
+        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
         if (keyboardWordTagDiff > 0) {
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
             params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;

@@ -237,7 +237,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
     }
 
     private void initVideoPlayer() {
-
         // video
         previewTagView.setOpaque(false);
         previewTagView.setSurfaceTextureListener(this);
