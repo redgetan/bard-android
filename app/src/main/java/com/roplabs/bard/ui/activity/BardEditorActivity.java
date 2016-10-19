@@ -827,6 +827,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void updateWordTagList(CharSequence s, int start) {
         clearAssignWOrdTagRunnable();
 
+        String character = editText.getAddedChar(start);
         boolean isLeaderPressed = character.equals(" ");
         int tokenCount = editText.getTokenCount();
         int tokenIndex = editText.getTokenIndex();
@@ -917,6 +918,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void clearAssignWOrdTagRunnable() {
         if (attemptWordTagAssignRunnable != null) {
             wordTagAssignHandler.removeCallbacks(attemptWordTagAssignRunnable);
+            attemptWordTagAssignRunnable = null;
         }
     }
 
@@ -1742,7 +1744,7 @@ public class BardEditorActivity extends BaseActivity implements
             int halfWidth = (int) imageView.getWidth() / 2;
             int halfWidthScrollView = (int) previewTimelineScrollView.getWidth() / 2;
             int scrollPos = endPos + halfWidth - halfWidthScrollView;
-            previewTimelineScrollView.scrollTo(scrollPos, 0);
+            previewTimelineScrollView.smoothScrollTo(scrollPos, 0);
         }
     }
 
