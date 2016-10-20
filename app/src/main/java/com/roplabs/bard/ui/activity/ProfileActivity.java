@@ -21,6 +21,7 @@ import org.w3c.dom.Text;
 // http://stackoverflow.com/a/34760299/803865
 public class ProfileActivity extends BaseActivity {
     private final int LOGIN_REQUEST_CODE = 2;
+    private final int NUM_OF_ROW_ITEMS = 9;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -104,9 +105,9 @@ public class ProfileActivity extends BaseActivity {
         ViewGroup container = (ViewGroup) findViewById(R.id.profile_details_container);
         assert container != null;
 
-        int numRows = Setting.isLogined(this) ? 7 : 6; // if not logged in, dont show last row (logout)
+        int numRows = Setting.isLogined(this) ? NUM_OF_ROW_ITEMS : NUM_OF_ROW_ITEMS - 1; // if not logged in, dont show last row (logout)
 
-        for (int i = 0; i <= numRows; i++) {
+        for (int i = 0; i < numRows; i++) {
             View profileRow = getLayoutInflater().inflate(R.layout.profile_row_item, null);
             TextView textView = (TextView) profileRow.findViewById(R.id.profile_detail_text);
 
