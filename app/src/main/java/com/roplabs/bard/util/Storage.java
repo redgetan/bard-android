@@ -48,7 +48,7 @@ public class Storage {
     }
 
     public static String getCacheKey(String wordTagString) {
-        String key = TextUtils.join("",wordTagString.split(":"));
+        String key = TextUtils.join("-",wordTagString.split(":")).toLowerCase();
         key = key.replaceAll("[^a-z0-9_-]","_"); // only allow valid keys, replace invalid with _
         return key;
     }

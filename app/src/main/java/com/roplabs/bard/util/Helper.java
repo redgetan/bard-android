@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import retrofit2.Response;
 
 import java.io.*;
+import java.util.Locale;
 
 public class Helper {
 
@@ -111,6 +112,32 @@ public class Helper {
         } else {
             return "ffmpeg";
         }
+    }
+
+    private static boolean hasNeon() {
+        String archInfo = getArchInfo();
+        return archInfo.toLowerCase(Locale.ENGLISH).contains("neon");
+    }
+
+    private static String getArchInfo() {
+        StringBuffer sb = new StringBuffer();
+
+        if (new File("/proc/cpuinfo").exists()) {
+            try {
+                BufferedReader br = new BufferedReader(new FileReader(new File("/proc/cpuinfo")));
+                String aLine;
+                while ((aLine = br.readLine()) != null) {
+                    sb.append(aLine + "\n");
+                }
+                if (br != null) {
+                    br.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return sb.toString();
     }
 
 
