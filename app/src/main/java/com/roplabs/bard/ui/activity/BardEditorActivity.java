@@ -187,6 +187,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
+        editText.setEnabled(false);
 
         shareListView = (GridView) findViewById(R.id.social_share_list);
         saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
@@ -443,6 +444,7 @@ public class BardEditorActivity extends BaseActivity implements
         reloadWordTagViewData(wordTagStringList);
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
+        editText.setEnabled(true);
         previewTimelineScrollView.setHorizontalScrollBarEnabled(true);
     }
 

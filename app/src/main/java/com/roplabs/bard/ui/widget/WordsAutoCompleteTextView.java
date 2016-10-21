@@ -16,6 +16,7 @@ import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.PreviewWordEvent;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.util.BardLogger;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
@@ -180,7 +181,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public String getAddedChar(int start) {
-        return getText().subSequence(start,getSelectionEnd()).toString().toLowerCase();
+        try {
+            return getText().subSequence(start,getSelectionEnd()).toString().toLowerCase();
+        } catch (StringIndexOutOfBoundsException e) {
+            BardLogger.trace("getAddedChar: " + e.getMessage());
+            return " ";
+        }
     }
 
     public int getTokenIndex() {
