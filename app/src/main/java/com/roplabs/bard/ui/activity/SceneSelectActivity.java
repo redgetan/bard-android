@@ -19,6 +19,8 @@ import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
+import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
@@ -27,86 +29,84 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class SceneSelectActivity extends BaseActivity {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
-    private String characterToken;
-    private String previousSceneToken;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    public List<Scene> sceneList;
+    private EndlessRecyclerViewScrollListener scrollListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         BardLogger.log("Scene Select onCreate");
 
-        mContext = this;
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scene_select);
 
+        mContext = this;
+        recyclerView = (RecyclerView) findViewById(R.id.scene_list);
+        progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
+
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
-
-
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_scene);
 
-        progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
+        initScenes();
 
-        Intent intent = getIntent();
-        characterToken = intent.getStringExtra("characterToken");
-        previousSceneToken = intent.getStringExtra("previousSceneToken");
-
-        RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
-        displaySceneList(scenes);
-
-        if (scenes.size() == 0) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
-
-        syncRemoteData();
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("page",String.valueOf(1));
+        syncRemoteData(map);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home:
-                returnToBardEditor();
-                return(true);
-        }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case android.R.id.home:
+//                returnToBardEditor();
+//                return(true);
+//        }
+//
+//        return(super.onOptionsItemSelected(item));
+//    }
 
-        return(super.onOptionsItemSelected(item));
-    }
+//    @Override
+//    public void onBackPressed() {
+//        returnToBardEditor();
+//    }
 
-    @Override
-    public void onBackPressed() {
-        returnToBardEditor();
-    }
+    private void syncRemoteData(Map<String, String> options) {
+        progressBar.setVisibility(View.VISIBLE);
 
-    private void returnToBardEditor() {
-        Intent intent = new Intent();
-        intent.putExtra("characterToken", characterToken);
-        BardLogger.log("prev sceneToken: " + previousSceneToken);
-        intent.putExtra("sceneToken", previousSceneToken);
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
-    private void syncRemoteData() {
-        Call<List<Scene>> call = BardClient.getAuthenticatedBardService().listScenes(characterToken);
+        Call<List<Scene>> call = BardClient.getAuthenticatedBardService().listScenes(options);
         call.enqueue(new Callback<List<Scene>>() {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
-                List<Scene> sceneList = response.body();
-                Scene.setNameAndThumbnails(sceneList);
+                List<Scene> remoteSceneList = response.body();
+                for (Scene scene : remoteSceneList) {
+                    if (Scene.forToken(scene.getToken()) == null) {
+                        // create if scene doesnt exist yet
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl());
+                        realm.commitTransaction();
+                    }
+                }
                 progressBar.setVisibility(View.GONE);
-                ((SceneListAdapter) recyclerView.getAdapter()).swap(sceneList);
+                int oldPosition = sceneList.size();
+                sceneList.addAll(remoteSceneList);
+                recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, remoteSceneList.size());
             }
 
             @Override
             public void onFailure(Call<List<Scene>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
                 if (Scene.findAll().size() == 0) {
                     Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_SHORT).show();
                 }
@@ -125,17 +125,17 @@ public class SceneSelectActivity extends BaseActivity {
         super.onPause();
     }
 
-    public void displaySceneList(List<Scene> sceneList) {
-        BardLogger.log("displaying scenes count: " + sceneList.size());
-
-        recyclerView = (RecyclerView) findViewById(R.id.scene_list);
-        SceneListAdapter adapter = new SceneListAdapter(this, sceneList);
+    public void initScenes() {
         final Context self = this;
+
+        this.sceneList = new ArrayList<Scene>();
+
+        // set adapter
+        SceneListAdapter adapter = new SceneListAdapter(this, this.sceneList);
         adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent();
-                intent.putExtra("characterToken", characterToken);
                 if (scene != null) {
                     intent.putExtra("sceneToken", scene.getToken());
                     BardLogger.trace("[sceneSelect] " + scene.getToken());
@@ -148,10 +148,27 @@ public class SceneSelectActivity extends BaseActivity {
             }
         });
         recyclerView.setAdapter(adapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        // set layout manager
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        recyclerView.setLayoutManager(layoutManager);
+
+        // set decorator
         ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
         recyclerView.addItemDecoration(itemDecoration);
-    }
 
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                Map<String, String> data = new HashMap<String, String>();
+                data.put("page", String.valueOf(page));
+                syncRemoteData(data);
+            }
+        };
+
+        recyclerView.addOnScrollListener(scrollListener);
+    }
 
 }

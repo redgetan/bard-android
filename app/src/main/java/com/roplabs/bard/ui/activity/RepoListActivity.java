@@ -193,7 +193,7 @@ public class RepoListActivity extends BaseActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_compose:
-                Intent intent = new Intent(this, CharacterSelectActivity.class);
+                Intent intent = new Intent(this, SceneSelectActivity.class);
                 startActivity(intent);
                 return true;
             default:
@@ -255,7 +255,7 @@ public class RepoListActivity extends BaseActivity {
 
                         switch ((int) drawerItem.getIdentifier()) {
                             case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(getApplicationContext(), CharacterSelectActivity.class);
+                                intent = new Intent(getApplicationContext(), SceneSelectActivity.class);
                                 startActivity(intent);
                                 break;
                             case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:

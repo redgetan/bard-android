@@ -5,7 +5,7 @@ import com.roplabs.bard.BuildConfig;
 public class Configuration {
     public static String bardAPIBaseURL() {
         if (BuildConfig.BUILD_TYPE.equals("debug")) {
-            return "https://bard.co";
+            return "http://10.0.9.18:3000";
         } else {
             return "https://bard.co";
         }

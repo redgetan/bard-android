@@ -450,7 +450,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initSceneWordList() {
         if (scene.getWordList() == null) {
-            Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(characterToken, sceneToken);
+            Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(sceneToken);
             call.enqueue(new Callback<Scene>() {
                 @Override
                 public void onResponse(Call<Scene> call, Response<Scene> response) {

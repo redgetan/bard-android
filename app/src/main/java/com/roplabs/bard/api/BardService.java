@@ -4,13 +4,11 @@ import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.User;
 import retrofit2.Call;
-import retrofit2.http.Body;
-import retrofit2.http.GET;
-import retrofit2.http.POST;
-import retrofit2.http.Path;
+import retrofit2.http.*;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public interface BardService {
     @POST("users/sign_in")
@@ -22,11 +20,11 @@ public interface BardService {
     @GET("bundles")
     Call<List<Character>> listCharacters();
 
-    @GET("bundles/{characterToken}/scenes")
-    Call<List<Scene>> listScenes(@Path("characterToken") String characterToken);
+    @GET("scenes")
+    Call<List<Scene>> listScenes(@QueryMap Map<String, String> options);
 
-    @GET("bundles/{characterToken}/scenes/{sceneToken}/word_list")
-    Call<Scene> getSceneWordList(@Path("characterToken") String characterToken, @Path("sceneToken") String sceneToken);
+    @GET("scenes/{sceneToken}/word_list")
+    Call<Scene> getSceneWordList(@Path("sceneToken") String sceneToken);
 
     @GET("bundles/{characterToken}/word_list")
     Call<HashMap<String, String>> getCharacterWordList(@Path("characterToken") String characterToken);

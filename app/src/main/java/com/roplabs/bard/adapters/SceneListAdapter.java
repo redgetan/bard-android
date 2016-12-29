@@ -51,32 +51,22 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
     // Involves populating data into the item through holder
     @Override
     public void onBindViewHolder(SceneListAdapter.ViewHolder viewHolder, int position) {
-        if (position == 0) {
-            TextView textView = viewHolder.sceneNameView;
-            textView.setText("All");
+        // Get the data model based on position
+        if (sceneList.isEmpty() || position >= sceneList.size() ) return;
 
-            ImageView thumbnail = viewHolder.sceneThumbnail;
-            Bitmap bitmap = BitmapFactory.decodeResource(ClientApp.getContext().getResources(),
-                                                         R.drawable.thumbnail_placeholder);
-            thumbnail.setImageBitmap(bitmap);
-        } else {
+        Scene scene = sceneList.get(position);
 
-            // Get the data model based on position
-            Scene scene = sceneList.get(position - 1);
+        // Set item views based on the data model
+        TextView textView = viewHolder.sceneNameView;
+        textView.setText(scene.getName());
 
-            // Set item views based on the data model
-            TextView textView = viewHolder.sceneNameView;
-            textView.setText(scene.getName());
-
-            ImageView thumbnail = viewHolder.sceneThumbnail;
-            thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            Glide.with(context)
-                    .load(scene.getThumbnailUrl())
-                    .placeholder(R.drawable.thumbnail_placeholder)
-                    .crossFade()
-                    .into(thumbnail);
-        }
-
+        ImageView thumbnail = viewHolder.sceneThumbnail;
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+                .load(scene.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(thumbnail);
 
     }
 
