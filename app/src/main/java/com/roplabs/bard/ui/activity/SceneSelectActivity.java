@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -52,6 +53,8 @@ public class SceneSelectActivity extends BaseActivity  {
     private final static int RIGHT_DRAWABLE_INDEX = 2;
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
     private String lastSearch;
+    private Drawable searchIcon;
+    private Drawable clearIcon;
 
 
     @Override
@@ -66,6 +69,8 @@ public class SceneSelectActivity extends BaseActivity  {
         recyclerView = (RecyclerView) findViewById(R.id.scene_list);
         progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) findViewById(R.id.video_search_input);
+        searchIcon = searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX];
+        clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
 
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
@@ -82,8 +87,8 @@ public class SceneSelectActivity extends BaseActivity  {
 
     private void initSearch() {
         lastSearch = "";
-        searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX].setAlpha(100); // make search icon opacity set to 50%
-        searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX].setAlpha(0); // make search icon opacity set to 50%
+        searchIcon.setAlpha(100); // make search icon opacity set to 50%
+        clearIcon.setAlpha(0); // invisible at beginning
 
         searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -106,9 +111,9 @@ public class SceneSelectActivity extends BaseActivity  {
                     return true;
                 }
                 if (!searchBar.getText().toString().isEmpty()) {
-                    searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX].setAlpha(100); // make it visible if there's text
+                    clearIcon.setAlpha(100); // make it visible if there's text
                 } else {
-                    searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX].setAlpha(0); // hide if empty
+                    clearIcon.setAlpha(0); // hide if empty
                 }
                 return false;
             }
@@ -123,10 +128,10 @@ public class SceneSelectActivity extends BaseActivity  {
                 final int DRAWABLE_BOTTOM = 3;
 
                 if(event.getAction() == MotionEvent.ACTION_UP) {
-                    if(event.getRawX() >= (searchBar.getRight() - searchBar.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    if(event.getRawX() >= (searchBar.getRight() - clearIcon.getBounds().width())) {
                         // clear button clicked
                         searchBar.setText("");
-                        searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX].setAlpha(0); // hide clear button again
+                        clearIcon.setAlpha(0); // hide clear button again
                         return true;
                     }
                 }
