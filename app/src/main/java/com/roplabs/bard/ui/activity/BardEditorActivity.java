@@ -139,11 +139,8 @@ public class BardEditorActivity extends BaseActivity implements
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private Button playMessageBtn;
-    private ImageView toggleWordListBtn;
-    private LinearLayout previewTimeline;
     private LinearLayout previewTimelineContainer;
     private LinearLayout videoResultContent;
-    private HorizontalScrollView previewTimelineScrollView;
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
     private GridView shareListView;
@@ -175,11 +172,8 @@ public class BardEditorActivity extends BaseActivity implements
         wordTagList = new LinkedList<WordTag>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         playMessageBtn = (Button) findViewById(R.id.play_message_btn);
-        toggleWordListBtn = (ImageView) findViewById(R.id.toggleWordListBtn);
-        previewTimeline = (LinearLayout) findViewById(R.id.preview_timeline);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
-        previewTimelineScrollView = (HorizontalScrollView) findViewById(R.id.preview_timeline_scrollview);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         initWordTagViewListeners();
@@ -197,7 +191,6 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
-        previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
         isWordTagListContainerBlocked = false;
 
         Intent intent = getIntent();
@@ -230,8 +223,6 @@ public class BardEditorActivity extends BaseActivity implements
         }
         Analytics.track(this, "compose", properties);
 
-
-        initPreviewTimeline();
         initVideoStorage();
         initAnalytics();
         initViewPager();
@@ -277,7 +268,6 @@ public class BardEditorActivity extends BaseActivity implements
         if (!sceneToken.isEmpty()) {
             // scene editor
             editText.setVisibility(View.GONE);
-            toggleWordListBtn.setVisibility(View.GONE);
             editTextContainer.setGravity(Gravity.CENTER_HORIZONTAL);
         } else {
             // character editor
@@ -353,16 +343,6 @@ public class BardEditorActivity extends BaseActivity implements
 
             }
         });
-    }
-
-    private void initPreviewTimeline() {
-        // add blank preview slots
-        ImageView imageView;
-
-        for (int i = 0; i < 20; i++) {
-            imageView = createPreviewImageView(null);
-            previewTimeline.addView(imageView,i);
-        }
     }
 
     private void initVideoStorage() {
@@ -448,7 +428,6 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
         editText.setEnabled(true);
-        previewTimelineScrollView.setHorizontalScrollBarEnabled(true);
     }
 
     private void initSceneWordList() {
@@ -592,7 +571,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void loadSceneDictionary() {
         // this is so that there's no annoying horizontal scrollbar showing up for a few seconds (will be re-enabled later)
-        previewTimelineScrollView.setHorizontalScrollBarEnabled(false);
 
         if (scene == null) {
             this.getWordTagSelector().setSceneWordTagMap(new HashMap<String, List<WordTag>>());
@@ -706,7 +684,6 @@ public class BardEditorActivity extends BaseActivity implements
                     int tokenIndex = editText.getTokenIndex();
                     BardLogger.trace("[editText click] tokenIndex: " + tokenIndex + " - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                     if (tokenIndex < wordTagList.size()) {
-                        setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
                         currentTokenIndex = tokenIndex;
                         previousTokenIndex = tokenIndex;
                         WordTag wordTag = wordTagList.get(tokenIndex);
@@ -718,20 +695,10 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
 
-        editText.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (recyclerView.isShown()) {
-                    recyclerView.setVisibility(View.GONE);
-                }
-
-                return false;
-            }
-        });
     }
 
     private void updatePlayMessageBtnState() {
-        if (getTimelineEnabledImageViewCount() > 1) {
+        if (wordTagList.size() > 1) {
             playMessageBtn.setEnabled(true);
             playMessageBtn.setVisibility(View.VISIBLE);
         } else {
@@ -760,18 +727,18 @@ public class BardEditorActivity extends BaseActivity implements
     private void onWordTagClick(WordTag wordTag) {
         isWordTagListContainerBlocked = true;
 
-        int beforeTokenCount = editText.getTokenCount();
+//        int beforeTokenCount = editText.getTokenCount();
 
         skipOnTextChangeCallback = true;
-        editText.replaceSelectedText(" " + wordTag.word + " ");
+        editText.replaceText(wordTag.word);
+//        editText.replaceSelectedText(" " + wordTag.word + " ");
         skipOnTextChangeCallback = false;
 
-        int afterTokenCount = editText.getTokenCount();
+//        int afterTokenCount = editText.getTokenCount();
 
         currentTokenIndex = editText.getTokenIndex();
 
-        if (afterTokenCount > beforeTokenCount) {
-            previewTimeline.addView(createPreviewImageView(null), currentTokenIndex);
+        if (currentTokenIndex >= wordTagList.size()) {
             wordTagList.add(currentTokenIndex,wordTag);
         } else {
             wordTagList.set(currentTokenIndex,wordTag);
@@ -779,9 +746,12 @@ public class BardEditorActivity extends BaseActivity implements
 
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
-        setCurrentImageView((ImageView) previewTimeline.getChildAt(currentTokenIndex));
-
         getWordListFragment().setWordTag(wordTag);
+    }
+
+
+    public void addWord(View view) {
+        editText.getText().insert(editText.getSelectionStart(), " ");
     }
 
     @Override
@@ -808,8 +778,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onSuccessfulWordTagAssign(WordTag wordTag, int tokenIndex) {
         if (wordTag != null && !wordTagList.get(tokenIndex).isFilled()) {
-            setImageViewAndAddIfNeeded(tokenIndex);
-
             // assign tag
             wordTagList.set(tokenIndex, wordTag);
             getWordListFragment().setWordTag(wordTag);
@@ -818,25 +786,10 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onSuccessfulWordTagAdd(WordTag wordTag, int tokenIndex) {
         if (wordTag != null) {
-            setImageViewAndAddIfNeeded(tokenIndex);
             wordTagList.add(tokenIndex,wordTag);
             getWordListFragment().setWordTag(wordTag);
         }
     }
-
-    private void setImageViewAndAddIfNeeded(int tokenIndex) {
-        // if number of enabled imageview in timeline is less than number of words in wordtaglist
-        // insert at current character a new bitmap slot for onVideoThumbnail changed to fill,
-        // else change current bitmap slot
-        if (getTimelineEnabledImageViewCount() < wordTagList.size()) {
-            ImageView emptyImageView = createPreviewImageView(null);
-            previewTimeline.addView(emptyImageView, tokenIndex);
-            setCurrentImageView(emptyImageView);
-        } else {
-            setCurrentImageView((ImageView) previewTimeline.getChildAt(tokenIndex));
-        }
-    }
-
 
     private void updateWordTagList(CharSequence s, int start) {
         clearAssignWOrdTagRunnable();
@@ -853,16 +806,6 @@ public class BardEditorActivity extends BaseActivity implements
             int diff = wordTagList.size() - tokenCount ;
             int tokenIndexToDelete = previousTokenIndex - diff + 1;
             wordTagList.remove(tokenIndexToDelete);
-            removeThumbnailFromTimeline(tokenIndexToDelete);
-
-            // if you remove a thumbnail, make sure to select previous one if it exists
-            int tokenIndexToSelect = tokenIndexToDelete - 1;
-            if (tokenIndexToSelect > 0 && tokenIndexToSelect < previewTimeline.getChildCount()) {
-                ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndexToSelect);
-                setCurrentImageView(imageView);
-                imageView.setSelected(true);
-                scrollPreviewTimelineToImageDelayed(imageView);
-            }
         }
 
         // ADD ITEMS at correct position if needed
@@ -915,15 +858,6 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn.setVisibility(View.GONE);
     }
 
-    private void removeThumbnailFromTimeline(int tokenIndex) {
-        ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
-        if (imageView != null) {
-            previewTimeline.removeView(imageView);
-            previewTimeline.addView(createPreviewImageView(null));
-            updatePlayMessageBtnState();
-        }
-    }
-
     private void attemptAssignWordTagDelayed(final String word, final int tokenIndex) {
         clearAssignWOrdTagRunnable();
 
@@ -956,24 +890,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void shareRepo(View view) {
         startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
-    }
-
-    public void toggleWordList(View view) {
-        if (recyclerView.isShown()) {
-            recyclerView.setVisibility(View.GONE);
-            this.showKeyboard();
-        } else {
-            recyclerView.setVisibility(View.VISIBLE);
-            this.hideKeyboard();
-        }
-    }
-
-    public void startSceneSelect(View view) {
-//        Intent intent = new Intent(this, SceneSelectActivity.class);
-//        intent.putExtra("characterToken", character.getToken());
-//        intent.putExtra("previousSceneToken", sceneToken);
-//        startActivityForResult(intent, SCENE_SELECT_REQUEST_CODE);
-//        startActivity(intent);
     }
 
     @Override
@@ -1029,19 +945,6 @@ public class BardEditorActivity extends BaseActivity implements
                     .into(this.sceneSelectBtn);
             this.sceneSelectBtn.setAlpha(1.0f);
         }
-    }
-
-    private int getTimelineEnabledImageViewCount() {
-        int childCount = previewTimeline.getChildCount();
-        int enabledCount = 0;
-
-        for (int i = 0; i < childCount; i++) {
-            if (previewTimeline.getChildAt(i).isEnabled()) {
-                enabledCount++;
-            }
-        }
-
-        return enabledCount;
     }
 
     private void updateInvalidWords() {
@@ -1536,7 +1439,6 @@ public class BardEditorActivity extends BaseActivity implements
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         if (new File(filePath).exists()) {
             playWordTag(filePath);
-            generatePreviewTimelineThumbnail(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
             Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
@@ -1544,7 +1446,6 @@ public class BardEditorActivity extends BaseActivity implements
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
                     playWordTag(filePath);
-                    generatePreviewTimelineThumbnail(filePath);
                     progressBar.setVisibility(View.GONE);
                 }
 
@@ -1563,13 +1464,11 @@ public class BardEditorActivity extends BaseActivity implements
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         if (new File(filePath).exists()) {
-            generatePreviewTimelineThumbnail(filePath, tokenIndex);
         } else {
             Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
-                    generatePreviewTimelineThumbnail(filePath, tokenIndex);
                 }
 
                 @Override
@@ -1587,14 +1486,12 @@ public class BardEditorActivity extends BaseActivity implements
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         if (new File(filePath).exists()) {
-            generatePreviewTimelineThumbnail(filePath, tokenIndex);
             onCacheVideoListener.onCacheVideoSuccess(filePath);
         } else {
             Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
-                    generatePreviewTimelineThumbnail(filePath, tokenIndex);
                     onCacheVideoListener.onCacheVideoSuccess(filePath);
                 }
 
@@ -1609,6 +1506,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void playWordTag(String filePath) {
         if (getWordListFragment() != null) {
             getWordListFragment().playPreview(filePath);
+            isWordTagListContainerBlocked = false;
         }
     }
 
@@ -1706,122 +1604,6 @@ public class BardEditorActivity extends BaseActivity implements
             getWordListFragment().setOnWordTagChangedListener(this);
             getWordListFragment().setOnPreviewPlayerPreparedListener(this);
         }
-    }
-
-
-
-
-    public void generatePreviewTimelineThumbnail(String filePath) {
-        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MICRO_KIND);
-        if (currentImageView != null) {
-            currentImageView.setImageBitmap(bitmap);
-            currentImageView.setEnabled(true);
-            updatePlayMessageBtnState();
-        } else {
-            currentImageView = createPreviewImageView(bitmap);
-            previewTimeline.addView(currentImageView, currentTokenIndex);
-        }
-
-        currentImageView.setSelected(true);
-        isWordTagListContainerBlocked = false;
-
-        scrollPreviewTimelineToImageDelayed(currentImageView);
-    }
-
-    public void generatePreviewTimelineThumbnail(String filePath, int tokenIndex) {
-        Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(filePath, MediaStore.Video.Thumbnails.MICRO_KIND);
-        ImageView imageView = (ImageView) previewTimeline.getChildAt(tokenIndex);
-        if (imageView != null) {
-            imageView.setImageBitmap(bitmap);
-            imageView.setEnabled(true);
-            updatePlayMessageBtnState();
-        } else {
-            imageView = createPreviewImageView(bitmap);
-            previewTimeline.addView(imageView, tokenIndex);
-        }
-
-        scrollPreviewTimelineToImageDelayed(imageView);
-    }
-
-    private void scrollPreviewTimelineToImageDelayed(final ImageView imageView) {
-        if (scrollToThumbnailRunnable != null) {
-            scrollToThumbnailHandler.removeCallbacks(scrollToThumbnailRunnable);
-            scrollToThumbnailRunnable = null;
-        }
-
-        scrollToThumbnailRunnable = new Runnable(){
-            @Override
-            public void run(){
-                scrollPreviewTimelineToImage(imageView);
-                scrollToThumbnailRunnable = null;
-            }
-        };
-
-        scrollToThumbnailHandler.postDelayed(scrollToThumbnailRunnable, 300);
-    }
-
-    private void scrollPreviewTimelineToImage(ImageView imageView) {
-        Rect scrollBounds = new Rect();
-        previewTimelineScrollView.getHitRect(scrollBounds);
-        if (!imageView.getLocalVisibleRect(scrollBounds)) {
-            int endPos    = (int) imageView.getX();
-            int halfWidth = (int) imageView.getWidth() / 2;
-            int halfWidthScrollView = (int) previewTimelineScrollView.getWidth() / 2;
-            int scrollPos = endPos + halfWidth - halfWidthScrollView;
-            previewTimelineScrollView.smoothScrollTo(scrollPos, 0);
-        }
-    }
-
-    public ImageView createPreviewImageView(Bitmap bitmap) {
-        ImageView imageView = new SquareImageView(this);
-
-        if (bitmap != null) {
-            imageView.setImageBitmap(bitmap);
-        } else {
-            imageView.setEnabled(false);
-        }
-
-        imageView.setBackgroundResource(R.drawable.selector_preview_image);
-        LinearLayout.LayoutParams layoutParams = new LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.MATCH_PARENT);
-        imageView.setLayoutParams(layoutParams);
-        imageView.setScaleType(ImageView.ScaleType.FIT_XY);
-        imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                setCurrentImageView((ImageView) v);
-                v.setSelected(true);
-
-                int tokenIndex = previewTimeline.indexOfChild(v);
-
-                BardLogger.trace("[imageView click] image: " + tokenIndex + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
-
-                HashMap<String,Integer> result = SpaceTokenizer.findStartStopOfNthToken(editText.getText(), tokenIndex);
-                if (result.get("start") >= 0 && result.get("stop") >= 0) {
-                    editText.setSelection(result.get("start"), result.get("stop"));
-                }
-
-                if (tokenIndex < wordTagList.size()) {
-                    WordTag wordTag = wordTagList.get(tokenIndex);
-                    if (wordTag.isFilled()) {
-                        getWordListFragment().setWordTag(wordTag);
-                    }
-                }
-
-                previousTokenIndex = tokenIndex;
-            }
-        });
-
-        return imageView;
-    }
-
-    private void setCurrentImageView(ImageView imageView) {
-        currentImageView = imageView;
-
-        if (lastImageView != null && lastImageView != imageView) {
-            lastImageView.setSelected(false);
-        }
-
-        lastImageView = currentImageView;
     }
 
     @Override

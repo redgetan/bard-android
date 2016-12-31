@@ -28,22 +28,11 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/close_editor"/>
-
-            <HorizontalScrollView
-                    android:id="@+id/preview_timeline_scrollview"
-                    android:layout_width="0dp"
-                    android:layout_weight="1"
+            <View
+                    android:layout_width="wrap_content"
                     android:layout_height="match_parent"
-            >
-                <LinearLayout
-                        android:id="@+id/preview_timeline"
-                        android:background="@color/iron"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:orientation="horizontal" >
-                    <!-- child views in here -->
-                </LinearLayout>
-            </HorizontalScrollView>
+                    android:layout_weight="1"
+            ></View>
 
             <Button
                     android:id="@+id/play_message_btn"
@@ -126,10 +115,12 @@
         <LinearLayout   xmlns:android="http://schemas.android.com/apk/res/android"
                         xmlns:tools="http://schemas.android.com/tools"
                         android:id="@+id/bard_text_entry"
+                        android:background="@color/light_iron"
                         android:layout_below="@id/vp_pager_container"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:paddingTop="10dp"
+                        android:paddingLeft="5dp"
                         android:paddingBottom="10dp"
                         android:gravity="center_vertical"
                         android:orientation="horizontal"
@@ -142,7 +133,6 @@
                     android:layout_marginLeft="20dp"
                     android:layout_marginRight="10dp"
                     android:layout_marginEnd="5dp"
-                    android:onClick="startSceneSelect"
                     android:alpha="0.3"
                     android:src="@drawable/ic_add_black_24dp"
                     android:contentDescription="@string/scene_select"/>
@@ -155,25 +145,27 @@
                                                                   android:textSize="14sp"
                                                                   android:layout_marginRight="5dp"
                                                                   android:gravity="center_horizontal|center_vertical"
-                                                                  android:background="@android:color/transparent"
-                                                                  android:layout_height="wrap_content"
+                                                                  android:background="@drawable/editor_input_background"
+                                                                  android:layout_height="24dp"
                                                                   android:layout_weight="1"
                                                                   android:completionThreshold="1"
                                                                   android:inputType="textNoSuggestions"
                                                                   android:hint="@string/edit_message"/>
 
-            <ImageView
-                    android:id="@+id/toggleWordListBtn"
+            <Button
+                    android:id="@+id/add_word_btn"
+                    android:onClick="addWord"
+                    android:enabled="true"
+                    android:background="@android:color/transparent"
+                    android:textColor="@color/md_blue_500"
+                    android:layout_marginLeft="5dp"
+                    android:layout_marginRight="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:minWidth="50dp"
+                    android:textAllCaps="false"
+                    android:text="Add"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="10dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_marginEnd="10dp"
-                    android:onClick="toggleWordList"
-                    android:alpha="0.3"
-                    android:src="@drawable/ic_keyboard_black_24dp"
-                    android:contentDescription="@string/button_keyboard"/>
-
+                    android:layout_height="25dp" />
 
 
         </LinearLayout>

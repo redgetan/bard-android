@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.widget;
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.Selection;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.method.QwertyKeyListener;
@@ -156,23 +157,32 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         this.recyclerView = recyclerView;
     }
 
+    /**
+     * MODIFIED: on last line "editable.replace", we replace with text instead of mTokenizer.terminateToken(text)
+     *
+     * <p>Performs the text completion by replacing the range from
+     * {@link MultiAutoCompleteTextView.Tokenizer#findTokenStart} to {@link #getSelectionEnd} by the
+     * the result of passing <code>text</code> through
+     * {@link MultiAutoCompleteTextView.Tokenizer#terminateToken}.
+     * In addition, the replaced region will be marked as an AutoText
+     * substition so that if the user immediately presses DEL, the
+     * completion will be undone.
+     * Subclasses may override this method to do some different
+     * insertion of the content into the edit box.</p>
+     *
+     * @param text the selected suggestion in the drop down list
+     */
     public void replaceText(CharSequence text) {
         clearComposingText();
 
         int end = getSelectionEnd();
-
-        // "was " - if current cursor is one space after a word (this will allow
-        //          the word to be found)
-        if (end > 1 && getText().subSequence(end - 1, end).toString().equals(" ")) {
-           end--;
-        }
         int start = mTokenizer.findTokenStart(getText(), end);
 
         Editable editable = getText();
-        editable.replace(start, end, mTokenizer.terminateToken(text));
+        String original = TextUtils.substring(editable, start, end);
 
-        lastStart = mTokenizer.findTokenStart(getText(), end);
-        lastEnd   = mTokenizer.findTokenEnd(getText(), end);
+        QwertyKeyListener.markAsReplaced(editable, start, end, original);
+        editable.replace(start, end, text);
     }
 
     public void replaceSelectedText(CharSequence text) {
