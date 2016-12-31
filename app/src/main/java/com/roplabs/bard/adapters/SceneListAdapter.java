@@ -73,7 +73,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
     // Return the total count of items
     @Override
     public int getItemCount() {
-        return sceneList.size() + 1;
+        return sceneList.size();
     }
 
     private static OnItemClickListener listener;

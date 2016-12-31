@@ -201,9 +201,10 @@ public class BardEditorActivity extends BaseActivity implements
         isWordTagListContainerBlocked = false;
 
         Intent intent = getIntent();
-        characterToken = intent.getStringExtra("characterToken");
+//        characterToken = intent.getStringExtra("characterToken");
+        characterToken = "";
         sceneToken = intent.getStringExtra("sceneToken");
-        character  = Character.forToken(characterToken);
+//        character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
         notifyInvalidWordsHandler = new Handler();
@@ -221,8 +222,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         JSONObject properties = new JSONObject();
         try {
-            properties.put("characterToken", characterToken);
-            properties.put("character", character.getName());
+            properties.put("sceneToken", sceneToken);
+            properties.put("scene", scene.getName());
         } catch (JSONException e) {
             e.printStackTrace();
             Instabug.reportException(e);
@@ -306,7 +307,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (!sceneToken.isEmpty()) {
             title.setText(scene.getName());
         } else {
-            title.setText(character.getName());
+//            title.setText(character.getName());
         }
     }
 
@@ -433,11 +434,13 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.VISIBLE);
         debugView.setText("Initializing");
 
-        if (!sceneToken.isEmpty()) {
-            initSceneWordList();
-        } else {
-            initCharacterWordList();
-        }
+        initSceneWordList();
+
+//        if (!sceneToken.isEmpty()) {
+//            initSceneWordList();
+//        } else {
+//            initCharacterWordList();
+//        }
     }
 
     private void onWordListAvailable(List<String> wordTagStringList) {
@@ -462,7 +465,7 @@ public class BardEditorActivity extends BaseActivity implements
                     scene.setWordList(wordList);
                     realm.commitTransaction();
 
-                    addSceneWordListToDictionary(wordList);
+                    addWordListToDictionary(wordList);
                     onWordListAvailable(scene.getWordListAsList());
                 }
 
@@ -474,7 +477,7 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             });
         } else {
-            addSceneWordListToDictionary(scene.getWordList());
+            addWordListToDictionary(scene.getWordList());
             onWordListAvailable(scene.getWordListAsList());
         }
     }
@@ -966,10 +969,10 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void startSceneSelect(View view) {
-        Intent intent = new Intent(this, SceneSelectActivity.class);
-        intent.putExtra("characterToken", character.getToken());
-        intent.putExtra("previousSceneToken", sceneToken);
-        startActivityForResult(intent, SCENE_SELECT_REQUEST_CODE);
+//        Intent intent = new Intent(this, SceneSelectActivity.class);
+//        intent.putExtra("characterToken", character.getToken());
+//        intent.putExtra("previousSceneToken", sceneToken);
+//        startActivityForResult(intent, SCENE_SELECT_REQUEST_CODE);
 //        startActivity(intent);
     }
 
@@ -1227,7 +1230,7 @@ public class BardEditorActivity extends BaseActivity implements
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("uuid", uuid);
         body.put("word_list", wordList);
-        body.put("character_token", this.characterToken);
+//        body.put("character_token", this.characterToken);
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
 
         call.enqueue(new Callback<HashMap<String, String>>() {
@@ -1271,8 +1274,9 @@ public class BardEditorActivity extends BaseActivity implements
             JSONObject properties = new JSONObject();
             try {
                 properties.put("wordTags", wordTagList);
-                properties.put("characterToken", characterToken);
-                properties.put("character", character.getName());
+                properties.put("sceneToken", sceneToken);
+                properties.put("scene", scene.getName());
+//                properties.put("character", character.getName());
             } catch (JSONException e) {
                 e.printStackTrace();
                 Instabug.reportException(e);
@@ -1482,12 +1486,11 @@ public class BardEditorActivity extends BaseActivity implements
 
         try {
             properties.put("wordTags", wordTagList);
-            properties.put("characterToken", characterToken);
             properties.put("sceneToken", sceneToken);
-            properties.put("character", character.getName());
-            if (scene != null) {
-                properties.put("scene", scene.getName());
-            }
+            properties.put("scene", scene.getName());
+
+//            properties.put("characterToken", characterToken);
+//            properties.put("character", character.getName());
         } catch (JSONException e) {
             e.printStackTrace();
             Instabug.reportException(e);
