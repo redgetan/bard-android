@@ -202,9 +202,9 @@ public class BardEditorActivity extends BaseActivity implements
 
         Intent intent = getIntent();
 //        characterToken = intent.getStringExtra("characterToken");
+//        character  = Character.forToken(characterToken);
         characterToken = "";
         sceneToken = intent.getStringExtra("sceneToken");
-//        character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
         notifyInvalidWordsHandler = new Handler();

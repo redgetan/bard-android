@@ -112,12 +112,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            Scene scene = null;
-
-            // position 0 is reserved for "All" scene, anything greater must be adjusted to 0-index
-            if (position > 0) {
-                scene = sceneList.get(position - 1);
-            }
+            Scene scene = sceneList.get(position);
 
             if (selectedView != null) {
                 selectedView.setSelected(false);

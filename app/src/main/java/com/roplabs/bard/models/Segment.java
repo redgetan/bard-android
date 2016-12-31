@@ -1,5 +1,6 @@
 package com.roplabs.bard.models;
 
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.util.Storage;
 
 import java.util.ArrayList;
@@ -8,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 
 public class Segment {
-
-    public static final String cdnPath = "https://segments.bard.co";
 
     private String word;
     private String sourceUrl;
@@ -44,7 +43,7 @@ public class Segment {
 
         String tag = wordTagString.split(":")[1];
 
-        return cdnPath + "/segments/" +  givenScene.getToken() + "/" + tag + ".mp4";
+        return Configuration.segmentsCdnPath() + "/segments/" +  givenScene.getToken() + "/" + tag + ".mp4";
     }
 
 

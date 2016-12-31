@@ -27,6 +27,14 @@ public class Configuration {
         }
     }
 
+    public static String segmentsCdnPath() {
+        if (BuildConfig.BUILD_TYPE.equals("debug")) {
+            return "https://s3-us-west-2.amazonaws.com/roplabs-mad-staging";
+        } else {
+            return "https://segments.bard.co";
+        }
+    }
+
     public static String s3UserBucket() {
         if (BuildConfig.BUILD_TYPE.equals("debug")) {
             return "roplabs-bard-users-staging";
