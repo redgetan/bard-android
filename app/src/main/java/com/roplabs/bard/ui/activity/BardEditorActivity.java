@@ -174,6 +174,8 @@ public class BardEditorActivity extends BaseActivity implements
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
+        recyclerView.setItemAnimator(null); // prevent blinking animation when notifyItemChanged on adapter is called
+
         initWordTagViewListeners();
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
