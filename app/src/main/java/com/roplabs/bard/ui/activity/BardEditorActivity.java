@@ -179,7 +179,7 @@ public class BardEditorActivity extends BaseActivity implements
         initWordTagViewListeners();
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
-        editText.setEnableAutocomplete(true);
+        editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
         editText.setEnabled(false);
 
