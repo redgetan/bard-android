@@ -18,7 +18,7 @@ public class WordListAdapter extends
     private List<String> wordList;
     private Context context;
     private boolean isWordTagged;
-    private int selectedPos = 0;
+    private int selectedPos = -1;
 
     // Pass in the contact array into the constructor
     public WordListAdapter(Context context, List<String> wordList) {
