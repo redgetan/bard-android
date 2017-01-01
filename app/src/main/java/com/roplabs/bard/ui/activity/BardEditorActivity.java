@@ -226,7 +226,6 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoStorage();
         initAnalytics();
         initViewPager();
-        initMultiAutoComplete();
         updatePlayMessageBtnState();
         initShare();
     }
@@ -396,6 +395,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void initChatText() {
         clearChatCursor();
         initDictionary();
+        initMultiAutoComplete();
     }
 
     private void clearChatCursor() {
@@ -644,6 +644,7 @@ public class BardEditorActivity extends BaseActivity implements
         });
     }
 
+    // only call this when dictionary already initialized (i.e. wordTrie has been built)
     private void initMultiAutoComplete() {
 
 //        TrieAdapter<String> adapter =
