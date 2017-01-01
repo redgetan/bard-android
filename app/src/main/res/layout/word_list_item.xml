@@ -3,7 +3,7 @@
                xmlns:app="http://schemas.android.com/apk/res-auto"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-          android:background="@drawable/word_tag"
+          android:background="@drawable/selector_word_tag"
           android:paddingTop="5dp"
           android:paddingBottom="5dp"
           android:paddingLeft="10dp"

@@ -6,10 +6,7 @@ import android.content.*;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.Rect;
+import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.media.ThumbnailUtils;
@@ -109,6 +106,7 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView lastImageView;
     private int currentTokenIndex;
     private ProgressDialog progressDialog;
+    private View lastClickedWordTagView;
 
     private Runnable attemptWordTagAssignRunnable;
     private Handler wordTagAssignHandler;
@@ -320,6 +318,8 @@ public class BardEditorActivity extends BaseActivity implements
         adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, WordTag wordTag) {
+                lastClickedWordTagView = itemView;
+                lastClickedWordTagView.setEnabled(false);
                 onWordTagClick(wordTag);
             }
         });
@@ -726,6 +726,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onWordTagClick(WordTag wordTag) {
         isWordTagListContainerBlocked = true;
+
 
         skipOnTextChangeCallback = true;
         editText.replaceText(wordTag.word);
@@ -1520,6 +1521,9 @@ public class BardEditorActivity extends BaseActivity implements
         if (getWordListFragment() != null) {
             getWordListFragment().playPreview(filePath);
             isWordTagListContainerBlocked = false;
+            if (lastClickedWordTagView != null) {
+                lastClickedWordTagView.setEnabled(true);
+            }
         }
     }
 

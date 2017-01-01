@@ -41,9 +41,9 @@
     <string name="bard_library">Library</string>
     <string name="compose">Compose</string>
     <string name="empty_state_repo_title">Make an actor say anything. </string>
-    <string name="empty_state_repo_description">To start, click the upper-right button
-        .
-    </string>
+    <string name="empty_state_repo_description">To start, click the upper-right button</string>
+    <string name="empty_state_no_internet_title">No Connection</string>
+    <string name="empty_state_no_internet_description">You are offline. Please try again when you are connected to the internet</string>
     <string name="tell_friend">Invite Friends</string>
     <string name="feedback">Feedback</string>
     <string name="follow_facebook">Follow us on Facebook</string>

@@ -13,10 +13,7 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ProgressBar;
-import android.widget.TextView;
-import android.widget.Toast;
+import android.widget.*;
 import com.lapism.searchview.SearchView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
@@ -26,6 +23,7 @@ import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
+import com.roplabs.bard.util.Helper;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
@@ -55,6 +53,9 @@ public class SceneSelectActivity extends BaseActivity  {
     private String lastSearch;
     private Drawable searchIcon;
     private Drawable clearIcon;
+    private FrameLayout emptyStateContainer;
+    private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
 
 
     @Override
@@ -77,12 +78,21 @@ public class SceneSelectActivity extends BaseActivity  {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_scene);
 
+        initEmptyState();
         initSearch();
         initScenes();
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
         syncRemoteData(map);
+    }
+
+    private void initEmptyState() {
+        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_no_internet_container);
+        emptyStateTitle = (TextView) findViewById(R.id.empty_state_title);
+        emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
+
+        emptyStateContainer.setVisibility(View.GONE);
     }
 
     private void initSearch() {
@@ -179,32 +189,29 @@ public class SceneSelectActivity extends BaseActivity  {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
                 List<Scene> remoteSceneList = response.body();
-                for (Scene scene : remoteSceneList) {
-                    if (Scene.forToken(scene.getToken()) == null) {
-                        // create if scene doesnt exist yet
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl());
-                        realm.commitTransaction();
-                    }
-                }
-                progressBar.setVisibility(View.GONE);
-                int oldPosition = sceneList.size();
-                sceneList.addAll(remoteSceneList);
-                recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, remoteSceneList.size());
 
-                // save last search
-                if (options.get("search") != null) {
-                    lastSearch = options.get("search");
+                if (remoteSceneList == null) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                    emptyStateTitle.setText("Request Failed");
+                    emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                } else {
+                    populateScenes(remoteSceneList, options);
                 }
             }
 
             @Override
             public void onFailure(Call<List<Scene>> call, Throwable t) {
                 progressBar.setVisibility(View.GONE);
-                if (Scene.findAll().size() == 0) {
-                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_SHORT).show();
+                emptyStateContainer.setVisibility(View.VISIBLE);
+
+                if (Helper.isConnectedToInternet()) {
+                    emptyStateTitle.setText("Request Failed");
+                    emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
                 }
+
+//                if (Scene.findAll().size() == 0) {
+//                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_SHORT).show();
+//                }
             }
         });
     }
@@ -224,6 +231,27 @@ public class SceneSelectActivity extends BaseActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
             finish();
+        }
+    }
+
+    private void populateScenes(List<Scene> remoteSceneList, Map<String, String> options) {
+        for (Scene scene : remoteSceneList) {
+            if (Scene.forToken(scene.getToken()) == null) {
+                // create if scene doesnt exist yet
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl());
+                realm.commitTransaction();
+            }
+        }
+        progressBar.setVisibility(View.GONE);
+        int oldPosition = sceneList.size();
+        sceneList.addAll(remoteSceneList);
+        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, remoteSceneList.size());
+
+        // save last search
+        if (options.get("search") != null) {
+            lastSearch = options.get("search");
         }
     }
 
