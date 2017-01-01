@@ -9,6 +9,7 @@ import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.WordTag;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WordListAdapter extends
@@ -22,7 +23,11 @@ public class WordListAdapter extends
 
     // Pass in the contact array into the constructor
     public WordListAdapter(Context context, List<String> wordList) {
-        this.wordList = wordList;
+        if (wordList != null) {
+            this.wordList = wordList;
+        } else {
+            this.wordList = new ArrayList<String>();
+        }
         this.context = context;
     }
 

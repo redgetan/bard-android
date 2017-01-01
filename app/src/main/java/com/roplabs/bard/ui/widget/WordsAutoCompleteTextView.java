@@ -288,7 +288,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
             WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
-//            recyclerView.setAdapter(adapter);
+            recyclerView.setAdapter(adapter);
             onFilterComplete(results.count);
         }
     }
