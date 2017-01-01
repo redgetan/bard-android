@@ -188,7 +188,7 @@ public class WordTagSelector {
 
     public WordTag getWordTagFromList(List<WordTag> wordTagList, int index) {
         WordTag wordTag = wordTagList.get(index);
-        return new WordTag(wordTag.toString()); // return a copy (we dont want original wordTag from dict to be modified)
+        return new WordTag(wordTag); // return a copy (we dont want original wordTag from dict to be modified)
     }
 
     private boolean isWordNotInDatabase(String word) {

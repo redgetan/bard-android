@@ -18,6 +18,7 @@ public class WordListAdapter extends
     private List<String> wordList;
     private Context context;
     private boolean isWordTagged;
+    private int selectedPos = 0;
 
     // Pass in the contact array into the constructor
     public WordListAdapter(Context context, List<String> wordList) {
@@ -61,6 +62,14 @@ public class WordListAdapter extends
 
         // Set item views based on the data model
         viewHolder.tagView.setText(word);
+
+        viewHolder.tagView.setSelected(selectedPos == position);
+    }
+
+    public void selectViewByPosition(int targetPosition) {
+        notifyItemChanged(selectedPos);
+        selectedPos = targetPosition;
+        notifyItemChanged(selectedPos);
     }
 
     // Return the total count of items
@@ -110,7 +119,7 @@ public class WordListAdapter extends
 
             int position = getLayoutPosition();
             String wordTagString = wordList.get(position);
-            WordTag wordTag = new WordTag(wordTagString);
+            WordTag wordTag = new WordTag(wordTagString, position);
 
             if (listener != null) {
                 listener.onItemClick(v, position, wordTag);

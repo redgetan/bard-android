@@ -668,6 +668,8 @@ public class BardEditorActivity extends BaseActivity implements
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
+
+                    // update output wordTagList
                     updateWordTagList(s, start);
                 }
             }
@@ -742,6 +744,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
+        focusOnWordTag(wordTag);
+
         getWordListFragment().setWordTag(wordTag);
         updatePlayMessageBtnState();
     }
@@ -756,8 +760,18 @@ public class BardEditorActivity extends BaseActivity implements
         if (!wordTag.isFilled()) return;
         BardLogger.trace("onWordTagChanged: " + wordTag.toString());
         drawWordTagNavigatorState();
-        recyclerView.scrollToPosition(wordTag.position);
+        focusOnWordTag(wordTag);
         playRemoteVideoAndDisplayThubmnail(wordTag.toString());
+    }
+
+    private void focusOnWordTag(WordTag wordTag) {
+        int position = wordTag.position;
+
+        ((WordListAdapter) recyclerView.getAdapter()).selectViewByPosition(position);
+        if (recyclerView.findViewHolderForAdapterPosition(position) == null) {
+            // if view is outside of recycylerview bounds, scroll to it
+            recyclerView.scrollToPosition(position);
+        }
     }
 
     private void drawWordTagNavigatorState() {

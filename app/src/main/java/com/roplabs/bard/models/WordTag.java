@@ -23,6 +23,13 @@ public class WordTag  {
         this.position = position;
     }
 
+    // copy constructor
+    public WordTag(WordTag another) {
+        this.word      = another.word;
+        this.tag       = another.tag;
+        this.position  = another.position;
+    }
+
     public boolean isFilled() {
         return this.tag.length() > 0;
     }
