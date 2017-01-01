@@ -698,7 +698,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void updatePlayMessageBtnState() {
-        if (wordTagList.size() > 1) {
+        if (getFilledWordTagCount() > 1) {
             playMessageBtn.setEnabled(true);
             playMessageBtn.setVisibility(View.VISIBLE);
         } else {
@@ -727,14 +727,9 @@ public class BardEditorActivity extends BaseActivity implements
     private void onWordTagClick(WordTag wordTag) {
         isWordTagListContainerBlocked = true;
 
-//        int beforeTokenCount = editText.getTokenCount();
-
         skipOnTextChangeCallback = true;
         editText.replaceText(wordTag.word);
-//        editText.replaceSelectedText(" " + wordTag.word + " ");
         skipOnTextChangeCallback = false;
-
-//        int afterTokenCount = editText.getTokenCount();
 
         currentTokenIndex = editText.getTokenIndex();
 
@@ -747,6 +742,7 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
         getWordListFragment().setWordTag(wordTag);
+        updatePlayMessageBtnState();
     }
 
 
@@ -781,6 +777,8 @@ public class BardEditorActivity extends BaseActivity implements
             // assign tag
             wordTagList.set(tokenIndex, wordTag);
             getWordListFragment().setWordTag(wordTag);
+
+            updatePlayMessageBtnState();
         }
     }
 
@@ -788,7 +786,21 @@ public class BardEditorActivity extends BaseActivity implements
         if (wordTag != null) {
             wordTagList.add(tokenIndex,wordTag);
             getWordListFragment().setWordTag(wordTag);
+
+            updatePlayMessageBtnState();
         }
+    }
+
+    private int getFilledWordTagCount() {
+        int count = 0;
+
+        for (WordTag wordTag: wordTagList) {
+            if (wordTag.isFilled()) {
+                count++;
+            }
+        }
+
+        return count;
     }
 
     private void updateWordTagList(CharSequence s, int start) {
@@ -846,6 +858,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
 
+        updatePlayMessageBtnState();
 
         previousTokenIndex = tokenIndex;
 
