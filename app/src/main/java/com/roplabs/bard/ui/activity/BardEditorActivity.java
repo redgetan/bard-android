@@ -648,7 +648,7 @@ public class BardEditorActivity extends BaseActivity implements
 
 //        TrieAdapter<String> adapter =
 //                new TrieAdapter<String>(this, android.R.layout.simple_list_item_1, availableWordList, wordTrie);
-//        editText.setAutoCompleteWords(wordTrie);
+        editText.setAutoCompleteWords(wordTrie);
 
         if (isEditTextInitialized) {
             return;

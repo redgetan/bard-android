@@ -125,8 +125,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void setAutoCompleteWords(Trie<String, String> wordTrie) {
         mWordTrie = wordTrie;
 
-        WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), new ArrayList<String>(wordTrie.prefixMap("").keySet()));
-        adapter.setIsWordTagged(false);
+//        WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), new ArrayList<String>(wordTrie.prefixMap("").keySet()));
+//        adapter.setIsWordTagged(false);
 //        recyclerView.setAdapter(adapter);
 
         mFilter = getFilter();
@@ -261,7 +261,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             FilterResults results = new FilterResults();
 
             if (prefix == null || prefix.length() == 0) {
-                Trie<String, String> values = mWordTrie;;
+                Trie<String, String> values = mWordTrie;
 
                 Set<String> set = values.prefixMap("").keySet();
                 final ArrayList<String> newValues = new ArrayList<String>(set);
@@ -271,7 +271,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             } else {
                 String prefixString = prefix.toString().toLowerCase();
 
-                Trie<String, String> values = mWordTrie;;
+                Trie<String, String> values = mWordTrie;
 
                 final int count = values.size();
 
@@ -287,6 +287,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
+            if (results.values != null) {
+                BardLogger.log("publishing filter: " + ((List<String>) results.values).toString());
+            }
             WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
             recyclerView.setAdapter(adapter);
             onFilterComplete(results.count);
