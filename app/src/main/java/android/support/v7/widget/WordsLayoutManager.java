@@ -450,7 +450,7 @@ public class WordsLayoutManager extends LinearLayoutManager {
         private       int              lineThickness;
         private       int              lineStartThickness;
         private       int              lineStartLength;
-        private int MAX_ROW_ITEMS = 4;
+        private int MAX_ROW_ITEMS = 7;
 
         public LineDefinition(ConfigDefinition config) {
             this.config = config;

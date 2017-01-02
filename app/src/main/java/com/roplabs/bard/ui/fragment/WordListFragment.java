@@ -2,8 +2,10 @@ package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.graphics.*;
+import android.graphics.drawable.LayerDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -236,6 +238,22 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         word_tag_status.setText(builder.toString());
     }
 
+    public void fixVideoAspectRatio() {
+        // keep aspect ratio to 16/9
+        Matrix txform = new Matrix();
+        previewTagView.getTransform(txform);
+        int viewHeight = previewTagView.getHeight();
+        int viewWidth = previewTagView.getWidth();
+        int newHeight = viewHeight;
+        int newWidth = (int) (1.7 * viewHeight);
+        int xoff = (viewWidth - newWidth) / 2;
+        int yoff = (viewHeight - newHeight) / 2;
+        txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+        txform.postTranslate(xoff, yoff);
+        previewTagView.setTransform(txform);
+
+    }
+
     private void initVideoPlayer() {
         // video
         previewTagView.setOpaque(false);
@@ -261,6 +279,25 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
                 mediaPlayer.seekTo(0);
                 mediaPlayer.start();
             }
+        });
+
+
+        ViewTreeObserver vto = previewTagView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                fixVideoAspectRatio();
+
+                ViewTreeObserver obs = previewTagView.getViewTreeObserver();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    obs.removeOnGlobalLayoutListener(this);
+                } else {
+                    obs.removeGlobalOnLayoutListener(this);
+                }
+            }
+
         });
 
     }

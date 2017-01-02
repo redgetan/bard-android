@@ -107,6 +107,7 @@ public class BardEditorActivity extends BaseActivity implements
     private int currentTokenIndex;
     private ProgressDialog progressDialog;
     private View lastClickedWordTagView;
+    private WordListFragment wordListFragment;
 
     private Runnable attemptWordTagAssignRunnable;
     private Handler wordTagAssignHandler;
@@ -172,6 +173,12 @@ public class BardEditorActivity extends BaseActivity implements
         playMessageBtn = (Button) findViewById(R.id.play_message_btn);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
+        wordListFragment = new WordListFragment();
+
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.fragment_container, wordListFragment)
+                .commit();
+
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         recyclerView.setItemAnimator(null); // prevent blinking animation when notifyItemChanged on adapter is called
@@ -182,6 +189,8 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
         editText.setEnabled(false);
+        editText.setPrivateImeOptions("nm");
+        editText.setPrivateImeOptions("com.google.android.inputmethod.latin.noMicrophoneKey");
 
         shareListView = (GridView) findViewById(R.id.social_share_list);
         saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
@@ -203,14 +212,6 @@ public class BardEditorActivity extends BaseActivity implements
         notifyInvalidWordsHandler = new Handler();
         scrollToThumbnailHandler = new Handler();
 
-        // video container aspect ratio should be 1.7 of device width
-        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-        int deviceWidth = displayMetrics.widthPixels;
-        int playerHeight = (int) (deviceWidth / 1.7);
-        ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-        params.height = playerHeight;
-        vpPagerContainer.setLayoutParams(params);
-
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
         JSONObject properties = new JSONObject();
@@ -225,9 +226,13 @@ public class BardEditorActivity extends BaseActivity implements
 
         initVideoStorage();
         initAnalytics();
-        initViewPager();
+        initVideoPreview();
         updatePlayMessageBtnState();
         initShare();
+    }
+
+    private void initVideoPreview() {
+
     }
 
     private void initShare() {
@@ -360,37 +365,6 @@ public class BardEditorActivity extends BaseActivity implements
         mTracker.setScreenName("ChatActivity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
     }
-
-    public void initViewPager() {
-        vpPager = (InputViewPager) findViewById(R.id.vpPager);
-
-        adapterViewPager = new InputPagerAdapter(getSupportFragmentManager());
-        vpPager.setAdapter(adapterViewPager);
-        vpPager.setAllowedSwipeDirection(InputViewPager.SwipeDirection.none);
-
-        // Attach the page change listener inside the activity
-        vpPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-
-            // This method will be invoked when a new page becomes selected.
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            // This method will be invoked when the current page is scrolled
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-                // Code goes here
-            }
-
-            // Called when the scroll state changes:
-            // SCROLL_STATE_IDLE, SCROLL_STATE_DRAGGING, SCROLL_STATE_SETTLING
-            @Override
-            public void onPageScrollStateChanged(int state) {
-                // Code goes here
-            }
-        });
-    }
-
 
     private void initChatText() {
         clearChatCursor();
@@ -1453,11 +1427,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private WordListFragment getWordListFragment() {
-        return (WordListFragment) adapterViewPager.getRegisteredFragment(0);
-    }
-
-    private VideoResultFragment getVideoResultFragment() {
-        return (VideoResultFragment) adapterViewPager.getRegisteredFragment(1);
+        return this.wordListFragment;
     }
 
     private void playRemoteVideoAndDisplayThubmnail(String wordTagString) {
@@ -1549,7 +1519,7 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
 
-        getVideoResultFragment().playLocalVideo(filePath);
+//        getVideoResultFragment().playLocalVideo(filePath);
     }
 
     @Override
@@ -1575,10 +1545,6 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn.setVisibility(View.GONE);
 
         videoResultContent.setVisibility(View.VISIBLE);
-
-        if (vpPager.getCurrentItem() != 1) {
-            vpPager.setCurrentItem(1, true);
-        }
     }
 
     public void showWordListFragment(View view) {
@@ -1592,10 +1558,6 @@ public class BardEditorActivity extends BaseActivity implements
             recyclerView.setVisibility(View.VISIBLE);
         }
         updatePlayMessageBtnState();
-
-        if (vpPager.getCurrentItem() != 0) {
-            vpPager.setCurrentItem(0, true);
-        }
 
 //        setCharacterOrSceneTitle();
     }
@@ -1647,24 +1609,25 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight) {
-        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
-        if (keyboardWordTagDiff > 0) {
-            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-            params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;
-            vpPagerContainer.setLayoutParams(params);
-        }
-
-
-        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-        int screenHeight = displayMetrics.heightPixels;
-
-        boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
-
-        if (isKeyboardVisible) {
-            editText.setHint("Type a message...");
-        } else {
-            editText.setHint("Tap a word");
-        }
+//        getWordListFragment().fixVideoAspectRatio();
+//        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
+//        if (keyboardWordTagDiff > 0) {
+//            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+//            params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;
+//            vpPagerContainer.setLayoutParams(params);
+//        }
+//
+//
+//        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
+//        int screenHeight = displayMetrics.heightPixels;
+//
+//        boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
+//
+//        if (isKeyboardVisible) {
+//            editText.setHint("Type a message...");
+//        } else {
+//            editText.setHint("Tap a word");
+//        }
     }
 
     @Override

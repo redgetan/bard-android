@@ -3,7 +3,7 @@
 
     <string name="hello_world">Hello world!</string>
     <string name="action_save">Save</string>
-    <string name="edit_message">Tap a word</string>
+    <string name="edit_message">Type or click word</string>
     <string name="button_send">Send</string>
     <string name="button_keyboard">Keyboard</string>
     <string name="button_word_list">Word List</string>
