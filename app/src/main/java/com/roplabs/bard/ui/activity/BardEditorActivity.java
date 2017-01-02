@@ -226,13 +226,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         initVideoStorage();
         initAnalytics();
-        initVideoPreview();
         updatePlayMessageBtnState();
         initShare();
-    }
-
-    private void initVideoPreview() {
-
     }
 
     private void initShare() {
@@ -1609,26 +1604,38 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public void onKeyboardVisibilityChanged(boolean keyboardVisible, int keyboardHeight) {
-//        getWordListFragment().fixVideoAspectRatio();
-//        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
-//        if (keyboardWordTagDiff > 0) {
-//            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-//            params.height = vpPagerContainer.getHeight() - keyboardWordTagDiff;
-//            vpPagerContainer.setLayoutParams(params);
-//        }
-//
-//
-//        DisplayMetrics displayMetrics = this.getResources().getDisplayMetrics();
-//        int screenHeight = displayMetrics.heightPixels;
-//
-//        boolean isKeyboardVisible = keyboardHeight > screenHeight * 0.15;
-//
-//        if (isKeyboardVisible) {
-//            editText.setHint("Type a message...");
-//        } else {
-//            editText.setHint("Tap a word");
-//        }
+        int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
+        boolean isKeyboardShown = keyboardWordTagDiff > 0;
+        if (isKeyboardShown) {
+            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+            params.height = params.height / 2; // half of before
+            vpPagerContainer.setLayoutParams(params);
+            adjustVideoAspectRatio();
+        }
     }
+
+    private void adjustVideoAspectRatio() {
+
+        ViewTreeObserver vto = vpPagerContainer.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+                getWordListFragment().fixVideoAspectRatio();
+
+                ViewTreeObserver obs = vpPagerContainer.getViewTreeObserver();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    obs.removeOnGlobalLayoutListener(this);
+                } else {
+                    obs.removeGlobalOnLayoutListener(this);
+                }
+            }
+
+        });
+
+    }
+
 
     @Override
     public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {

@@ -287,7 +287,6 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
 
             @Override
             public void onGlobalLayout() {
-                fixVideoAspectRatio();
 
                 ViewTreeObserver obs = previewTagView.getViewTreeObserver();
 

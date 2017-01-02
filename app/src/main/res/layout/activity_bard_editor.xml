@@ -58,7 +58,7 @@
                        android:id="@+id/vp_pager_container"
                        android:layout_below="@id/preview_timeline_container"
                        android:layout_width="fill_parent"
-                       android:layout_height="100dp"
+                       android:layout_height="200dp"
                        android:orientation="vertical"
                        android:gravity="center_vertical|center_horizontal"
         >
@@ -142,6 +142,7 @@
                                                                   android:layout_marginLeft="0dp"
                                                                   android:layout_marginStart="5dp"
                                                                   android:textSize="14sp"
+                                                                  android:textColorHint="@color/iron"
                                                                   android:layout_marginRight="5dp"
                                                                   android:gravity="center_horizontal|center_vertical"
                                                                   android:background="@drawable/editor_input_background"
