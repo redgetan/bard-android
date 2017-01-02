@@ -156,7 +156,7 @@
                     android:onClick="addWord"
                     android:enabled="true"
                     android:background="@android:color/transparent"
-                    android:textColor="@color/md_blue_500"
+                    android:textColor="@drawable/selector_add_word_button_foreground"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginEnd="5dp"

@@ -185,6 +185,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         editable.replace(start, end, text);
     }
 
+
     public void replaceSelectedText(CharSequence text) {
         Editable editable = getText();
         editable.replace(getSelectionStart(),getSelectionEnd(), text);
@@ -213,6 +214,14 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         } else {
             return tokens.length;
         }
+    }
+
+    public String getCurrentTokenWord() {
+        int end = getSelectionEnd();
+        int start = mTokenizer.findTokenStart(getText(), end);
+
+        Editable editable = getText();
+        return TextUtils.substring(editable, start, end);
     }
 
     public String getLastWord() {

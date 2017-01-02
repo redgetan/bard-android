@@ -138,6 +138,7 @@ public class BardEditorActivity extends BaseActivity implements
     private String[] uniqueWordList;
     Set<String> invalidWords;
     private Button playMessageBtn;
+    private Button addWordBtn;
     private LinearLayout previewTimelineContainer;
     private LinearLayout videoResultContent;
     private WordListAdapter.ViewHolder lastViewHolder;
@@ -184,6 +185,9 @@ public class BardEditorActivity extends BaseActivity implements
         recyclerView.setItemAnimator(null); // prevent blinking animation when notifyItemChanged on adapter is called
 
         initWordTagViewListeners();
+
+        addWordBtn = (Button) findViewById(R.id.add_word_btn);
+        addWordBtn.setEnabled(false);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
@@ -648,6 +652,11 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void afterTextChanged(Editable s) {
+                if (editText.getCurrentTokenWord().isEmpty()) {
+                    addWordBtn.setEnabled(false);
+                } else {
+                    addWordBtn.setEnabled(true);
+                }
             }
         });
 
@@ -1608,7 +1617,7 @@ public class BardEditorActivity extends BaseActivity implements
         boolean isKeyboardShown = keyboardWordTagDiff > 0;
         if (isKeyboardShown) {
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-            params.height = params.height / 2; // half of before
+            params.height = (int) (params.height / 1.75); // half of before
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
         }
