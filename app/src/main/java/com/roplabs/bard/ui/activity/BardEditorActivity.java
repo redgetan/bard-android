@@ -798,6 +798,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         skipOnTextChangeCallback = true;
         editText.replaceText(wordTag.word);
+        editText.format();
         skipOnTextChangeCallback = false;
 
         currentTokenIndex = editText.getTokenIndex();
@@ -828,6 +829,7 @@ public class BardEditorActivity extends BaseActivity implements
         drawWordTagNavigatorState();
         focusOnWordTag(wordTag);
         playRemoteVideoAndDisplayThubmnail(wordTag.toString());
+
     }
 
     private void focusOnWordTag(WordTag wordTag) {

@@ -5,12 +5,18 @@ public class WordTag  {
     public String word;
     public String tag;
     public int position; // optional
+    public float duration;
 
     public WordTag(String word) {
         String[] tokens = word.split(":");
-        if (tokens.length == 2) {
+        if (tokens.length > 1) {
             this.word = tokens[0];
             this.tag = tokens[1];
+
+            if (tokens.length == 3) {
+                this.duration = Float.valueOf(tokens[2]);
+            }
+
         } else {
             this.word = word;
             this.tag = "";
