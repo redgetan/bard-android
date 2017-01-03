@@ -108,6 +108,9 @@ public class BardEditorActivity extends BaseActivity implements
     private ProgressDialog progressDialog;
     private View lastClickedWordTagView;
     private WordListFragment wordListFragment;
+    private LinearLayout emptyStateContainer;
+    private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
 
     private Runnable attemptWordTagAssignRunnable;
     private Handler wordTagAssignHandler;
@@ -218,20 +221,19 @@ public class BardEditorActivity extends BaseActivity implements
 
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
-        JSONObject properties = new JSONObject();
-        try {
-            properties.put("sceneToken", sceneToken);
-            properties.put("scene", scene.getName());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Instabug.reportException(e);
-        }
-        Analytics.track(this, "compose", properties);
-
+        initEmptyState();
         initVideoStorage();
         initAnalytics();
         updatePlayMessageBtnState();
         initShare();
+    }
+
+    private void initEmptyState() {
+        emptyStateContainer = (LinearLayout) findViewById(R.id.empty_state_main_container);
+        emptyStateTitle = (TextView) findViewById(R.id.empty_state_title);
+        emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
+
+        emptyStateContainer.setVisibility(View.GONE);
     }
 
     private void initShare() {
@@ -363,6 +365,17 @@ public class BardEditorActivity extends BaseActivity implements
         Tracker mTracker = ((ClientApp) getApplication()).getDefaultTracker();
         mTracker.setScreenName("ChatActivity");
         mTracker.send(new HitBuilders.ScreenViewBuilder().build());
+
+        JSONObject properties = new JSONObject();
+        try {
+            properties.put("sceneToken", sceneToken);
+            properties.put("scene", scene.getName());
+        } catch (JSONException e) {
+            e.printStackTrace();
+            Instabug.reportException(e);
+        }
+        Analytics.track(this, "compose", properties);
+
     }
 
     private void initChatText() {
@@ -406,11 +419,17 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void initSceneWordList() {
-        if (scene.getWordList() == null) {
+        if (scene.getWordList().isEmpty()) {
+            progressBar.setVisibility(View.VISIBLE);
+            debugView.setText("Downloading");
+
             Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(sceneToken);
             call.enqueue(new Callback<Scene>() {
                 @Override
                 public void onResponse(Call<Scene> call, Response<Scene> response) {
+                    progressBar.setVisibility(View.GONE);
+                    debugView.setText("");
+
                     Scene remoteScene = response.body();
                     String wordList = remoteScene.getWordList();
 
@@ -419,21 +438,34 @@ public class BardEditorActivity extends BaseActivity implements
                     scene.setWordList(wordList);
                     realm.commitTransaction();
 
-                    addWordListToDictionary(wordList);
-                    onWordListAvailable(scene.getWordListAsList());
+                    if (wordList.isEmpty()) {
+                        displayEmptyWordListError();
+                    } else {
+                        addWordListToDictionary(wordList);
+                        onWordListAvailable(scene.getWordListAsList());
+                    }
                 }
 
                 @Override
                 public void onFailure(Call<Scene> call, Throwable t) {
                     progressBar.setVisibility(View.GONE);
                     debugView.setText("");
-                    Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_LONG).show();
+                    displayEmptyWordListError();
                 }
             });
         } else {
             addWordListToDictionary(scene.getWordList());
             onWordListAvailable(scene.getWordListAsList());
         }
+    }
+
+    private void displayEmptyWordListError() {
+        emptyStateTitle.setText("No Words Found");
+        emptyStateDescription.setText("Failed to load word list from server. Try again later.");
+        emptyStateContainer.setVisibility(View.VISIBLE);
+//        Toast toast = Toast.makeText(getApplicationContext(), "Failed to load word list", Toast.LENGTH_LONG);
+//        toast.setGravity(Gravity.TOP|Gravity.CENTER_HORIZONTAL, 0, 0);
+//        toast.show();
     }
 
     private void initCharacterWordList() {

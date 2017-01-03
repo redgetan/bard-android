@@ -130,6 +130,7 @@ public class Scene extends RealmObject {
     }
 
     public String getWordList() {
+        if (this.wordList == null) return "";
         return this.wordList;
     }
 

@@ -169,9 +169,21 @@
 
         </LinearLayout>
 
+        <LinearLayout
+                android:id="@+id/empty_state_main_container"
+                android:layout_below="@id/bard_text_entry"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+        >
+            <include
+                    layout="@layout/empty_no_internet"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"/>
+        </LinearLayout>
+
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/word_list_dictionary"
-                android:layout_below="@+id/bard_text_entry"
+                android:layout_below="@+id/empty_state_main_container"
                 android:layout_alignParentBottom="true"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
