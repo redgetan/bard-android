@@ -20,10 +20,9 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
@@ -187,7 +186,7 @@ public class BardEditorActivity extends BaseActivity implements
         initWordTagViewListeners();
 
         addWordBtn = (Button) findViewById(R.id.add_word_btn);
-        addWordBtn.setEnabled(false);
+//        addWordBtn.setEnabled(false);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
@@ -596,7 +595,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
-                    int tokenIndex = editText.getTokenIndex();
+                    int tokenIndex = 0;
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
@@ -609,7 +608,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
-                    int tokenIndex = editText.getTokenIndex();
+                    int tokenIndex = 0;
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
@@ -652,11 +651,11 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void afterTextChanged(Editable s) {
-                if (editText.getCurrentTokenWord().isEmpty()) {
-                    addWordBtn.setEnabled(false);
-                } else {
-                    addWordBtn.setEnabled(true);
-                }
+//                if (editText.getCurrentTokenWord().isEmpty()) {
+//                    addWordBtn.setEnabled(false);
+//                } else {
+//                    addWordBtn.setEnabled(true);
+//                }
             }
         });
 
@@ -664,7 +663,7 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public void onClick(View v) {
                 if (editText.getTokenizer() != null) {
-                    int tokenIndex = editText.getTokenIndex();
+                    int tokenIndex = 0;
                     BardLogger.trace("[editText click] tokenIndex: " + tokenIndex + " - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                     if (tokenIndex < wordTagList.size()) {
                         currentTokenIndex = tokenIndex;
@@ -677,6 +676,45 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             }
         });
+
+//        final SpannableStringBuilder sb = new SpannableStringBuilder();
+//        TextView tv = createContactTextView("reginald");
+//        BitmapDrawable bd = (BitmapDrawable) convertViewToDrawable(tv);
+//        bd.setBounds(0, 0, bd.getIntrinsicWidth(),bd.getIntrinsicHeight());
+//
+//        sb.append("reginald" + ",");
+//        sb.setSpan(new ImageSpan(bd), sb.length()-("reginald".length()+1), sb.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+//        skipOnTextChangeCallback = true;
+//        editText.setText(sb);
+//        skipOnTextChangeCallback = false;
+
+    }
+
+    // http://stackoverflow.com/a/10864568
+    public TextView createContactTextView(String text){
+        //creating textview dynamically
+        TextView tv = new TextView(this);
+        tv.setText(text);
+        tv.setTextSize(20);
+        tv.setBackgroundResource(R.drawable.bordered_rectangle_rounded_corners);
+        tv.setCompoundDrawablesWithIntrinsicBounds(0, 0, R.drawable.ic_clear_black_18dp, 0);
+        return tv;
+    }
+
+    public static Object convertViewToDrawable(View view) {
+        int spec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        view.measure(spec, spec);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+        Bitmap b = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(),
+                Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(b);
+        c.translate(-view.getScrollX(), -view.getScrollY());
+        view.draw(c);
+        view.setDrawingCacheEnabled(true);
+        Bitmap cacheBmp = view.getDrawingCache();
+        Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+        view.destroyDrawingCache();
+        return new BitmapDrawable(viewBmp);
 
     }
 
@@ -715,7 +753,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.replaceText(wordTag.word);
         skipOnTextChangeCallback = false;
 
-        currentTokenIndex = editText.getTokenIndex();
+        currentTokenIndex = 0;
 
         if (currentTokenIndex >= wordTagList.size()) {
             wordTagList.add(currentTokenIndex,wordTag);
@@ -733,7 +771,10 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     public void addWord(View view) {
-        editText.getText().insert(editText.getSelectionStart(), " ");
+        skipOnTextChangeCallback = true;
+        editText.format();
+        skipOnTextChangeCallback = false;
+//        editText.getText().insert(editText.getSelectionStart(), " ");
     }
 
     @Override
@@ -805,7 +846,7 @@ public class BardEditorActivity extends BaseActivity implements
         String character = editText.getAddedChar(start);
         boolean isLeaderPressed = character.equals(" ");
         int tokenCount = editText.getTokenCount();
-        int tokenIndex = editText.getTokenIndex();
+        int tokenIndex = 0;
         List<String> words = getUserTypedWords();
 
         // DELETE ITEMS at correct position if needed

@@ -1,18 +1,24 @@
 package com.roplabs.bard.ui.widget;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
 import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.Selection;
-import android.text.TextUtils;
-import android.text.TextWatcher;
+import android.text.*;
+import android.text.method.LinkMovementMethod;
 import android.text.method.QwertyKeyListener;
+import android.text.style.ClickableSpan;
+import android.text.style.ImageSpan;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.PreviewWordEvent;
@@ -38,6 +44,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private boolean isFindInPage;
     private int lastStart;
     private int lastEnd;
+    private String lastString;
+    private String separator = " ";
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
@@ -55,6 +63,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public void initWordsAutoComplete() {
+        setMovementMethod(LinkMovementMethod.getInstance());
+
         addTextChangedListener(new MyWatcher());
         this.isAutocompleteEnabled = true;
     }
@@ -99,6 +109,126 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         if (this.isAutocompleteEnabled) {
             performFiltering(getText(), 0);
         }
+
+//        if (getText().length() > 0 && !getText().equals(lastString)) {
+//            format();
+//        }
+    }
+
+
+
+    // http://stackoverflow.com/a/38241477
+    public void format() {
+
+        SpannableStringBuilder sb = new SpannableStringBuilder();
+        String fullString = getText().toString();
+
+        String[] strings = fullString.split(separator);
+
+
+        for (int i = 0; i < strings.length; i++) {
+
+            String string = strings[i];
+            sb.append(string);
+
+            if (fullString.charAt(fullString.length() - 1) != separator.charAt(0) && i == strings.length - 1) {
+                break;
+            }
+
+            BitmapDrawable bd = (BitmapDrawable) convertViewToDrawable(createTokenView(string));
+            bd.setBounds(0, 0, bd.getIntrinsicWidth(), bd.getIntrinsicHeight());
+
+            int startIdx = sb.length() - (string.length());
+            int endIdx = sb.length();
+
+            sb.setSpan(new ImageSpan(bd), startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            MyClickableSpan myClickableSpan = new MyClickableSpan(startIdx, endIdx);
+            sb.setSpan(myClickableSpan, Math.max(endIdx-2, startIdx), endIdx, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+            if (i < strings.length - 1) {
+                sb.append(separator);
+            } else if (fullString.charAt(fullString.length() - 1) == separator.charAt(0)) {
+                sb.append(separator);
+            }
+        }
+
+
+        lastString = sb.toString();
+
+        setText(sb);
+        setSelection(sb.length());
+
+    }
+
+    public View createTokenView(String text) {
+
+
+        LinearLayout l = new LinearLayout(getContext());
+        l.setOrientation(LinearLayout.HORIZONTAL);
+        l.setBackgroundResource(R.drawable.bordered_rectangle_rounded_corners);
+//        ViewGroup.LayoutParams params = l.getLayoutParams();
+//        params.height = (int) (params.height / 1.75); // half of before
+//        l.setLayoutParams(params);
+
+        TextView tv = new TextView(getContext());
+        l.addView(tv);
+        tv.setText(text);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+
+//        ImageView im = new ImageView(getContext());
+//        l.addView(im);
+//        im.setImageResource(R.drawable.ic_clear_black_18dp);
+//        im.setScaleType(ImageView.ScaleType.FIT_CENTER);
+
+        return l;
+    }
+
+    public Object convertViewToDrawable(View view) {
+        int widthSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED);
+        int heightSpec = View.MeasureSpec.makeMeasureSpec(this.getHeight(), MeasureSpec.AT_MOST);
+//        v.measure();
+
+        view.measure(widthSpec, heightSpec);
+        view.layout(0, 0, view.getMeasuredWidth(), view.getMeasuredHeight());
+
+        Bitmap b = Bitmap.createBitmap(view.getMeasuredWidth(), view.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas c = new Canvas(b);
+
+        c.translate(-view.getScrollX(), -view.getScrollY());
+        view.draw(c);
+        view.setDrawingCacheEnabled(true);
+        Bitmap cacheBmp = view.getDrawingCache();
+        Bitmap viewBmp = cacheBmp.copy(Bitmap.Config.ARGB_8888, true);
+        view.destroyDrawingCache();
+        return new BitmapDrawable(getContext().getResources(), viewBmp);
+    }
+
+    private class MyClickableSpan extends ClickableSpan {
+
+        int startIdx;
+        int endIdx;
+
+        public MyClickableSpan(int startIdx, int endIdx) {
+            super();
+            this.startIdx = startIdx;
+            this.endIdx = endIdx;
+        }
+
+        @Override
+        public void onClick(View widget) {
+
+
+
+            String s = getText().toString();
+
+            String s1 = s.substring(0, startIdx);
+            String s2 = s.substring(Math.min(endIdx+1, s.length()-1), s.length() );
+
+            WordsAutoCompleteTextView.this.setText(s1 + s2);
+        }
+
     }
 
     protected void performFiltering(CharSequence text, int keyCode) {
