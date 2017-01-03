@@ -3,12 +3,15 @@ package com.roplabs.bard.ui.widget;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.*;
 import android.text.method.LinkMovementMethod;
 import android.text.method.QwertyKeyListener;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -46,6 +49,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private int lastEnd;
     private String lastString;
     private String separator = " ";
+    private String separatorRegex = "\\s+";
+    private boolean isFormattingLocked = false;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
@@ -115,15 +120,32 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 //        }
     }
 
+    public boolean containsInvalidWord() {
+        String fullString = getText().toString();
 
+        if (fullString.isEmpty()) return false;
+
+        String[] strings = fullString.split(separatorRegex);
+
+
+        for (int i = 0; i < strings.length; i++) {
+            String string = strings[i];
+            if (!mWordTrie.containsKey(string)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
     // http://stackoverflow.com/a/38241477
     public void format() {
-
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String fullString = getText().toString();
 
-        String[] strings = fullString.split(separator);
+        if (fullString.isEmpty()) return;
+
+        String[] strings = fullString.split(separatorRegex);
 
 
         for (int i = 0; i < strings.length; i++) {
@@ -131,15 +153,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             String string = strings[i];
             sb.append(string);
 
+            int startIdx = sb.length() - (string.length());
+            int endIdx = sb.length();
+
+            // check if word is in dictionary, if not, color it red
+            if (!mWordTrie.containsKey(string)) {
+                sb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(ClientApp.getContext(), R.color.md_red_400)), startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
+
+
+            // if it doesnt contain separator, dont add 'tag' span
             if (fullString.charAt(fullString.length() - 1) != separator.charAt(0) && i == strings.length - 1) {
                 break;
             }
 
             BitmapDrawable bd = (BitmapDrawable) convertViewToDrawable(createTokenView(string));
             bd.setBounds(0, 0, bd.getIntrinsicWidth(), bd.getIntrinsicHeight());
-
-            int startIdx = sb.length() - (string.length());
-            int endIdx = sb.length();
 
             sb.setSpan(new ImageSpan(bd), startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
 
@@ -158,8 +187,14 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         setText(sb);
         setSelection(sb.length());
-
     }
+
+    @Override
+    public void setText(CharSequence text, BufferType type) {
+        super.setText(text, type);
+    }
+
+
 
     public View createTokenView(String text) {
 
@@ -333,6 +368,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public int getTokenIndex() {
         int end = getSelectionEnd();
         boolean isInFrontOfWord = mTokenizer.findTokenEnd(getText(), end + 1) > end;
+
+        if (end == -1) {
+            return 0;
+        }
 
         return getText().subSequence(0, end).toString().trim().split("\\s+").length - 1;
     }

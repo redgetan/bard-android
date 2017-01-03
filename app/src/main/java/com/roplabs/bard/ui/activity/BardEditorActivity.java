@@ -22,6 +22,7 @@ import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.view.*;
@@ -595,7 +596,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
-                    int tokenIndex = 0;
+                    int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
@@ -608,7 +609,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
-                    int tokenIndex = 0;
+                    int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
@@ -628,6 +629,8 @@ public class BardEditorActivity extends BaseActivity implements
         } else {
             isEditTextInitialized = true;
         }
+
+        editText.setFilters(new InputFilter[] { getPreventLeaderKeyOnInvalidWordFilter() });
 
         editText.setScroller(new Scroller(this));
         editText.setMaxLines(1);
@@ -651,11 +654,6 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void afterTextChanged(Editable s) {
-//                if (editText.getCurrentTokenWord().isEmpty()) {
-//                    addWordBtn.setEnabled(false);
-//                } else {
-//                    addWordBtn.setEnabled(true);
-//                }
             }
         });
 
@@ -663,7 +661,7 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public void onClick(View v) {
                 if (editText.getTokenizer() != null) {
-                    int tokenIndex = 0;
+                    int tokenIndex = editText.getTokenIndex();
                     BardLogger.trace("[editText click] tokenIndex: " + tokenIndex + " - select_start: " + editText.getSelectionStart() + " select_end: " + editText.getSelectionEnd() + " editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
                     if (tokenIndex < wordTagList.size()) {
                         currentTokenIndex = tokenIndex;
@@ -688,6 +686,23 @@ public class BardEditorActivity extends BaseActivity implements
 //        editText.setText(sb);
 //        skipOnTextChangeCallback = false;
 
+    }
+
+
+    public InputFilter getPreventLeaderKeyOnInvalidWordFilter() {
+        InputFilter filter = new InputFilter() {
+            @Override
+            public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+                if (source.equals(" ") && editText.containsInvalidWord()) {
+                    return "";
+                } else {
+                    return null;
+                }
+
+            }
+        };
+
+        return filter;
     }
 
     // http://stackoverflow.com/a/10864568
@@ -741,7 +756,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 800);
+        notifyInvalidWordsHandler.postDelayed(notifyInvalidWordsRunnable, 500);
 
     }
 
@@ -753,7 +768,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.replaceText(wordTag.word);
         skipOnTextChangeCallback = false;
 
-        currentTokenIndex = 0;
+        currentTokenIndex = editText.getTokenIndex();
 
         if (currentTokenIndex >= wordTagList.size()) {
             wordTagList.add(currentTokenIndex,wordTag);
@@ -771,10 +786,7 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     public void addWord(View view) {
-        skipOnTextChangeCallback = true;
-        editText.format();
-        skipOnTextChangeCallback = false;
-//        editText.getText().insert(editText.getSelectionStart(), " ");
+        editText.getText().insert(editText.getSelectionStart(), " ");
     }
 
     @Override
@@ -846,7 +858,7 @@ public class BardEditorActivity extends BaseActivity implements
         String character = editText.getAddedChar(start);
         boolean isLeaderPressed = character.equals(" ");
         int tokenCount = editText.getTokenCount();
-        int tokenIndex = 0;
+        int tokenIndex = editText.getTokenIndex();
         List<String> words = getUserTypedWords();
 
         // DELETE ITEMS at correct position if needed
@@ -894,6 +906,12 @@ public class BardEditorActivity extends BaseActivity implements
 
         }
 
+        // make sure to add 'tag' around word that was just added
+        if (isLeaderPressed) {
+            skipOnTextChangeCallback = true;
+            editText.format();
+            skipOnTextChangeCallback = false;
+        }
 
         updatePlayMessageBtnState();
 
@@ -997,28 +1015,12 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void updateInvalidWords() {
-        Editable text = editText.getText();
-        List<String> words = getUserTypedWords();
-        invalidWords.retainAll(words);
-
-        displayInvalidWords();
-    }
-
     private boolean notifyUserOnUnavailableWord() {
-        Editable text = editText.getText();
-        List<String> words = getUserTypedWords();
+        skipOnTextChangeCallback = true;
+        editText.format();
+        skipOnTextChangeCallback = false;
 
-        invalidWords.clear();
-
-        for (String word : words) {
-            if (!word.isEmpty() && !wordTrie.containsKey(word)) {
-                invalidWords.add(word);
-            }
-        }
-
-        displayInvalidWords();
-        return !invalidWords.isEmpty();
+        return false;
     }
 
 
