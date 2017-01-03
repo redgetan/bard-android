@@ -897,7 +897,7 @@ public class BardEditorActivity extends BaseActivity implements
                         attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
                     }
                 } else {
-                    if ((wordTag = getWordTagSelector().findRandomWord(userTypedWord)) != null) {
+                    if ((wordTag = getWordTagSelector().findWord(userTypedWord, "next")) != null) {
                         wordTagList.set(i, wordTag);
                         cacheRemoteVideoAndDisplayThumbnail(wordTag.toString(), i);
                     }
@@ -949,7 +949,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void attemptAssignWordTag(String word, int tokenIndex) {
 
-        WordTag targetWordTag = getWordTagSelector().findRandomWord(word);
+        WordTag targetWordTag = getWordTagSelector().findWord(word,"next");
         if (targetWordTag != null) {
             onSuccessfulWordTagAssign(targetWordTag, tokenIndex);
             BardLogger.trace("[attemptAssignWordTag] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
