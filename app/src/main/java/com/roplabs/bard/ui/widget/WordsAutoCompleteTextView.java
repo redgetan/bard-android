@@ -130,12 +130,20 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         for (int i = 0; i < strings.length; i++) {
             String string = strings[i];
-            if (!mWordTrie.containsKey(string)) {
+            if (!isWordValid(string)) {
                 return true;
             }
         }
 
         return false;
+    }
+
+    private boolean isWordValid(String word) {
+        return mWordTrie.containsKey(normalizeWord(word));
+    }
+
+    private String normalizeWord(String word) {
+        return word.toLowerCase().replaceAll("[\"\'.?!]","");
     }
 
     // http://stackoverflow.com/a/38241477
@@ -157,7 +165,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             int endIdx = sb.length();
 
             // check if word is in dictionary, if not, color it red
-            if (!mWordTrie.containsKey(string)) {
+            if (!isWordValid(string)) {
                 sb.setSpan(new ForegroundColorSpan(ContextCompat.getColor(ClientApp.getContext(), R.color.md_red_400)), startIdx, endIdx, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
             }
 

@@ -134,10 +134,15 @@ public class WordTagSelector {
         return findWord(currentWord, PREV_DIRECTION);
     }
 
+    private String normalizeWord(String word) {
+        return word.toLowerCase().replaceAll("[\"\'.!?]","");
+    }
+
     // see if word exists on the map
     // if exists, update character
     // return word
     public WordTag findWord(String word, String direction) {
+        word = normalizeWord(word);
         if (isWordNotInDatabase(word)) return null;
 
         currentWord = word;
@@ -155,6 +160,7 @@ public class WordTagSelector {
     }
 
     public WordTag findRandomWord(String word) {
+        word = normalizeWord(word);
         if (isWordNotInDatabase(word)) return null;
 
         int randomIndex;
