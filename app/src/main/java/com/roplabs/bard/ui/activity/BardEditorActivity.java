@@ -786,6 +786,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
+        // dont allow wordtag insertion in between existing tags (for easier implementation for now)
+        if (editText.isBeforeImageSpan()) return;
+
         isWordTagListContainerBlocked = true;
 
 
