@@ -146,6 +146,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return word.toLowerCase().replaceAll("[\"\'.?!]","");
     }
 
+    public boolean isBeforeImageSpan() {
+          // get all existing imagespans
+        ImageSpan[] existingImageSpans = getText().getSpans(0, getText().length(), ImageSpan.class);
+
+        for (ImageSpan existingImageSpan : existingImageSpans) {
+            int imageSpanStart = getText().getSpanStart(existingImageSpan);
+            if (getSelectionEnd() <= imageSpanStart ) {
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
+
     // http://stackoverflow.com/a/38241477
     public void format() {
         SpannableStringBuilder sb = new SpannableStringBuilder();

@@ -707,17 +707,6 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
 
-//        final SpannableStringBuilder sb = new SpannableStringBuilder();
-//        TextView tv = createContactTextView("reginald");
-//        BitmapDrawable bd = (BitmapDrawable) convertViewToDrawable(tv);
-//        bd.setBounds(0, 0, bd.getIntrinsicWidth(),bd.getIntrinsicHeight());
-//
-//        sb.append("reginald" + ",");
-//        sb.setSpan(new ImageSpan(bd), sb.length()-("reginald".length()+1), sb.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-//        skipOnTextChangeCallback = true;
-//        editText.setText(sb);
-//        skipOnTextChangeCallback = false;
-
     }
 
 
@@ -726,6 +715,10 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
                 if (source.equals(" ") && editText.containsInvalidWord()) {
+                    return "";
+                } else if (source.length() == 1 && editText.isBeforeImageSpan()){
+                    // prevent user from adding words in between imagespans (easier from implementation perspective)
+                    // TODO: remove this restriction, allow user to add words in between
                     return "";
                 } else {
                     return null;
