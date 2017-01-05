@@ -222,6 +222,7 @@ public class BardEditorActivity extends BaseActivity implements
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
 
         initEmptyState();
+        hideKeyboard();
         initVideoStorage();
         initAnalytics();
         updatePlayMessageBtnState();
@@ -686,6 +687,11 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void afterTextChanged(Editable s) {
+//                if (editText.getCurrentTokenWord().isEmpty()) {
+//                    addWordBtn.setEnabled(false);
+//                } else {
+//                    addWordBtn.setEnabled(true);
+//                }
             }
         });
 

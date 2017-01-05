@@ -7,6 +7,7 @@
 >
     <RelativeLayout
             android:id="@+id/input_container"
+            android:focusableInTouchMode="true"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent">
 
@@ -143,7 +144,8 @@
                                                                   android:layout_marginStart="5dp"
                                                                   android:textSize="14sp"
                                                                   android:textColorHint="@color/iron"
-                                                                  android:layout_marginRight="5dp"
+                                                                  android:layout_marginRight="10dp"
+                                                                  android:paddingRight="5dp"
                                                                   android:background="@drawable/editor_input_background"
                                                                   android:layout_height="24dp"
                                                                   android:layout_weight="1"
@@ -155,8 +157,8 @@
                     android:id="@+id/add_word_btn"
                     android:onClick="addWord"
                     android:enabled="true"
-                    android:background="@android:color/transparent"
-                    android:textColor="@drawable/selector_add_word_button_foreground"
+                    android:background="@color/md_blue_500"
+                    android:textColor="@color/white"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginEnd="5dp"

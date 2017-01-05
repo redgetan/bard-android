@@ -413,8 +413,14 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         int end = getSelectionEnd();
         int start = mTokenizer.findTokenStart(getText(), end);
 
-        Editable editable = getText();
-        return TextUtils.substring(editable, start, end);
+        if (end == -1) {
+            // 2nd method
+            String[] words = getText().toString().trim().split("\\s+");
+            return words.length > 0 ? words[words.length - 1] : "";
+        } else {
+            Editable editable = getText();
+            return TextUtils.substring(editable, start, end);
+        }
     }
 
     public String getLastWord() {
