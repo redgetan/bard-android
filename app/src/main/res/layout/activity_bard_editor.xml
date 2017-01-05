@@ -128,7 +128,8 @@
         >
 
             <ImageView
-                    android:id="@+id/scene_select_btn"
+                    android:id="@+id/mode_change_btn"
+                    android:onClick="changeInputMode"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="20dp"

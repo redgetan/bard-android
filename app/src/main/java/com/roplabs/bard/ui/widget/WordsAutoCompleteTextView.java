@@ -300,10 +300,15 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     protected void performFiltering(CharSequence text, int start, int end,
                                     int keyCode) {
+        if (end == -1) return;
         getFilter().filter(text.subSequence(start, end), this);
     }
     public void setEnableAutocomplete(boolean isAutocompleteEnabled) {
         this.isAutocompleteEnabled = isAutocompleteEnabled;
+    }
+
+    public boolean isFilteredAlphabetically() {
+        return this.isAutocompleteEnabled;
     }
 
     public void setSentenceWords(List<String> words) {

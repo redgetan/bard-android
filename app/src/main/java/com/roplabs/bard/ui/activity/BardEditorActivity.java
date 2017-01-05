@@ -149,6 +149,7 @@ public class BardEditorActivity extends BaseActivity implements
     private GridView shareListView;
     private Button saveRepoBtn;
     private ImageView sceneSelectBtn;
+    private ImageView modeChangeBtn;
     private Runnable scrollToThumbnailRunnable;
     private Handler scrollToThumbnailHandler;
 
@@ -193,7 +194,7 @@ public class BardEditorActivity extends BaseActivity implements
 //        addWordBtn.setEnabled(false);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
-        editText.setEnableAutocomplete(false);
+        editText.setEnableAutocomplete(true);
         editText.setRecyclerView(recyclerView);
         editText.setEnabled(false);
         editText.setPrivateImeOptions("nm");
@@ -201,7 +202,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         shareListView = (GridView) findViewById(R.id.social_share_list);
         saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
-        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
+//        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
+        modeChangeBtn = (ImageView) findViewById(R.id.mode_change_btn);
 
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
@@ -235,6 +237,14 @@ public class BardEditorActivity extends BaseActivity implements
         emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
 
         emptyStateContainer.setVisibility(View.GONE);
+    }
+
+    public void changeInputMode(View view) {
+        if (editText.isFilteredAlphabetically()) {
+            editText.setEnableAutocomplete(false);
+        } else {
+            editText.setEnableAutocomplete(true);
+        }
     }
 
     private void initShare() {
