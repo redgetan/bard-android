@@ -164,6 +164,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     // http://stackoverflow.com/a/38241477
     public void format() {
+        int origCursorPosition = getSelectionEnd();
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String fullString = getText().toString();
 
@@ -210,7 +211,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         lastString = sb.toString();
 
         setText(sb);
-        setSelection(sb.length());
+        setSelection(origCursorPosition);
     }
 
     @Override
@@ -387,6 +388,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             BardLogger.trace("getAddedChar: " + e.getMessage());
             return " ";
         }
+    }
+
+    public int findTokenStart(int cursor) {
+        return getTokenizer().findTokenStart(getText(), cursor);
     }
 
     public int getTokenIndex() {

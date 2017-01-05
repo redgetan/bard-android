@@ -680,6 +680,19 @@ public class BardEditorActivity extends BaseActivity implements
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
 
+                    if (count == 0 && editText.length() > 0) {
+                        // backspace pressed
+                        // delete tagged word before it
+                        // TEMP HACK to fix problem of:
+                        // before: "we are"
+                        // after: "weare" (about to delete we)
+                        // result: "weare" (we becomes merged with are)
+                        skipOnTextChangeCallback = true;
+                        int amountToDelete = start - editText.findTokenStart(start);
+                        editText.getText().delete(start - amountToDelete, start);
+                        skipOnTextChangeCallback = false;
+                    }
+
                     // update output wordTagList
                     updateWordTagList(s, start);
                 }
