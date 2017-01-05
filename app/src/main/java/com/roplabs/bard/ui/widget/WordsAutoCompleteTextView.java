@@ -173,7 +173,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     // http://stackoverflow.com/a/38241477
     public void format() {
+        // remember original cursor position to set it back later
         int origCursorPosition = getSelectionEnd();
+        if (origCursorPosition == -1) return;
+
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String fullString = getText().toString();
 
