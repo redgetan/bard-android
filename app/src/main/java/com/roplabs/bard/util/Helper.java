@@ -55,6 +55,10 @@ public class Helper {
         return networkInfo != null && networkInfo.isConnected();
     }
 
+    public static String normalizeWord(CharSequence word) {
+        return word.toString().toLowerCase().replaceAll("[\"\'.?!]","");
+    }
+
 
 
     // http://gimite.net/en/index.php?Run%20native%20executable%20in%20Android%20App

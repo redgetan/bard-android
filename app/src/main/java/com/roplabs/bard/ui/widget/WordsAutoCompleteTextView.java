@@ -38,6 +38,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 
+import static com.roplabs.bard.util.Helper.normalizeWord;
+
 public class WordsAutoCompleteTextView extends EditText implements Filterable, Filter.FilterListener {
     private MultiAutoCompleteTextView.Tokenizer mTokenizer;
     RecyclerView recyclerView;
@@ -67,6 +69,16 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         initWordsAutoComplete();
     }
 
+    private OnFilterCompleteListener filterCompleteListener;
+
+    public interface OnFilterCompleteListener {
+        void onFilterComplete(List<String> results);
+    }
+
+    public void setOnFilterCompleteListener(OnFilterCompleteListener listener) {
+        this.filterCompleteListener = listener;
+    }
+
     public void initWordsAutoComplete() {
         setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -76,7 +88,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     @Override
     public void onFilterComplete(int count) {
-
+        List<String> results = ((WordListAdapter) recyclerView.getAdapter()).getList();
+        this.filterCompleteListener.onFilterComplete(results);
     }
 
     public String getNextChar(CharSequence s, int start) {
@@ -140,10 +153,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     private boolean isWordValid(String word) {
         return mWordTrie.containsKey(normalizeWord(word));
-    }
-
-    private String normalizeWord(String word) {
-        return word.toLowerCase().replaceAll("[\"\'.?!]","");
     }
 
     public boolean isBeforeImageSpan() {
@@ -478,6 +487,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         protected FilterResults performFiltering(CharSequence prefix) {
             FilterResults results = new FilterResults();
 
+            prefix = normalizeWord(prefix);
+
             if (prefix == null || prefix.length() == 0) {
                 Trie<String, String> values = mWordTrie;
 
@@ -487,13 +498,13 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
                 results.values = newValues;
                 results.count = newValues.size();
             } else {
-                String prefixString = prefix.toString().toLowerCase();
+                String prefixString = prefix.toString();
 
                 Trie<String, String> values = mWordTrie;
 
                 final int count = values.size();
 
-                Set<String> set = values.prefixMap(prefix.toString()).keySet();
+                Set<String> set = values.prefixMap(prefixString).keySet();
                 final ArrayList<String> newValues = new ArrayList<String>(set);
 
                 results.values = newValues;
@@ -510,7 +521,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             }
             WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
             recyclerView.setAdapter(adapter);
-            onFilterComplete(results.count);
+//            onFilterComplete(results.count);
         }
     }
 

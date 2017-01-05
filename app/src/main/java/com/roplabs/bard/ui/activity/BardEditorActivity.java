@@ -348,7 +348,7 @@ public class BardEditorActivity extends BaseActivity implements
         recyclerView.addOnItemTouchListener(new RecyclerView.OnItemTouchListener() {
             @Override
             public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-                return isWordTagListContainerBlocked;
+                return false;
             }
 
             @Override
@@ -680,6 +680,14 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setVerticalScrollBarEnabled(true);
         editText.setMovementMethod(new ScrollingMovementMethod());
         editText.setTokenizer(new SpaceTokenizer());
+        editText.setOnFilterCompleteListener(new WordsAutoCompleteTextView.OnFilterCompleteListener() {
+            @Override
+            public void onFilterComplete(List<String> results) {
+                // update output wordTagList
+                updateWordTagList(editText.getText(), editText.getSelectionStart(), results);
+            }
+        });
+
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -689,22 +697,8 @@ public class BardEditorActivity extends BaseActivity implements
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
-
-                    if (count == 0 && editText.length() > 0) {
-                        // backspace pressed
-                        // delete tagged word before it
-                        // TEMP HACK to fix problem of:
-                        // before: "we are"
-                        // after: "weare" (about to delete we)
-                        // result: "weare" (we becomes merged with are)
-                        skipOnTextChangeCallback = true;
-                        int amountToDelete = start - editText.findTokenStart(start);
-                        editText.getText().delete(start - amountToDelete, start);
-                        skipOnTextChangeCallback = false;
-                    }
-
-                    // update output wordTagList
-                    updateWordTagList(s, start);
+                    ensureWordTagCleanDelete(start, count);
+                    formatTagsIfNeeded(start);
                 }
             }
 
@@ -736,6 +730,33 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
 
+    }
+
+    // TEMP HACK to fix problem of:
+    // before: "we are"
+    // after: "weare" (about to delete we)
+    // result: "weare" (we becomes merged with are)
+    private void ensureWordTagCleanDelete(int start, int count) {
+        if (count == 0 && editText.length() > 0) {
+            // backspace pressed
+            // delete tagged word before it
+            skipOnTextChangeCallback = true;
+            int amountToDelete = start - editText.findTokenStart(start);
+            editText.getText().delete(start - amountToDelete, start);
+            skipOnTextChangeCallback = false;
+        }
+    }
+
+    private void formatTagsIfNeeded(int start) {
+        String character = editText.getAddedChar(start);
+        boolean isLeaderPressed = character.equals(" ");
+
+        // make sure to add 'tag' around word that was just added
+        if (isLeaderPressed) {
+            skipOnTextChangeCallback = true;
+            editText.format();
+            skipOnTextChangeCallback = false;
+        }
     }
 
 
@@ -788,7 +809,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void updatePlayMessageBtnState() {
-        if (getFilledWordTagCount() > 1) {
+        if (getFilledWordTagCount() > 0) {
             playMessageBtn.setEnabled(true);
 //            playMessageBtn.setVisibility(View.VISIBLE);
         } else {
@@ -858,7 +879,13 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void focusOnWordTag(WordTag wordTag) {
-        int position = wordTag.position;
+        int position;
+
+        if (editText.isFilteredAlphabetically()) {
+            position = ((WordListAdapter) recyclerView.getAdapter()).getList().indexOf(wordTag.word);
+        } else {
+            position = wordTag.position;
+        }
 
         ((WordListAdapter) recyclerView.getAdapter()).selectViewByPosition(position);
         if (recyclerView.findViewHolderForAdapterPosition(position) == null) {
@@ -911,7 +938,7 @@ public class BardEditorActivity extends BaseActivity implements
         return count;
     }
 
-    private void updateWordTagList(CharSequence s, int start) {
+    private void updateWordTagList(CharSequence s, int start, List<String> filteredResults) {
         clearAssignWOrdTagRunnable();
 
         String character = editText.getAddedChar(start);
@@ -951,9 +978,17 @@ public class BardEditorActivity extends BaseActivity implements
             if (!wordTagList.get(i).isFilled()) {
                 if (tokenIndex == i) {
                     if (isLeaderPressed) {
-                        attemptAssignWordTag(userTypedWord, tokenIndex);
+                        if (!filteredResults.isEmpty()) {
+                            attemptAssignWordTag(filteredResults.get(0), tokenIndex);
+                        } else {
+                            attemptAssignWordTag(userTypedWord, tokenIndex);
+                        }
                     } else {
-                        attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+                        if (!filteredResults.isEmpty()) {
+                            attemptAssignWordTagDelayed(filteredResults.get(0), tokenIndex);
+                        } else {
+                            attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+                        }
                     }
                 } else {
                     if ((wordTag = getWordTagSelector().findWord(userTypedWord, "next")) != null) {
@@ -963,13 +998,6 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             }
 
-        }
-
-        // make sure to add 'tag' around word that was just added
-        if (isLeaderPressed) {
-            skipOnTextChangeCallback = true;
-            editText.format();
-            skipOnTextChangeCallback = false;
         }
 
         updatePlayMessageBtnState();
@@ -996,7 +1024,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        wordTagAssignHandler.postDelayed(attemptWordTagAssignRunnable, 1000);
+        wordTagAssignHandler.postDelayed(attemptWordTagAssignRunnable, 500);
     }
 
     private void clearAssignWOrdTagRunnable() {
@@ -1727,7 +1755,7 @@ public class BardEditorActivity extends BaseActivity implements
         boolean isKeyboardShown = keyboardWordTagDiff > 0;
         if (isKeyboardShown) {
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-            params.height = (int) (params.height / 1.75); // half of before
+            params.height = (int) (params.height / 1.5); // half of before
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
         }

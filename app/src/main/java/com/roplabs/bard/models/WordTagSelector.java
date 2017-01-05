@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
 
+import static com.roplabs.bard.util.Helper.normalizeWord;
+
 public class WordTagSelector {
     HashMap<String, List<WordTag>> wordTagMap;
     HashMap<String, List<WordTag>> sceneWordTagMap;
@@ -132,10 +134,6 @@ public class WordTagSelector {
 
     public WordTag findPrevWord() {
         return findWord(currentWord, PREV_DIRECTION);
-    }
-
-    private String normalizeWord(String word) {
-        return word.toLowerCase().replaceAll("[\"\'.!?]","");
     }
 
     // see if word exists on the map

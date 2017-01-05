@@ -245,7 +245,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         int viewHeight = previewTagView.getHeight();
         int viewWidth = previewTagView.getWidth();
         int newHeight = viewHeight;
-        int newWidth = (int) (1.7 * viewHeight);
+        int newWidth = (int) (1.9 * viewHeight);
         int xoff = (viewWidth - newWidth) / 2;
         int yoff = (viewHeight - newHeight) / 2;
         txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
