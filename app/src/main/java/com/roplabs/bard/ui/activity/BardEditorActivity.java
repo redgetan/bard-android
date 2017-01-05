@@ -169,6 +169,7 @@ public class BardEditorActivity extends BaseActivity implements
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
 
+        wordTagPlayHandler = new Handler();
         inputContainer = (RelativeLayout) findViewById(R.id.input_container);
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
@@ -639,6 +640,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findNextWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
+                    focusOnWordTag(targetWordTag);
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
@@ -652,6 +654,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag targetWordTag = getWordTagSelector().findPrevWord();
                 if (targetWordTag != null) {
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
+                    focusOnWordTag(targetWordTag);
                     int tokenIndex = editText.getTokenIndex();
                     wordTagList.set(tokenIndex, targetWordTag);
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
@@ -683,8 +686,17 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnFilterCompleteListener(new WordsAutoCompleteTextView.OnFilterCompleteListener() {
             @Override
             public void onFilterComplete(List<String> results) {
+                // focus on first result
+                if (!editText.getCurrentTokenWord().isEmpty() && results.size() > 0) {
+                    WordTag wordTag = getWordTagSelector().findWord(results.get(0), "next");
+                    focusOnWordTag(wordTag);
+                }
+
                 // update output wordTagList
-                updateWordTagList(editText.getText(), editText.getSelectionStart(), results);
+                int cursor = editText.getSelectionStart() - 1;
+                if (cursor < 0 ) cursor = 0;
+                updateWordTagList(editText.getText(), cursor, results);
+
             }
         });
 
@@ -857,8 +869,6 @@ public class BardEditorActivity extends BaseActivity implements
 
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
-        focusOnWordTag(wordTag);
-
         getWordListFragment().setWordTag(wordTag);
         updatePlayMessageBtnState();
     }
@@ -868,17 +878,32 @@ public class BardEditorActivity extends BaseActivity implements
         editText.getText().insert(editText.getSelectionStart(), " ");
     }
 
+    private Runnable delayedWordPreviewPlayback;
+    private Handler wordTagPlayHandler;
+
     @Override
-    public void onWordTagChanged(WordTag wordTag) {
+    public void onWordTagChanged(final WordTag wordTag, int delayInMilliSeconds) {
         if (!wordTag.isFilled()) return;
         BardLogger.trace("onWordTagChanged: " + wordTag.toString());
         drawWordTagNavigatorState();
-        focusOnWordTag(wordTag);
-        playRemoteVideoAndDisplayThubmnail(wordTag.toString());
 
+        if (delayedWordPreviewPlayback != null) {
+            wordTagPlayHandler.removeCallbacks(delayedWordPreviewPlayback);
+        }
+
+        delayedWordPreviewPlayback = new Runnable(){
+            @Override
+            public void run(){
+                playRemoteVideoAndDisplayThubmnail(wordTag.toString());
+                delayedWordPreviewPlayback = null;
+            }
+        };
+
+        wordTagPlayHandler.postDelayed(delayedWordPreviewPlayback, delayInMilliSeconds);
     }
 
     private void focusOnWordTag(WordTag wordTag) {
+        BardLogger.log("focusing...." + wordTag.word);
         int position;
 
         if (editText.isFilteredAlphabetically()) {
@@ -911,16 +936,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (wordTag != null && !wordTagList.get(tokenIndex).isFilled()) {
             // assign tag
             wordTagList.set(tokenIndex, wordTag);
-            getWordListFragment().setWordTag(wordTag);
-
-            updatePlayMessageBtnState();
-        }
-    }
-
-    private void onSuccessfulWordTagAdd(WordTag wordTag, int tokenIndex) {
-        if (wordTag != null) {
-            wordTagList.add(tokenIndex,wordTag);
-            getWordListFragment().setWordTag(wordTag);
+            getWordListFragment().setWordTagWithDelay(wordTag, 500);
 
             updatePlayMessageBtnState();
         }
@@ -942,6 +958,7 @@ public class BardEditorActivity extends BaseActivity implements
         clearAssignWOrdTagRunnable();
 
         String character = editText.getAddedChar(start);
+        BardLogger.log("addedChar: " + character);
         boolean isLeaderPressed = character.equals(" ");
         int tokenCount = editText.getTokenCount();
         int tokenIndex = editText.getTokenIndex();
@@ -977,19 +994,28 @@ public class BardEditorActivity extends BaseActivity implements
 
             if (!wordTagList.get(i).isFilled()) {
                 if (tokenIndex == i) {
-                    if (isLeaderPressed) {
-                        if (!filteredResults.isEmpty()) {
-                            attemptAssignWordTag(filteredResults.get(0), tokenIndex);
-                        } else {
-                            attemptAssignWordTag(userTypedWord, tokenIndex);
-                        }
-                    } else {
-                        if (!filteredResults.isEmpty()) {
-                            attemptAssignWordTagDelayed(filteredResults.get(0), tokenIndex);
-                        } else {
-                            attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
-                        }
+                    if (!userTypedWord.isEmpty() && !filteredResults.isEmpty()) {
+                        attemptAssignWordTag(filteredResults.get(0), tokenIndex);
+//                        if (isLeaderPressed) {
+//                            skipOnTextChangeCallback = true;
+//                            editText.replaceText(filteredResults.get(0) + " ");
+//                            skipOnTextChangeCallback = false;
+//                        }
                     }
+
+//                    if (isLeaderPressed) {
+//                        if (!filteredResults.isEmpty()) {
+//                            attemptAssignWordTag(filteredResults.get(0), tokenIndex);
+//                        } else {
+//                            attemptAssignWordTag(userTypedWord, tokenIndex);
+//                        }
+//                    } else {
+//                        if (!filteredResults.isEmpty()) {
+//                            attemptAssignWordTagDelayed(filteredResults.get(0), tokenIndex);
+//                        } else {
+//                            attemptAssignWordTagDelayed(userTypedWord, tokenIndex);
+//                        }
+//                    }
                 } else {
                     if ((wordTag = getWordTagSelector().findWord(userTypedWord, "next")) != null) {
                         wordTagList.set(i, wordTag);
@@ -1565,7 +1591,7 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void playRemoteVideoAndDisplayThubmnail(String wordTagString) {
-        BardLogger.trace("playRemoteVideo" + android.os.Process.getThreadPriority(android.os.Process.myTid()));
+
         if (!Helper.isConnectedToInternet()) {
             debugView.setText(R.string.no_network_connection);
             return;

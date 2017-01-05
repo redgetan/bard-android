@@ -140,7 +140,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         String[] strings = fullString.split(separatorRegex);
 
-
         for (int i = 0; i < strings.length; i++) {
             String string = strings[i];
             if (!isWordValid(string)) {
@@ -152,7 +151,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     private boolean isWordValid(String word) {
-        return mWordTrie.containsKey(normalizeWord(word));
+        return mWordTrie.prefixMap(normalizeWord(word)).keySet().size() > 0;
     }
 
     public boolean isBeforeImageSpan() {
@@ -223,6 +222,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         lastString = sb.toString();
 
         setText(sb);
+        if (origCursorPosition > sb.length()) origCursorPosition = sb.length();
+        if (sb.length() == 0) origCursorPosition = 0;
+
         setSelection(origCursorPosition);
     }
 
@@ -524,7 +526,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             }
             WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
             recyclerView.setAdapter(adapter);
-//            onFilterComplete(results.count);
         }
     }
 
