@@ -189,7 +189,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         initWordTagViewListeners();
 
-        addWordBtn = (Button) findViewById(R.id.add_word_btn);
+//        addWordBtn = (Button) findViewById(R.id.add_word_btn);
 //        addWordBtn.setEnabled(false);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
@@ -767,10 +767,10 @@ public class BardEditorActivity extends BaseActivity implements
     private void updatePlayMessageBtnState() {
         if (getFilledWordTagCount() > 1) {
             playMessageBtn.setEnabled(true);
-            playMessageBtn.setVisibility(View.VISIBLE);
+//            playMessageBtn.setVisibility(View.VISIBLE);
         } else {
             playMessageBtn.setEnabled(false);
-            playMessageBtn.setVisibility(View.GONE);
+//            playMessageBtn.setVisibility(View.GONE);
         }
     }
 
@@ -799,7 +799,7 @@ public class BardEditorActivity extends BaseActivity implements
 
 
         skipOnTextChangeCallback = true;
-        editText.replaceText(wordTag.word);
+        editText.replaceText(wordTag.word + " ");
         editText.format();
         skipOnTextChangeCallback = false;
 
@@ -1107,7 +1107,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onJoinSegmentsSuccess(String outputFilePath) {
         trackGenerateBardVideo();
-        showVideoResultFragment();
+//        showVideoResultFragment();
         playLocalVideo(outputFilePath);
 
         playMessageBtn.setEnabled(true);
@@ -1601,6 +1601,14 @@ public class BardEditorActivity extends BaseActivity implements
     public void playLocalVideo(String filePath) {
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
+
+        if (getWordListFragment() != null) {
+            getWordListFragment().playPreview(filePath);
+            isWordTagListContainerBlocked = false;
+            if (lastClickedWordTagView != null) {
+                lastClickedWordTagView.setEnabled(true);
+            }
+        }
 
 //        getVideoResultFragment().playLocalVideo(filePath);
     }

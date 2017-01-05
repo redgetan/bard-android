@@ -36,9 +36,10 @@
             ></View>
 
             <Button
-                    android:id="@+id/play_message_btn"
+                    android:id="@+id/share_repo_btn"
                     android:onClick="generateBardVideo"
                     android:enabled="false"
+                    android:visibility="gone"
                     android:background="@drawable/selector_play_all"
                     android:textColor="@color/white"
                     android:layout_marginLeft="5dp"
@@ -154,8 +155,8 @@
                                                                   android:hint="@string/edit_message"/>
 
             <Button
-                    android:id="@+id/add_word_btn"
-                    android:onClick="addWord"
+                    android:id="@+id/play_message_btn"
+                    android:onClick="generateBardVideo"
                     android:enabled="true"
                     android:background="@color/md_blue_500"
                     android:textColor="@color/white"
@@ -164,7 +165,7 @@
                     android:layout_marginEnd="5dp"
                     android:minWidth="50dp"
                     android:textAllCaps="false"
-                    android:text="Add"
+                    android:text="Talk"
                     android:layout_width="wrap_content"
                     android:layout_height="25dp" />
 
