@@ -8,6 +8,7 @@
         android:orientation="horizontal"
         android:gravity="center"
         android:layout_height="match_parent"
+        android:background="@color/ios_light_iron"
         android:layout_width="match_parent">
     <LinearLayout
             android:orientation="vertical"

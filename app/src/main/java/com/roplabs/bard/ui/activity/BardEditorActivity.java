@@ -488,6 +488,17 @@ public class BardEditorActivity extends BaseActivity implements
 //        toast.show();
     }
 
+    private void displayEmptySearchMessage() {
+        emptyStateTitle.setVisibility(View.GONE);
+        emptyStateDescription.setText("No results found. Try another word");
+        emptyStateContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptySearchMessage() {
+        emptyStateTitle.setVisibility(View.VISIBLE);
+        emptyStateContainer.setVisibility(View.GONE);
+    }
+
     private void initCharacterWordList() {
 
         if (character.getIsBundleDownloaded()) {
@@ -694,6 +705,12 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnFilterCompleteListener(new WordsAutoCompleteTextView.OnFilterCompleteListener() {
             @Override
             public void onFilterComplete(List<String> results) {
+                if (results.isEmpty()) {
+                    displayEmptySearchMessage();
+                } else {
+                    hideEmptySearchMessage();
+                }
+
                 // focus on first result
                 if (!editText.getCurrentTokenWord().isEmpty() && results.size() > 0) {
                     WordTag wordTag = getWordTagSelector().findWord(results.get(0), "next");
