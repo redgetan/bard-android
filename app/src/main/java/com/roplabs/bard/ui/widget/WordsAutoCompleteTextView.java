@@ -82,7 +82,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void initWordsAutoComplete() {
         setMovementMethod(LinkMovementMethod.getInstance());
 
-        addTextChangedListener(new MyWatcher());
         this.isAutocompleteEnabled = true;
     }
 
@@ -112,25 +111,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return tokens[tokens.length - 1].toLowerCase();
     }
 
-    private class MyWatcher implements TextWatcher {
-        public void afterTextChanged(Editable s) {
-            doAfterTextChanged();
-        }
-        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-        }
-        public void onTextChanged(CharSequence s, int start, int before, int count) {
-
-        }
-    }
-
-    void doAfterTextChanged() {
-        if (this.isAutocompleteEnabled) {
-            performFiltering(getText(), 0);
-        }
-
-//        if (getText().length() > 0 && !getText().equals(lastString)) {
-//            format();
-//        }
+    public void findPrefixMatches() {
+        performFiltering(getText(), 0);
     }
 
     public boolean containsInvalidWord() {

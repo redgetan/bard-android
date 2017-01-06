@@ -703,6 +703,9 @@ public class BardEditorActivity extends BaseActivity implements
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                if (!skipOnTextChangeCallback) {
+
+                }
             }
 
             @Override
@@ -710,17 +713,16 @@ public class BardEditorActivity extends BaseActivity implements
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s, start);
                     ensureWordTagCleanDelete(start, count);
+
                     formatTagsIfNeeded(start);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable s) {
-//                if (editText.getCurrentTokenWord().isEmpty()) {
-//                    addWordBtn.setEnabled(false);
-//                } else {
-//                    addWordBtn.setEnabled(true);
-//                }
+                if (!skipOnTextChangeCallback) {
+                    editText.findPrefixMatches();
+                }
             }
         });
 
@@ -777,6 +779,22 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
                 if (source.equals(" ") && editText.containsInvalidWord()) {
+                    return "";
+                } else if (source.equals(" ") && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
+                    // user press space in valid state
+                    // user press spaced
+                    List<String> filteredResults = ((WordListAdapter) recyclerView.getAdapter()).getList();
+                    if (!filteredResults.isEmpty()) {
+                        String firstMatch = filteredResults.get(0);
+                        if (firstMatch.equals(editText.getCurrentTokenWord())) {
+                            return null;
+                        } else {
+                            skipOnTextChangeCallback = true;
+                            editText.replaceText(filteredResults.get(0) + " ");
+                            skipOnTextChangeCallback = false;
+                            return "";
+                        }
+                    }
                     return "";
                 } else if (source.length() == 1 && editText.isBeforeImageSpan()){
                     // prevent user from adding words in between imagespans (easier from implementation perspective)
@@ -996,11 +1014,6 @@ public class BardEditorActivity extends BaseActivity implements
                 if (tokenIndex == i) {
                     if (!userTypedWord.isEmpty() && !filteredResults.isEmpty()) {
                         attemptAssignWordTag(filteredResults.get(0), tokenIndex);
-//                        if (isLeaderPressed) {
-//                            skipOnTextChangeCallback = true;
-//                            editText.replaceText(filteredResults.get(0) + " ");
-//                            skipOnTextChangeCallback = false;
-//                        }
                     }
 
 //                    if (isLeaderPressed) {
