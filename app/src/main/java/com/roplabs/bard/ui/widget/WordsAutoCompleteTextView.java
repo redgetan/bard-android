@@ -434,9 +434,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         }
     }
 
+    public boolean isUnfiltered() {
+        List<String> results = ((WordListAdapter) recyclerView.getAdapter()).getList();
+        return (results.size() == originalWordTagStringList.size()) || (results.size() == mWordTrie.size());
+    }
+
+    // if were not in autocomplete mode, we wont be setting recyclerView adapter list
+    // thus, we dont be able to use getAdapter.getList to get filter results
+    // instead, we would get it from the filteredResults variable, which is always stored during prefix filtering
+
+
+    // if we are in autocomplete mode, there are 2 cases
+    //   case 1: nothing is filtered (empty string), we want to return sequential list
     public List<String> getFilteredResults() {
         if (isAutocompleteEnabled) {
-            return ((WordListAdapter) recyclerView.getAdapter()).getList();
+            List<String> results = ((WordListAdapter) recyclerView.getAdapter()).getList();
+            return results;
         } else {
             return filteredResults;
         }

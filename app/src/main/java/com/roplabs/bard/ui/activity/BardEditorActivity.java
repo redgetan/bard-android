@@ -128,6 +128,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private Trie<String, String> wordTrie;
     private LinkedList<WordTag> wordTagList;
+    private LinkedList<WordTag> lastMergedWordTagList;
     private boolean skipOnTextChangeCallback;
     private TextView repoTitle;
 
@@ -212,6 +213,8 @@ public class BardEditorActivity extends BaseActivity implements
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
         isWordTagListContainerBlocked = false;
+
+        lastMergedWordTagList = new LinkedList<WordTag>();
 
         Intent intent = getIntent();
 //        characterToken = intent.getStringExtra("characterToken");
@@ -894,6 +897,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 
+        focusOnWordTag(wordTag);
+
         getWordListFragment().setWordTag(wordTag);
         updatePlayMessageBtnState();
     }
@@ -931,7 +936,7 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.log("focusing...." + wordTag.word);
         int position;
 
-        if (editText.isFilteredAlphabetically()) {
+        if (editText.isFilteredAlphabetically() && !editText.isUnfiltered()) {
             position = editText.getFilteredResults().indexOf(wordTag.word);
         } else {
             position = wordTag.position;
@@ -1207,6 +1212,9 @@ public class BardEditorActivity extends BaseActivity implements
 //        showVideoResultFragment();
         playLocalVideo(outputFilePath);
 
+        // remember result (for sharing)
+        lastMergedWordTagList = wordTagList;
+
         playMessageBtn.setEnabled(true);
     }
 
@@ -1445,6 +1453,11 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void generateBardVideo(View view) throws IOException {
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+
+        // replay last merge if nothing changed
+        if (lastMergedWordTagList.toString().equals(wordTagList.toString())) {
+            playLocalVideo(Storage.getMergedOutputFilePath());
+        }
 
         if (editText.containsInvalidWord()) return;
 
