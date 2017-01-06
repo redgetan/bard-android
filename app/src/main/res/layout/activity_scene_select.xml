@@ -14,7 +14,7 @@
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:background="@color/base"
+                  android:background="@color/jumbo"
                     >
         <EditText
                 android:id="@+id/video_search_input"
@@ -24,6 +24,7 @@
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textSize="14sp"
+                android:textAlignment="center"
                 android:hint="Search title or words"
                 android:drawablePadding="5dp"
                 android:drawableLeft="@drawable/ic_search_black_18dp"

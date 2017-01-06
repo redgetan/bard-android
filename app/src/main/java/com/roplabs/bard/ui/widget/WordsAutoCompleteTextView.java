@@ -53,6 +53,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private String separator = " ";
     private String separatorRegex = "\\s+";
     private boolean isFormattingLocked = false;
+    private List<String> filteredResults;
+    private List<String> originalWordTagStringList;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
@@ -79,6 +81,15 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         this.filterCompleteListener = listener;
     }
 
+    public void setOriginalWordTagStringList(List<String> originalWordTagStringList) {
+        this.originalWordTagStringList = originalWordTagStringList;
+    }
+
+    public List<String> getOriginalWordTagStringList() {
+        return originalWordTagStringList;
+    }
+
+
     public void initWordsAutoComplete() {
         setMovementMethod(LinkMovementMethod.getInstance());
 
@@ -87,9 +98,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     @Override
     public void onFilterComplete(int count) {
-        List<String> results = ((WordListAdapter) recyclerView.getAdapter()).getList();
+        List<String> results = getFilteredResults();
         this.filterCompleteListener.onFilterComplete(results);
     }
+
+
 
     public String getNextChar(CharSequence s, int start) {
         String result = "";
@@ -391,6 +404,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         }
     }
 
+    public String getLastChar() {
+        if (getText().length() == 0) return "";
+
+        return String.valueOf(getText().charAt(getText().length() - 1));
+    }
+
     public int findTokenStart(int cursor) {
         return getTokenizer().findTokenStart(getText(), cursor);
     }
@@ -412,6 +431,14 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             return tokens[0].isEmpty() ? 0 : 1;
         } else {
             return tokens.length;
+        }
+    }
+
+    public List<String> getFilteredResults() {
+        if (isAutocompleteEnabled) {
+            return ((WordListAdapter) recyclerView.getAdapter()).getList();
+        } else {
+            return filteredResults;
         }
     }
 
@@ -503,11 +530,25 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         @Override
         protected void publishResults(CharSequence constraint, FilterResults results) {
+            List<String> actualResults = ((ArrayList<String>) results.values);
             if (results.values != null) {
-                BardLogger.log("publishing filter: " + ((List<String>) results.values).toString());
+                BardLogger.log("publishing filter: " + actualResults.toString());
             }
-            WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), (List<String>) results.values);
-            recyclerView.setAdapter(adapter);
+
+            if (isAutocompleteEnabled) {
+                WordListAdapter adapter;
+
+                if (actualResults.size() == mWordTrie.size()) {
+                    adapter = new WordListAdapter(ClientApp.getContext(), originalWordTagStringList);
+                    adapter.setIsWordTagged(true);
+                } else {
+                    adapter = new WordListAdapter(ClientApp.getContext(), actualResults);
+                }
+
+                recyclerView.setAdapter(adapter);
+            } else {
+                filteredResults = actualResults;
+            }
         }
     }
 

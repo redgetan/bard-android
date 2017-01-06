@@ -205,6 +205,7 @@ public class BardEditorActivity extends BaseActivity implements
         saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
 //        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
         modeChangeBtn = (ImageView) findViewById(R.id.mode_change_btn);
+        modeChangeBtn.setAlpha(75);
 
         findNextBtn = (ImageView) findViewById(R.id.btn_find_next);
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
@@ -242,8 +243,10 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void changeInputMode(View view) {
         if (editText.isFilteredAlphabetically()) {
+            modeChangeBtn.setAlpha(200);
             editText.setEnableAutocomplete(false);
         } else {
+            modeChangeBtn.setAlpha(75);
             editText.setEnableAutocomplete(true);
         }
     }
@@ -332,6 +335,8 @@ public class BardEditorActivity extends BaseActivity implements
 
 
     private void reloadWordTagViewData(List<String> wordTagStringList) {
+        editText.setOriginalWordTagStringList(wordTagStringList);
+
         WordListAdapter adapter = new WordListAdapter(this, wordTagStringList);
         adapter.setIsWordTagged(true);
         adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
@@ -711,10 +716,10 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (!skipOnTextChangeCallback) {
-                    handleUnavailableWords(s, start);
+                    handleUnavailableWords(s);
                     ensureWordTagCleanDelete(start, count);
 
-                    formatTagsIfNeeded(start);
+                    formatTagsIfNeeded();
                 }
             }
 
@@ -761,9 +766,9 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void formatTagsIfNeeded(int start) {
-        String character = editText.getAddedChar(start);
-        boolean isLeaderPressed = character.equals(" ");
+    private void formatTagsIfNeeded() {
+        String lastCharacter = editText.getLastChar();
+        boolean isLeaderPressed = lastCharacter.equals(" ");
 
         // make sure to add 'tag' around word that was just added
         if (isLeaderPressed) {
@@ -783,16 +788,18 @@ public class BardEditorActivity extends BaseActivity implements
                 } else if (source.equals(" ") && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
                     // user press space in valid state
                     // user press spaced
-                    List<String> filteredResults = ((WordListAdapter) recyclerView.getAdapter()).getList();
+                    List<String> filteredResults = editText.getFilteredResults(); ;
                     if (!filteredResults.isEmpty()) {
                         String firstMatch = filteredResults.get(0);
                         if (firstMatch.equals(editText.getCurrentTokenWord())) {
                             return null;
                         } else {
-                            skipOnTextChangeCallback = true;
-                            editText.replaceText(filteredResults.get(0) + " ");
-                            skipOnTextChangeCallback = false;
-                            return "";
+                            return firstMatch.substring(editText.getCurrentTokenWord().length()) + " ";
+//                            skipOnTextChangeCallback = true;
+//                            editText.replaceText(filteredResults.get(0));
+//                            editText.setSelection(editText.getText().length());
+//                            skipOnTextChangeCallback = false;
+//                            return null;
                         }
                     }
                     return "";
@@ -848,7 +855,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void handleUnavailableWords(CharSequence s, int start) {
+    private void handleUnavailableWords(CharSequence s) {
         if (notifyInvalidWordsRunnable != null) {
             notifyInvalidWordsHandler.removeCallbacks(notifyInvalidWordsRunnable);
         }
@@ -925,7 +932,7 @@ public class BardEditorActivity extends BaseActivity implements
         int position;
 
         if (editText.isFilteredAlphabetically()) {
-            position = ((WordListAdapter) recyclerView.getAdapter()).getList().indexOf(wordTag.word);
+            position = editText.getFilteredResults().indexOf(wordTag.word);
         } else {
             position = wordTag.position;
         }
@@ -1438,6 +1445,9 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void generateBardVideo(View view) throws IOException {
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+
+        if (editText.containsInvalidWord()) return;
+
         playMessageBtn.setEnabled(false);
 
         if (attemptWordTagAssignRunnable != null) {
