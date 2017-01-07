@@ -46,7 +46,7 @@ public class Helper {
     public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
     public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
     public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
-    public static final int NEW_BARD_DRAWER_ITEM_IDENTIFIER = 4;
+    public static final int UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER = 4;
     public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
 
@@ -296,7 +296,8 @@ public class Helper {
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.new_bard).withIdentifier(NEW_BARD_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.bard_library).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new PrimaryDrawerItem().withName("Upload a Video").withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
@@ -308,8 +309,12 @@ public class Helper {
                         Intent intent;
 
                         switch ((int) drawerItem.getIdentifier()) {
-                            case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(context.getApplicationContext(), SceneSelectActivity.class);
+                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:
@@ -321,10 +326,6 @@ public class Helper {
                                 break;
                             case PROFILE_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), ProfileActivity.class);
-                                context.startActivity(intent);
-                                break;
-                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case ABOUT_DRAWER_ITEM_IDENTIFIER:
