@@ -291,16 +291,18 @@ public class Helper {
                 .withHeightDp(150)
                 .build();
 
+        int textColor = ContextCompat.getColor(ClientApp.getContext(), R.color.black);
+
         new DrawerBuilder()
                 .withActivity(context)
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.bard_library).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
-                        new PrimaryDrawerItem().withName("Upload a Video").withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
+                        new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
                         new DividerDrawerItem(),
-                        new PrimaryDrawerItem().withName(R.string.tell_friend).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
+                        new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.settings_string).withTextColor(textColor).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
                 )
                 .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
                     @Override

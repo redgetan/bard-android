@@ -77,7 +77,8 @@ public class SceneSelectActivity extends BaseActivity  {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("Bard");
+        title.setText(R.string.app_name);
+        title.setTextSize(24);
 
         Helper.initNavigationViewDrawer(this, toolbar);
         initEmptyState();
