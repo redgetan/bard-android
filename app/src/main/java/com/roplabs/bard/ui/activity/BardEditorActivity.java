@@ -190,6 +190,7 @@ public class BardEditorActivity extends BaseActivity implements
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
         recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
         recyclerView.setItemAnimator(null); // prevent blinking animation when notifyItemChanged on adapter is called
+        recyclerView.setVisibility(View.GONE);
 
         initWordTagViewListeners();
 
@@ -286,6 +287,11 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
+    // when everything is built (i.e. creating the wordTrie)
+    public interface OnWordListSetupListener {
+        void onWordListPrepared();
+    }
+
     private void setCharacterOrSceneTitle() {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         if (!sceneToken.isEmpty()) {
@@ -371,8 +377,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initChatText() {
         clearChatCursor();
-        initDictionary();
-        initMultiAutoComplete();
+        initSceneWordList();
     }
 
     private void clearChatCursor() {
@@ -389,24 +394,14 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void initDictionary() {
-        progressBar.setVisibility(View.VISIBLE);
-        debugView.setText("Initializing");
-
-        initSceneWordList();
-
-//        if (!sceneToken.isEmpty()) {
-//            initSceneWordList();
-//        } else {
-//            initCharacterWordList();
-//        }
-    }
-
     private void onWordListAvailable(List<String> wordTagStringList) {
+        BardLogger.log("[MARIO] wordList available. wordTrie count: " + wordTrie.size());
         reloadWordTagViewData(wordTagStringList);
-        progressBar.setVisibility(View.GONE);
-        debugView.setText("");
+
+        initMultiAutoComplete();
+
         editText.setEnabled(true);
+        recyclerView.setVisibility(View.VISIBLE);
     }
 
     private void initSceneWordList() {
@@ -432,8 +427,7 @@ public class BardEditorActivity extends BaseActivity implements
                     if (wordList.isEmpty()) {
                         displayEmptyWordListError();
                     } else {
-                        addWordListToDictionary(wordList);
-                        onWordListAvailable(scene.getWordListAsList());
+                        asyncWordListSetup(wordList);
                     }
                 }
 
@@ -445,8 +439,7 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             });
         } else {
-            addWordListToDictionary(scene.getWordList());
-            onWordListAvailable(scene.getWordListAsList());
+            asyncWordListSetup(scene.getWordList());
         }
     }
 
@@ -470,6 +463,50 @@ public class BardEditorActivity extends BaseActivity implements
         emptyStateContainer.setVisibility(View.GONE);
     }
 
+    private void asyncWordListSetup(String wordListString) {
+        progressBar.setVisibility(View.VISIBLE);
+        debugView.setText("Initializing");
+
+        (new AsyncTask<String, Integer, Void>() {
+            @Override
+            protected Void doInBackground(String... args) {
+                String targetWordListString = args[0];
+                addWordListToDictionary(targetWordListString);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                onWordListAvailable(availableWordList);
+            }
+
+        }).execute(wordListString);
+    }
+
+    private void asyncWordListSetup(String wordListString, final OnWordListSetupListener listener) {
+        (new AsyncTask<String, Integer, Void>() {
+            @Override
+            protected Void doInBackground(String... args) {
+                String targetWordListString = args[0];
+                addWordListToDictionary(targetWordListString);
+                return null;
+            }
+
+            @Override
+            protected void onPostExecute(Void v) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                onWordListAvailable(availableWordList);
+                listener.onWordListPrepared();
+            }
+
+        }).execute(wordListString);
+    }
+
     private void initCharacterWordList() {
 
         if (character.getIsBundleDownloaded()) {
@@ -480,22 +517,7 @@ public class BardEditorActivity extends BaseActivity implements
                 combinedWordList.add(scene.getWordList());
             }
 
-            (new AsyncTask<String, Integer, Void>() {
-                @Override
-                protected Void doInBackground(String... wordListCombined) {
-                    addWordListToDictionary(TextUtils.join(",", wordListCombined));
-                    return null;
-                }
-
-                @Override
-                protected void onPostExecute(Void v) {
-                    progressBar.setVisibility(View.GONE);
-                    debugView.setText("");
-
-                    onWordListAvailable(availableWordList);
-                }
-
-            }).execute(TextUtils.join(",",combinedWordList));
+            asyncWordListSetup(TextUtils.join(",",combinedWordList));
         } else {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Downloading");
@@ -523,28 +545,15 @@ public class BardEditorActivity extends BaseActivity implements
                         combinedWordList.add(givenWordList);
                     }
 
-                    (new AsyncTask<String, Integer, Void>() {
+                    asyncWordListSetup(TextUtils.join(",",combinedWordList), new OnWordListSetupListener() {
                         @Override
-                        protected Void doInBackground(String... wordListCombined) {
-                            addWordListToDictionary(TextUtils.join(",", wordListCombined));
-                            return null;
-                        }
-
-                        @Override
-                        protected void onPostExecute(Void v) {
-                            // mark character bundle as downloaded (full wordlist available)
+                        public void onWordListPrepared() {
                             Realm realm = Realm.getDefaultInstance();
                             realm.beginTransaction();
                             character.setIsBundleDownloaded(true);
                             realm.commitTransaction();
-
-                            progressBar.setVisibility(View.GONE);
-                            debugView.setText("");
-
-                            onWordListAvailable(availableWordList);
                         }
-
-                    }).execute(TextUtils.join(",",combinedWordList));
+                    });
 
                 }
 
@@ -576,17 +585,6 @@ public class BardEditorActivity extends BaseActivity implements
         List<String> givenWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
 
         this.getWordTagSelector().setSceneWordTagMap(givenWordList);
-    }
-
-    private void loadSceneDictionary() {
-        // this is so that there's no annoying horizontal scrollbar showing up for a few seconds (will be re-enabled later)
-
-        if (scene == null) {
-            this.getWordTagSelector().setSceneWordTagMap(new HashMap<String, List<WordTag>>());
-            onWordListAvailable(availableWordList);
-        } else {
-            initSceneWordList();
-        }
     }
 
     private String[] buildUniqueWordList() {
@@ -1557,7 +1555,6 @@ public class BardEditorActivity extends BaseActivity implements
             }
         }
 
-//        getVideoResultFragment().playLocalVideo(filePath);
     }
 
     @Override
@@ -1570,34 +1567,6 @@ public class BardEditorActivity extends BaseActivity implements
     public void onPause() {
         EventBus.getDefault().unregister(this);
         super.onPause();
-    }
-
-    private void showVideoResultFragment() {
-        hideKeyboard();
-
-        editTextContainer.setVisibility(View.GONE);
-        previewTimelineContainer.setVisibility(View.GONE);
-        recyclerView.setVisibility(View.GONE);
-        playMessageBtn.setVisibility(View.GONE);
-        findNextBtn.setVisibility(View.GONE);
-        findPrevBtn.setVisibility(View.GONE);
-
-        videoResultContent.setVisibility(View.VISIBLE);
-    }
-
-    public void showWordListFragment(View view) {
-        videoResultContent.setVisibility(View.GONE);
-
-        findNextBtn.setVisibility(View.VISIBLE);
-        findPrevBtn.setVisibility(View.VISIBLE);
-        editTextContainer.setVisibility(View.VISIBLE);
-        previewTimelineContainer.setVisibility(View.VISIBLE);
-        if (!recyclerView.isShown()) {
-            recyclerView.setVisibility(View.VISIBLE);
-        }
-        updatePlayMessageBtnState();
-
-//        setCharacterOrSceneTitle();
     }
 
     @Subscribe
