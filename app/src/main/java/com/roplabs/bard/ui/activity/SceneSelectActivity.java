@@ -95,6 +95,16 @@ public class SceneSelectActivity extends BaseActivity  {
         emptyStateContainer.setVisibility(View.GONE);
     }
 
+    private void displayEmptySearchMessage() {
+        emptyStateTitle.setText("No results found");
+        emptyStateDescription.setText("Try another search or upload an existing video");
+        emptyStateContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void hideEmptySearchMessage() {
+        emptyStateContainer.setVisibility(View.GONE);
+    }
+
     private void initSearch() {
         lastSearch = "";
         searchIcon.setAlpha(100); // make search icon opacity set to 50%
@@ -161,6 +171,8 @@ public class SceneSelectActivity extends BaseActivity  {
         map.put("page",String.valueOf(1));
         map.put("search", text);
         syncRemoteData(map);
+
+        lastSearch = text;
     }
 
 
@@ -194,7 +206,13 @@ public class SceneSelectActivity extends BaseActivity  {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Request Failed");
                     emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                } else if (remoteSceneList.isEmpty() && options.containsKey("page") && options.get("page").equals("1")) {
+                    // when performing a search, it will do two requests if initial list is < threshold for pagination trigger
+                    // in that case, the 2nd request will be empty (but since first request contains results, we dont want
+                    // to display no results found message
+                    displayEmptySearchMessage();
                 } else {
+                    hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
                 }
             }
@@ -249,10 +267,6 @@ public class SceneSelectActivity extends BaseActivity  {
         sceneList.addAll(remoteSceneList);
         recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, remoteSceneList.size());
 
-        // save last search
-        if (options.get("search") != null) {
-            lastSearch = options.get("search");
-        }
     }
 
     public void initScenes() {
