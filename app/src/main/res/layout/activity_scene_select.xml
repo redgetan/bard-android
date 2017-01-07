@@ -14,18 +14,18 @@
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:background="@color/jumbo"
+                  android:background="@color/ios_light_iron"
                     >
         <EditText
                 android:id="@+id/video_search_input"
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
+                android:layout_height="40dp"
                 android:background="@drawable/search_bar_background"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textSize="14sp"
                 android:textAlignment="center"
-                android:hint="Search title or words"
+                android:hint="Type words or search title"
                 android:drawablePadding="5dp"
                 android:drawableLeft="@drawable/ic_search_black_18dp"
                 android:drawableStart="@drawable/ic_search_black_18dp"
@@ -57,6 +57,7 @@
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/scene_list"
                 android:layout_width="match_parent"
+                android:background="@color/ios_light_iron"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
                 android:padding="@dimen/item_offset"
