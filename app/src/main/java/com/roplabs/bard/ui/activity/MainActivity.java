@@ -47,7 +47,7 @@ public class MainActivity extends BaseActivity {
             Analytics.identify(this);
         }
 
-        intent = new Intent(this, RepoListActivity.class);
+        intent = new Intent(this, SceneSelectActivity.class);
 
         startActivity(intent);
     }

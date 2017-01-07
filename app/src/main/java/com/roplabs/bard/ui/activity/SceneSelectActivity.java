@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -37,6 +38,9 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 
 public class SceneSelectActivity extends BaseActivity  {
     private Context mContext;
@@ -76,11 +80,13 @@ public class SceneSelectActivity extends BaseActivity  {
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("Pick Video");
+        title.setText("Bard");
 
+        Helper.initNavigationViewDrawer(this, toolbar);
         initEmptyState();
         initSearch();
         initScenes();
+        Helper.askStoragePermission(this);
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
@@ -94,6 +100,34 @@ public class SceneSelectActivity extends BaseActivity  {
 
         emptyStateContainer.setVisibility(View.GONE);
     }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_WRITE_STORAGE: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    Toast.makeText(this, "The app was not allowed to write to your storage. Hence, it cannot function properly. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+
+
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
+    }
+
 
     private void displayEmptySearchMessage() {
         emptyStateTitle.setText("No results found");
@@ -237,6 +271,7 @@ public class SceneSelectActivity extends BaseActivity  {
     @Override
     protected void onResume() {
         BardLogger.log("Scene Select onResume");
+        Helper.initNavigationViewDrawer(this, toolbar);
         super.onResume();
     }
 
@@ -249,6 +284,7 @@ public class SceneSelectActivity extends BaseActivity  {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
             finish();
+        } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
         }
     }
 

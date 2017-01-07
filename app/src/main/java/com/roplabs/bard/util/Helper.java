@@ -1,24 +1,57 @@
 package com.roplabs.bard.util;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import com.mikepenz.materialdrawer.AccountHeader;
+import com.mikepenz.materialdrawer.AccountHeaderBuilder;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.R;
+import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.ui.activity.LoginActivity;
+import com.roplabs.bard.ui.activity.ProfileActivity;
+import com.roplabs.bard.ui.activity.RepoListActivity;
+import com.roplabs.bard.ui.activity.SceneSelectActivity;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Response;
+import android.support.v7.widget.Toolbar;
 
 import java.io.*;
 import java.util.Locale;
 
+
 public class Helper {
+
+    public static final int CREATE_DRAWER_ITEM_IDENTIFIER = 1;
+    public static final int MY_PROJECTS_DRAWER_ITEM_IDENTIFIER = 2;
+    public static final int ABOUT_DRAWER_ITEM_IDENTIFIER = 3;
+    public static final int NEW_BARD_DRAWER_ITEM_IDENTIFIER = 4;
+    public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
+    public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
+
+    public static final int REQUEST_WRITE_STORAGE = 1;
+    public static final int LOGIN_REQUEST_CODE = 2;
 
     public static String parseError(Response<?> response) {
         if (response.errorBody() != null) {
@@ -229,4 +262,113 @@ public class Helper {
             }
         });
     }
+
+    public static void initNavigationViewDrawer(final AppCompatActivity context, Toolbar toolbar) {
+        String username = Setting.getUsername(context);
+        ProfileDrawerItem profileDrawerItem;
+
+        if (username.equals("anonymous")) {
+            profileDrawerItem = new ProfileDrawerItem().withName(context.getResources().getString(R.string.click_to_login)).withEmail(Setting.getEmail(context)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+        } else {
+            profileDrawerItem = new ProfileDrawerItem().withName(username).withEmail(Setting.getEmail(context)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+        }
+
+        AccountHeader headerResult = new AccountHeaderBuilder()
+                .withActivity(context)
+                .withHeaderBackground(R.drawable.profile_header)
+                .withSelectionListEnabledForSingleProfile(false)
+                .addProfiles(profileDrawerItem)
+                .withOnAccountHeaderListener(new AccountHeader.OnAccountHeaderListener() {
+                    @Override
+                    public boolean onProfileChanged(View view, IProfile profile, boolean current) {
+                        if (!Setting.isLogined(context)) {
+                            Intent intent = new Intent(context, LoginActivity.class);
+                            context.startActivityForResult(intent, LOGIN_REQUEST_CODE);
+                        }
+                        return false;
+                    }
+                })
+                .withHeightDp(150)
+                .build();
+
+        new DrawerBuilder()
+                .withActivity(context)
+                .withAccountHeader(headerResult)
+                .withToolbar(toolbar)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName(R.string.new_bard).withIdentifier(NEW_BARD_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_create_black_24dp),
+                        new DividerDrawerItem(),
+                        new PrimaryDrawerItem().withName(R.string.tell_friend).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.settings_string).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
+                )
+                .withOnDrawerItemClickListener(new Drawer.OnDrawerItemClickListener() {
+                    @Override
+                    public boolean onItemClick(View view, int position, IDrawerItem drawerItem) {
+                        // do something with the clicked item :D
+                        Intent intent;
+
+                        switch ((int) drawerItem.getIdentifier()) {
+                            case NEW_BARD_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), SceneSelectActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:
+                                Intent shareIntent = new Intent();
+                                shareIntent.setAction(Intent.ACTION_SEND);
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey, you should check out https://bard.co");
+                                shareIntent.setType("text/plain");
+                                context.startActivity(shareIntent);
+                                break;
+                            case PROFILE_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), ProfileActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case ABOUT_DRAWER_ITEM_IDENTIFIER:
+                                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("http://bard.co"));
+                                context.startActivity(browserIntent);
+                                break;
+                            default:
+                                break;
+                        }
+
+                        // allows drawer to close
+                        return false;
+                    }
+                })
+                .build();
+
+    }
+
+    public static void askStoragePermission(final AppCompatActivity context) {
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+//            // Should we show an explanation?
+//            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+//                    Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+//
+//                // Show an expanation to the user *asynchronously* -- don't block
+//                // this thread waiting for the user's response! After the user
+//                // sees the explanation, try again to request the permission.
+//
+//            } else {
+
+            // No explanation needed, we can request the permission.
+
+            ActivityCompat.requestPermissions(context,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE},
+                    REQUEST_WRITE_STORAGE);
+
+            // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+            // app-defined int constant. The callback method gets the
+            // result of the request.
+//            }
+        }
+    }
+
 }
