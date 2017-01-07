@@ -9,10 +9,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.KeyEvent;
-import android.view.MenuItem;
-import android.view.MotionEvent;
-import android.view.View;
+import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
 import com.lapism.searchview.SearchView;
@@ -127,6 +124,25 @@ public class SceneSelectActivity extends BaseActivity  {
             // permissions this app might request
         }
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_settings:
+                Intent intent = new Intent(this, ProfileActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
 
 
     private void displayEmptySearchMessage() {

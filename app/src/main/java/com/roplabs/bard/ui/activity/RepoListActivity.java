@@ -114,23 +114,4 @@ public class RepoListActivity extends BaseActivity {
         recyclerView.addItemDecoration(new DividerItemDecoration(this));
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_compose, menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.menu_item_compose:
-                Intent intent = new Intent(this, SceneSelectActivity.class);
-                startActivity(intent);
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
-
-
 }
