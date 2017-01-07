@@ -328,8 +328,8 @@ public class SceneSelectActivity extends BaseActivity  {
         recyclerView.setLayoutManager(layoutManager);
 
         // set decorator
-        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
-        recyclerView.addItemDecoration(itemDecoration);
+//        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
+//        recyclerView.addItemDecoration(itemDecoration);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override

@@ -14,18 +14,36 @@
 
     <LinearLayout android:layout_width="match_parent"
                   android:layout_height="wrap_content"
-                  android:background="@color/ios_light_iron"
+                  android:orientation="vertical"
+                  android:paddingTop="20dp"
+                  android:paddingBottom="20dp"
+                  android:paddingLeft="20dp"
+                  android:paddingRight="20dp"
+                  android:background="@color/dark_gray"
                     >
+
+        <TextView android:layout_height="20dp"
+                  android:layout_width="match_parent"
+                  android:layout_marginTop="0dp"
+                  android:textAlignment="center"
+                  android:layout_marginBottom="5dp"
+                  android:layout_marginLeft="10dp"
+                  android:layout_marginRight="10dp"
+                  android:textColor="@color/white"
+                  android:text="Pick video to re-arrange"
+        >
+
+        </TextView>
         <EditText
                 android:id="@+id/video_search_input"
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="30dp"
                 android:background="@drawable/search_bar_background"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
                 android:textSize="14sp"
                 android:textAlignment="center"
-                android:hint="Type words or search title"
+                android:hint="Search"
                 android:drawablePadding="5dp"
                 android:drawableLeft="@drawable/ic_search_black_18dp"
                 android:drawableStart="@drawable/ic_search_black_18dp"
@@ -34,6 +52,7 @@
                 android:layout_margin="10dp"
                 android:imeOptions="actionSearch"
                 android:inputType="text"/>
+
     </LinearLayout>
     <include
             layout="@layout/empty_no_internet"
@@ -60,7 +79,6 @@
                 android:background="@color/ios_light_iron"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="@dimen/item_offset"
         />
     </FrameLayout>
 
