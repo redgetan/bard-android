@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+                  android:id="@+id/share_editor_toolbar"
+                  android:orientation="horizontal"
+                  android:layout_width="match_parent"
+                  android:layout_height="80dp"
+    >
+        <ImageView
+                android:id="@+id/close_editor_btn"
+                android:src="@drawable/ic_clear_black_24dp"
+                android:onClick="closeShare"
+                android:paddingLeft="20dp"
+                android:paddingStart="20dp"
+                android:layout_gravity="center_vertical"
+                android:paddingRight="3dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:contentDescription="@string/close_editor"/>
+    </LinearLayout>
+    <LinearLayout
+            android:id="@+id/share_editor_header"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_below="@id/share_editor_toolbar"
+            android:layout_height="50dp"
+    >
+    </LinearLayout>
+
+
+    <GridView xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/social_share_list"
+              android:layout_below="@id/share_editor_header"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:columnWidth="80dp"
+              android:numColumns="3"
+              android:paddingTop="20dp"
+              android:paddingLeft="40dp"
+              android:paddingRight="40dp"
+              android:verticalSpacing="10dp"
+              android:horizontalSpacing="10dp"
+              android:stretchMode="columnWidth"
+              android:gravity="center"
+    />
+    <LinearLayout android:id="@+id/save_repo_container"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:layout_below="@id/social_share_list"
+                  android:minHeight="150dp"
+                  android:gravity="center_horizontal"
+                  android:padding="50dp"
+                  android:orientation="horizontal"
+    >
+        <Button android:id="@+id/save_repo_btn"
+                android:layout_height="wrap_content"
+                android:textAllCaps="false"
+                android:minHeight="0dp"
+                android:paddingTop="10dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:paddingBottom="10dp"
+                android:background="@color/md_grey_500"
+                android:layout_gravity="center_horizontal"
+                android:textColor="@color/white"
+                android:text="Save"
+                android:onClick="saveRepo"
+                android:layout_width="match_parent">
+
+        </Button>
+    </LinearLayout>
+</RelativeLayout>

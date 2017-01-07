@@ -6,12 +6,15 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.PorterDuff;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
 
@@ -48,8 +51,15 @@ public class ShareListAdapter extends ArrayAdapter<String> {
             shareIcon.setBackgroundResource(R.drawable.kik);
         } else if (app.equals("tumblr")) {
             shareIcon.setBackgroundResource(R.drawable.tumblr);
-        } else {
+        } else if (app.equals("twitter")) {
             shareIcon.setBackgroundResource(R.drawable.twitter);
+        } else if (app.equals("copy link")) {
+            shareIcon.setBackgroundResource(R.drawable.link);
+            shareIcon.setColorFilter(ContextCompat.getColor(ClientApp.getContext(), R.color.jet), PorterDuff.Mode.SRC_ATOP);
+        } else if (app.equals("text")) {
+            shareIcon.setBackgroundResource(R.drawable.sms);
+        } else {
+            shareIcon.setBackgroundResource(R.drawable.more_vertical);
         }
 
         convertView.setTag(app);

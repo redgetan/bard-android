@@ -77,14 +77,14 @@ import java.util.concurrent.CountDownLatch;
 public class BardEditorActivity extends BaseActivity implements
         WordListFragment.OnReadyListener,
         WordListFragment.OnWordTagChanged,
-        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener, AdapterView.OnItemClickListener {
+        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
     public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
-    private final int SCENE_SELECT_REQUEST_CODE = 20;
+    private final int SHARE_REQUEST_CODE = 20;
 
     private int previousTokenIndex = 0;
     private Context mContext;
@@ -147,8 +147,9 @@ public class BardEditorActivity extends BaseActivity implements
     private LinearLayout videoResultContent;
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
-    private GridView shareListView;
     private Button saveRepoBtn;
+    private Button shareRepoBtn;
+    private ImageView shareRepoIcon;
     private ImageView sceneSelectBtn;
     private ImageView modeChangeBtn;
     private Runnable scrollToThumbnailRunnable;
@@ -202,8 +203,12 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setPrivateImeOptions("nm");
         editText.setPrivateImeOptions("com.google.android.inputmethod.latin.noMicrophoneKey");
 
-        shareListView = (GridView) findViewById(R.id.social_share_list);
-        saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
+        shareRepoBtn = (Button) findViewById(R.id.share_repo_btn);
+        shareRepoBtn.setVisibility(View.GONE);
+        shareRepoIcon = (ImageView) findViewById(R.id.share_repo_icon);
+        shareRepoIcon.setColorFilter(ContextCompat.getColor(this, R.color.md_green_400));
+        shareRepoIcon.setVisibility(View.GONE);
+
 //        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
         modeChangeBtn = (ImageView) findViewById(R.id.mode_change_btn);
         modeChangeBtn.setAlpha(75);
@@ -233,7 +238,6 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoStorage();
         initAnalytics();
         updatePlayMessageBtnState();
-        initShare();
     }
 
     private void initEmptyState() {
@@ -253,39 +257,6 @@ public class BardEditorActivity extends BaseActivity implements
             editText.setEnableAutocomplete(true);
         }
     }
-
-    private void initShare() {
-        // { name: "messenger", icon: "" }
-
-
-//        PackageManager packageManager = getPackageManager();
-//        Intent shareIntent = new Intent();
-//        shareIntent.setAction(Intent.ACTION_SEND);
-//        shareIntent.putExtra(Intent.EXTRA_STREAM, "");
-//        shareIntent.setType("video/mp4");
-//
-//        List<ResolveInfo> items = packageManager.queryIntentActivities(shareIntent, 0);
-
-//        apps = sortAppSharing(apps);
-
-        String apps[] = new String[] { "messenger", "whatsapp", "kik", "telegram", "twitter", "tumblr"} ;
-
-        ShareListAdapter shareListAdapter = new ShareListAdapter(this, apps);
-        shareListView.setAdapter(shareListAdapter);
-        shareListView.setOnItemClickListener(this);
-    }
-
-//    private List<ResolveInfo> sortAppSharing(List<ResolveInfo> apps) {
-//        List<ResolveInfo> sortedApps = new ArrayList<ResolveInfo>();
-//
-//        for (ResolveInfo app : apps) {
-//            if (app.activityInfo.packageName.equals("com.facebook.orca")) {
-//                sortedApps.add(app);
-//            }
-//        }
-//
-//        return sortedApps;
-//    }
 
     private void initControls() {
         if (!sceneToken.isEmpty()) {
@@ -1111,10 +1082,6 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    public void shareRepo(View view) {
-        startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
-    }
-
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
@@ -1135,23 +1102,8 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             };
             handler.postDelayed(r, 200);
-        } else if (resultCode == RESULT_OK && requestCode == SCENE_SELECT_REQUEST_CODE) {
-            sceneToken = data.getExtras().getString("sceneToken");
-            scene = Scene.forToken(sceneToken);
-            loadSceneDictionary();
-            loadSceneThumbnail(scene);
-
-            JSONObject properties = new JSONObject();
-            try {
-                properties.put("sceneToken", sceneToken);
-                if (scene != null) {
-                    properties.put("sceneName", scene.getName());
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Instabug.reportException(e);
-            }
-            Analytics.track(this, "sceneSelect", properties);
+        } else if (resultCode == RESULT_OK && requestCode == SHARE_REQUEST_CODE) {
+            finish();
         }
     }
 
@@ -1225,14 +1177,14 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onJoinSegmentsSuccess(String outputFilePath) {
-        trackGenerateBardVideo();
-//        showVideoResultFragment();
-        playLocalVideo(outputFilePath);
-
         // remember result (for sharing)
         lastMergedWordTagList = wordTagList;
-
         playMessageBtn.setEnabled(true);
+
+        trackGenerateBardVideo();
+        playLocalVideo(outputFilePath);
+        shareRepoBtn.setVisibility(View.VISIBLE);
+        shareRepoIcon.setVisibility(View.VISIBLE);
     }
 
 //    private void setRepoTitle() {
@@ -1258,10 +1210,6 @@ public class BardEditorActivity extends BaseActivity implements
         return TextUtils.join(" ", list);
     }
 
-    private String getRepositoryS3Key(String uuid) {
-        return "repositories/" + Setting.getUsername(this) + "/" + uuid + ".mp4";
-    }
-
     private void askUserToLogin() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("You must login in order to save the video to your profile")
@@ -1281,138 +1229,6 @@ public class BardEditorActivity extends BaseActivity implements
         AlertDialog dialog = builder.create();
         dialog.show();
     }
-
-    public void saveRepo(View view) {
-//        if (!Setting.isLogined(this)) {
-//            loginDialog = new CustomDialog(this);
-//            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
-//            loginDialog.show();
-//
-////            askUserToLogin();
-////            Intent intent = new Intent(this, LoginActivity.class);
-////            startActivityForResult(intent, LOGIN_REQUEST_CODE);
-//            return;
-//        }
-
-        saveRepoBtn.setEnabled(false);
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Saving...");
-        progressDialog.show();
-
-        final String wordList = TextUtils.join(",", wordTagList);
-
-        // upload to S3
-
-        final String uuid = UUID.randomUUID().toString();
-        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
-        TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
-        TransferObserver observer = transferUtility.upload(
-                Configuration.s3UserBucket(),
-                getRepositoryS3Key(uuid),
-                new File(Storage.getMergedOutputFilePath())
-        );
-
-        observer.setTransferListener(new TransferListener(){
-
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                // do something
-                if (state == TransferState.COMPLETED) {
-                    saveRemoteRepo(uuid, wordList);
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                int percentage = (int) (bytesCurrent/bytesTotal * 100);
-                //Display percentage transfered to user
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                // do something
-                displayError("Unable to upload to server", ex);
-            }
-
-        });
-
-    }
-
-    private void saveRemoteRepo(String uuid, final String wordList) {
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("uuid", uuid);
-        body.put("word_list", wordList);
-//        body.put("character_token", this.characterToken);
-        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
-
-        call.enqueue(new Callback<HashMap<String, String>>() {
-            @Override
-            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                if (!response.isSuccess()) {
-                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
-                } else {
-                    HashMap<String, String> result = response.body();
-                    saveLocalRepo(result.get("token"), result.get("url"), wordList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                displayError("Unable to sync to remote server", t);
-            }
-        });
-    }
-
-    private void displayError(String message, Throwable t) {
-        saveRepoBtn.setEnabled(true);
-        progressDialog.dismiss();
-        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(t);
-    }
-
-    private void displayError(String message) {
-        saveRepoBtn.setEnabled(true);
-        progressDialog.dismiss();
-        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(new Throwable(message));
-    }
-
-    private void saveLocalRepo(String token, String url, String wordList) {
-        String filePath = Storage.getLocalSavedFilePath();
-
-        if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            this.repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
-
-            JSONObject properties = new JSONObject();
-            try {
-                properties.put("wordTags", wordTagList);
-                properties.put("sceneToken", sceneToken);
-                properties.put("scene", scene.getName());
-//                properties.put("character", character.getName());
-            } catch (JSONException e) {
-                e.printStackTrace();
-                Instabug.reportException(e);
-            }
-            Analytics.track(this, "saveRepo", properties);
-
-            saveRepoBtn.setText("Saved");
-            progressDialog.dismiss();
-
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    setResult(RESULT_OK);
-                    finish();
-                }
-            }, 500);
-
-        } else {
-            displayError("Unable to save to phone");
-        }
-    }
-
 
     public String[] buildJoinSegmentsCmd(List<Segment> segments, String outputFilePath) {
         List<String> cmd = new ArrayList<String>();
@@ -1798,22 +1614,6 @@ public class BardEditorActivity extends BaseActivity implements
         debugView.setText(error);
     }
 
-    public Intent getRepoShareIntent() {
-        Uri videoUri;
-
-        if (this.repo == null) {
-            videoUri = Uri.fromFile(new File(Storage.getMergedOutputFilePath()));
-        } else {
-            videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
-        }
-        // Create share intent as described above
-        Intent shareIntent = new Intent();
-        shareIntent.setAction(Intent.ACTION_SEND);
-        shareIntent.putExtra(Intent.EXTRA_STREAM, videoUri);
-        shareIntent.setType("video/mp4");
-        return shareIntent;
-    }
-
     @Override
     public void onWordListFragmentReady() {
         initChatText();
@@ -1862,96 +1662,12 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
+    public void openSharing(View view) {
+        Intent intent = new Intent(this, ShareEditorActivity.class);
 
-    @Override
-    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-        String app = (String) view.getTag();
-
-        if (app.equals("messenger")) {
-            startMessengerShare();
-        } else if (app.equals("whatsapp")) {
-            startWhatsappShare();
-        } else if (app.equals("kik")) {
-            startKikShare();
-        } else if (app.equals("telegram")) {
-            startTelegramShare();
-        } else if (app.equals("twitter")) {
-            startTwitterShare();
-        } else if (app.equals("tumblr")) {
-            startTumblrShare();
-        }
-
-    }
-
-    private void startMessengerShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setPackage("com.facebook.orca");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Facebook Messenger", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startWhatsappShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setPackage("com.whatsapp");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Whatsapp", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startTelegramShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setPackage("org.telegram.messenger");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Telegram", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startTwitterShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setClassName("com.twitter.android", "com.twitter.android.composer.ComposerActivity");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Twitter", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startKikShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setPackage("kik.android");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Kik", Toast.LENGTH_LONG).show();
-        }
-    }
-
-    private void startTumblrShare() {
-        Intent intent = getRepoShareIntent();
-        intent.setPackage("com.tumblr");
-
-        try {
-            startActivity(intent);
-        }
-        catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Tumblr", Toast.LENGTH_LONG).show();
-        }
+        intent.putExtra("wordTags", TextUtils.join(",",wordTagList));
+        intent.putExtra("sceneToken", sceneToken);
+        intent.putExtra("sceneName", scene.getName());
+        startActivityForResult(intent, SHARE_REQUEST_CODE);
     }
 }

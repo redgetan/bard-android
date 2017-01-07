@@ -48,11 +48,11 @@
         <activity
                 android:name=".ui.activity.SceneSelectActivity"
                 android:label="@string/app_name"
-                android:parentActivityName=".ui.activity.BardEditorActivity" >
+                android:parentActivityName=".ui.activity.RepoListActivity" >
                 >
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.BardEditorActivity" />
+                    android:value=".ui.activity.RepoListActivity" />
         </activity>
         <activity
                 android:name=".ui.activity.CharacterSelectActivity"
@@ -61,6 +61,15 @@
             <meta-data
                     android:name="android.support.PARENT_ACTIVITY"
                     android:value=".ui.activity.RepoListActivity" />
+        </activity>
+        <activity
+                android:name=".ui.activity.ShareEditorActivity"
+                android:label="@string/app_name"
+                android:parentActivityName=".ui.activity.BardEditorActivity" >
+            >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.activity.BardEditorActivity" />
         </activity>
         <activity
                 android:name=".ui.activity.ProfileActivity"

@@ -37,19 +37,27 @@
 
             <Button
                     android:id="@+id/share_repo_btn"
-                    android:onClick="generateBardVideo"
-                    android:enabled="false"
-                    android:visibility="gone"
+                    android:onClick="openSharing"
                     android:background="@drawable/selector_play_all"
-                    android:textColor="@color/white"
-                    android:layout_marginLeft="5dp"
-                    android:layout_marginRight="5dp"
-                    android:layout_marginEnd="5dp"
-                    android:minWidth="70dp"
+                    android:textColor="@color/md_green_400"
+                    android:layout_marginRight="0dp"
+                    android:minWidth="10dp"
                     android:textAllCaps="false"
-                    android:text="@string/button_play_all"
+                    android:text="@string/share"
                     android:layout_width="wrap_content"
                     android:layout_height="25dp" />
+
+            <ImageView
+                    android:id="@+id/share_repo_icon"
+                    android:src="@drawable/ic_file_upload_white_24dp"
+                    android:onClick="openSharing"
+                    android:paddingLeft="0dp"
+                    android:paddingRight="0dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginEnd="15dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/close_editor"/>
 
         </LinearLayout>
 
@@ -229,7 +237,7 @@
                           android:padding="30dp"
                           android:orientation="horizontal"
             >
-                <Button android:id="@+id/save_repo_btn"
+                <Button android:id="@+id/upload_repo_btn"
                         android:layout_height="wrap_content"
                         android:textAllCaps="false"
                         android:minHeight="0dp"
