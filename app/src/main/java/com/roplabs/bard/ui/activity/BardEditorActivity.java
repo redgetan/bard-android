@@ -1103,6 +1103,7 @@ public class BardEditorActivity extends BaseActivity implements
             };
             handler.postDelayed(r, 200);
         } else if (resultCode == RESULT_OK && requestCode == SHARE_REQUEST_CODE) {
+            setResult(RESULT_OK);
             finish();
         }
     }
