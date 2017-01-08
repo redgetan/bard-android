@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.SignupActivity;
@@ -22,13 +23,15 @@ public class CustomDialog extends Dialog implements
         public Activity activity;
         public Button loginBtn, registerBtn;
         public ImageView cancelBtn;
+        String message;
 
         public static final int LOGIN_REQUEST_CODE = 3;
         public static final int SIGNUP_REQUEST_CODE = 4;
 
-        public CustomDialog(Activity activity) {
+        public CustomDialog(Activity activity, String message) {
             super(activity);
             this.activity = activity;
+            this.message = message;
         }
 
         @Override
@@ -39,6 +42,8 @@ public class CustomDialog extends Dialog implements
             loginBtn = (Button) findViewById(R.id.login_btn);
             registerBtn = (Button) findViewById(R.id.register_btn);
             cancelBtn = (ImageView) findViewById(R.id.cancel_btn);
+            TextView dialogDescription = (TextView) findViewById(R.id.dialog_description);
+            dialogDescription.setText(message);
 
             loginBtn.setBackgroundColor(ContextCompat.getColor(activity, R.color.purple));
             registerBtn.setBackgroundColor(ContextCompat.getColor(activity, R.color.purple));
