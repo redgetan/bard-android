@@ -242,11 +242,7 @@ public class ProfileActivity extends BaseActivity {
             ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             versionLabel.setLayoutParams(params);
             versionLabel.setPadding(0, 10, 0, 0);
-            versionLabel.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-
-//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-//            params.setMargins(10,10,10,10);
-//            versionLabel.setLayoutParams(params);
+            versionLabel.setGravity(Gravity.CENTER_HORIZONTAL);
 
             container.addView(versionLabel);
 

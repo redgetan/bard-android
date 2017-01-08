@@ -67,7 +67,6 @@ public class SceneSelectActivity extends BaseActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_scene_select);
 
-        SearchView view;
         mContext = this;
         recyclerView = (RecyclerView) findViewById(R.id.scene_list);
         progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
@@ -83,6 +82,8 @@ public class SceneSelectActivity extends BaseActivity  {
         title.setText(R.string.app_name);
         title.setTextSize(24);
 
+        deepLinkNavigate();
+
         Helper.initNavigationViewDrawer(this, toolbar);
         initEmptyState();
         initSearch();
@@ -92,6 +93,18 @@ public class SceneSelectActivity extends BaseActivity  {
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
         syncRemoteData(map);
+    }
+
+    private void deepLinkNavigate() {
+        Intent intent = getIntent();
+        String sceneToken;
+
+        if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
+            Intent newIntent = new Intent(this, BardEditorActivity.class);
+            newIntent.putExtra("sceneToken", sceneToken);
+            BardLogger.trace("[sceneSelect] " + sceneToken);
+            startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
+        }
     }
 
     private void initEmptyState() {

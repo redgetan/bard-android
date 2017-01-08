@@ -224,10 +224,9 @@ public class BardEditorActivity extends BaseActivity implements
         lastMergedWordTagList = new LinkedList<WordTag>();
 
         Intent intent = getIntent();
-//        characterToken = intent.getStringExtra("characterToken");
-//        character  = Character.forToken(characterToken);
         characterToken = "";
         sceneToken = intent.getStringExtra("sceneToken");
+
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
         notifyInvalidWordsHandler = new Handler();

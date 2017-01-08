@@ -2,6 +2,7 @@ package com.roplabs.bard.ui.activity;
 
 import android.content.Intent;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Bundle;
 import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.R;
@@ -26,6 +27,7 @@ import java.io.InputStream;
 public class MainActivity extends BaseActivity {
     private String applicationDir;
     private String ffmpegPath;
+    private String sceneTokenEditorDeepLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +36,21 @@ public class MainActivity extends BaseActivity {
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
         initFFmpeg();
+        handleDeepLink();
+    }
+
+    private void handleDeepLink() {
+
+        Intent intent = getIntent();
+        // check if activity launched via deeplink url
+        Uri uri = intent.getData();
+        if (uri != null && uri.toString().contains("editor")) {
+            // extract sceneToken from https://bard.co/scenes/:token/editor
+            String result = uri.toString().split("/editor")[0];
+            String[] components = result.split("/");
+            sceneTokenEditorDeepLink = components[components.length - 1];
+        }
+
     }
 
     @Override
@@ -48,6 +65,7 @@ public class MainActivity extends BaseActivity {
         }
 
         intent = new Intent(this, SceneSelectActivity.class);
+        intent.putExtra("sceneTokenEditorDeepLink", sceneTokenEditorDeepLink);
 
         startActivity(intent);
     }
