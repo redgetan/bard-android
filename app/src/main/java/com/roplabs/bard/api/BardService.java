@@ -32,6 +32,9 @@ public interface BardService {
     @POST("repos")
     Call<HashMap<String, String>> postRepo(@Body HashMap<String, String> body);
 
+    @POST("upload")
+    Call<HashMap<String, String>> postUploadVideo(@Query("youtube_url") String youtubeUrl);
+
     @POST("repos/{repoToken}/delete")
     Call<HashMap<String, String>> deleteRepo(@Path("repoToken") String repoToken);
 }

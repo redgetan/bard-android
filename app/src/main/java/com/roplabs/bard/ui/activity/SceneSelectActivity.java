@@ -162,7 +162,7 @@ public class SceneSelectActivity extends BaseActivity  {
                 } else {
                     // show it + clear results list
                     searchBar.setVisibility(View.GONE);
-                    videoListLabel.setVisibility(View.VISIBLE);
+                    videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.VISIBLE);
 
                     // populate initial video list
@@ -216,7 +216,6 @@ public class SceneSelectActivity extends BaseActivity  {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction()==KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    BardLogger.log("user pressed ENTER searching...");
                     performSearch(searchBar.getText().toString());
                     return true;
                 }

@@ -26,7 +26,9 @@
                       android:text="Maximum of 20 minutes"
             />
 
-            <EditText android:layout_width="match_parent"
+            <EditText
+                      android:id="@+id/upload_video_input"
+                      android:layout_width="match_parent"
                       android:layout_height="30dp"
                       android:layout_marginLeft="30dp"
                       android:layout_marginRight="30dp"
@@ -39,12 +41,17 @@
             />
 
             <Button
+                    android:id="@+id/upload_video_button"
                     android:onClick="uploadVideo"
-                    android:layout_width="80dp"
+                    android:layout_width="70dp"
                     android:layout_height="35dp"
+                    android:background="@drawable/selector_submit_button"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"
+                    android:minHeight="10dp"
+                    android:minWidth="0dp"
                     android:layout_marginTop="10dp"
                     android:layout_gravity="center_horizontal"
-                    android:background="@color/purple"
                     android:text="Submit"
                     android:textAllCaps="false"
                     android:textColor="@color/white"
