@@ -3,11 +3,14 @@ package com.roplabs.bard.ui.activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -231,6 +234,29 @@ public class ProfileActivity extends BaseActivity {
 
             container.addView(profileRow); // you can pass extra layout params here too
         }
+
+        try {
+            String versionName = getPackageManager().getPackageInfo(getPackageName(), 0).versionName;
+            TextView versionLabel = new TextView(this);
+            versionLabel.setText("Version " + versionName);
+
+            ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            versionLabel.setLayoutParams(params);
+            versionLabel.setPadding(0, 10, 0, 0);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+                versionLabel.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+            }
+
+//            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+//            params.setMargins(10,10,10,10);
+//            versionLabel.setLayoutParams(params);
+
+            container.addView(versionLabel);
+
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
     }
 
 }

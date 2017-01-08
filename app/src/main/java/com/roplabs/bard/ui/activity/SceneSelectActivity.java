@@ -150,6 +150,7 @@ public class SceneSelectActivity extends BaseActivity  {
                     searchBar.setVisibility(View.VISIBLE);
                     videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.GONE);
+                    item.setIcon(R.drawable.ic_eject_white_18dp);
 
                     // clear video list
                     sceneList.clear();
@@ -164,6 +165,7 @@ public class SceneSelectActivity extends BaseActivity  {
                     searchBar.setVisibility(View.GONE);
                     videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.VISIBLE);
+                    item.setIcon(R.drawable.ic_search_white_18dp);
 
                     // populate initial video list
 
