@@ -1,18 +1,22 @@
 buildscript {
     repositories {
         jcenter()
+        maven { url 'https://maven.fabric.io/public' }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:2.2.0'
         classpath 'io.realm:realm-gradle-plugin:0.91.1'
+        classpath 'io.fabric.tools:gradle:1.+'
         classpath 'com.google.gms:google-services:2.1.0-alpha4'
     }
 }
 apply plugin: 'com.android.application'
+apply plugin: 'io.fabric'
 apply plugin: 'realm-android'
 
 repositories {
     jcenter()
+    maven { url 'https://maven.fabric.io/public' }
 }
 
 android {
@@ -84,13 +88,13 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.jakewharton:butterknife:7.0.1'
 
+    compile('com.crashlytics.sdk.android:crashlytics:2.6.5@aar') {
+        transitive = true;
+    }
     compile 'org.apmem.tools:layouts:1.10@aar'
     compile 'com.instabug.library:instabug:2.6.0'
     compile 'com.amazonaws:aws-android-sdk-core:2.2.+'
     compile 'com.amazonaws:aws-android-sdk-s3:2.2.+'
-//    compile 'com.github.mancj:MaterialSearchBar:0.3.5'
-    compile 'com.lapism:searchview:4.0'
-
 
     compile 'com.android.support:multidex:1.0.1'
 

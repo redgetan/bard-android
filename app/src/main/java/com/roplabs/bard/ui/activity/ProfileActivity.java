@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -243,9 +242,7 @@ public class ProfileActivity extends BaseActivity {
             ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
             versionLabel.setLayoutParams(params);
             versionLabel.setPadding(0, 10, 0, 0);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-                versionLabel.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
-            }
+            versionLabel.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
 
 //            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
 //            params.setMargins(10,10,10,10);

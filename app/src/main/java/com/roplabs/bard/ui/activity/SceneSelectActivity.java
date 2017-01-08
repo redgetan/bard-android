@@ -12,7 +12,6 @@ import android.support.v7.widget.RecyclerView;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.widget.*;
-import com.lapism.searchview.SearchView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.api.BardClient;

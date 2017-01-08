@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
@@ -20,6 +19,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.CrashReporter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -100,7 +100,7 @@ public class UploadVideoActivity extends BaseActivity {
                         properties.put("youtubeUrl", youtubeUrl);
                     } catch (JSONException e) {
                         e.printStackTrace();
-                        Instabug.reportException(e);
+                        CrashReporter.logException(e);
                     }
 
                     Analytics.track(ClientApp.getContext(), "uploadVideo", properties);

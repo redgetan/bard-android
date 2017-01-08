@@ -4,7 +4,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.TextUtils;
-import com.instabug.library.Instabug;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
@@ -67,7 +66,7 @@ public class Storage {
         try {
             return DiskLruCache.open(cacheDir, appVersion, NUM_OF_VALUES_IN_VIDEO_CACHE_KEY, VIDEO_CACHE_SIZE);
         } catch (IOException e) {
-            Instabug.reportException(e);
+            CrashReporter.logException(e);
             e.printStackTrace();
             return null;
         }

@@ -22,17 +22,13 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ShareListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.*;
-import com.roplabs.bard.util.Analytics;
-import com.roplabs.bard.util.BardLogger;
-import com.roplabs.bard.util.Helper;
-import com.roplabs.bard.util.Storage;
+import com.roplabs.bard.util.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -340,14 +336,14 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         saveRepoBtn.setEnabled(true);
         progressDialog.dismiss();
         Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(t);
+        CrashReporter.logException(t);
     }
 
     private void displayError(String message) {
         saveRepoBtn.setEnabled(true);
         progressDialog.dismiss();
         Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(new Throwable(message));
+        CrashReporter.logException(new Throwable(message));
     }
 
     private void saveLocalRepo(String token, String url, String wordList) {
@@ -364,7 +360,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 //                properties.put("character", character.getName());
             } catch (JSONException e) {
                 e.printStackTrace();
-                Instabug.reportException(e);
+                CrashReporter.logException(e);
             }
             Analytics.track(this, "saveRepo", properties);
 

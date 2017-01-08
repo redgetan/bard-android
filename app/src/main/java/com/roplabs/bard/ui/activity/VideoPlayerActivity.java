@@ -14,12 +14,12 @@ import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.util.Analytics;
+import com.roplabs.bard.util.CrashReporter;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -162,7 +162,7 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
                                 properties.put("characterToken", repo.getCharacterToken());
                             } catch (JSONException e) {
                                 e.printStackTrace();
-                                Instabug.reportException(e);
+                                CrashReporter.logException(e);
                             }
                             Analytics.track(ClientApp.getContext(), "deleteRepo", properties);
 
@@ -186,12 +186,12 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
 
     public void displayError(String message, Throwable t) {
         Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(t);
+        CrashReporter.logException(t);
     }
 
     public void displayError(String message) {
         Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        Instabug.reportException(new Throwable(message));
+        CrashReporter.logException(new Throwable(message));
     }
 
 }

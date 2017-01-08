@@ -14,7 +14,6 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.*;
 import android.widget.*;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
@@ -24,6 +23,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.WordTag;
 import com.roplabs.bard.models.WordTagSelector;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.CrashReporter;
 import com.roplabs.bard.util.OnSwipeTouchListener;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -298,7 +298,7 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
             e.printStackTrace();
-            Instabug.reportException(e);
+            CrashReporter.logException(e);
         }
     }
 

@@ -16,6 +16,11 @@
         android:name="com.roplabs.bard.ClientApp"
         android:theme="@style/AppTheme" >
 
+        <meta-data
+                android:name="io.fabric.ApiKey"
+                android:value="bf06d741fa30b7cb5be2fe488dfe67d7f1952540"
+        />
+
         <service
                 android:name="com.amazonaws.mobileconnectors.s3.transferutility.TransferService"
                 android:enabled="true" />

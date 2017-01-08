@@ -35,10 +35,10 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.bumptech.glide.Glide;
+import com.crashlytics.android.Crashlytics;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.Tracker;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
@@ -57,6 +57,7 @@ import com.roplabs.bard.ui.widget.InputViewPager;
 import com.roplabs.bard.ui.widget.SquareImageView;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
+import io.fabric.sdk.android.services.common.Crash;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import org.apache.commons.collections4.Trie;
@@ -369,7 +370,7 @@ public class BardEditorActivity extends BaseActivity implements
             properties.put("scene", scene.getName());
         } catch (JSONException e) {
             e.printStackTrace();
-            Instabug.reportException(e);
+            CrashReporter.logException(e);
         }
         Analytics.track(this, "compose", properties);
 
@@ -1167,7 +1168,7 @@ public class BardEditorActivity extends BaseActivity implements
                     onJoinSegmentsSuccess(outputFilePath);
                 } else {
                     // report error
-                    Instabug.reportException(new Throwable(result));
+                    CrashReporter.logException(new Throwable(result));
                 }
             }
 
@@ -1207,26 +1208,6 @@ public class BardEditorActivity extends BaseActivity implements
             list.add(segment.getWord());
         }
         return TextUtils.join(" ", list);
-    }
-
-    private void askUserToLogin() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("You must login in order to save the video to your profile")
-                .setTitle("Login");
-
-        builder.setPositiveButton("Login/Register", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User clicked OK button
-            }
-        });
-        builder.setNegativeButton(R.string.instabug_str_cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                // User cancelled the dialog
-            }
-        });
-
-        AlertDialog dialog = builder.create();
-        dialog.show();
     }
 
     public String[] buildJoinSegmentsCmd(List<Segment> segments, String outputFilePath) {
@@ -1371,7 +1352,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                             @Override
                             public void onCacheVideoFailure() {
-                                Instabug.reportException(new Throwable("unable to cache video for missing wordTag"));
+                                CrashReporter.logException(new Throwable("unable to cache video for missing wordTag"));
                             }
                         });
                     } else {
@@ -1429,7 +1410,7 @@ public class BardEditorActivity extends BaseActivity implements
 //            properties.put("character", character.getName());
         } catch (JSONException e) {
             e.printStackTrace();
-            Instabug.reportException(e);
+            CrashReporter.logException(e);
         }
 
         Analytics.track(this, "generateBardVideo", properties);
@@ -1574,7 +1555,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (event.error != null) {
             setVideoError(event.error);
             progressBar.setVisibility(View.GONE);
-            Instabug.reportException(new Throwable(event.error));
+            CrashReporter.logException(new Throwable(event.error));
         } else if (event.segments != null) {
             joinSegments(event.segments);
         }

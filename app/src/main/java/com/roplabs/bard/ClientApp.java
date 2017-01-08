@@ -3,10 +3,9 @@ package com.roplabs.bard;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
-import com.instabug.library.IBGInvocationEvent;
-import com.instabug.library.Instabug;
 import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.AmazonCognito;
+import com.roplabs.bard.util.CrashReporter;
 import com.squareup.leakcanary.LeakCanary;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
@@ -23,6 +22,7 @@ public class ClientApp extends MultiDexApplication {
         super.onCreate();
         instance = this;
         LeakCanary.install(this);
+        CrashReporter.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder(this)
                 .schemaVersion(2)
                 .migration(new DBMigration())
@@ -32,10 +32,6 @@ public class ClientApp extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
 
         AmazonCognito.init(this);
-
-        new Instabug.Builder(this, "aa977106b63d2bcb32d9e9c1319d9142")
-                .setInvocationEvent(IBGInvocationEvent.IBGInvocationEventNone)
-                .build();
     }
 
     public static ClientApp getInstance() {
