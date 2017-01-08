@@ -28,10 +28,7 @@ import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Setting;
-import com.roplabs.bard.ui.activity.LoginActivity;
-import com.roplabs.bard.ui.activity.ProfileActivity;
-import com.roplabs.bard.ui.activity.RepoListActivity;
-import com.roplabs.bard.ui.activity.SceneSelectActivity;
+import com.roplabs.bard.ui.activity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Response;
@@ -316,7 +313,7 @@ public class Helper {
                                 context.startActivity(intent);
                                 break;
                             case UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                intent = new Intent(context.getApplicationContext(), UploadVideoActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case TELL_FRIEND_DRAWER_ITEM_IDENTIFIER:

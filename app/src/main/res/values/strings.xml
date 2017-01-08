@@ -34,14 +34,15 @@
     <string name="create_string">Create</string>
     <string name="new_bard">New Bard</string>
     <string name="settings_string">Settings</string>
+    <string name="search">Search</string>
     <string name="profile">Profile</string>
     <string name="choose_character">Choose Actor</string>
     <string name="choose_scene">Choose Video</string>
     <string name="feedback_btn_string">Give Feedback</string>
     <string name="bard_library">My Library</string>
     <string name="compose">Compose</string>
-    <string name="empty_state_repo_title">Make an actor say anything. </string>
-    <string name="empty_state_repo_description">To start, click the upper-right button</string>
+    <string name="empty_state_repo_title"></string>
+    <string name="empty_state_repo_description">You have no videos yet</string>
     <string name="empty_state_no_internet_title">No Connection</string>
     <string name="empty_state_no_internet_description">You are offline. Please try again when you are connected to the internet</string>
     <string name="tell_friend">Invite Friends</string>

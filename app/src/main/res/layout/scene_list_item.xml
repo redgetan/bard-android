@@ -9,7 +9,7 @@
     <ImageView
             android:id="@+id/scene_thumbnail"
             android:layout_width="70dp"
-            android:layout_height="50dp"
+            android:layout_height="39dp"
             android:layout_marginLeft="0dp"
             android:layout_marginRight="10dp"
     />

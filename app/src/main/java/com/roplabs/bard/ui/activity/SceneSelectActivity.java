@@ -47,6 +47,8 @@ public class SceneSelectActivity extends BaseActivity  {
     public List<Scene> sceneList;
     private EndlessRecyclerViewScrollListener scrollListener;
     private EditText searchBar;
+    private TextView videoListLabel;
+    private TextView pickVideoLabel;
 
     private final static int LEFT_DRAWABLE_INDEX = 0;
     private final static int RIGHT_DRAWABLE_INDEX = 2;
@@ -71,6 +73,8 @@ public class SceneSelectActivity extends BaseActivity  {
         recyclerView = (RecyclerView) findViewById(R.id.scene_list);
         progressBar = (ProgressBar) findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) findViewById(R.id.video_search_input);
+        videoListLabel = (TextView) findViewById(R.id.video_list_label);
+        pickVideoLabel = (TextView) findViewById(R.id.pick_video_label);
         searchIcon = searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX];
         clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
 
@@ -128,6 +132,7 @@ public class SceneSelectActivity extends BaseActivity  {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_search, menu);
         getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -139,12 +144,46 @@ public class SceneSelectActivity extends BaseActivity  {
                 Intent intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
                 return true;
+            case R.id.menu_item_search:
+                if (searchBar.getVisibility() == View.GONE) {
+                    // show it + clear results list
+                    searchBar.setVisibility(View.VISIBLE);
+                    videoListLabel.setVisibility(View.GONE);
+                    pickVideoLabel.setVisibility(View.GONE);
+
+                    // clear video list
+                    sceneList.clear();
+                    recyclerView.getAdapter().notifyDataSetChanged();
+                    scrollListener.resetState();
+
+                    searchBar.requestFocus();
+
+                    displayInitialSearchMessage();
+                } else {
+                    // show it + clear results list
+                    searchBar.setVisibility(View.GONE);
+                    videoListLabel.setVisibility(View.VISIBLE);
+                    pickVideoLabel.setVisibility(View.VISIBLE);
+
+                    // populate initial video list
+
+                    Map<String, String> map = new HashMap<String, String>();
+                    map.put("page",String.valueOf(1));
+                    syncRemoteData(map);
+
+                    hideEmptySearchMessage();
+                }
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
     }
 
-
+    private void displayInitialSearchMessage() {
+        emptyStateTitle.setText("");
+        emptyStateDescription.setText("Search title or words in the video");
+        emptyStateContainer.setVisibility(View.VISIBLE);
+    }
 
     private void displayEmptySearchMessage() {
         emptyStateTitle.setText("No results found");
@@ -213,6 +252,7 @@ public class SceneSelectActivity extends BaseActivity  {
 
     private void performSearch(String text) {
         if (lastSearch.equals(text)) return; // avoids accidental DDOS
+        hideEmptySearchMessage();
 
         sceneList.clear();
         recyclerView.getAdapter().notifyDataSetChanged();
@@ -345,8 +385,8 @@ public class SceneSelectActivity extends BaseActivity  {
         recyclerView.setLayoutManager(layoutManager);
 
         // set decorator
-//        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
-//        recyclerView.addItemDecoration(itemDecoration);
+        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
+        recyclerView.addItemDecoration(itemDecoration);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
