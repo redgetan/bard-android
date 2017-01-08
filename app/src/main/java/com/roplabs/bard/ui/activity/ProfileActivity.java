@@ -7,6 +7,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
@@ -46,6 +47,7 @@ public class ProfileActivity extends BaseActivity {
     }
 
     private void initProfileHeader() {
+        final AppCompatActivity context = this;
         BezelImageView profileImageView = (BezelImageView) findViewById(R.id.profile_icon);
         TextView profileUsername = (TextView) findViewById(R.id.profile_username);
         TextView profileEmail = (TextView) findViewById(R.id.profile_email);
@@ -56,6 +58,15 @@ public class ProfileActivity extends BaseActivity {
         String username = Setting.getUsername(this);
         if (username.equals("anonymous")) {
             profileUsername.setText(R.string.click_to_login);
+            profileUsername.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (!Setting.isLogined(context)) {
+                        Intent intent = new Intent(context, LoginActivity.class);
+                        context.startActivityForResult(intent, LOGIN_REQUEST_CODE);
+                    }
+                }
+            });
         } else {
             profileUsername.setText(username);
         }

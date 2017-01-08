@@ -265,9 +265,9 @@ public class Helper {
         ProfileDrawerItem profileDrawerItem;
 
         if (username.equals("anonymous")) {
-            profileDrawerItem = new ProfileDrawerItem().withName(context.getResources().getString(R.string.click_to_login)).withEmail(Setting.getEmail(context)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+            profileDrawerItem = new ProfileDrawerItem().withName("Click Avatar to Login"); // .withIcon(getResources().getDrawable(R.drawable.profile))
         } else {
-            profileDrawerItem = new ProfileDrawerItem().withName(username).withEmail(Setting.getEmail(context)); // .withIcon(getResources().getDrawable(R.drawable.profile))
+            profileDrawerItem = new ProfileDrawerItem().withName(username); // .withIcon(getResources().getDrawable(R.drawable.profile))
         }
 
         AccountHeader headerResult = new AccountHeaderBuilder()
