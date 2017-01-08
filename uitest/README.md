@@ -1,0 +1,38 @@
+AWS Device Farm (Appium Automated Testing)
+---
+
+=== Install Dependencies
+
+Check out http://docs.python-guide.org/en/latest/dev/virtualenvs/ for instructions
+
+1. autoenv
+  echo 'source ~/.autoenv/activate.sh' >> ~/.bashrc
+
+2. virtualenvwrapper
+  Put these in your ~/.bashrc or ~/.bash_profile
+    export WORKON_HOME=~/.virtualenvs
+    source /usr/local/bin/virtualenvwrapper.sh
+
+  Go to uitest directory, then execute command below
+    mkvirtualenv bard-android-test
+
+=== Setup
+
+pip install -r requirements.txt
+
+
+=== Testing Locally
+
+/Applications/Appium.app/Contents/Resources/node/bin/node /Applications/Appium.app/Contents/Resources/node_modules/appium/build/lib/main.js --debug-log-spacing --automation-name "Appium" --platform-name "Android" --session-override
+
+python tests/create_and_save_test.py
+
+
+=== Testing Remotely (AWS Device Farm)
+
+py.test --collect-only tests/
+pip freeze > requirements.txt
+pip wheel --wheel-dir wheelhouse -r requirements.txt
+zip -r test_bundle.zip tests/ wheelhouse/ requirements.txt
+
+upload test_bundle.zip to test run

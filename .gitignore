@@ -8,3 +8,8 @@
 .idea
 *.iml
 app/*.apk
+*test_bundle.zip
+uitest/screenshots/*
+__pycache__/
+*.py[cod]
+.irb-history

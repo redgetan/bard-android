@@ -1,0 +1,5 @@
+[caps]
+platformName = "android"
+app = "/Users/reg/roplabs/android/bard-android/app/build/outputs/apk/app-dev-debug.apk"
+deviceName = "192.168.57.101:5555"
+platformVersion = "6.0"
