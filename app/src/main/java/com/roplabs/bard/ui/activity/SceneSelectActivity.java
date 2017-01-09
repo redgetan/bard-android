@@ -323,6 +323,7 @@ public class SceneSelectActivity extends BaseActivity  {
 
             @Override
             public void onFailure(Call<List<Scene>> call, Throwable t) {
+                BardLogger.log("SceneRequest failed: " + t.getMessage());
                 progressBar.setVisibility(View.GONE);
                 emptyStateContainer.setVisibility(View.VISIBLE);
 
