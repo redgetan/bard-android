@@ -236,8 +236,6 @@ public class BardEditorActivity extends BaseActivity implements
         notifyInvalidWordsHandler = new Handler();
         scrollToThumbnailHandler = new Handler();
 
-        Helper.setKeyboardVisibilityListener(this, editorRootLayout);
-
         initEmptyState();
         hideKeyboard();
         initVideoStorage();
@@ -253,12 +251,22 @@ public class BardEditorActivity extends BaseActivity implements
         emptyStateContainer.setVisibility(View.GONE);
     }
 
+    public void restoreOriginalVideoHeight() {
+        if (originalVideoHeight > -1) {
+            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+            params.height = originalVideoHeight;
+            vpPagerContainer.setLayoutParams(params);
+            adjustVideoAspectRatio();
+        }
+    }
+
     public void changeInputMode(View view) {
         if (editText.isFilteredAlphabetically()) {
             // change to sequential
             editText.setEnableAutocomplete(false);
             modeChangeBtn.setImageResource(R.drawable.ic_mode_edit_black_18dp);
             hideKeyboard();
+            restoreOriginalVideoHeight();
         } else {
             // change to alphabetical filter mode
             editText.setEnableAutocomplete(true);
@@ -421,6 +429,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         editText.setEnabled(true);
         recyclerView.setVisibility(View.VISIBLE);
+
+        Helper.setKeyboardVisibilityListener(this, editorRootLayout);
     }
 
     private void initSceneWordList() {
@@ -794,9 +804,9 @@ public class BardEditorActivity extends BaseActivity implements
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                if (source.charAt(0) == ' ' && editText.containsInvalidWord()) {
+                if (source.length() == 1 && source.charAt(0) == ' ' && editText.containsInvalidWord()) {
                     return "";
-                } else if (source.charAt(0) == ' ' && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
+                } else if (source.length() == 1 && source.charAt(0) == ' ' && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
                     // user press space in valid state
                     // user press spaced
                     List<String> filteredResults = editText.getFilteredResults(); ;
@@ -1228,6 +1238,9 @@ public class BardEditorActivity extends BaseActivity implements
         playLocalVideo(outputFilePath);
         shareRepoBtn.setVisibility(View.VISIBLE);
         shareRepoIcon.setVisibility(View.VISIBLE);
+
+        hideKeyboard();
+        restoreOriginalVideoHeight();
     }
 
 //    private void setRepoTitle() {
@@ -1631,9 +1644,9 @@ public class BardEditorActivity extends BaseActivity implements
             // adjust video size
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
             if (originalVideoHeight == -1) {
-               originalVideoHeight = params.height - 20;
+               originalVideoHeight = params.height;
             }
-            params.height = originalVideoHeight - 40;
+            params.height = originalVideoHeight / 2;
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
 
