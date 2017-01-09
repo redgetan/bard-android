@@ -794,9 +794,9 @@ public class BardEditorActivity extends BaseActivity implements
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                if (source.equals(" ") && editText.containsInvalidWord()) {
+                if (source.charAt(0) == ' ' && editText.containsInvalidWord()) {
                     return "";
-                } else if (source.equals(" ") && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
+                } else if (source.charAt(0) == ' ' && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
                     // user press space in valid state
                     // user press spaced
                     List<String> filteredResults = editText.getFilteredResults(); ;
