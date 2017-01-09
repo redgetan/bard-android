@@ -33,18 +33,18 @@ class SimpleAndroidTests(unittest.TestCase):
             sleep(2)
 
         # click first scene
-        self.driver.find_elements_by_id("com.roplabs.bard:id/scene_title")[0].click()
-        sleep(2)
+        self.driver.find_element_by_id("com.roplabs.bard:id/scene_title").click()
+        sleep(1)
 
         # import pdb; pdb.set_trace()
 
         # click wordTags
         self.driver.find_element_by_id("com.roplabs.bard:id/word_tag").click()
-        sleep(2)
+        sleep(1)
         self.driver.find_element_by_id("com.roplabs.bard:id/word_tag").click()
-        sleep(2)
+        sleep(1)
         self.driver.find_element_by_id("com.roplabs.bard:id/word_tag").click()
-        sleep(2)
+        sleep(1)
 
         # click "Talk"
         self.driver.find_element_by_id("com.roplabs.bard:id/play_message_btn").click()
