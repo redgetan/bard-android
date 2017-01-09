@@ -165,6 +165,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     }
 
+    public boolean isImmediatelyAfterImageSpan() {
+        // get all existing imagespans
+        ImageSpan[] existingImageSpans = getText().getSpans(0, getText().length(), ImageSpan.class);
+
+        for (ImageSpan existingImageSpan : existingImageSpans) {
+            int imageSpanEnd = getText().getSpanEnd(existingImageSpan);
+            if (getSelectionEnd() == imageSpanEnd ) {
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
+
     // http://stackoverflow.com/a/38241477
     public void format() {
         // remember original cursor position to set it back later

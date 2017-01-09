@@ -55,6 +55,7 @@
                 android:name=".ui.activity.BardEditorActivity"
                 android:label="@string/app_name"
                 android:configChanges="orientation|screenSize"
+                android:screenOrientation="portrait"
                 android:windowSoftInputMode="adjustResize"
                 android:parentActivityName=".ui.activity.SceneSelectActivity" >
             <meta-data
@@ -64,6 +65,7 @@
         <activity
                 android:name=".ui.activity.ShareEditorActivity"
                 android:label="@string/app_name"
+                android:screenOrientation="portrait"
                 android:parentActivityName=".ui.activity.BardEditorActivity" >
             >
             <meta-data

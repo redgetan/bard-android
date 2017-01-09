@@ -156,6 +156,8 @@ public class BardEditorActivity extends BaseActivity implements
     private Runnable scrollToThumbnailRunnable;
     private Handler scrollToThumbnailHandler;
 
+    private int originalVideoHeight = -1;
+
     ShareActionProvider mShareActionProvider;
 
     @Override
@@ -745,7 +747,7 @@ public class BardEditorActivity extends BaseActivity implements
     // after: "weare" (about to delete we)
     // result: "weare" (we becomes merged with are)
     private void ensureWordTagCleanDelete(int start, int count) {
-        if (count == 0 && editText.length() > 0) {
+        if (count == 0 && editText.length() > 0 && editText.isImmediatelyAfterImageSpan()) {
             // backspace pressed
             // delete tagged word before it
             skipOnTextChangeCallback = true;
@@ -1584,7 +1586,10 @@ public class BardEditorActivity extends BaseActivity implements
         boolean isKeyboardShown = keyboardWordTagDiff > 0;
         if (isKeyboardShown) {
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-            params.height = (int) (params.height / 1.5); // half of before
+            if (originalVideoHeight == -1) {
+               originalVideoHeight = params.height - 20;
+            }
+            params.height = originalVideoHeight - 40;
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
         }

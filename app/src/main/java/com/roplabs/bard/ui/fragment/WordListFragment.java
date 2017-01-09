@@ -250,12 +250,14 @@ public class WordListFragment extends Fragment implements TextureView.SurfaceTex
         previewTagView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
             @Override
             public void onSwipeLeft() {
+                if (wordTagSelector == null) return;
                 WordTag targetWordTag = wordTagSelector.findNextWord();
                 if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
             }
 
             @Override
             public void onSwipeRight() {
+                if (wordTagSelector == null) return;
                 WordTag targetWordTag = wordTagSelector.findPrevWord();
                 if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
             }
