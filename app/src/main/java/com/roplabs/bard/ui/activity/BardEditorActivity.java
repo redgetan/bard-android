@@ -34,6 +34,7 @@ import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.internal.crypto.ByteRangeCapturingInputStream;
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.jakewharton.disklrucache.DiskLruCache;
@@ -161,6 +162,7 @@ public class BardEditorActivity extends BaseActivity implements
     private int originalVideoHeight = -1;
 
     ShareActionProvider mShareActionProvider;
+    private String editTextbeforeChange = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -339,6 +341,10 @@ public class BardEditorActivity extends BaseActivity implements
         adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, WordTag wordTag) {
+                // if its a different view, set previous one to true first to avoid getting stucked at disabled state
+                if (lastClickedWordTagView != itemView) {
+                    lastClickedWordTagView.setEnabled(true);
+                }
                 lastClickedWordTagView = itemView;
                 lastClickedWordTagView.setEnabled(false);
 
@@ -726,6 +732,8 @@ public class BardEditorActivity extends BaseActivity implements
         editText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                editTextbeforeChange = editText.getText().toString();
+
                 if (!skipOnTextChangeCallback) {
 
                 }
@@ -733,9 +741,14 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
+                boolean isTextReduced = editText.getText().length() < editTextbeforeChange.length();
+
                 if (!skipOnTextChangeCallback) {
                     handleUnavailableWords(s);
-                    ensureWordTagCleanDelete(start, count);
+
+                    if (isTextReduced) {
+                        ensureWordTagCleanDelete(start, count);
+                    }
 
                     formatTagsIfNeeded();
                 }
