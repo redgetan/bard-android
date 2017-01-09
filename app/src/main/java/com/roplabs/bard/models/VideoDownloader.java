@@ -79,7 +79,7 @@ public class VideoDownloader {
                     // http://stackoverflow.com/a/29012988/803865
                     String[] sourceUrlTokens = segment.getSourceUrl().split("/");
                     String fileName = sourceUrlTokens[sourceUrlTokens.length - 1];
-                    File downloadedFile = new File(ClientApp.getContext().getCacheDir(), fileName);
+                    File downloadedFile = new File(ClientApp.getContext().getExternalCacheDir(), fileName);
                     BufferedSink sink = Okio.buffer(Okio.sink(downloadedFile));
                     sink.writeAll(response.body().source());
                     sink.close();

@@ -17,7 +17,7 @@ import java.io.OutputStream;
 
 public class Storage {
     private static final int NUM_OF_VALUES_IN_VIDEO_CACHE_KEY = 1;
-    private static final int VIDEO_CACHE_SIZE = 100 * 1024 * 1024; // 100mb
+    private static final int VIDEO_CACHE_SIZE = 20 * 1024 * 1024; // 20mb
 
     private static DiskLruCache videoCache;
 
@@ -43,7 +43,7 @@ public class Storage {
     public static String getCachedVideoFilePath(String wordTagString) {
         String cacheKey = getCacheKey(wordTagString);
         int index = NUM_OF_VALUES_IN_VIDEO_CACHE_KEY - 1;
-        return ClientApp.getContext().getCacheDir().getAbsolutePath() + "/" + cacheKey + "." + index;
+        return ClientApp.getContext().getExternalCacheDir().getAbsolutePath() + "/" + cacheKey + "." + index;
     }
 
     public static String getCacheKey(String wordTagString) {
@@ -61,7 +61,7 @@ public class Storage {
     }
 
     public static DiskLruCache openDiskCache() {
-        File cacheDir = ClientApp.getContext().getCacheDir();
+        File cacheDir = ClientApp.getContext().getExternalCacheDir();
         int appVersion = 1; // we dont care about app version...maybe
         try {
             return DiskLruCache.open(cacheDir, appVersion, NUM_OF_VALUES_IN_VIDEO_CACHE_KEY, VIDEO_CACHE_SIZE);

@@ -22,41 +22,50 @@
         >
             <TextView android:layout_width="match_parent"
                       android:layout_height="30dp"
+                      android:gravity="center_horizontal"
                       android:textAlignment="center"
                       android:text="Maximum of 20 minutes"
             />
 
-            <EditText
-                      android:id="@+id/upload_video_input"
-                      android:layout_width="match_parent"
-                      android:layout_height="30dp"
-                      android:layout_marginLeft="30dp"
-                      android:layout_marginRight="30dp"
-                      android:paddingLeft="20dp"
-                      android:paddingRight="20dp"
-                      android:textSize="14sp"
-                      android:textColorHint="@color/base"
-                      android:hint="Paste Youtube Url"
-                      android:background="@drawable/bordered_rectangle_rounded_corners"
-            />
+            <LinearLayout android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:orientation="horizontal"
+            >
+                <EditText
+                        android:id="@+id/upload_video_input"
+                        android:layout_width="match_parent"
+                        android:layout_weight="1"
+                        android:layout_height="30dp"
+                        android:layout_marginLeft="30dp"
+                        android:layout_marginRight="10dp"
+                        android:paddingLeft="20dp"
+                        android:paddingRight="20dp"
+                        android:textSize="14sp"
+                        android:textColorHint="@color/base"
+                        android:hint="Paste Youtube Url"
+                        android:background="@drawable/bordered_rectangle_rounded_corners"
+                />
 
-            <Button
-                    android:id="@+id/upload_video_button"
-                    android:onClick="uploadVideo"
-                    android:background="@drawable/selector_submit_button"
-                    android:layout_width="70dp"
-                    android:layout_height="35dp"
-                    android:paddingTop="2dp"
-                    android:paddingBottom="2dp"
-                    android:minHeight="10dp"
-                    android:minWidth="0dp"
-                    android:layout_marginTop="15dp"
-                    android:layout_gravity="center_horizontal"
-                    android:text="Submit"
-                    android:textAllCaps="false"
-                    android:textColor="@color/white"
+                <Button
+                        android:id="@+id/upload_video_button"
+                        android:onClick="uploadVideo"
+                        android:background="@drawable/selector_submit_button"
+                        android:layout_width="50dp"
+                        android:layout_height="30dp"
+                        android:paddingTop="2dp"
+                        android:paddingBottom="2dp"
+                        android:minHeight="10dp"
+                        android:minWidth="0dp"
+                        android:layout_marginTop="15dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_gravity="center_horizontal"
+                        android:text="Go"
+                        android:textAllCaps="false"
+                        android:textColor="@color/white"
 
-            />
+                />
+
+            </LinearLayout>
 
             <TextView
                     android:id="@+id/upload_result_message"
@@ -64,6 +73,7 @@
                       android:layout_height="wrap_content"
                      android:text="something"
                      android:textAlignment="center"
+                    android:gravity="center_horizontal"
                     android:layout_marginTop="20dp"
                       />
 

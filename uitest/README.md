@@ -5,16 +5,19 @@ AWS Device Farm (Appium Automated Testing)
 
 Check out http://docs.python-guide.org/en/latest/dev/virtualenvs/ for instructions
 
-1. autoenv
-  echo 'source ~/.autoenv/activate.sh' >> ~/.bashrc
-
-2. virtualenvwrapper
+1. virtualenvwrapper
   Put these in your ~/.bashrc or ~/.bash_profile
     export WORKON_HOME=~/.virtualenvs
     source /usr/local/bin/virtualenvwrapper.sh
 
   Go to uitest directory, then execute command below
     mkvirtualenv bard-android-test
+
+2. rvm
+
+  this will make ".rvmrc" to get autoexecuted everytime you cd into uitest folder
+  .rvmrc contains
+    workon bard-android-test
 
 === Setup
 
