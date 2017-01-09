@@ -125,7 +125,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     }
 
     public void findPrefixMatches() {
-        performFiltering(getText(), 0);
+        String text = getText().toString();
+        int keyCode = 0;
+        int end = getSelectionEnd();
+        int start = mTokenizer.findTokenStart(text, end);
+
+        performFiltering(text, start, end, keyCode);
     }
 
     public boolean containsInvalidWord() {
@@ -316,13 +321,6 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     }
 
-    protected void performFiltering(CharSequence text, int keyCode) {
-        int end = getSelectionEnd();
-        int start = mTokenizer.findTokenStart(text, end);
-
-        performFiltering(text, start, end, keyCode);
-    }
-
     protected void performFiltering(CharSequence text, int start, int end,
                                     int keyCode) {
         if (end == -1) return;
@@ -498,6 +496,12 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
             return words[words.length - 1].toLowerCase();
         }
 
+    }
+
+    public void displayOriginalWordList() {
+        WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), originalWordTagStringList);
+        adapter.setIsWordTagged(true);
+        recyclerView.setAdapter(adapter);
     }
 
     public void replaceLastText(CharSequence text) {

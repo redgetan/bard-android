@@ -16,10 +16,16 @@ class SimpleAndroidTests(unittest.TestCase):
         desired_caps['platformName'] = 'Android'
         desired_caps['deviceName'] = 'Android Phone'
         desired_caps['newCommandTimeout'] = '0' # no timeout
+        desired_caps["appPackage"] = "com.roplabs.bard";
+        desired_caps["appActivity"] = ".ui.activity.SceneSelectActivity";
+        desired_caps["appWaitActivity"] = ".permission.ui.GrantPermissionsActivity";
+        desired_caps["appWaitPackage"] = "com.android.packageinstaller";
+        #capabilities.setCapability("autoGrantPermissions", "true");
         desired_caps['app'] = PATH(
-            './../../app/build/outputs/apk/app-dev-debug.apk'
+            './../../app/build/outputs/apk/app-prod-debug.apk'
         )
 
+        print "CLIENT SETUP ===="
         self.driver = webdriver.Remote('http://localhost:4723/wd/hub', desired_caps)
 
     def tearDown(self):
@@ -27,15 +33,17 @@ class SimpleAndroidTests(unittest.TestCase):
         self.driver.quit()
 
     def test_find_elements(self):
+        print "ENTERED FIND ELEMNTS"
         # wait until allow shows up
-        sleep(3)
-        elements = self.driver.find_elements_by_accessibility_id('Allow')
+        sleep(1)
+        elements = self.driver.find_elements_by_id("com.android.packageinstaller:id/permission_allow_button")
         if len(elements) > 0:
             elements[0].click()
 
         # wait for things to finish loading
-        sleep(5)
+        sleep(2)
         # click first scene
+        import pdb; pdb.set_trace()
         self.driver.find_element_by_id("com.roplabs.bard:id/scene_title").click()
         sleep(1)
 

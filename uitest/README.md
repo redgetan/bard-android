@@ -5,6 +5,10 @@ AWS Device Farm (Appium Automated Testing)
 
 Check out http://docs.python-guide.org/en/latest/dev/virtualenvs/ for instructions
 
+1. appium (version 1.6.3 is recommended)
+  npm install -g appium --no-shrinkwrap
+
+
 1. virtualenvwrapper
   Put these in your ~/.bashrc or ~/.bash_profile
     export WORKON_HOME=~/.virtualenvs
@@ -26,7 +30,7 @@ pip install -r requirements.txt
 
 === Testing Locally
 
-/Applications/Appium.app/Contents/Resources/node/bin/node /Applications/Appium.app/Contents/Resources/node_modules/appium/build/lib/main.js --debug-log-spacing --automation-name "Appium" --platform-name "Android" --session-override
+appium --debug-log-spacing --automation-name "Appium" --platform-name "Android" --session-override
 
 python tests/create_and_save_test.py
 

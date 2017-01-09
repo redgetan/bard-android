@@ -337,6 +337,9 @@ public class BardEditorActivity extends BaseActivity implements
                 if (!wordTag.isFilled()) {
                     // this will happen if we are on filtered mode, where wordTags in adapter is not tagged (to avoid duplicate results in recyclerview)
                     WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
+
+                    // if filtered wordTag is chosen, we want to show user original list
+                    editText.displayOriginalWordList();
                     onWordTagClick(targetWordTag);
                 } else {
                     onWordTagClick(wordTag);
@@ -680,7 +683,7 @@ public class BardEditorActivity extends BaseActivity implements
             isEditTextInitialized = true;
         }
 
-        editText.setFilters(new InputFilter[] { getPreventLeaderKeyOnInvalidWordFilter() });
+        editText.setFilters(new InputFilter[] { handleSpaceKey() });
 
         editText.setScroller(new Scroller(this));
         editText.setMaxLines(1);
@@ -784,7 +787,10 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
 
-    public InputFilter getPreventLeaderKeyOnInvalidWordFilter() {
+    // if invalid, dont proceed
+    // if valid, autocomplete partial word with current selection
+
+    public InputFilter handleSpaceKey() {
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
@@ -795,11 +801,17 @@ public class BardEditorActivity extends BaseActivity implements
                     // user press spaced
                     List<String> filteredResults = editText.getFilteredResults(); ;
                     if (!filteredResults.isEmpty()) {
+                        // if valid wordTag completion is performed, we want original word list to show
+                        editText.displayOriginalWordList();
+
                         String firstMatch = filteredResults.get(0);
+
                         if (firstMatch.equals(editText.getCurrentTokenWord())) {
                             return null;
                         } else {
+                            // autocompletion at work
                             return firstMatch.substring(editText.getCurrentTokenWord().length()) + " ";
+
 //                            skipOnTextChangeCallback = true;
 //                            editText.replaceText(filteredResults.get(0));
 //                            editText.setSelection(editText.getText().length());
@@ -898,6 +910,7 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         BardLogger.trace("[WordTag click] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
+
 
         focusOnWordTag(wordTag);
 
