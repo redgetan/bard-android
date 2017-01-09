@@ -342,7 +342,7 @@ public class BardEditorActivity extends BaseActivity implements
             @Override
             public void onItemClick(View itemView, int position, WordTag wordTag) {
                 // if its a different view, set previous one to true first to avoid getting stucked at disabled state
-                if (lastClickedWordTagView != itemView) {
+                if (lastClickedWordTagView != null && lastClickedWordTagView != itemView) {
                     lastClickedWordTagView.setEnabled(true);
                 }
                 lastClickedWordTagView = itemView;
