@@ -119,6 +119,7 @@ public class BardEditorActivity extends BaseActivity implements
     private Runnable notifyInvalidWordsRunnable;
     private Handler notifyInvalidWordsHandler;
 
+    private boolean shouldSkipWordTagPlayback = false;
     private boolean isEditTextInitialized = false;
     private boolean isWordNavigatorInitialized = false;
     private NavigationView navigationView;
@@ -134,6 +135,7 @@ public class BardEditorActivity extends BaseActivity implements
     private TextView repoTitle;
 
     private Boolean isWordTagListContainerBlocked;
+    private String lastPlayedWordTag = "";
     private String characterToken;
     private String sceneToken;
     private Character character;
@@ -201,7 +203,7 @@ public class BardEditorActivity extends BaseActivity implements
 //        addWordBtn.setEnabled(false);
 
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
-        editText.setEnableAutocomplete(true);
+        editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
         editText.setEnabled(false);
         editText.setPrivateImeOptions("nm");
@@ -253,11 +255,16 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void changeInputMode(View view) {
         if (editText.isFilteredAlphabetically()) {
-            modeChangeBtn.setAlpha(200);
+            // change to sequential
             editText.setEnableAutocomplete(false);
+            modeChangeBtn.setImageResource(R.drawable.ic_mode_edit_black_18dp);
+            hideKeyboard();
         } else {
-            modeChangeBtn.setAlpha(75);
+            // change to alphabetical filter mode
             editText.setEnableAutocomplete(true);
+            modeChangeBtn.setImageResource(R.drawable.ic_keyboard_hide_black_18dp);
+            showKeyboard();
+            editText.requestFocus();
         }
     }
 
@@ -326,7 +333,14 @@ public class BardEditorActivity extends BaseActivity implements
             public void onItemClick(View itemView, int position, WordTag wordTag) {
                 lastClickedWordTagView = itemView;
                 lastClickedWordTagView.setEnabled(false);
-                onWordTagClick(wordTag);
+
+                if (!wordTag.isFilled()) {
+                    // this will happen if we are on filtered mode, where wordTags in adapter is not tagged (to avoid duplicate results in recyclerview)
+                    WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
+                    onWordTagClick(targetWordTag);
+                } else {
+                    onWordTagClick(wordTag);
+                }
             }
         });
         recyclerView.setAdapter(adapter);
@@ -917,7 +931,12 @@ public class BardEditorActivity extends BaseActivity implements
             }
         };
 
-        wordTagPlayHandler.postDelayed(delayedWordPreviewPlayback, delayInMilliSeconds);
+        if (shouldSkipWordTagPlayback) {
+            // dont play preview, but allow next one
+            shouldSkipWordTagPlayback = false;
+        } else {
+            wordTagPlayHandler.postDelayed(delayedWordPreviewPlayback, delayInMilliSeconds);
+        }
     }
 
     private void focusOnWordTag(WordTag wordTag) {
@@ -952,11 +971,21 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void onSuccessfulWordTagAssign(WordTag wordTag, int tokenIndex) {
         if (wordTag != null && !wordTagList.get(tokenIndex).isFilled()) {
+            String wordTagKey = wordTag.toString() + String.valueOf(tokenIndex);
+
+            // check if need to play preview of wordtag
+            if (lastPlayedWordTag.equals(wordTagKey)) {
+                shouldSkipWordTagPlayback = true;
+            }
+
+
             // assign tag
             wordTagList.set(tokenIndex, wordTag);
             getWordListFragment().setWordTagWithDelay(wordTag, 500);
 
             updatePlayMessageBtnState();
+
+            lastPlayedWordTag = wordTagKey;
         }
     }
 
@@ -1585,6 +1614,8 @@ public class BardEditorActivity extends BaseActivity implements
         int keyboardWordTagDiff = keyboardHeight - recyclerView.getHeight() - 30;
         boolean isKeyboardShown = keyboardWordTagDiff > 0;
         if (isKeyboardShown) {
+
+            // adjust video size
             ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
             if (originalVideoHeight == -1) {
                originalVideoHeight = params.height - 20;
@@ -1592,6 +1623,11 @@ public class BardEditorActivity extends BaseActivity implements
             params.height = originalVideoHeight - 40;
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
+
+            // change to alphabetical filter mode
+            editText.setEnableAutocomplete(true);
+            modeChangeBtn.setImageResource(R.drawable.ic_keyboard_hide_black_18dp);
+
         }
     }
 

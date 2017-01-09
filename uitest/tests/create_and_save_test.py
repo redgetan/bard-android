@@ -27,11 +27,14 @@ class SimpleAndroidTests(unittest.TestCase):
         self.driver.quit()
 
     def test_find_elements(self):
+        # wait until allow shows up
+        sleep(3)
         elements = self.driver.find_elements_by_accessibility_id('Allow')
         if len(elements) > 0:
             elements[0].click()
-            sleep(2)
 
+        # wait for things to finish loading
+        sleep(5)
         # click first scene
         self.driver.find_element_by_id("com.roplabs.bard:id/scene_title").click()
         sleep(1)
