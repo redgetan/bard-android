@@ -45,7 +45,7 @@ class SimpleAndroidTests(unittest.TestCase):
         sleep(2)
         # click first scene
         import pdb; pdb.set_trace()
-        self.driver.find_element_by_id("com.roplabs.bard:id/scene_title").click()
+        self.driver.find_element_by_xpath("//android.support.v7.widget.RecyclerView/android.widget.LinearLayout/android.widget.TextView").click()
         sleep(1)
 
         # import pdb; pdb.set_trace()
