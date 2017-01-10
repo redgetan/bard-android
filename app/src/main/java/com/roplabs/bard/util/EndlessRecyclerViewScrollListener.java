@@ -85,7 +85,7 @@ public abstract class EndlessRecyclerViewScrollListener extends RecyclerView.OnS
             previousTotalItemCount = totalItemCount;
         }
 
-        BardLogger.log("loading: " + loading + " totalItemCount: " + totalItemCount + " lastVisible: " + lastVisibleItemPosition + " visibleThreshold: " + visibleThreshold);
+//        BardLogger.log("loading: " + loading + " totalItemCount: " + totalItemCount + " lastVisible: " + lastVisibleItemPosition + " visibleThreshold: " + visibleThreshold);
         // If it isn’t currently loading, we check to see if we have breached
         // the visibleThreshold and need to reload more data.
         // If we do need to reload some more data, we execute onLoadMore to fetch the data.
