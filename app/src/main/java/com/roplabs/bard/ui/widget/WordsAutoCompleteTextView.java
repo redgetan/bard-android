@@ -526,23 +526,26 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void replaceLastText(CharSequence text) {
         clearComposingText();
 
-        String charToAppend = "";
-
-        // check if there's space before cursor
         int end = getSelectionEnd();
-        if (end > 0 && getText().charAt(end - 1) == ' ') {
-            // charToAppend = " ";
-            end = end - 1;
-        }
 
         int start = mTokenizer.findTokenStart(getText(), end);
         if (start == end) {
-            // end is at beginning of word, so try to find actual end of word
-            start = end;
-            end = mTokenizer.findTokenEnd(getText(),start);
-        } else {
-            // we previously subtracted end by 1 to ignore leading space, now make sure end is end of word
-            end = mTokenizer.findTokenEnd(getText(),start);
+            int newEnd = mTokenizer.findTokenEnd(getText(), start);
+            if (newEnd != end) {
+                // there's a word right after cursor (get this word)
+                start = end;
+                end = newEnd;
+            } else {
+                // no word after cursor, get nearest word before cursor
+                if (end > 0 && getText().charAt(end - 1) == ' ') {
+                    // if there's leading space, ignore it by subtracting 1
+                    // charToAppend = " ";
+                    end = end - 1;
+                    start = mTokenizer.findTokenStart(getText(), end);
+                    // hopefully start should != end by this time
+                }
+
+            }
         }
 
         Editable editable = getText();
