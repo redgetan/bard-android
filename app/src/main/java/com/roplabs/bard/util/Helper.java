@@ -49,6 +49,7 @@ public class Helper {
 
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
+    public static final int PROFILE_REQUEST_CODE = 3;
 
     public static String parseError(Response<?> response) {
         if (response.errorBody() != null) {
