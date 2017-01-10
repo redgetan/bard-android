@@ -30,10 +30,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
@@ -60,6 +57,7 @@ public class SceneSelectActivity extends BaseActivity  {
     private TextView emptyStateDescription;
 
     private HashMap<String, List<Scene>> sceneListCache;
+    private int sceneListCacheExpiry;
 
 
     @Override
@@ -79,6 +77,7 @@ public class SceneSelectActivity extends BaseActivity  {
         clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
 
         sceneListCache = new HashMap<String, List<Scene>>();
+        sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
 
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
@@ -325,6 +324,12 @@ public class SceneSelectActivity extends BaseActivity  {
     @Override
     protected void onResume() {
         BardLogger.log("Scene Select onResume");
+
+        int timeNow = Calendar.getInstance().get(Calendar.SECOND);
+        if (timeNow > sceneListCacheExpiry) {
+            sceneListCache.clear();
+        }
+
         Helper.initNavigationViewDrawer(this, toolbar);
         super.onResume();
     }
