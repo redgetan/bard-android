@@ -158,34 +158,19 @@ public class SceneSelectActivity extends BaseActivity  {
                 return true;
             case R.id.menu_item_search:
                 if (searchBar.getVisibility() == View.GONE) {
-                    // show it + clear results list
+                    // show searchbar
                     searchBar.setVisibility(View.VISIBLE);
                     videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.GONE);
                     item.setIcon(R.drawable.ic_eject_white_18dp);
 
-                    // clear video list
-                    sceneList.clear();
-                    recyclerView.getAdapter().notifyDataSetChanged();
-                    scrollListener.resetState();
-
                     searchBar.requestFocus();
-
-                    displayInitialSearchMessage();
                 } else {
-                    // show it + clear results list
+                    // hide searchbar
                     searchBar.setVisibility(View.GONE);
                     videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.VISIBLE);
                     item.setIcon(R.drawable.ic_search_white_18dp);
-
-                    // populate initial video list
-
-                    Map<String, String> map = new HashMap<String, String>();
-                    map.put("page",String.valueOf(1));
-                    syncRemoteData(map);
-
-                    hideEmptySearchMessage();
                 }
                 return true;
             default:
