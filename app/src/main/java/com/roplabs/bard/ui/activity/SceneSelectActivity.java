@@ -59,6 +59,8 @@ public class SceneSelectActivity extends BaseActivity  {
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
 
+    private HashMap<String, List<Scene>> sceneListCache;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +77,8 @@ public class SceneSelectActivity extends BaseActivity  {
         pickVideoLabel = (TextView) findViewById(R.id.pick_video_label);
         searchIcon = searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX];
         clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
+
+        sceneListCache = new HashMap<String, List<Scene>>();
 
         this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
@@ -266,6 +270,15 @@ public class SceneSelectActivity extends BaseActivity  {
 
 
     private void syncRemoteData(final Map<String, String> options) {
+        // check to see if already in cache
+        final List<Scene> cachedScenes = sceneListCache.get(options.get("page"));
+        if (cachedScenes != null) {
+            populateScenes(cachedScenes, options);
+            return;
+        }
+
+
+        // fetch remote
         progressBar.setVisibility(View.VISIBLE);
 
         BardLogger.log("SYNC_REMOTE_DATA..");
@@ -287,6 +300,7 @@ public class SceneSelectActivity extends BaseActivity  {
                 } else {
                     hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
+                    sceneListCache.put(options.get("page"), remoteSceneList);
                 }
             }
 
