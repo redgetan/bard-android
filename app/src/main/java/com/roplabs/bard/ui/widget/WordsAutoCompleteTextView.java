@@ -33,10 +33,7 @@ import org.apache.commons.collections4.trie.PatriciaTrie;
 import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static com.roplabs.bard.util.Helper.normalizeWord;
 
@@ -93,6 +90,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void initWordsAutoComplete() {
         setMovementMethod(LinkMovementMethod.getInstance());
 
+        this.filteredResults = new ArrayList<String>();
         this.isAutocompleteEnabled = true;
     }
 
@@ -141,7 +139,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         String[] strings = fullString.split(separatorRegex);
 
         for (int i = 0; i < strings.length; i++) {
-            String string = strings[i];
+            // only extract word part of wordTagString custom:alk234jisS
+            String string = strings[i].split(":")[0];
             if (!isWordValid(string)) {
                 return true;
             }
@@ -150,8 +149,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return false;
     }
 
+    // needs to be in dictionary + must be tagged
     private boolean isWordValid(String word) {
-        return mWordTrie.prefixMap(normalizeWord(word)).keySet().size() > 0;
+        return mWordTrie.prefixMap(normalizeWord(word)).keySet().size() > 0 ;
     }
 
     public boolean isBeforeImageSpan() {
@@ -251,8 +251,9 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
 
 
-    public View createTokenView(String text) {
+    public View createTokenView(String wordTagString) {
 
+        String word = wordTagString.split(":")[0];
 
         LinearLayout l = new LinearLayout(getContext());
         l.setOrientation(LinearLayout.HORIZONTAL);
@@ -263,7 +264,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
         TextView tv = new TextView(getContext());
         l.addView(tv);
-        tv.setText(text);
+        tv.setText(word);
+        tv.setClickable(true);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
 
 //        ImageView im = new ImageView(getContext());
@@ -504,15 +506,23 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         recyclerView.setAdapter(adapter);
     }
 
+    // takes into account space
+    // input:
+    //   current_text: ("i am sam ")
+    //   text: "yo"
+    // result: "i am yo"
     public void replaceLastText(CharSequence text) {
         clearComposingText();
 
-        Editable editable = getText();
-        editable.replace(lastStart, lastEnd, text);
+        int end = getSelectionEnd() - 1;
+        if (end < 0) end = 0;
+        int start = mTokenizer.findTokenStart(getText(), end);
 
-        int end = lastEnd;
-        lastStart = mTokenizer.findTokenStart(getText(), end);
-        lastEnd   = mTokenizer.findTokenEnd(getText(), end);
+        Editable editable = getText();
+        String original = TextUtils.substring(editable, start, end);
+
+        QwertyKeyListener.markAsReplaced(editable, start, end, original);
+        editable.replace(start, end, text);
     }
 
     private class WordTagFilter extends Filter {

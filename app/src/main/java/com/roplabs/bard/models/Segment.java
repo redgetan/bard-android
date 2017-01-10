@@ -16,11 +16,11 @@ public class Segment {
     private String error;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public static List<Segment> buildFromWordTagList(List<WordTag> wordTagList) {
+    public static List<Segment> buildFromWordTagList(List<String> wordTagList) {
         List<Segment> segments = new ArrayList<Segment>();
 
-        for (WordTag wordTag : wordTagList) {
-            Segment segment = buildFromWordTagString(wordTag.toString());
+        for (String wordTagString : wordTagList) {
+            Segment segment = buildFromWordTagString(wordTagString);
             segments.add(segment);
         }
 
