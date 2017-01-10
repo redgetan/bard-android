@@ -73,11 +73,10 @@
                        android:gravity="center_vertical|center_horizontal"
         >
 
-            <FrameLayout
-                    android:id="@+id/fragment_container"
+            <include
+                    layout="@layout/fragment_word_list"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
+                    android:layout_height="match_parent"/>
 
             <TextView android:id="@+id/display_debug"
                       android:layout_gravity = "center_vertical|center_horizontal"

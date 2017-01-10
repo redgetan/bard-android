@@ -9,6 +9,8 @@ import android.content.pm.ResolveInfo;
 import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.*;
@@ -76,10 +78,13 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
+import static com.roplabs.bard.ClientApp.getContext;
+
 public class BardEditorActivity extends BaseActivity implements
-        WordListFragment.OnReadyListener,
-        WordListFragment.OnWordTagChanged,
-        WordListFragment.OnPreviewPlayerPreparedListener, Helper.KeyboardVisibilityListener {
+        TextureView.SurfaceTextureListener,
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener,
+        Helper.KeyboardVisibilityListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -107,7 +112,6 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView lastImageView;
     private ProgressDialog progressDialog;
     private View lastClickedWordTagView;
-    private WordListFragment wordListFragment;
     private LinearLayout emptyStateContainer;
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
@@ -154,6 +158,19 @@ public class BardEditorActivity extends BaseActivity implements
     private ImageView modeChangeBtn;
     private Runnable scrollToThumbnailRunnable;
     private Handler scrollToThumbnailHandler;
+    private TextView word_tag_status;
+    private TextView display_word_error;
+    private FrameLayout previewContainer;
+    private Runnable delayedWordPreviewPlayback;
+    private Handler wordTagPlayHandler;
+
+    private WordTagSelector wordTagSelector;
+    private TextureView previewTagView;
+    private MediaPlayer mediaPlayer;
+    private boolean isVideoReady = false;
+    private Surface previewSurface;
+    private View previewOverlay;
+    private Runnable fetchWordTagSegmentUrl;
 
     private int originalVideoHeight = -1;
 
@@ -183,14 +200,9 @@ public class BardEditorActivity extends BaseActivity implements
         playMessageBtn = (Button) findViewById(R.id.play_message_btn);
         previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
-        wordListFragment = new WordListFragment();
-
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.fragment_container, wordListFragment)
-                .commit();
 
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
-        recyclerView.setLayoutManager(new WordsLayoutManager(ClientApp.getContext()));
+        recyclerView.setLayoutManager(new WordsLayoutManager(getContext()));
         recyclerView.setItemAnimator(null); // prevent blinking animation when notifyItemChanged on adapter is called
         recyclerView.setVisibility(View.GONE);
         playMessageBtn.setEnabled(true);
@@ -234,12 +246,63 @@ public class BardEditorActivity extends BaseActivity implements
         notifyInvalidWordsHandler = new Handler();
         scrollToThumbnailHandler = new Handler();
 
+        previewContainer = (FrameLayout) findViewById(R.id.preview_container);
+        display_word_error = (TextView) findViewById(R.id.display_word_error);
+        word_tag_status = (TextView) findViewById(R.id.word_tag_status);
+        previewTagView = (TextureView) findViewById(R.id.preview_tag_view);
+        previewOverlay = findViewById(R.id.preview_video_overlay);
+        wordTagPlayHandler = new Handler();
+
+        initVideoPlayer();
+
+
         initEmptyState();
         hideKeyboard();
         initVideoStorage();
         initAnalytics();
+        initChatText();
         updatePlayMessageBtnState();
     }
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        previewSurface = new Surface(surface);
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setSurface(previewSurface);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        BardLogger.trace("mediaplayer onPrepared");
+        isVideoReady = true;
+        progressBar.setVisibility(View.GONE);
+
+        mp.start();
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+    }
+
 
     private void initEmptyState() {
         emptyStateContainer = (LinearLayout) findViewById(R.id.empty_state_main_container);
@@ -642,11 +705,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void initWordTagSelector(List<String> wordTagStringList) {
-        getWordListFragment().initWordTagSelector(availableWordList);
-        initWordNavigatorListeners();
-    }
+        wordTagSelector = new WordTagSelector(availableWordList);
 
-    private void initWordNavigatorListeners() {
         if (isWordNavigatorInitialized) {
             return;
         } else {
@@ -666,7 +726,7 @@ public class BardEditorActivity extends BaseActivity implements
                     editText.replaceLastText(targetWordTag.toString());
                     editText.format();
                     skipOnTextChangeCallback = false;
-                    getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
+                    setWordTagWithDelay(targetWordTag, 500);
                 }
             }
         });
@@ -682,7 +742,7 @@ public class BardEditorActivity extends BaseActivity implements
                     editText.replaceLastText(targetWordTag.toString());
                     editText.format();
                     skipOnTextChangeCallback = false;
-                    getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
+                    setWordTagWithDelay(targetWordTag, 500);
                 }
             }
         });
@@ -767,7 +827,7 @@ public class BardEditorActivity extends BaseActivity implements
                 WordTag wordTag = getWordTagSelector().getWordTagFromWordTagString(wordTagString);
                 if (wordTag != null) {
                     focusOnWordTag(wordTag);
-                    getWordListFragment().setWordTag(wordTag);
+                    setWordTag(wordTag);
                 }
             }
         });
@@ -821,7 +881,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                         String firstMatch = filteredResults.get(0);
                         WordTag wordTag = getWordTagSelector().findNextWord(firstMatch);
-                        getWordListFragment().setWordTag(wordTag);
+                        setWordTag(wordTag);
 
                         // autocompletion at work
                         return wordTag.toString().substring(editText.getCurrentTokenWord().length()) + " ";
@@ -929,7 +989,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         focusOnWordTag(wordTag);
 
-        getWordListFragment().setWordTag(wordTag);
+        setWordTag(wordTag);
         updatePlayMessageBtnState();
     }
 
@@ -938,13 +998,13 @@ public class BardEditorActivity extends BaseActivity implements
         editText.getText().insert(editText.getSelectionStart(), " ");
     }
 
-    private Runnable delayedWordPreviewPlayback;
-    private Handler wordTagPlayHandler;
-
-    @Override
     public void onWordTagChanged(final WordTag wordTag, int delayInMilliSeconds) {
+        if (wordTag == null) return;
+
         if (!wordTag.isFilled()) return;
         BardLogger.trace("onWordTagChanged: " + wordTag.toString());
+
+        drawPagination();
         drawWordTagNavigatorState();
 
         if (delayedWordPreviewPlayback != null) {
@@ -1023,7 +1083,7 @@ public class BardEditorActivity extends BaseActivity implements
             Runnable r = new Runnable() {
                 public void run() {
                     loginDialog.dismiss();
-                    Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Login successful", Toast.LENGTH_LONG).show();
                 }
             };
             handler.postDelayed(r, 200);
@@ -1032,7 +1092,7 @@ public class BardEditorActivity extends BaseActivity implements
             Runnable r = new Runnable() {
                 public void run() {
                     loginDialog.dismiss();
-                    Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
                 }
             };
             handler.postDelayed(r, 200);
@@ -1065,14 +1125,6 @@ public class BardEditorActivity extends BaseActivity implements
         return false;
     }
 
-
-    private void displayInvalidWords() {
-        if (invalidWords.size() > 0) {
-            EventBus.getDefault().post(new InvalidWordEvent("Unavailable: " + TextUtils.join(",",invalidWords)));
-        } else {
-            EventBus.getDefault().post(new InvalidWordEvent(""));
-        }
-    }
 
     @Override
     protected void onStop() {
@@ -1253,14 +1305,6 @@ public class BardEditorActivity extends BaseActivity implements
         Analytics.sendQueuedEvents(this);
     }
 
-    private WordTagSelector getWordTagSelector() {
-        return  getWordListFragment().getWordTagSelector();
-    }
-
-    private WordListFragment getWordListFragment() {
-        return this.wordListFragment;
-    }
-
     private void playRemoteVideoAndDisplayThubmnail(String wordTagString) {
 
         if (!Helper.isConnectedToInternet()) {
@@ -1283,19 +1327,17 @@ public class BardEditorActivity extends BaseActivity implements
 
                 @Override
                 public void onCacheVideoFailure() {
-                    Toast.makeText(ClientApp.getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
                 }
             });
         }
     }
 
     private void playWordTag(String filePath) {
-        if (getWordListFragment() != null) {
-            getWordListFragment().playPreview(filePath);
-            isWordTagListContainerBlocked = false;
-            if (lastClickedWordTagView != null) {
-                lastClickedWordTagView.setEnabled(true);
-            }
+        playPreview(filePath);
+        isWordTagListContainerBlocked = false;
+        if (lastClickedWordTagView != null) {
+            lastClickedWordTagView.setEnabled(true);
         }
     }
 
@@ -1304,12 +1346,10 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
 
-        if (getWordListFragment() != null) {
-            getWordListFragment().playPreview(filePath);
-            isWordTagListContainerBlocked = false;
-            if (lastClickedWordTagView != null) {
-                lastClickedWordTagView.setEnabled(true);
-            }
+        playPreview(filePath);
+        isWordTagListContainerBlocked = false;
+        if (lastClickedWordTagView != null) {
+            lastClickedWordTagView.setEnabled(true);
         }
 
     }
@@ -1326,20 +1366,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void setVideoError(String error) {
         debugView.setText(error);
-    }
-
-    @Override
-    public void onWordListFragmentReady() {
-        initChatText();
-        if (getWordListFragment() != null) {
-            getWordListFragment().setOnWordTagChangedListener(this);
-            getWordListFragment().setOnPreviewPlayerPreparedListener(this);
-        }
-    }
-
-    @Override
-    public void onPreviewPlayerPrepared() {
-        progressBar.setVisibility(View.GONE);
     }
 
     @Override
@@ -1371,7 +1397,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onGlobalLayout() {
-                getWordListFragment().fixVideoAspectRatio();
+                fixVideoAspectRatio();
 
                 ViewTreeObserver obs = vpPagerContainer.getViewTreeObserver();
 
@@ -1385,6 +1411,158 @@ public class BardEditorActivity extends BaseActivity implements
         });
 
     }
+
+    public void fixVideoAspectRatio() {
+        // keep aspect ratio to 16/9
+        Matrix txform = new Matrix();
+        previewTagView.getTransform(txform);
+        int viewHeight = previewTagView.getHeight();
+        int viewWidth = previewTagView.getWidth();
+        int newHeight = viewHeight;
+        int newWidth = (int) (1.9 * viewHeight);
+        int xoff = (viewWidth - newWidth) / 2;
+        int yoff = (viewHeight - newHeight) / 2;
+        txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+        txform.postTranslate(xoff, yoff);
+        previewTagView.setTransform(txform);
+
+    }
+
+
+    /**
+     * Sets the TextureView transform to preserve the aspect ratio of the video.
+     */
+    private void adjustAspectRatio(int videoWidth, int videoHeight) {
+        int viewWidth = previewTagView.getWidth();
+        int viewHeight = previewTagView.getHeight();
+        double aspectRatio = (double) videoHeight / videoWidth;
+
+        int newWidth, newHeight;
+        if (viewHeight > (int) (viewWidth * aspectRatio)) {
+            // limited by narrow width; restrict height
+            newWidth = viewWidth;
+            newHeight = (int) (viewWidth * aspectRatio);
+        } else {
+            // limited by short height; restrict width
+            newWidth = (int) (viewHeight / aspectRatio);
+            newHeight = viewHeight;
+        }
+        int xoff = (viewWidth - newWidth) / 2;
+        int yoff = (viewHeight - newHeight) / 2;
+        BardLogger.log("video=" + videoWidth + "x" + videoHeight +
+                " view=" + viewWidth + "x" + viewHeight +
+                " newView=" + newWidth + "x" + newHeight +
+                " off=" + xoff + "," + yoff);
+
+        Matrix txform = new Matrix();
+        previewTagView.getTransform(txform);
+        txform.setScale((float) newWidth / viewWidth, (float) newHeight / viewHeight);
+        //txform.postRotate(10);          // just for fun
+        txform.postTranslate(xoff, yoff);
+        previewTagView.setTransform(txform);
+    }
+
+
+    public WordTagSelector getWordTagSelector() {
+        return wordTagSelector;
+    }
+
+    public void setWordTag(WordTag wordTag) {
+        BardLogger.trace("setWordTag: " + wordTag.toString());
+        wordTagSelector.setWordTag(wordTag);
+        onWordTagChanged(wordTag, 0);
+    }
+
+    public void setWordTagWithDelay(WordTag wordTag, int delayInMilliSeconds) {
+        BardLogger.trace("setWordTag with delay: " + wordTag.toString());
+        wordTagSelector.setWordTag(wordTag);
+        onWordTagChanged(wordTag, delayInMilliSeconds);
+    }
+
+    public void playPreview(String url) {
+        if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
+        playVideo(url);
+    }
+
+    private void drawPagination() {
+        StringBuilder builder = new StringBuilder();
+
+//        builder.append(wordTagSelector.getCurrentWord());
+//        builder.append(" (");
+        builder.append(wordTagSelector.getCurrentWordTagIndex() + 1);
+        builder.append(" of ");
+        builder.append(wordTagSelector.getCurrentWordTagCount());
+//        builder.append(" )");
+
+        word_tag_status.setText(builder.toString());
+    }
+
+    private void initVideoPlayer() {
+        // video
+        previewTagView.setOpaque(false);
+        previewTagView.setSurfaceTextureListener(this);
+
+        previewTagView.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+            @Override
+            public void onSwipeLeft() {
+                if (wordTagSelector == null) return;
+                WordTag targetWordTag = wordTagSelector.findNextWord();
+                if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
+            }
+
+            @Override
+            public void onSwipeRight() {
+                if (wordTagSelector == null) return;
+                WordTag targetWordTag = wordTagSelector.findPrevWord();
+                if (targetWordTag != null) onWordTagChanged(targetWordTag, 500);
+            }
+
+            @Override
+            public void onTouchUp() {
+                if (!isVideoReady) return;
+
+                mediaPlayer.seekTo(0);
+                mediaPlayer.start();
+            }
+        });
+
+
+        ViewTreeObserver vto = previewTagView.getViewTreeObserver();
+        vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+
+            @Override
+            public void onGlobalLayout() {
+
+                ViewTreeObserver obs = previewTagView.getViewTreeObserver();
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                    obs.removeOnGlobalLayoutListener(this);
+                } else {
+                    obs.removeGlobalOnLayoutListener(this);
+                }
+            }
+
+        });
+
+    }
+
+
+    public void playVideo(String sourceUrl) {
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(sourceUrl);
+            mediaPlayer.setSurface(previewSurface);
+            mediaPlayer.prepareAsync();
+        } catch (IOException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        }
+    }
+
+    public void resetVideo() {
+        previewOverlay.setVisibility(View.VISIBLE);
+    }
+
 
     public void openSharing(View view) {
         Intent intent = new Intent(this, ShareEditorActivity.class);
