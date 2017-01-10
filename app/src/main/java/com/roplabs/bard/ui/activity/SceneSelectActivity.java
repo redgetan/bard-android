@@ -265,22 +265,6 @@ public class SceneSelectActivity extends BaseActivity  {
     }
 
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                returnToBardEditor();
-//                return(true);
-//        }
-//
-//        return(super.onOptionsItemSelected(item));
-//    }
-
-//    @Override
-//    public void onBackPressed() {
-//        returnToBardEditor();
-//    }
-
     private void syncRemoteData(final Map<String, String> options) {
         progressBar.setVisibility(View.VISIBLE);
 
@@ -413,20 +397,4 @@ public class SceneSelectActivity extends BaseActivity  {
         syncRemoteData(data);
     }
 
-//    @Override
-//    public void onSearchStateChanged(boolean b) {
-//
-//    }
-//
-//    @Override
-//    public void onSearchConfirmed(CharSequence charSequence) {
-//
-////        startSearch(charSequence.toString(), true, null, true);
-//        System.out.println("SERACHING AUTOBOTS");
-//    }
-//
-//    @Override
-//    public void onButtonClicked(int i) {
-//
-//    }
 }
