@@ -147,7 +147,6 @@ public class BardEditorActivity extends BaseActivity implements
     Set<String> invalidWords;
     private Button playMessageBtn;
     private Button addWordBtn;
-    private LinearLayout previewTimelineContainer;
     private LinearLayout videoResultContent;
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
@@ -198,7 +197,6 @@ public class BardEditorActivity extends BaseActivity implements
         invalidWords = new HashSet<String>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
         playMessageBtn = (Button) findViewById(R.id.play_message_btn);
-        previewTimelineContainer = (LinearLayout) findViewById(R.id.preview_timeline_container);
         videoResultContent = (LinearLayout) findViewById(R.id.video_result_content);
 
         recyclerView = (RecyclerView) findViewById(R.id.word_list_dictionary);
@@ -252,6 +250,7 @@ public class BardEditorActivity extends BaseActivity implements
         previewTagView = (TextureView) findViewById(R.id.preview_tag_view);
         previewOverlay = findViewById(R.id.preview_video_overlay);
         wordTagPlayHandler = new Handler();
+        word_tag_status.setText("");
 
         initVideoPlayer();
 
@@ -1168,6 +1167,7 @@ public class BardEditorActivity extends BaseActivity implements
     private void onJoinSegmentsSuccess(String outputFilePath) {
         // remember result (for sharing)
         playMessageBtn.setEnabled(true);
+        word_tag_status.setText("");
 
         hideKeyboard();
         trackGenerateBardVideo();
@@ -1314,14 +1314,14 @@ public class BardEditorActivity extends BaseActivity implements
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         if (new File(filePath).exists()) {
-            playWordTag(filePath);
+            playLocalVideo(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
             Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
-                    playWordTag(filePath);
+                    playLocalVideo(filePath);
                     progressBar.setVisibility(View.GONE);
                 }
 
@@ -1333,20 +1333,13 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
-    private void playWordTag(String filePath) {
-        playPreview(filePath);
-        isWordTagListContainerBlocked = false;
-        if (lastClickedWordTagView != null) {
-            lastClickedWordTagView.setEnabled(true);
-        }
-    }
-
-
     public void playLocalVideo(String filePath) {
         progressBar.setVisibility(View.GONE);
         debugView.setText("");
 
-        playPreview(filePath);
+        if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
+        playVideo(filePath);
+
         isWordTagListContainerBlocked = false;
         if (lastClickedWordTagView != null) {
             lastClickedWordTagView.setEnabled(true);
@@ -1477,11 +1470,6 @@ public class BardEditorActivity extends BaseActivity implements
         BardLogger.trace("setWordTag with delay: " + wordTag.toString());
         wordTagSelector.setWordTag(wordTag);
         onWordTagChanged(wordTag, delayInMilliSeconds);
-    }
-
-    public void playPreview(String url) {
-        if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
-        playVideo(url);
     }
 
     private void drawPagination() {

@@ -140,7 +140,7 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
                 ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
                 ClipData clip = ClipData.newPlainText(this.repoUrl, this.repoUrl);
                 clipboard.setPrimaryClip(clip);
-                Toast.makeText(ClientApp.getContext(), this.repoUrl + "has been copied to clipboard", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ClientApp.getContext(), this.repoUrl + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
                 return true;
             case R.id.delete_repo_item:
 //                delete(item);

@@ -208,7 +208,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
         ClipData clip = ClipData.newPlainText(this.repo.getUrl(), this.repo.getUrl());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(ClientApp.getContext(), this.repo.getUrl() + "has been copied to clipboard", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ClientApp.getContext(), this.repo.getUrl() + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
     private void startTextShare() {
