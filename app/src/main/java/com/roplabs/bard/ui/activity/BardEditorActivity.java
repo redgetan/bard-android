@@ -1117,12 +1117,11 @@ public class BardEditorActivity extends BaseActivity implements
         // remember result (for sharing)
         playMessageBtn.setEnabled(true);
 
+        hideKeyboard();
         trackGenerateBardVideo();
         playLocalVideo(outputFilePath);
         shareRepoBtn.setVisibility(View.VISIBLE);
         shareRepoIcon.setVisibility(View.VISIBLE);
-
-        hideKeyboard();
         restoreOriginalVideoHeight();
     }
 
