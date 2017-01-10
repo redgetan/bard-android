@@ -526,15 +526,31 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void replaceLastText(CharSequence text) {
         clearComposingText();
 
-        int end = getSelectionEnd() - 1;
-        if (end < 0) end = 0;
+        String charToAppend = "";
+
+        // check if there's space before cursor
+        int end = getSelectionEnd();
+        if (end > 0 && getText().charAt(end - 1) == ' ') {
+            // charToAppend = " ";
+            end = end - 1;
+        }
+
         int start = mTokenizer.findTokenStart(getText(), end);
+        if (start == end) {
+            // end is at beginning of word, so try to find actual end of word
+            start = end;
+            end = mTokenizer.findTokenEnd(getText(),start);
+        } else {
+            // we previously subtracted end by 1 to ignore leading space, now make sure end is end of word
+            end = mTokenizer.findTokenEnd(getText(),start);
+        }
 
         Editable editable = getText();
         String original = TextUtils.substring(editable, start, end);
 
         QwertyKeyListener.markAsReplaced(editable, start, end, original);
         editable.replace(start, end, text);
+        BardLogger.log("replaceLastText: [after]" + getText().toString());
     }
 
     private class WordTagFilter extends Filter {

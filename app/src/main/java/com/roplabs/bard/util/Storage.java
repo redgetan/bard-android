@@ -81,13 +81,13 @@ public class Storage {
 
     // reference code for writing binary data to DiskLRUCache
     // http://www.programcreek.com/java-api-examples/index.php?source_dir=petsworld-master/ActionBar/libary/libcore/io/ImageCache.java
-    public static void cacheVideo(final String wordTagString, final OnCacheVideoListener cacheVideoListener) {
+    public static void cacheVideo(final String wordTagString, String sceneToken, final OnCacheVideoListener cacheVideoListener) {
         String cacheKey = Storage.getCacheKey(wordTagString);
         try {
             final DiskLruCache.Editor editor = getDiskCache().edit(cacheKey);
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
-                VideoDownloader.downloadUrlToStream(Segment.sourceUrlFromWordTagString(wordTagString), outputStream, new VideoDownloader.OnDownloadListener() {
+                VideoDownloader.downloadUrlToStream(Segment.sourceUrlFromWordTagString(wordTagString, sceneToken), outputStream, new VideoDownloader.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess() {
                         try {

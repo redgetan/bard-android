@@ -16,34 +16,32 @@ public class Segment {
     private String error;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
-    public static List<Segment> buildFromWordTagList(List<String> wordTagList) {
+    public static List<Segment> buildFromWordTagList(List<String> wordTagList, String sceneToken) {
         List<Segment> segments = new ArrayList<Segment>();
 
         for (String wordTagString : wordTagList) {
-            Segment segment = buildFromWordTagString(wordTagString);
+            Segment segment = buildFromWordTagString(wordTagString, sceneToken);
             segments.add(segment);
         }
 
         return segments;
     }
 
-    public static Segment buildFromWordTagString(String wordTagString) {
+    public static Segment buildFromWordTagString(String wordTagString, String sceneToken) {
         Segment segment =  new Segment();
         String[] tokens = wordTagString.split(":");
         String word = tokens[0];
         String tag = tokens[1];
         segment.setWord(word);
-        segment.setSourceUrl(sourceUrlFromWordTagString(wordTagString));
+        segment.setSourceUrl(sourceUrlFromWordTagString(wordTagString, sceneToken));
         segment.setFilePath(Storage.getCachedVideoFilePath(wordTagString));
         return segment;
     }
 
-    public static String sourceUrlFromWordTagString(String wordTagString) {
-        Scene givenScene = Scene.forWordTagString(wordTagString);
-
+    public static String sourceUrlFromWordTagString(String wordTagString, String sceneToken) {
         String tag = wordTagString.split(":")[1];
 
-        return Configuration.segmentsCdnPath() + "/segments/" +  givenScene.getToken() + "/" + tag + ".mp4";
+        return Configuration.segmentsCdnPath() + "/segments/" +  sceneToken + "/" + tag + ".mp4";
     }
 
 

@@ -995,6 +995,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         setWordTag(wordTag);
         updatePlayMessageBtnState();
+
+        BardLogger.log("onWordTagClick: " + editText.getText().toString());
     }
 
 
@@ -1140,7 +1142,7 @@ public class BardEditorActivity extends BaseActivity implements
     public void joinSegments(final List<String> wordTagList) {
         Analytics.timeEvent(this, "generateBardVideo");
 
-        List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
+        List<Segment> segments = Segment.buildFromWordTagList(wordTagList, sceneToken);
         final String outputFilePath = Storage.getMergedOutputFilePath();
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
@@ -1319,7 +1321,7 @@ public class BardEditorActivity extends BaseActivity implements
             playLocalVideo(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
-            Storage.cacheVideo(wordTagString, new Storage.OnCacheVideoListener() {
+            Storage.cacheVideo(wordTagString, sceneToken, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     BardLogger.trace("video cached at " + filePath);
