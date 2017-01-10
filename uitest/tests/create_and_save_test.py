@@ -14,6 +14,7 @@ class SimpleAndroidTests(unittest.TestCase):
     def setUp(self):
         desired_caps = {}
         desired_caps['platformName'] = 'Android'
+        #desired_caps['platformVersion'] = '7.0.0'
         desired_caps['deviceName'] = 'Android Phone'
         desired_caps['newCommandTimeout'] = '0' # no timeout
         desired_caps["appPackage"] = "com.roplabs.bard";

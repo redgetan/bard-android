@@ -967,8 +967,8 @@ public class BardEditorActivity extends BaseActivity implements
         String toInsert = "";
         int cursorPosition = editText.getSelectionEnd();
         if (cursorPosition == editText.length()) {
-            // insert end of sentence
-            toInsert =  wordTag.toString() + " ";
+            // end of sentence (replace instead of insert)
+            toInsert =  null;
         } else if (cursorPosition == 0 && editText.getText().charAt(1) != ' ') {
             // insert beginning of sentence
             toInsert = wordTag.toString() + " ";
@@ -982,7 +982,12 @@ public class BardEditorActivity extends BaseActivity implements
             toInsert =  wordTag.toString() + " ";
         }
 
-        editText.getText().insert(cursorPosition, toInsert);
+        if (toInsert == null) {
+            editText.replaceText(wordTag.toString() + " ");
+        } else {
+            editText.getText().insert(cursorPosition, toInsert);
+        }
+
         editText.format();
         skipOnTextChangeCallback = false;
 
@@ -1133,6 +1138,8 @@ public class BardEditorActivity extends BaseActivity implements
 
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(final List<String> wordTagList) {
+        Analytics.timeEvent(this, "generateBardVideo");
+
         List<Segment> segments = Segment.buildFromWordTagList(wordTagList);
         final String outputFilePath = Storage.getMergedOutputFilePath();
         final String wordList = getWordListFromSegments(segments);
@@ -1168,6 +1175,7 @@ public class BardEditorActivity extends BaseActivity implements
         // remember result (for sharing)
         playMessageBtn.setEnabled(true);
         word_tag_status.setText("");
+        progressBar.setVisibility(View.GONE);
 
         hideKeyboard();
         trackGenerateBardVideo();
@@ -1253,7 +1261,9 @@ public class BardEditorActivity extends BaseActivity implements
         if (editText.containsInvalidWord() && !isAllWordsTagged(wordTagList)) return;
 
         playMessageBtn.setEnabled(false);
-        performActualMerge(wordTagList);
+        progressBar.setVisibility(View.VISIBLE);
+
+        joinSegments(wordTagList);
     }
 
     public List<String> getWordTagList() {
@@ -1276,14 +1286,6 @@ public class BardEditorActivity extends BaseActivity implements
         return true;
     }
 
-
-    // list of hashmap where key = word, value = tokenIndex
-    private void performActualMerge(List<String> wordTagList) {
-        progressBar.setVisibility(View.VISIBLE);
-
-        Analytics.timeEvent(this, "generateBardVideo");
-        joinSegments(wordTagList);
-    }
 
     private void trackGenerateBardVideo() {
 

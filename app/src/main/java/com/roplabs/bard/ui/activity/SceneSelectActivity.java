@@ -330,6 +330,13 @@ public class SceneSelectActivity extends BaseActivity  {
             sceneListCache.clear();
         }
 
+        // fetch data if blank (i.e. previously no internet connection)
+        if (recyclerView.getAdapter().getItemCount() == 0) {
+            Map<String, String> map = new HashMap<String, String>();
+            map.put("page",String.valueOf(1));
+            syncRemoteData(map);
+        }
+
         Helper.initNavigationViewDrawer(this, toolbar);
         super.onResume();
     }
