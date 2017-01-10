@@ -471,6 +471,18 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         }
     }
 
+    public String getClickedWordTag() {
+        int end = getSelectionEnd();
+        int start = mTokenizer.findTokenStart(getText(),end);
+        if (start == end) {
+            // end is at beginning of word, so try to find actual end of word
+            start = end;
+            end = mTokenizer.findTokenEnd(getText(),start);
+        }
+
+        return getText().toString().substring(start, end);
+    }
+
     public String getCurrentTokenWord() {
         int end = getSelectionEnd();
         int start = mTokenizer.findTokenStart(getText(), end);

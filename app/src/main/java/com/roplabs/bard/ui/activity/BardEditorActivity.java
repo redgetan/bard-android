@@ -662,7 +662,10 @@ public class BardEditorActivity extends BaseActivity implements
                 if (targetWordTag != null) {
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
                     focusOnWordTag(targetWordTag);
+                    skipOnTextChangeCallback = true;
                     editText.replaceLastText(targetWordTag.toString());
+                    editText.format();
+                    skipOnTextChangeCallback = false;
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
             }
@@ -675,7 +678,10 @@ public class BardEditorActivity extends BaseActivity implements
                 if (targetWordTag != null) {
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
                     focusOnWordTag(targetWordTag);
+                    skipOnTextChangeCallback = true;
                     editText.replaceLastText(targetWordTag.toString());
+                    editText.format();
+                    skipOnTextChangeCallback = false;
                     getWordListFragment().setWordTagWithDelay(targetWordTag, 500);
                 }
             }
@@ -756,7 +762,13 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BardLogger.log("clicked editText, wordTag is: " + editText.getCurrentTokenWord());
+//                BardLogger.log("clicked editText, wordTag is: " + editText.getClickedWordTag());
+                String wordTagString = editText.getClickedWordTag();
+                WordTag wordTag = getWordTagSelector().getWordTagFromWordTagString(wordTagString);
+                if (wordTag != null) {
+                    focusOnWordTag(wordTag);
+                    getWordListFragment().setWordTag(wordTag);
+                }
             }
         });
 
@@ -819,6 +831,10 @@ public class BardEditorActivity extends BaseActivity implements
                     // prevent user from adding words in between imagespans (easier from implementation perspective)
                     // TODO: remove this restriction, allow user to add words in between
                     return "";
+                } else if (source.length() == 1 && (editText.length() > 0) && (editText.isImmediatelyAfterImageSpan())) {
+                    // end of sentence but right after a word
+                    // add a space before
+                    return " " + source;
                 } else {
                     return null;
                 }

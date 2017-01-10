@@ -115,6 +115,22 @@ public class WordTagSelector {
         return false;
     }
 
+    public WordTag getWordTagFromWordTagString(String wordTagString) {
+        if (!wordTagString.contains(":")) return null;
+
+        String word = wordTagString.split(":")[0];
+        String tag = wordTagString.split(":")[1];
+
+        List<WordTag> wordTagList = wordTagMap.get(word);
+        for (WordTag wordTag : wordTagList) {
+            if (wordTag.tag.equals(tag)) {
+                return wordTag;
+            }
+        }
+
+        return null;
+    }
+
     public void clearWordTag() {
         currentWord = "";
         currentWordTagIndex = 0;
