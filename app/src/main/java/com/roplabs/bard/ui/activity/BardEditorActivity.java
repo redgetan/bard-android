@@ -1040,6 +1040,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void focusOnWordTag(WordTag wordTag) {
+        if (wordTag == null) return;
+
         BardLogger.log("focusing...." + wordTag.word);
         int position;
 
