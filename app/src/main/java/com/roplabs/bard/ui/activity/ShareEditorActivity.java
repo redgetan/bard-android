@@ -311,6 +311,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("uuid", uuid);
         body.put("word_list", wordList);
+        body.put("scene_token", sceneToken);
 //        body.put("character_token", this.characterToken);
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
 
