@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:background="@android:color/black"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+<LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:gravity="center_vertical"
+>
+
+    <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                 xmlns:tools="http://schemas.android.com/tools"
+                 android:layout_width="wrap_content"
+                 android:layout_height="wrap_content">
+        <com.roplabs.bard.ui.widget.SquareVideoView android:id="@+id/video_view"
+                                                    android:layout_gravity="center"
+                                                    android:layout_width="match_parent"
+                                                    android:layout_height="wrap_content"
+        />
+    </FrameLayout>
+    <LinearLayout
+            android:layout_width="150dp"
+            android:layout_height="50dp"
+            android:layout_marginTop="20dp"
+            android:layout_gravity="center_horizontal"
+            android:orientation="horizontal"
+            android:gravity="center_vertical|center_horizontal"
+    >
+        <ImageView
+                android:id="@+id/repo_share_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:onClick="shareRepoInPlayer"
+                android:src="@drawable/ic_file_download_white_24dp"
+                android:contentDescription="@string/share"/>
+        <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Save"
+                android:textColor="@color/white"
+                android:padding="10dp"
+                android:textSize="24sp"
+                android:gravity="center_horizontal|center_vertical"
+        />
+    </LinearLayout>
+
+</LinearLayout>
+</LinearLayout>
