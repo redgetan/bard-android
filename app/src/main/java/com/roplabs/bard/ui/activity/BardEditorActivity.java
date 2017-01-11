@@ -940,10 +940,10 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void updatePlayMessageBtnState() {
         if (getFilledWordTagCount() > 0) {
-            playMessageBtn.setEnabled(true);
+//            playMessageBtn.setEnabled(true);
 //            playMessageBtn.setVisibility(View.VISIBLE);
         } else {
-            playMessageBtn.setEnabled(false);
+//            playMessageBtn.setEnabled(false);
 //            playMessageBtn.setVisibility(View.GONE);
         }
     }
@@ -1259,6 +1259,8 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void generateBardVideo(View view) throws IOException {
         List<String> wordTagList = new ArrayList<String>(Arrays.asList(editText.getText().toString().split("\\s+")));
+        wordTagList.removeAll(Collections.singletonList("")); // dont allow empty strings
+        if (wordTagList.isEmpty()) return; // if not words to merge exit
 
         BardLogger.trace("[generateBardVideo] editText: '" + editText.getText() + "' wordTagList: " + wordTagList.toString());
 

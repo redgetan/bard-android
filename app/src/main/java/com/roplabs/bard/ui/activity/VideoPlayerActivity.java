@@ -151,9 +151,8 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
                     @Override
                     public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                         if (!response.isSuccess()) {
-                            displayError("Unable delete from remote server. " + response.body().get("error"));
+                            displayError("Unable delete from remote server. ");
                         } else {
-                            HashMap<String, String> result = response.body();
                             Repo repo = Repo.forToken(targetRepoToken);
 
                             JSONObject properties = new JSONObject();

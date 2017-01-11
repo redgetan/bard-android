@@ -181,7 +181,7 @@
                     android:id="@+id/play_message_btn"
                     android:onClick="generateBardVideo"
                     android:enabled="true"
-                    android:background="@color/md_blue_500"
+                    android:background="@drawable/selector_talk_button"
                     android:textColor="@color/white"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="10dp"
