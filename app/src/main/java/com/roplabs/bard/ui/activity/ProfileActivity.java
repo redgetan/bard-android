@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.activity;
 
+import android.app.Activity;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.Intent;
@@ -115,6 +116,24 @@ public class ProfileActivity extends BaseActivity {
         }
     }
 
+    public void sendGmail() {
+        Intent email = new Intent();
+        email.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
+        email.putExtra(Intent.EXTRA_EMAIL, new String[] { "info@bard.co" });
+        email.putExtra(Intent.EXTRA_SUBJECT, "Bard Feedback " + BuildConfig.VERSION_NAME);
+        email.putExtra(Intent.EXTRA_TEXT, "It would be awesome if ...");
+        startActivity(email);
+    }
+
+    public void sendRegularMail() {
+        Intent Email = new Intent(Intent.ACTION_SEND);
+        Email.setType("text/email");
+        Email.putExtra(Intent.EXTRA_EMAIL, new String[] { "info@bard.co" });
+        Email.putExtra(Intent.EXTRA_SUBJECT, "Bard Feedback " + BuildConfig.VERSION_NAME);
+        Email.putExtra(Intent.EXTRA_TEXT, "It would be awesome if ...");
+        startActivity(Intent.createChooser(Email, "Send Feedback:"));
+    }
+
     private void initProfileDetails() {
         final Context self = this;
         ViewGroup container = (ViewGroup) findViewById(R.id.profile_details_container);
@@ -132,12 +151,11 @@ public class ProfileActivity extends BaseActivity {
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Intent Email = new Intent(Intent.ACTION_SEND);
-                            Email.setType("text/email");
-                            Email.putExtra(Intent.EXTRA_EMAIL, new String[] { "info@bard.co" });
-                            Email.putExtra(Intent.EXTRA_SUBJECT, "Bard Feedback " + BuildConfig.VERSION_NAME);
-                            Email.putExtra(Intent.EXTRA_TEXT, "It would be awesome if ...");
-                            startActivity(Intent.createChooser(Email, "Send Feedback:"));
+                            try {
+                                sendGmail();
+                            } catch(ActivityNotFoundException ex) {
+                                sendRegularMail();
+                            }
                         }
                     });
                     break;
