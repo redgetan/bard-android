@@ -5,23 +5,38 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 import com.roplabs.bard.R;
+import com.roplabs.bard.models.Repo;
+import com.roplabs.bard.util.Helper;
+import com.roplabs.bard.util.Storage;
 
 import java.io.File;
+
+import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
 public class EditorPreviewActivity extends BaseActivity {
 
     private String videoLocation;
-    private String repoToken;
-    private String repoUrl;
     private VideoView videoView;
+    private LinearLayout previewSaveButton;
+    private ImageView previewSaveButtonIcon;
+    private TextView previewSaveButtonLabel;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
+
+    private String wordTagListString;
+    private String sceneName;
+    private String sceneToken;
+    private Repo repo;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,19 +44,47 @@ public class EditorPreviewActivity extends BaseActivity {
         setContentView(R.layout.activity_editor_preview);
 
         Intent intent = getIntent();
-        this.videoLocation = intent.getStringExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE);
-        this.repoToken     = intent.getStringExtra(RepoListActivity.REPO_TOKEN_MESSAGE);
-        this.repoUrl       = intent.getStringExtra(RepoListActivity.REPO_URL_MESSAGE);
+        sceneToken = intent.getStringExtra("sceneToken");
+        sceneName = intent.getStringExtra("sceneName");
+        wordTagListString = intent.getStringExtra("wordTags");
 
         videoView = (VideoView) findViewById(R.id.video_view);
+        previewSaveButton = (LinearLayout) findViewById(R.id.preview_save_repo_button);
+        previewSaveButtonIcon = (ImageView) findViewById(R.id.preview_save_repo_icon);
+        previewSaveButtonLabel = (TextView) findViewById(R.id.preview_save_repo_label);
+        ImageView previewShareButtonIcon = (ImageView) findViewById(R.id.preview_share_button_icon);
+
         initVideoPlayer();
-        playLocalVideo(this.videoLocation);
+        playLocalVideo(Storage.getMergedOutputFilePath());
 
     }
 
     private void playLocalVideo(String filePath) {
         videoView.setVideoPath(filePath);
         videoView.start();
+    }
+
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
+            String repoToken = data.getStringExtra("repoToken");
+            if (repoToken != null) {
+                repo = Repo.forToken(repoToken);
+                markAsSaved();
+            }
+        }
+    }
+
+    private void markAsSaved() {
+        previewSaveButton.setEnabled(false);
+        previewSaveButtonIcon.setVisibility(View.GONE);
+        previewSaveButtonLabel.setText("Saved");
     }
 
 
@@ -92,4 +135,35 @@ public class EditorPreviewActivity extends BaseActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    public void backToEditor(View view) {
+        finish();
+    }
+
+    public void openSharingInPreview(View view) {
+        Intent intent = new Intent(this, ShareEditorActivity.class);
+
+        intent.putExtra("wordTags", wordTagListString);
+        intent.putExtra("sceneToken", sceneToken);
+        intent.putExtra("sceneName", sceneName);
+        if (repo != null) {
+            intent.putExtra("repoToken", repo.getToken());
+        }
+        startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
+    }
+
+    public void saveRepoInPreview(View view) {
+        if (this.repo != null) {
+            // already saved (i.e. when generating online link)
+            return;
+        }
+
+        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+            @Override
+            public void onSaved(Repo createdRepo) {
+                repo = createdRepo;
+                markAsSaved();
+            }
+        });
+
+    }
 }

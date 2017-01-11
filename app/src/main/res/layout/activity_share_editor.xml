@@ -47,30 +47,4 @@
               android:stretchMode="columnWidth"
               android:gravity="center"
     />
-    <LinearLayout android:id="@+id/save_repo_container"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:layout_below="@id/social_share_list"
-                  android:minHeight="150dp"
-                  android:gravity="center_horizontal"
-                  android:padding="50dp"
-                  android:orientation="horizontal"
-    >
-        <Button android:id="@+id/save_repo_btn"
-                android:layout_height="wrap_content"
-                android:textAllCaps="false"
-                android:minHeight="0dp"
-                android:paddingTop="10dp"
-                android:paddingLeft="10dp"
-                android:paddingRight="10dp"
-                android:paddingBottom="10dp"
-                android:background="@color/md_grey_500"
-                android:layout_gravity="center_horizontal"
-                android:textColor="@color/white"
-                android:text="Save"
-                android:onClick="saveRepo"
-                android:layout_width="match_parent">
-
-        </Button>
-    </LinearLayout>
 </RelativeLayout>

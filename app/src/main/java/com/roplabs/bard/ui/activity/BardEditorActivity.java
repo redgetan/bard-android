@@ -79,6 +79,7 @@ import java.util.*;
 import java.util.concurrent.CountDownLatch;
 
 import static com.roplabs.bard.ClientApp.getContext;
+import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
 public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
@@ -91,7 +92,6 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
-    private final int SHARE_REQUEST_CODE = 20;
 
     private Context mContext;
     private RelativeLayout inputContainer;
@@ -151,8 +151,6 @@ public class BardEditorActivity extends BaseActivity implements
     private WordListAdapter.ViewHolder lastViewHolder;
     private LinearLayout editorRootLayout;
     private Button saveRepoBtn;
-    private Button shareRepoBtn;
-    private ImageView shareRepoIcon;
     private ImageView sceneSelectBtn;
     private ImageView modeChangeBtn;
     private Runnable scrollToThumbnailRunnable;
@@ -214,14 +212,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
         editText.setEnabled(false);
-        editText.setPrivateImeOptions("nm");
         editText.setPrivateImeOptions("com.google.android.inputmethod.latin.noMicrophoneKey");
-
-        shareRepoBtn = (Button) findViewById(R.id.share_repo_btn);
-        shareRepoBtn.setVisibility(View.GONE);
-        shareRepoIcon = (ImageView) findViewById(R.id.share_repo_icon);
-        shareRepoIcon.setColorFilter(ContextCompat.getColor(this, R.color.md_green_400));
-        shareRepoIcon.setVisibility(View.GONE);
 
 //        sceneSelectBtn = (ImageView) findViewById(R.id.scene_select_btn);
         modeChangeBtn = (ImageView) findViewById(R.id.mode_change_btn);
@@ -1110,7 +1101,7 @@ public class BardEditorActivity extends BaseActivity implements
                 }
             };
             handler.postDelayed(r, 200);
-        } else if (resultCode == RESULT_OK && requestCode == SHARE_REQUEST_CODE) {
+        } else if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
             setResult(RESULT_OK);
             finish();
         }
@@ -1189,10 +1180,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         hideKeyboard();
         trackGenerateBardVideo();
-        playLocalVideo(outputFilePath);
-        shareRepoBtn.setVisibility(View.VISIBLE);
-        shareRepoIcon.setVisibility(View.VISIBLE);
-        restoreOriginalVideoHeight();
+        goToEditorResultsPreview();
     }
 
     private String getWordListFromSegments(List<Segment> segments) {
@@ -1266,7 +1254,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         // replay last merge if nothing changed
         if (lastMergedWordTagList.toString().equals(wordTagList.toString())) {
-            playLocalVideo(Storage.getMergedOutputFilePath());
+            goToEditorResultsPreview();
             return;
         }
 
@@ -1565,13 +1553,14 @@ public class BardEditorActivity extends BaseActivity implements
         previewOverlay.setVisibility(View.VISIBLE);
     }
 
-
-    public void openSharing(View view) {
-        Intent intent = new Intent(this, ShareEditorActivity.class);
+    private void goToEditorResultsPreview() {
+        Intent intent = new Intent(this, EditorPreviewActivity.class);
 
         intent.putExtra("wordTags", TextUtils.join(",",lastMergedWordTagList));
         intent.putExtra("sceneToken", sceneToken);
         intent.putExtra("sceneName", scene.getName());
-        startActivityForResult(intent, SHARE_REQUEST_CODE);
+        startActivity(intent);
     }
+
+
 }

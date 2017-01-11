@@ -42,36 +42,6 @@
                     android:layout_height="30dp"
                     android:contentDescription="@string/close_editor"/>
 
-            <LinearLayout android:layout_width="wrap_content"
-                          android:layout_height="match_parent"
-                          android:orientation="horizontal"
-                          android:layout_gravity="right"
-            >
-                <Button
-                        android:id="@+id/share_repo_btn"
-                        android:onClick="openSharing"
-                        android:background="@drawable/selector_play_all"
-                        android:textColor="@color/md_green_400"
-                        android:layout_marginRight="0dp"
-                        android:layout_gravity="right"
-                        android:minWidth="10dp"
-                        android:textAllCaps="false"
-                        android:text="@string/share"
-                        android:layout_width="wrap_content"
-                        android:layout_height="25dp" />
-
-                <ImageView
-                        android:id="@+id/share_repo_icon"
-                        android:src="@drawable/ic_file_upload_white_24dp"
-                        android:onClick="openSharing"
-                        android:paddingLeft="0dp"
-                        android:paddingRight="0dp"
-                        android:layout_marginRight="10dp"
-                        android:layout_marginEnd="10dp"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/close_editor"/>
-            </LinearLayout>
 
 
         </FrameLayout>

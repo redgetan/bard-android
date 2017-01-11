@@ -2,6 +2,7 @@ package com.roplabs.bard.util;
 
 import android.Manifest;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
@@ -10,12 +11,20 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
+import android.widget.Toast;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -27,15 +36,24 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IProfile;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.config.Configuration;
+import com.roplabs.bard.models.AmazonCognito;
+import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
+import retrofit2.Call;
+import retrofit2.Callback;
 import retrofit2.Response;
 import android.support.v7.widget.Toolbar;
 
 import java.io.*;
+import java.util.Calendar;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.UUID;
 
 
 public class Helper {
@@ -50,6 +68,9 @@ public class Helper {
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
     public static final int PROFILE_REQUEST_CODE = 3;
+    public static final int SHARE_REPO_REQUEST_CODE = 4;
+
+    private static ProgressDialog progressDialog;
 
     public static String parseError(Response<?> response) {
         if (response.errorBody() != null) {
@@ -371,5 +392,126 @@ public class Helper {
 //            }
         }
     }
+
+    private static String getRepositoryS3Key(String uuid) {
+        return "repositories/" + Setting.getUsername(ClientApp.getContext()) + "/" + uuid + ".mp4";
+    }
+
+    public interface OnRepoSaved  {
+        void onSaved(Repo repo);
+    }
+
+    public static void saveRepo(Context context, String wordTagListString, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Saving...");
+        progressDialog.show();
+
+        final String wordList = wordTagListString;
+
+        // upload to S3
+
+        final String uuid = UUID.randomUUID().toString();
+        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
+        TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
+        TransferObserver observer = transferUtility.upload(
+                Configuration.s3UserBucket(),
+                getRepositoryS3Key(uuid),
+                new File(Storage.getMergedOutputFilePath())
+        );
+
+        observer.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                // do something
+                if (state == TransferState.COMPLETED) {
+                    saveRemoteRepo(uuid, wordList, sceneToken, sceneName, listener);
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                //Display percentage transfered to user
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // do something
+                displayError("Unable to upload to server", ex);
+            }
+
+        });
+
+    }
+
+    private static void saveRemoteRepo(String uuid, final String wordList, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("uuid", uuid);
+        body.put("word_list", wordList);
+        body.put("scene_token", sceneToken);
+//        body.put("character_token", this.characterToken);
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
+
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                if (!response.isSuccess()) {
+                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
+                } else {
+                    HashMap<String, String> result = response.body();
+                    saveLocalRepo(result.get("token"), result.get("url"), wordList, sceneToken, sceneName, listener);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                displayError("Unable to sync to remote server", t);
+            }
+        });
+    }
+
+    private static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, OnRepoSaved listener) {
+        String filePath = Storage.getLocalSavedFilePath();
+        Repo repo;
+
+        if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
+            repo = Repo.create(token, url, "", sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+
+            JSONObject properties = new JSONObject();
+            try {
+                properties.put("wordTags", wordList);
+                properties.put("sceneToken", sceneToken);
+                properties.put("scene", sceneName);
+//                properties.put("character", character.getName());
+            } catch (JSONException e) {
+                e.printStackTrace();
+                CrashReporter.logException(e);
+            }
+            Analytics.track(ClientApp.getContext(), "saveRepo", properties);
+
+            progressDialog.dismiss();
+            listener.onSaved(repo);
+
+        } else {
+            displayError("Unable to save to phone");
+        }
+    }
+
+    private static void displayError(String message, Throwable t) {
+        progressDialog.dismiss();
+        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
+        CrashReporter.logException(t);
+    }
+
+    private static void displayError(String message) {
+        progressDialog.dismiss();
+        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
+        CrashReporter.logException(new Throwable(message));
+    }
+
+
+
 
 }

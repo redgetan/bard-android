@@ -44,7 +44,6 @@ import java.util.UUID;
 public class ShareEditorActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private Context mContext;
     private GridView shareListView;
-    private Button saveRepoBtn;
     private ProgressDialog progressDialog;
     private Repo repo;
     private String wordTagListString;
@@ -61,13 +60,17 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         setContentView(R.layout.activity_share_editor);
 
         shareListView = (GridView) findViewById(R.id.social_share_list);
-        saveRepoBtn = (Button) findViewById(R.id.save_repo_btn);
 
 
         Intent intent = getIntent();
         sceneToken = intent.getStringExtra("sceneToken");
         sceneName = intent.getStringExtra("sceneName");
         wordTagListString = intent.getStringExtra("wordTags");
+
+        String repoToken = intent.getStringExtra("repoToken");
+        if (repoToken != null) {
+            repo = Repo.forToken(repoToken);
+        }
 
         initShare();
     }
@@ -197,18 +200,24 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startLinkShare() {
         if (repo != null) {
-            copyRepoLinkToClipboard();
+            copyRepoLinkToClipboard(repo);
             return;
         }
-        isPerformingLinkGeneration = true;
-        saveRepo(null);
+
+        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+            @Override
+            public void onSaved(Repo createdRepo) {
+                repo = createdRepo;
+                copyRepoLinkToClipboard(createdRepo);
+            }
+        });
     }
 
-    private void copyRepoLinkToClipboard() {
+    private void copyRepoLinkToClipboard(Repo targetRepo) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(this.repo.getUrl(), this.repo.getUrl());
+        ClipData clip = ClipData.newPlainText(targetRepo.getUrl(), targetRepo.getUrl());
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(ClientApp.getContext(), this.repo.getUrl() + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ClientApp.getContext(), targetRepo.getUrl() + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
     private void startTextShare() {
@@ -216,8 +225,14 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             sendText(repo.getUrl());
             return;
         }
-        isPerformingTextSend = true;
-        saveRepo(null);
+
+        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+            @Override
+            public void onSaved(Repo createdRepo) {
+                repo = createdRepo;
+                sendText(createdRepo.getUrl());
+            }
+        });
     }
 
     private void sendText(String text) {
@@ -248,149 +263,6 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startMoreShare() {
         startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
-    }
-
-    private String getRepositoryS3Key(String uuid) {
-        return "repositories/" + Setting.getUsername(this) + "/" + uuid + ".mp4";
-    }
-
-    public void saveRepo(View view) {
-        if (this.repo != null) {
-            // already saved (i.e. when generating online link)
-            setResult(RESULT_OK);
-            finish();
-            return;
-        }
-
-        saveRepoBtn.setEnabled(false);
-        progressDialog = new ProgressDialog(this);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Saving...");
-        progressDialog.show();
-
-        final String wordList = wordTagListString;
-
-        // upload to S3
-
-        final String uuid = UUID.randomUUID().toString();
-        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
-        TransferUtility transferUtility = new TransferUtility(s3, getApplicationContext());
-        TransferObserver observer = transferUtility.upload(
-                Configuration.s3UserBucket(),
-                getRepositoryS3Key(uuid),
-                new File(Storage.getMergedOutputFilePath())
-        );
-
-        observer.setTransferListener(new TransferListener(){
-
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                // do something
-                if (state == TransferState.COMPLETED) {
-                    saveRemoteRepo(uuid, wordList);
-                }
-            }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                int percentage = (int) (bytesCurrent/bytesTotal * 100);
-                //Display percentage transfered to user
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                // do something
-                displayError("Unable to upload to server", ex);
-            }
-
-        });
-
-    }
-
-    private void saveRemoteRepo(String uuid, final String wordList) {
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("uuid", uuid);
-        body.put("word_list", wordList);
-        body.put("scene_token", sceneToken);
-//        body.put("character_token", this.characterToken);
-        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
-
-        call.enqueue(new Callback<HashMap<String, String>>() {
-            @Override
-            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                if (!response.isSuccess()) {
-                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
-                } else {
-                    HashMap<String, String> result = response.body();
-                    saveLocalRepo(result.get("token"), result.get("url"), wordList);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                displayError("Unable to sync to remote server", t);
-            }
-        });
-    }
-
-    private void displayError(String message, Throwable t) {
-        saveRepoBtn.setEnabled(true);
-        progressDialog.dismiss();
-        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        CrashReporter.logException(t);
-    }
-
-    private void displayError(String message) {
-        saveRepoBtn.setEnabled(true);
-        progressDialog.dismiss();
-        Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
-        CrashReporter.logException(new Throwable(message));
-    }
-
-    private void saveLocalRepo(String token, String url, String wordList) {
-        String filePath = Storage.getLocalSavedFilePath();
-
-        if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            this.repo = Repo.create(token, url, "", sceneToken, filePath, wordList, Calendar.getInstance().getTime());
-
-            JSONObject properties = new JSONObject();
-            try {
-                properties.put("wordTags", wordTagListString);
-                properties.put("sceneToken", sceneToken);
-                properties.put("scene", sceneName);
-//                properties.put("character", character.getName());
-            } catch (JSONException e) {
-                e.printStackTrace();
-                CrashReporter.logException(e);
-            }
-            Analytics.track(this, "saveRepo", properties);
-
-            progressDialog.dismiss();
-
-            if (isPerformingLinkGeneration) {
-                isPerformingLinkGeneration = false;
-                copyRepoLinkToClipboard();
-            } else if (isPerformingTextSend) {
-                isPerformingTextSend = false;
-                sendText(repo.getUrl());
-            } else {
-                saveRepoBtn.setText("Saved");
-
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        setResult(RESULT_OK);
-                        finish();
-                    }
-                }, 500);
-            }
-
-            saveRepoBtn.setEnabled(true);
-
-        } else {
-            displayError("Unable to save to phone");
-        }
     }
 
     public Intent getRepoShareIntent() {

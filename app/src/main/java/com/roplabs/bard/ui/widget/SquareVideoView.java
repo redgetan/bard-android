@@ -26,12 +26,13 @@ public class SquareVideoView extends VideoView {
         int heightSpecSize = MeasureSpec.getSize(heightMeasureSpec);
 
         int width = widthSpecSize;
-        int height = width * 3 / 4;
+        int height = width * 9 / 16;
+//        int height = width * 3 / 4;
 
-        if (height > heightSpecSize) {
-            // couldn't match aspect ratio within the constraints
-            height = heightSpecSize;
-        }
+//        if (height > heightSpecSize) {
+//            // couldn't match aspect ratio within the constraints
+//            height = heightSpecSize;
+//        }
 
         setMeasuredDimension(width, height);
     }
