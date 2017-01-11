@@ -17,6 +17,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.instabug.library.Instabug;
 import com.mikepenz.materialdrawer.view.BezelImageView;
+import com.roplabs.bard.BuildConfig;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Setting;
@@ -131,7 +132,12 @@ public class ProfileActivity extends BaseActivity {
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Instabug.invoke();
+                            Intent Email = new Intent(Intent.ACTION_SEND);
+                            Email.setType("text/email");
+                            Email.putExtra(Intent.EXTRA_EMAIL, new String[] { "info@bard.co" });
+                            Email.putExtra(Intent.EXTRA_SUBJECT, "Bard Feedback " + BuildConfig.VERSION_NAME);
+                            Email.putExtra(Intent.EXTRA_TEXT, "It would be awesome if ...");
+                            startActivity(Intent.createChooser(Email, "Send Feedback:"));
                         }
                     });
                     break;

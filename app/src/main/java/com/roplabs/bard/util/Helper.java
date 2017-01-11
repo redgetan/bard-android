@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
@@ -29,6 +30,7 @@ import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.DrawerBuilder;
+import com.mikepenz.materialdrawer.holder.BadgeStyle;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.ProfileDrawerItem;
@@ -50,10 +52,7 @@ import retrofit2.Response;
 import android.support.v7.widget.Toolbar;
 
 import java.io.*;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.Locale;
-import java.util.UUID;
+import java.util.*;
 
 
 public class Helper {
@@ -285,6 +284,8 @@ public class Helper {
     public static void initNavigationViewDrawer(final AppCompatActivity context, Toolbar toolbar) {
         String username = Setting.getUsername(context);
         ProfileDrawerItem profileDrawerItem;
+        final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
+        String libraryCount = String.valueOf(repos.size());
 
         if (username.equals("anonymous")) {
             profileDrawerItem = new ProfileDrawerItem().withName("Click Avatar to Login"); // .withIcon(getResources().getDrawable(R.drawable.profile))
@@ -311,13 +312,14 @@ public class Helper {
                 .build();
 
         int textColor = ContextCompat.getColor(ClientApp.getContext(), R.color.black);
+//        int badgeColor = ContextCompat.getColor(ClientApp.getContext(), R.color.white);
 
         new DrawerBuilder()
                 .withActivity(context)
                 .withAccountHeader(headerResult)
                 .withToolbar(toolbar)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),

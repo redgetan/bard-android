@@ -4,6 +4,8 @@ import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
 import com.crashlytics.android.Crashlytics;
+import com.instabug.library.IBGInvocationEvent;
+import com.instabug.library.Instabug;
 import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.AmazonCognito;
 import com.roplabs.bard.util.CrashReporter;
@@ -33,7 +35,6 @@ public class ClientApp extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
 
         AmazonCognito.init(this);
-
         Fabric.with(this, new Crashlytics());
 //        CrashReporter.init(this);
     }
