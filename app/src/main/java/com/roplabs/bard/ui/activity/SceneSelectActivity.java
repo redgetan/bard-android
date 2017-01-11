@@ -94,10 +94,6 @@ public class SceneSelectActivity extends BaseActivity  {
         initSearch();
         initScenes();
         Helper.askStoragePermission(this);
-
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("page",String.valueOf(1));
-        syncRemoteData(map);
     }
 
     private void deepLinkNavigate() {
@@ -390,6 +386,8 @@ public class SceneSelectActivity extends BaseActivity  {
 
     private void populateScenes(List<Scene> remoteSceneList, Map<String, String> options) {
         for (Scene scene : remoteSceneList) {
+            if (scene.getToken() == null) continue;
+
             if (Scene.forToken(scene.getToken()) == null) {
                 // create if scene doesnt exist yet
                 Realm realm = Realm.getDefaultInstance();
