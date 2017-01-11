@@ -14,6 +14,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.util.Helper;
@@ -84,6 +85,7 @@ public class EditorPreviewActivity extends BaseActivity {
         previewSaveButton.setEnabled(false);
         previewSaveButtonIcon.setVisibility(View.GONE);
         previewSaveButtonLabel.setText("Saved");
+        previewSaveButtonLabel.setTextColor(ContextCompat.getColor(ClientApp.getContext(), R.color.md_green_300));
     }
 
 
