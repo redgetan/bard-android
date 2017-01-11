@@ -270,7 +270,8 @@ public class SceneSelectActivity extends BaseActivity  {
 
     private void syncRemoteData(final Map<String, String> options) {
         // check to see if already in cache (only if there's no search term)
-        if (options.get("search") == null) {
+        String search = options.get("search");
+        if (search == null || search.isEmpty()) {
             final List<Scene> cachedScenes = sceneListCache.get(options.get("page"));
             if (cachedScenes != null) {
                 populateScenes(cachedScenes, options);

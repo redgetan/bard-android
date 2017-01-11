@@ -3,12 +3,14 @@ package com.roplabs.bard;
 import android.app.Application;
 import android.content.Context;
 import android.support.multidex.MultiDexApplication;
+import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.AmazonCognito;
 import com.roplabs.bard.util.CrashReporter;
 import com.squareup.leakcanary.LeakCanary;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
 
@@ -22,7 +24,6 @@ public class ClientApp extends MultiDexApplication {
         super.onCreate();
         instance = this;
         LeakCanary.install(this);
-        CrashReporter.init(this);
         RealmConfiguration config = new RealmConfiguration.Builder(this)
                 .schemaVersion(2)
                 .migration(new DBMigration())
@@ -32,6 +33,9 @@ public class ClientApp extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
 
         AmazonCognito.init(this);
+
+        Fabric.with(this, new Crashlytics());
+//        CrashReporter.init(this);
     }
 
     public static ClientApp getInstance() {
