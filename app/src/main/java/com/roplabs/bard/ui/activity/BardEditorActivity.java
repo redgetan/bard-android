@@ -510,6 +510,12 @@ public class BardEditorActivity extends BaseActivity implements
                     debugView.setText("");
 
                     Scene remoteScene = response.body();
+
+                    if (remoteScene == null) {
+                        displayEmptyWordListError();
+                        return;
+                    }
+
                     String wordList = remoteScene.getWordList();
 
                     Realm realm = Realm.getDefaultInstance();

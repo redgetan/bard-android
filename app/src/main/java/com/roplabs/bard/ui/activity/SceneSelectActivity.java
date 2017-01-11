@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +12,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
@@ -168,12 +170,24 @@ public class SceneSelectActivity extends BaseActivity  {
                     item.setIcon(R.drawable.ic_eject_white_18dp);
 
                     searchBar.requestFocus();
+
+                    // show keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+                    imm.toggleSoftInput(InputMethodManager.SHOW_IMPLICIT,0);
                 } else {
-                    // hide searchbar
+                    // hide and reset searchbar
+                    searchBar.setText("");
                     searchBar.setVisibility(View.GONE);
                     videoListLabel.setVisibility(View.GONE);
                     pickVideoLabel.setVisibility(View.VISIBLE);
                     item.setIcon(R.drawable.ic_search_white_18dp);
+
+                    scrollListener.resetState();
+                    performSearch("");
+
+                    // hide keyboard
+                    InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+                    imm.hideSoftInputFromWindow(searchBar.getWindowToken(), 0);
                 }
                 return true;
             default:
@@ -270,13 +284,10 @@ public class SceneSelectActivity extends BaseActivity  {
 
     private void syncRemoteData(final Map<String, String> options) {
         // check to see if already in cache (only if there's no search term)
-        String search = options.get("search");
-        if (search == null || search.isEmpty()) {
-            final List<Scene> cachedScenes = sceneListCache.get(options.get("page"));
-            if (cachedScenes != null) {
-                populateScenes(cachedScenes, options);
-                return;
-            }
+        final List<Scene> cachedScenes = sceneListCache.get(getCacheKey(options));
+        if (cachedScenes != null) {
+            populateScenes(cachedScenes, options);
+            return;
         }
 
 
@@ -302,7 +313,7 @@ public class SceneSelectActivity extends BaseActivity  {
                 } else {
                     hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
-                    sceneListCache.put(options.get("page"), remoteSceneList);
+                    sceneListCache.put(getCacheKey(options), remoteSceneList);
                 }
             }
 
@@ -322,6 +333,17 @@ public class SceneSelectActivity extends BaseActivity  {
 //                }
             }
         });
+    }
+
+    private String getCacheKey(Map<String, String> options) {
+        String search = options.get("search");
+
+        if (search == null) {
+            return options.get("page");
+        } else {
+            return options.get("page") + search;
+        }
+
     }
 
     @Override
@@ -347,6 +369,15 @@ public class SceneSelectActivity extends BaseActivity  {
     @Override
     public void onPause() {
         super.onPause();
+    }
+
+    @Override
+    public void onBackPressed() {
+        // go to home
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        intent.addCategory(Intent.CATEGORY_HOME);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
     }
 
     @Override
