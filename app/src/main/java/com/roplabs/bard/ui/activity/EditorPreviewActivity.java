@@ -52,7 +52,6 @@ public class EditorPreviewActivity extends BaseActivity {
         previewSaveButton = (LinearLayout) findViewById(R.id.preview_save_repo_button);
         previewSaveButtonIcon = (ImageView) findViewById(R.id.preview_save_repo_icon);
         previewSaveButtonLabel = (TextView) findViewById(R.id.preview_save_repo_label);
-        ImageView previewShareButtonIcon = (ImageView) findViewById(R.id.preview_share_button_icon);
 
         initVideoPlayer();
         playLocalVideo(Storage.getMergedOutputFilePath());
