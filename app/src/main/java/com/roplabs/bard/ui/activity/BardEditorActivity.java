@@ -1376,7 +1376,7 @@ public class BardEditorActivity extends BaseActivity implements
             if (originalVideoHeight == -1) {
                originalVideoHeight = params.height;
             }
-            params.height = originalVideoHeight / 2;
+            params.height = (int) (originalVideoHeight / 1.25);
             vpPagerContainer.setLayoutParams(params);
             adjustVideoAspectRatio();
 
