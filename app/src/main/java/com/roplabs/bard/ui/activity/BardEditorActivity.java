@@ -860,6 +860,10 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
 
+    private boolean isKeyAllowed(String targetChar) {
+       return targetChar.matches("[\\w\\s]"); // only allow alphanumeric and space
+    }
+
     // if invalid, dont proceed
     // if valid, autocomplete partial word with current selection
 
@@ -867,7 +871,9 @@ public class BardEditorActivity extends BaseActivity implements
         InputFilter filter = new InputFilter() {
             @Override
             public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
-                if (source.length() == 1 && source.charAt(0) == ' ' && editText.containsInvalidWord()) {
+                if (source.length() == 1 && !isKeyAllowed(source.toString())) {
+                    return "";
+                } else if (source.length() == 1 && source.charAt(0) == ' ' && editText.containsInvalidWord()) {
                     return "";
                 } else if (source.length() == 1 && source.charAt(0) == ' ' && !editText.toString().trim().isEmpty() && !editText.getCurrentTokenWord().isEmpty()) {
                     // user press space in valid state
@@ -959,6 +965,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
+        if (!editText.isEnabled()) return; // if editText is disabled, dont allow adding to it
+
         skipOnTextChangeCallback = true;
 
         String toInsert = "";

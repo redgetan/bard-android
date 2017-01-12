@@ -73,10 +73,12 @@ public class EditorPreviewActivity extends BaseActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
-            String repoToken = data.getStringExtra("repoToken");
-            if (repoToken != null) {
-                repo = Repo.forToken(repoToken);
-                markAsSaved();
+            if (data != null) {
+                String repoToken = data.getStringExtra("repoToken");
+                if (repoToken != null) {
+                    repo = Repo.forToken(repoToken);
+                    markAsSaved();
+                }
             }
         }
     }
