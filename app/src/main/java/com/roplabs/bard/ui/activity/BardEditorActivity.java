@@ -1268,7 +1268,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void tagLastWordIfPartial() {
         String lastWord = editText.getCurrentTokenWord();
-        boolean lastWordNotTagged = !lastWord.contains(":");
+        boolean lastWordNotTagged = !lastWord.trim().isEmpty() && !lastWord.contains(":");
         List<String> filteredResults = editText.getFilteredResults();
         if (lastWordNotTagged && !filteredResults.isEmpty()) {
             String firstMatch = filteredResults.get(0);

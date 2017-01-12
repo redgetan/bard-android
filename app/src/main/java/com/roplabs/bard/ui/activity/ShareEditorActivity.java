@@ -283,7 +283,13 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
 
     public void closeShare(View view) {
-        setResult(RESULT_CANCELED);
+        if (this.repo != null) {
+            Intent resultIntent = new Intent();
+            resultIntent.putExtra("repoToken", this.repo.getToken());
+            setResult(RESULT_OK, resultIntent);
+        } else {
+            setResult(RESULT_OK);
+        }
         finish();
     }
 }
