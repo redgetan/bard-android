@@ -1266,7 +1266,24 @@ public class BardEditorActivity extends BaseActivity implements
         finish();
     }
 
+    private void tagLastWordIfPartial() {
+        String lastWord = editText.getCurrentTokenWord();
+        boolean lastWordNotTagged = !lastWord.contains(":");
+        List<String> filteredResults = editText.getFilteredResults();
+        if (lastWordNotTagged && !filteredResults.isEmpty()) {
+            String firstMatch = filteredResults.get(0);
+            // make sure last word matches the one in filtered results
+            if (!firstMatch.contains(lastWord)) return;
+
+            WordTag wordTag = getWordTagSelector().findNextWord(firstMatch);
+            setWordTag(wordTag);
+            editText.replaceText(wordTag.toString() + " ");
+        }
+    }
+
     public void generateBardVideo(View view) throws IOException {
+        tagLastWordIfPartial();
+
         List<String> wordTagList = new ArrayList<String>(Arrays.asList(editText.getText().toString().split("\\s+")));
         wordTagList.removeAll(Collections.singletonList("")); // dont allow empty strings
         if (wordTagList.isEmpty()) return; // if not words to merge exit
@@ -1279,7 +1296,8 @@ public class BardEditorActivity extends BaseActivity implements
             return;
         }
 
-        if (editText.containsInvalidWord() && !isAllWordsTagged(wordTagList)) return;
+        if (editText.containsInvalidWord()) return;
+        if (!isAllWordsTagged(wordTagList)) return;
 
         joinSegments(wordTagList);
     }
@@ -1561,6 +1579,9 @@ public class BardEditorActivity extends BaseActivity implements
             mediaPlayer.setSurface(previewSurface);
             mediaPlayer.prepareAsync();
         } catch (IOException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        } catch (IllegalStateException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
         }
