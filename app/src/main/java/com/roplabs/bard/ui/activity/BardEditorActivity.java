@@ -1171,6 +1171,10 @@ public class BardEditorActivity extends BaseActivity implements
 
         List<Segment> segments = Segment.buildFromWordTagList(wordTagList, sceneToken);
         final String outputFilePath = Storage.getMergedOutputFilePath();
+        // delete old one before merging (since we rely on checking presence to see if merge is success or not)
+        if ((new File(outputFilePath)).exists()) {
+            new File(outputFilePath).delete();
+        }
         final String wordList = getWordListFromSegments(segments);
         String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
         final long startTime = System.currentTimeMillis();
