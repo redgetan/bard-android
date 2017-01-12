@@ -135,7 +135,6 @@ public class BardEditorActivity extends BaseActivity implements
     private boolean skipOnTextChangeCallback;
     private TextView repoTitle;
 
-    private Boolean isWordTagListContainerBlocked;
     private String lastPlayedWordTag = "";
     private String characterToken;
     private String sceneToken;
@@ -222,7 +221,6 @@ public class BardEditorActivity extends BaseActivity implements
         findPrevBtn = (ImageView) findViewById(R.id.btn_find_prev);
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
-        isWordTagListContainerBlocked = false;
 
         lastMergedWordTagList = new ArrayList<String>();
 
@@ -961,10 +959,6 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
-        if (isWordTagListContainerBlocked) return;
-
-        isWordTagListContainerBlocked = true;
-
         skipOnTextChangeCallback = true;
 
         String toInsert = "";
@@ -1085,6 +1079,7 @@ public class BardEditorActivity extends BaseActivity implements
         getWordTagSelector().clearWordTag();
         findNextBtn.setVisibility(View.GONE);
         findPrevBtn.setVisibility(View.GONE);
+        word_tag_status.setText("");
     }
 
     @Override
@@ -1365,7 +1360,6 @@ public class BardEditorActivity extends BaseActivity implements
         if (previewOverlay.isShown()) previewOverlay.setVisibility(View.GONE);
         playVideo(filePath);
 
-        isWordTagListContainerBlocked = false;
         if (lastClickedWordTagView != null) {
             lastClickedWordTagView.setEnabled(true);
         }
