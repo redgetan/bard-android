@@ -170,6 +170,22 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     }
 
+    public boolean isBeforeImageSpan(int cursorPosition) {
+        // get all existing imagespans
+        ImageSpan[] existingImageSpans = getText().getSpans(0, getText().length(), ImageSpan.class);
+
+        for (ImageSpan existingImageSpan : existingImageSpans) {
+            int imageSpanStart = getText().getSpanStart(existingImageSpan);
+            if (cursorPosition <= imageSpanStart ) {
+                return true;
+            }
+
+        }
+
+        return false;
+
+    }
+
     public boolean isImmediatelyAfterImageSpan() {
         // get all existing imagespans
         ImageSpan[] existingImageSpans = getText().getSpans(0, getText().length(), ImageSpan.class);
@@ -238,10 +254,19 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         lastString = sb.toString();
 
         setText(sb);
-        if (origCursorPosition > sb.length()) origCursorPosition = sb.length();
-        if (sb.length() == 0) origCursorPosition = 0;
 
-        setSelection(origCursorPosition);
+        int targetCursorPosition = origCursorPosition;
+
+        if (targetCursorPosition > sb.length()) targetCursorPosition = sb.length();
+        // if cursor is in immediately front of another word, move cursor back so that its before space character instead
+        if (isBeforeImageSpan(targetCursorPosition) ) {
+            if (getText().charAt(targetCursorPosition) != ' ') {
+                targetCursorPosition = targetCursorPosition - 1;
+            }
+        }
+        if (sb.length() == 0) targetCursorPosition = 0;
+
+        setSelection(targetCursorPosition);
     }
 
     @Override

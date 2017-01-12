@@ -32,6 +32,8 @@ public class EditorPreviewActivity extends BaseActivity {
     private ImageView previewSaveButtonIcon;
     private TextView previewSaveButtonLabel;
     private MediaPlayer mediaPlayer;
+    private ImageView playBtn;
+
     private boolean isVideoReady = false;
 
     private String wordTagListString;
@@ -53,6 +55,7 @@ public class EditorPreviewActivity extends BaseActivity {
         previewSaveButton = (LinearLayout) findViewById(R.id.preview_save_repo_button);
         previewSaveButtonIcon = (ImageView) findViewById(R.id.preview_save_repo_icon);
         previewSaveButtonLabel = (TextView) findViewById(R.id.preview_save_repo_label);
+        playBtn = (ImageView) findViewById(R.id.editor_preview_play_button);
 
         initVideoPlayer();
         playLocalVideo(Storage.getMergedOutputFilePath());
@@ -60,6 +63,7 @@ public class EditorPreviewActivity extends BaseActivity {
     }
 
     private void playLocalVideo(String filePath) {
+        playBtn.setVisibility(View.GONE);
         videoView.setVideoPath(filePath);
         videoView.start();
     }
@@ -92,9 +96,18 @@ public class EditorPreviewActivity extends BaseActivity {
 
 
     private void initVideoPlayer() {
+        playBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                replayVideo();
+            }
+        });
+
+
         videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
             @Override
             public void onCompletion(MediaPlayer mediaPlayer) {
+                playBtn.setVisibility(View.VISIBLE);
             }
         });
 
@@ -127,6 +140,7 @@ public class EditorPreviewActivity extends BaseActivity {
     }
 
     public void replayVideo() {
+        playBtn.setVisibility(View.GONE);
         mediaPlayer.seekTo(0);
         mediaPlayer.start();
     }
