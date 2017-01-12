@@ -812,6 +812,10 @@ public class BardEditorActivity extends BaseActivity implements
                 if (!skipOnTextChangeCallback) {
                     editText.findPrefixMatches();
                 }
+
+                if (editText.getText().toString().isEmpty()) {
+                    clearPreview();
+                }
             }
         });
 
@@ -957,6 +961,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void onWordTagClick(WordTag wordTag) {
+        if (isWordTagListContainerBlocked) return;
+
         isWordTagListContainerBlocked = true;
 
         skipOnTextChangeCallback = true;
@@ -1137,9 +1143,28 @@ public class BardEditorActivity extends BaseActivity implements
         hideKeyboard();
     }
 
+    private void setControlState(boolean enabled) {
+        playMessageBtn.setEnabled(enabled);
+        recyclerView.setEnabled(enabled);
+        findNextBtn.setEnabled(enabled);
+        findPrevBtn.setEnabled(enabled);
+        editText.setEnabled(enabled);
+    }
+
+    private void disableControls() {
+        setControlState(false);
+    }
+
+    private void enableControls() {
+        setControlState(true);
+    }
+
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(final List<String> wordTagList) {
         Analytics.timeEvent(this, "generateBardVideo");
+
+        disableControls();
+        progressBar.setVisibility(View.VISIBLE);
 
         List<Segment> segments = Segment.buildFromWordTagList(wordTagList, sceneToken);
         final String outputFilePath = Storage.getMergedOutputFilePath();
@@ -1156,6 +1181,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             protected void onPostExecute(String result) {
+                enableControls();
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
                     final long endTime = System.currentTimeMillis();
@@ -1259,9 +1285,6 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         if (editText.containsInvalidWord() && !isAllWordsTagged(wordTagList)) return;
-
-        playMessageBtn.setEnabled(false);
-        progressBar.setVisibility(View.VISIBLE);
 
         joinSegments(wordTagList);
     }
