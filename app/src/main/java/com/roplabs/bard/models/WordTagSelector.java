@@ -1,9 +1,6 @@
 package com.roplabs.bard.models;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static com.roplabs.bard.util.Helper.normalizeWord;
 
@@ -74,6 +71,24 @@ public class WordTagSelector {
             }
 
             i++;
+        }
+
+        // sort wordList by duration
+        Set<String> words = wordTagMap.keySet();
+        for (String word : words) {
+            wordTagList = wordTagMap.get(word);
+            Collections.sort(wordTagList, new Comparator<WordTag>() {
+                @Override
+                public int compare(WordTag o1, WordTag o2) {
+                    if (o1.duration > o2.duration) {
+                        return -1;
+                    } else if (o1.duration < o2.duration) {
+                        return 1;
+                    } else {
+                        return 0;
+                    }
+                }
+            });
         }
     }
 

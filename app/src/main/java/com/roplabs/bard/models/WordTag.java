@@ -15,6 +15,8 @@ public class WordTag  {
 
             if (tokens.length == 3) {
                 this.duration = Float.valueOf(tokens[2]);
+            } else {
+                this.duration = 1;
             }
 
         } else {
