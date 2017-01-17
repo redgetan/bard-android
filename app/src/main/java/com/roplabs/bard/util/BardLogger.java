@@ -1,6 +1,7 @@
 package com.roplabs.bard.util;
 
 import android.util.Log;
+import com.crashlytics.android.Crashlytics;
 import com.roplabs.bard.BuildConfig;
 
 public class BardLogger {
@@ -14,6 +15,6 @@ public class BardLogger {
     }
 
     public static void trace(String message) {
-        Log.e(TAG, message);
+        Crashlytics.log(Log.DEBUG, TAG, message);
     }
 }

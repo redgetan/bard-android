@@ -127,8 +127,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         int keyCode = 0;
         int end = getSelectionEnd();
         int start = mTokenizer.findTokenStart(text, end);
-
-        performFiltering(text, start, end, keyCode);
+        if (start != -1 && end != -1 && !getText().subSequence(start,end).toString().contains(":")) {
+            // make sure we're only doing autocomplete on words that haven't been tagged yet
+            performFiltering(text, start, end, keyCode);
+        }
     }
 
     public boolean containsInvalidWord() {
@@ -455,6 +457,10 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return getTokenizer().findTokenStart(getText(), cursor);
     }
 
+    public int findTokenEnd(int cursor) {
+        return getTokenizer().findTokenEnd(getText(), cursor);
+    }
+
     public int getTokenIndex() {
         int end = getSelectionEnd();
         boolean isInFrontOfWord = mTokenizer.findTokenEnd(getText(), end + 1) > end;
@@ -631,7 +637,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         protected void publishResults(CharSequence constraint, FilterResults results) {
             List<String> actualResults = ((ArrayList<String>) results.values);
             if (results.values != null) {
-                BardLogger.log("publishing filter: " + actualResults.toString());
+//                BardLogger.log("publishing filter: " + actualResults.toString());
             }
 
             if (isAutocompleteEnabled) {

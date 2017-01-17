@@ -837,12 +837,19 @@ public class BardEditorActivity extends BaseActivity implements
     // after: "weare" (about to delete we)
     // result: "weare" (we becomes merged with are)
     private void ensureWordTagCleanDelete(int start, int count) {
-        if (count == 0 && editText.length() > 0 && editText.isImmediatelyAfterImageSpan()) {
+        if (editText.length() > 0 && editText.isImmediatelyAfterImageSpan()) {
             // backspace pressed
             // delete tagged word before it
             skipOnTextChangeCallback = true;
-            int amountToDelete = start - editText.findTokenStart(start);
-            editText.getText().delete(start - amountToDelete, start);
+            int tokenEnd = start;
+
+            // start would sometimes be in middle of text (i.e. swiftkey), make sure we're deleting starting at end of word
+            if (start > 0 && editText.getText().charAt(start - 1) == ':') {
+                tokenEnd = editText.findTokenEnd(start);
+            }
+
+            int amountToDelete = tokenEnd - editText.findTokenStart(tokenEnd);
+            editText.getText().delete(tokenEnd - amountToDelete, tokenEnd);
             skipOnTextChangeCallback = false;
         }
     }
@@ -884,11 +891,16 @@ public class BardEditorActivity extends BaseActivity implements
                         editText.displayOriginalWordList();
 
                         String firstMatch = filteredResults.get(0);
-                        WordTag wordTag = getWordTagSelector().findNextWord(firstMatch);
-                        setWordTag(wordTag);
+                        if (!firstMatch.contains(":")) {
+                            // make sure we only process untagged filtered result
+                            WordTag wordTag = getWordTagSelector().findNextWord(firstMatch);
+                            setWordTag(wordTag);
 
-                        // autocompletion at work
-                        return wordTag.toString().substring(editText.getCurrentTokenWord().length()) + " ";
+                            // autocompletion at work
+                            return wordTag.toString().substring(editText.getCurrentTokenWord().length()) + " ";
+                        } else {
+                            return null;
+                        }
                     }
                     return "";
                 } else if (source.length() == 1 && editText.isBeforeImageSpan()){
