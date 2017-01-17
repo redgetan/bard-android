@@ -91,7 +91,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         String apps[] = new String[] { "messenger", "whatsapp", "kik",
                                        "telegram", "twitter", "copy link",
-                                       "tumblr",     "text",   "more" } ;
+                                       "email",     "text",   "more" } ;
 
         ShareListAdapter shareListAdapter = new ShareListAdapter(this, apps);
         shareListView.setAdapter(shareListAdapter);
@@ -114,8 +114,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             startTelegramShare();
         } else if (app.equals("twitter")) {
             startTwitterShare();
-        } else if (app.equals("tumblr")) {
-            startTumblrShare();
+        } else if (app.equals("email")) {
+            startEmailShare();
         } else if (app.equals("copy link")) {
             startLinkShare();
         } else if (app.equals("text")) {
@@ -186,15 +186,15 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         }
     }
 
-    private void startTumblrShare() {
+    private void startEmailShare() {
         Intent intent = getRepoShareIntent();
-        intent.setPackage("com.tumblr");
+        intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
 
         try {
             startActivity(intent);
         }
         catch (android.content.ActivityNotFoundException ex) {
-            Toast.makeText(this,"Please Install Tumblr", Toast.LENGTH_LONG).show();
+            startActivity(Intent.createChooser(intent, "Send email"));
         }
     }
 

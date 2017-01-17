@@ -51,6 +51,8 @@ public class ShareListAdapter extends ArrayAdapter<String> {
             shareIcon.setBackgroundResource(R.drawable.kik);
         } else if (app.equals("tumblr")) {
             shareIcon.setBackgroundResource(R.drawable.tumblr);
+        } else if (app.equals("email")) {
+            shareIcon.setBackgroundResource(R.drawable.gmail);
         } else if (app.equals("twitter")) {
             shareIcon.setBackgroundResource(R.drawable.twitter);
         } else if (app.equals("copy link")) {
