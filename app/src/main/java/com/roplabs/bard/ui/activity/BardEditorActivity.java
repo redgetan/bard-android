@@ -1189,7 +1189,16 @@ public class BardEditorActivity extends BaseActivity implements
             new File(outputFilePath).delete();
         }
         final String wordList = getWordListFromSegments(segments);
-        String[] cmd = buildJoinSegmentsCmd(segments, outputFilePath);
+
+        // get only segments that exist
+        List<Segment> validSegments = new ArrayList<Segment>();
+        for (Segment segment : segments) {
+            if (new File(segment.getFilePath()).exists()) {
+                validSegments.add(segment);
+            }
+        }
+
+        String[] cmd = buildJoinSegmentsCmd(validSegments, outputFilePath);
         final long startTime = System.currentTimeMillis();
         BardLogger.log(TextUtils.join(",",cmd));
 
@@ -1244,8 +1253,10 @@ public class BardEditorActivity extends BaseActivity implements
         cmd.add("-y");
 
         for (Segment segment : segments) {
-            cmd.add("-i");
-            cmd.add(segment.getFilePath());
+            if (new File(segment.getFilePath()).exists()) {
+                cmd.add("-i");
+                cmd.add(segment.getFilePath());
+            }
         }
 
         if (segments.size() > 1) {
