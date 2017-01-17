@@ -1380,9 +1380,11 @@ public class BardEditorActivity extends BaseActivity implements
             playLocalVideo(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
+            playMessageBtn.setEnabled(false);
             Storage.cacheVideo(wordTagString, sceneToken, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
+                    playMessageBtn.setEnabled(true);
                     BardLogger.trace("video cached at " + filePath);
                     playLocalVideo(filePath);
                     progressBar.setVisibility(View.GONE);
@@ -1390,6 +1392,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 @Override
                 public void onCacheVideoFailure() {
+                    playMessageBtn.setEnabled(true);
                     Toast.makeText(getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
                 }
             });
