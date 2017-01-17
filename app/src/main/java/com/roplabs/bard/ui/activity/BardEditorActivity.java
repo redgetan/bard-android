@@ -757,6 +757,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         editText.setFilters(new InputFilter[] { handleSpaceKey() });
 
+        editText.setInputType(InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS);
         editText.setScroller(new Scroller(this));
         editText.setMaxLines(1);
         editText.setVerticalScrollBarEnabled(true);
