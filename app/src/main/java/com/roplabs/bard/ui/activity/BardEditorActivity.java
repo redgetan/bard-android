@@ -1180,6 +1180,7 @@ public class BardEditorActivity extends BaseActivity implements
         Analytics.timeEvent(this, "generateBardVideo");
 
         disableControls();
+        restoreOriginalVideoHeight();
         progressBar.setVisibility(View.VISIBLE);
 
         List<Segment> segments = Segment.buildFromWordTagList(wordTagList, sceneToken);
@@ -1444,13 +1445,13 @@ public class BardEditorActivity extends BaseActivity implements
         if (isKeyboardShown) {
 
             // adjust video size
-//            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
-//            if (originalVideoHeight == -1) {
-//               originalVideoHeight = params.height;
-//            }
-//            params.height = (int) (originalVideoHeight - 40);
-//            vpPagerContainer.setLayoutParams(params);
-//            adjustVideoAspectRatio();
+            ViewGroup.LayoutParams params = vpPagerContainer.getLayoutParams();
+            if (originalVideoHeight == -1) {
+               originalVideoHeight = params.height;
+            }
+            params.height = (int) (originalVideoHeight / 1.25);
+            vpPagerContainer.setLayoutParams(params);
+            adjustVideoAspectRatio();
 
             // change to alphabetical filter mode
             editText.setEnableAutocomplete(true);
