@@ -199,40 +199,70 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startLinkShare() {
-        if (repo != null) {
-            copyRepoLinkToClipboard(repo);
+        final Context self = this;
+        if (repo != null && (repo.getUrl() != null)) {
+            // already published
+            copyRepoLinkToClipboard(repo.getUrl());
             return;
+        } else if (repo != null) {
+            // repo exists but not yet published
+            Helper.publishRepo(repo, this, new Helper.OnRepoPublished() {
+                @Override
+                public void onPublished(Repo publishedRepo) {
+                    copyRepoLinkToClipboard(publishedRepo.getUrl());
+                }
+            });
+        } else {
+            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+                @Override
+                public void onSaved(Repo createdRepo) {
+                    repo = createdRepo;
+                    Helper.publishRepo(repo, self, new Helper.OnRepoPublished() {
+                        @Override
+                        public void onPublished(Repo publishedRepo) {
+                            copyRepoLinkToClipboard(publishedRepo.getUrl());
+                        }
+                    });
+                }
+            });
         }
-
-        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
-            @Override
-            public void onSaved(Repo createdRepo) {
-                repo = createdRepo;
-                copyRepoLinkToClipboard(createdRepo);
-            }
-        });
     }
 
-    private void copyRepoLinkToClipboard(Repo targetRepo) {
+    private void copyRepoLinkToClipboard(String url) {
         ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-        ClipData clip = ClipData.newPlainText(targetRepo.getUrl(), targetRepo.getUrl());
+        ClipData clip = ClipData.newPlainText(url, url);
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(ClientApp.getContext(), targetRepo.getUrl() + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
+        Toast.makeText(ClientApp.getContext(), url + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
     private void startTextShare() {
-        if (repo != null) {
+        final Context self = this;
+        if (repo != null && (repo.getUrl() != null)) {
+            // already published
             sendText(repo.getUrl());
             return;
+        } else if (repo != null) {
+            // repo exists but not yet published
+            Helper.publishRepo(repo, this, new Helper.OnRepoPublished() {
+                @Override
+                public void onPublished(Repo publishedRepo) {
+                    sendText(publishedRepo.getUrl());
+                }
+            });
+        } else {
+            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+                @Override
+                public void onSaved(Repo createdRepo) {
+                    repo = createdRepo;
+                    Helper.publishRepo(repo, self, new Helper.OnRepoPublished() {
+                        @Override
+                        public void onPublished(Repo publishedRepo) {
+                            sendText(publishedRepo.getUrl());
+                        }
+                    });
+                }
+            });
         }
-
-        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
-            @Override
-            public void onSaved(Repo createdRepo) {
-                repo = createdRepo;
-                sendText(createdRepo.getUrl());
-            }
-        });
     }
 
     private void sendText(String text) {

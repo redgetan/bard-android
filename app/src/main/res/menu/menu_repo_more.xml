@@ -1,6 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/copy_repo_link_item"
-          android:title="@string/copy_link" />
+    <item android:id="@+id/publish_repo_link_item"
+          android:title="@string/publish_repo" />
     <item android:id="@+id/delete_repo_item"
           android:title="@string/delete" />
 </menu>

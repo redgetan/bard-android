@@ -174,7 +174,7 @@ public class EditorPreviewActivity extends BaseActivity {
             return;
         }
 
-        Helper.saveRepo(this, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+        Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
             @Override
             public void onSaved(Repo createdRepo) {
                 repo = createdRepo;

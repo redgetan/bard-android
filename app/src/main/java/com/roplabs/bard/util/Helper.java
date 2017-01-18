@@ -42,6 +42,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.AmazonCognito;
 import com.roplabs.bard.models.Repo;
+import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.*;
 import org.json.JSONException;
@@ -403,13 +404,93 @@ public class Helper {
         void onSaved(Repo repo);
     }
 
-    public static void saveRepo(Context context, String wordTagListString, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
+    public interface OnRepoPublished  {
+        void onPublished(Repo repo);
+    }
+
+//    public static void saveRepo(Context context, String wordTagListString, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
+//        progressDialog = new ProgressDialog(context);
+//        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//        progressDialog.setMessage("Saving...");
+//        progressDialog.show();
+//
+//        final String wordList = wordTagListString;
+//
+//        // upload to S3
+//
+//        final String uuid = UUID.randomUUID().toString();
+//        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
+//        TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
+//        TransferObserver observer = transferUtility.upload(
+//                Configuration.s3UserBucket(),
+//                getRepositoryS3Key(uuid),
+//                new File(Storage.getMergedOutputFilePath())
+//        );
+//
+//        observer.setTransferListener(new TransferListener(){
+//
+//            @Override
+//            public void onStateChanged(int id, TransferState state) {
+//                // do something
+//                if (state == TransferState.COMPLETED) {
+//                    saveRemoteRepo(uuid, wordList, sceneToken, sceneName, listener);
+//                }
+//            }
+//
+//            @Override
+//            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+//                int percentage = (int) (bytesCurrent/bytesTotal * 100);
+//                //Display percentage transfered to user
+//            }
+//
+//            @Override
+//            public void onError(int id, Exception ex) {
+//                // do something
+//                displayError("Unable to upload to server", ex);
+//            }
+//
+//        });
+//
+//    }
+
+    private static void saveRemoteRepo(final Repo repo, String uuid, final OnRepoPublished listener) {
+        HashMap<String, String> body = new HashMap<String, String>();
+        body.put("uuid", uuid);
+        body.put("word_list", repo.getWordList());
+        body.put("scene_token", repo.getSceneToken());
+//        body.put("character_token", this.characterToken);
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
+
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                if (!response.isSuccess()) {
+                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
+                } else {
+                    HashMap<String, String> result = response.body();
+                    // uuid, token, url
+                    repo.setTokenAndUrl(result.get("token"), result.get("url"));
+                    progressDialog.dismiss();
+                    listener.onPublished(repo);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                progressDialog.dismiss();
+                displayError("Unable to sync to remote server", t);
+            }
+        });
+    }
+
+    public static void publishRepo(final Repo repo, Context context, final OnRepoPublished listener) {
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Saving...");
+        progressDialog.setMessage("Publishing...");
         progressDialog.show();
 
-        final String wordList = wordTagListString;
+        final String wordList = repo.getWordList();
+        final Scene scene = Scene.forToken(repo.getSceneToken());
 
         // upload to S3
 
@@ -428,7 +509,7 @@ public class Helper {
             public void onStateChanged(int id, TransferState state) {
                 // do something
                 if (state == TransferState.COMPLETED) {
-                    saveRemoteRepo(uuid, wordList, sceneToken, sceneName, listener);
+                    saveRemoteRepo(repo, uuid, listener);
                 }
             }
 
@@ -441,40 +522,20 @@ public class Helper {
             @Override
             public void onError(int id, Exception ex) {
                 // do something
+                progressDialog.dismiss();
                 displayError("Unable to upload to server", ex);
             }
 
         });
-
     }
 
-    private static void saveRemoteRepo(String uuid, final String wordList, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
-        HashMap<String, String> body = new HashMap<String, String>();
-        body.put("uuid", uuid);
-        body.put("word_list", wordList);
-        body.put("scene_token", sceneToken);
-//        body.put("character_token", this.characterToken);
-        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
+    public static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, OnRepoSaved listener) {
 
-        call.enqueue(new Callback<HashMap<String, String>>() {
-            @Override
-            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                if (!response.isSuccess()) {
-                    displayError("Unable to sync to remote server", new Throwable("Failed to save repo to bard server"));
-                } else {
-                    HashMap<String, String> result = response.body();
-                    saveLocalRepo(result.get("token"), result.get("url"), wordList, sceneToken, sceneName, listener);
-                }
-            }
+        // set initial token as size of repo + 1
+        if (token == null) {
+            token = String.valueOf(Repo.getCount() + 1);
+        }
 
-            @Override
-            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                displayError("Unable to sync to remote server", t);
-            }
-        });
-    }
-
-    private static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, OnRepoSaved listener) {
         String filePath = Storage.getLocalSavedFilePath();
         Repo repo;
 
@@ -493,7 +554,6 @@ public class Helper {
             }
             Analytics.track(ClientApp.getContext(), "saveRepo", properties);
 
-            progressDialog.dismiss();
             listener.onSaved(repo);
 
         } else {
