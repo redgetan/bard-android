@@ -13,6 +13,7 @@ public class WordTagSelector {
 
     private static final String NEXT_DIRECTION = "next";
     private static final String PREV_DIRECTION = "prev";
+    private static final String NO_DIRECTION = "none";
 
     public WordTagSelector(List<String> wordTags) {
         this.currentWord = "";
@@ -151,9 +152,14 @@ public class WordTagSelector {
         currentWordTagIndex = 0;
     }
 
+    public WordTag findDefaultWord(String word) {
+        return findWord(word, NO_DIRECTION);
+    }
+
     public WordTag findNextWord(String word) {
         return findWord(word, NEXT_DIRECTION);
     }
+
 
     public WordTag findNextWord() {
         return findWord(currentWord, NEXT_DIRECTION);
@@ -174,13 +180,14 @@ public class WordTagSelector {
         word = normalizeWord(word);
         if (isWordNotInDatabase(word)) return null;
 
-        currentWord = word;
-
         if (isWordChanged(word)) {
             resetWordTagIndex();
         } else {
             updateWordTagIndex(word, direction);
         }
+
+        // should be called after isWordChanged
+        currentWord = word;
 
         WordTag wordTag = getWordTagFromList(wordTagMap.get(word), currentWordTagIndex);
         setCurrentScrollPosition(wordTag.position);
@@ -239,6 +246,8 @@ public class WordTagSelector {
     }
 
     private void updateWordTagIndex(String word, String direction) {
+        if (direction.equals(NO_DIRECTION)) return;
+
         // reset character if word changed
         if (direction.equals(NEXT_DIRECTION)) {
             currentWordTagIndex++;

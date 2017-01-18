@@ -36,6 +36,7 @@ public class WordTag  {
         this.word      = another.word;
         this.tag       = another.tag;
         this.position  = another.position;
+        this.duration  = another.duration;
     }
 
     public boolean isFilled() {

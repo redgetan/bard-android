@@ -774,7 +774,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 // focus on first result
                 if (!editText.getCurrentTokenWord().isEmpty() && results.size() > 0) {
-                    WordTag wordTag = getWordTagSelector().findWord(results.get(0), "next");
+                    WordTag wordTag = getWordTagSelector().findDefaultWord(results.get(0));
                     focusOnWordTag(wordTag);
                 }
 
@@ -894,7 +894,7 @@ public class BardEditorActivity extends BaseActivity implements
                         String firstMatch = filteredResults.get(0);
                         if (!firstMatch.contains(":")) {
                             // make sure we only process untagged filtered result
-                            WordTag wordTag = getWordTagSelector().findNextWord(firstMatch);
+                            WordTag wordTag = getWordTagSelector().findDefaultWord(firstMatch);
                             setWordTag(wordTag);
 
                             // autocompletion at work
