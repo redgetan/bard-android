@@ -188,12 +188,17 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startEmailShare() {
         Intent intent = getRepoShareIntent();
-        intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
+        intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
+        intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
 
         try {
+            intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
             startActivity(intent);
         }
         catch (android.content.ActivityNotFoundException ex) {
+            intent = getRepoShareIntent();
+            intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
+            intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
             startActivity(Intent.createChooser(intent, "Send email"));
         }
     }
