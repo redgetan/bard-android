@@ -247,7 +247,6 @@ public class BardEditorActivity extends BaseActivity implements
         initEmptyState();
         hideKeyboard();
         initVideoStorage();
-        initAnalytics();
         initChatText();
         updatePlayMessageBtnState();
     }
@@ -457,7 +456,12 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void initChatText() {
         clearChatCursor();
-        initSceneWordList();
+
+        if (scene == null) {
+            createSceneWithWordList();
+        } else {
+            initSceneWordList();
+        }
     }
 
     private void clearChatCursor() {
@@ -484,6 +488,50 @@ public class BardEditorActivity extends BaseActivity implements
         recyclerView.setVisibility(View.VISIBLE);
 
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
+    }
+
+    private void createSceneWithWordList() {
+        progressBar.setVisibility(View.VISIBLE);
+        debugView.setText("Downloading");
+
+        Call<Scene> call = BardClient.getAuthenticatedBardService().getScene(sceneToken);
+        call.enqueue(new Callback<Scene>() {
+            @Override
+            public void onResponse(Call<Scene> call, Response<Scene> response) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Scene remoteScene = response.body();
+
+                if (remoteScene == null) {
+                    displayEmptyWordListError();
+                    return;
+                }
+
+                String wordList = remoteScene.getWordList();
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                scene = Scene.create(realm, remoteScene.getToken(),"",remoteScene.getName(),remoteScene.getThumbnailUrl());
+                scene.setWordList(wordList);
+                realm.commitTransaction();
+
+                if (wordList.isEmpty()) {
+                    displayEmptyWordListError();
+                } else {
+                    asyncWordListSetup(wordList);
+                }
+
+                initAnalytics();
+            }
+
+            @Override
+            public void onFailure(Call<Scene> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+                displayEmptyWordListError();
+            }
+        });
     }
 
     private void initSceneWordList() {
@@ -517,6 +565,8 @@ public class BardEditorActivity extends BaseActivity implements
                     } else {
                         asyncWordListSetup(wordList);
                     }
+
+                    initAnalytics();
                 }
 
                 @Override

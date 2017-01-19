@@ -36,12 +36,9 @@ public class MainActivity extends BaseActivity {
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
         initFFmpeg();
-        handleDeepLink();
     }
 
-    private void handleDeepLink() {
-
-        Intent intent = getIntent();
+    private void handleDeepLink(Intent intent) {
         // check if activity launched via deeplink url
         Uri uri = intent.getData();
         if (uri != null && uri.toString().contains("editor")) {
@@ -51,6 +48,12 @@ public class MainActivity extends BaseActivity {
             sceneTokenEditorDeepLink = components[components.length - 1];
         }
 
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        handleDeepLink(intent);
+        super.onNewIntent(intent);
     }
 
     @Override
