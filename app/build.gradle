@@ -27,8 +27,8 @@ android {
         applicationId "com.roplabs.bard"
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 36
-        versionName "1.2.6"
+        versionCode 37
+        versionName "1.2.7"
 
         multiDexEnabled true
     }
