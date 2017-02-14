@@ -141,8 +141,10 @@ public class EditorPreviewActivity extends BaseActivity {
 
     public void replayVideo() {
         playBtn.setVisibility(View.GONE);
-        mediaPlayer.seekTo(0);
-        mediaPlayer.start();
+        if (mediaPlayer != null) {
+            mediaPlayer.seekTo(0);
+            mediaPlayer.start();
+        }
     }
 
     @Override
