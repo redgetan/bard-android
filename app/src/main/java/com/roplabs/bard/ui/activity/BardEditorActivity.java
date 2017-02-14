@@ -1251,7 +1251,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         String[] cmd = buildJoinSegmentsCmd(validSegments, outputFilePath);
         final long startTime = System.currentTimeMillis();
-        BardLogger.log(TextUtils.join(",",cmd));
+        BardLogger.trace(TextUtils.join(",",cmd));
 
         (new AsyncTask<String[], Integer, String>() {
             @Override
@@ -1261,6 +1261,8 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             protected void onPostExecute(String result) {
+                BardLogger.trace("joinSegments onPostExecute");
+                BardLogger.trace(result);
                 enableControls();
                 // check if file was created
                 if ((new File(outputFilePath)).exists()) {
