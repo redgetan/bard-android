@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.content.FileProvider;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -124,7 +125,8 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
     }
 
     public Intent getShareIntent() {
-        Uri videoUri = Uri.fromFile(new File(videoLocation));
+        File file = new File(videoLocation);
+        Uri videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
         // Create share intent as described above
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);

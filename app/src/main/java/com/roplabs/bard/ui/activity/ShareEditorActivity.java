@@ -10,6 +10,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Telephony;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.AdapterView;
@@ -304,9 +305,11 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         Uri videoUri;
 
         if (this.repo == null) {
-            videoUri = Uri.fromFile(new File(Storage.getMergedOutputFilePath()));
+            File file = new File(Storage.getMergedOutputFilePath());
+            videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
         } else {
-            videoUri = Uri.fromFile(new File(this.repo.getFilePath()));
+            File file = new File(this.repo.getFilePath());
+            videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
         }
         // Create share intent as described above
         Intent shareIntent = new Intent();
