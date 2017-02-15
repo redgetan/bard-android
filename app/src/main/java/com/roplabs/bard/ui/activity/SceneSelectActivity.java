@@ -20,13 +20,13 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
-import com.roplabs.bard.util.BardLogger;
-import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
-import com.roplabs.bard.util.Helper;
+import com.roplabs.bard.util.*;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import org.greenrobot.eventbus.EventBus;
+import org.json.JSONException;
+import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -268,6 +268,16 @@ public class SceneSelectActivity extends BaseActivity  {
         sceneList.clear();
         recyclerView.getAdapter().notifyDataSetChanged();
         scrollListener.resetState();
+
+        JSONObject properties = new JSONObject();
+
+        try {
+            properties.put("text", text);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        }
+        Analytics.track(this, "search", properties);
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
