@@ -37,10 +37,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.UUID;
+import java.util.*;
 
 public class ShareEditorActivity extends BaseActivity implements AdapterView.OnItemClickListener {
     private Context mContext;
@@ -223,7 +220,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             properties.put("medium", medium);
             properties.put("sceneName", sceneName);
             properties.put("sceneToken", sceneToken);
-            properties.put("wordTags", wordTagListString.split(","));
+            properties.put("wordTags", Arrays.asList(wordTagListString.split(",")));
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
