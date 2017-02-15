@@ -208,7 +208,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     public void format() {
         // remember original cursor position to set it back later
         int origCursorPosition = getSelectionEnd();
-        if (origCursorPosition == -1) return;
+
+        // if there's no selection, we assume its the first
+        if (origCursorPosition == -1) {
+            origCursorPosition = 0;
+        }
 
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String fullString = getText().toString();
@@ -558,6 +562,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         clearComposingText();
 
         int end = getSelectionEnd();
+
+        // if no selection, we assume cursor is at beginning
+        if (end == -1) {
+            end = 0;
+        }
 
         int start = mTokenizer.findTokenStart(getText(), end);
         if (start == end) {

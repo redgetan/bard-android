@@ -1034,6 +1034,9 @@ public class BardEditorActivity extends BaseActivity implements
 
         String toInsert = "";
         int cursorPosition = editText.getSelectionEnd();
+        if (cursorPosition == -1) {
+            cursorPosition = 0;
+        }
         if (cursorPosition == editText.length()) {
             // end of sentence (replace instead of insert)
             toInsert =  null;
