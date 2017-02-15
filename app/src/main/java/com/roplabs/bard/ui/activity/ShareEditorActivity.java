@@ -133,6 +133,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         try {
             startActivity(intent);
+            trackSharing("messenger");
         }
         catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this,"Please Install Facebook Messenger", Toast.LENGTH_LONG).show();
@@ -145,6 +146,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         try {
             startActivity(intent);
+            trackSharing("whatsapp");
         }
         catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this,"Please Install Whatsapp", Toast.LENGTH_LONG).show();
@@ -157,6 +159,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         try {
             startActivity(intent);
+            trackSharing("telegram");
         }
         catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this,"Please Install Telegram", Toast.LENGTH_LONG).show();
@@ -169,6 +172,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         try {
             startActivity(intent);
+            trackSharing("twitter");
         }
         catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this,"Please Install Twitter", Toast.LENGTH_LONG).show();
@@ -181,6 +185,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
         try {
             startActivity(intent);
+            trackSharing("kik");
         }
         catch (android.content.ActivityNotFoundException ex) {
             Toast.makeText(this,"Please Install Kik", Toast.LENGTH_LONG).show();
@@ -195,6 +200,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         try {
             intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
             startActivity(intent);
+            trackSharing("email");
         }
         catch (android.content.ActivityNotFoundException ex) {
             intent = getRepoShareIntent();
@@ -208,6 +214,21 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             startActivity(Intent.createChooser(intent, "Send email"));
         }
 
+    }
+
+    private void trackSharing(String medium) {
+        JSONObject properties = new JSONObject();
+
+        try {
+            properties.put("medium", medium);
+            properties.put("sceneName", sceneName);
+            properties.put("sceneToken", sceneToken);
+            properties.put("wordTags", wordTagListString.split(","));
+        } catch (JSONException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        }
+        Analytics.track(this, "shareSocialAttempt", properties);
     }
 
     private void startLinkShare() {
@@ -245,6 +266,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         ClipData clip = ClipData.newPlainText(url, url);
         clipboard.setPrimaryClip(clip);
         Toast.makeText(ClientApp.getContext(), url + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
+        trackSharing("copylink");
     }
 
     private void startTextShare() {
@@ -292,7 +314,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
                 sendIntent.setPackage(defaultSmsPackageName);
             }
             activity.startActivity(sendIntent);
-
+            trackSharing("text");
         }
         else //For early versions, do what worked for you before.
         {
@@ -300,6 +322,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             sendIntent.setData(Uri.parse("sms:"));
             sendIntent.putExtra("sms_body", text);
             activity.startActivity(sendIntent);
+            trackSharing("text");
         }
     }
 
