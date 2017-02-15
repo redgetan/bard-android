@@ -201,7 +201,13 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
             intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
             startActivity(Intent.createChooser(intent, "Send email"));
+        } catch (SecurityException ex) {
+            intent = getRepoShareIntent();
+            intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
+            intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
+            startActivity(Intent.createChooser(intent, "Send email"));
         }
+
     }
 
     private void startLinkShare() {
