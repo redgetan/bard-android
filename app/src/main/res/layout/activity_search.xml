@@ -14,6 +14,7 @@
 
     <android.support.design.widget.TabLayout
         android:id="@+id/search_result_tabs"
+        style="@style/MyCustomTabLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:tabMode="fixed" />

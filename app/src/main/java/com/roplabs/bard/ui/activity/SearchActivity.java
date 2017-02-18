@@ -2,10 +2,12 @@ package com.roplabs.bard.ui.activity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.widget.LinearLayoutManager;
@@ -64,6 +66,23 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         viewPager = (ViewPager) findViewById(R.id.search_result_pager);
         viewPager.setAdapter(new SearchFragmentPagerAdapter(getSupportFragmentManager(),
                 SearchActivity.this));
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            @Override
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+
+            }
+
+            @Override
+            public void onPageSelected(int position) {
+                SearchResultFragment page = (SearchResultFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.search_result_pager + ":" + position);
+                page.performSearch(searchView.getQuery().toString());
+            }
+
+            @Override
+            public void onPageScrollStateChanged(int state) {
+
+            }
+        });
 
 
         // Give the TabLayout the ViewPager

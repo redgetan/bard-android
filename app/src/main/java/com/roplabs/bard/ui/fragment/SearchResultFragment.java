@@ -114,6 +114,16 @@ public class SearchResultFragment extends Fragment {
         lastSearch = "";
     }
 
+    private String getSearchType() {
+        if (mPage == 1) {
+            return "title";
+        } else if (mPage == 2) {
+            return "words";
+        } else {
+            return "";
+        }
+    }
+
     public void performSearch(String text) {
         if (lastSearch.equals(text)) return; // avoids accidental DDOS
         hideEmptySearchMessage();
@@ -135,6 +145,7 @@ public class SearchResultFragment extends Fragment {
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
         map.put("search", text);
+        map.put("type",getSearchType());
         syncRemoteData(map);
 
         lastSearch = text;
@@ -277,6 +288,7 @@ public class SearchResultFragment extends Fragment {
 
         if (!search.isEmpty()) {
             data.put("search", search);
+            data.put("type", getSearchType());
         }
 
         syncRemoteData(data);

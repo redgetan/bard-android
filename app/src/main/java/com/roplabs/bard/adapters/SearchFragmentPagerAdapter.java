@@ -8,7 +8,7 @@ import com.roplabs.bard.ui.fragment.SearchResultFragment;
 
 public class SearchFragmentPagerAdapter extends FragmentPagerAdapter {
     final int PAGE_COUNT = 2;
-    private String tabTitles[] = new String[] { "Words", "Title" };
+    private String tabTitles[] = new String[] { "Title", "Words" };
     private Context context;
 
     public SearchFragmentPagerAdapter(FragmentManager fm, Context context) {
