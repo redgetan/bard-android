@@ -69,6 +69,7 @@ public class Helper {
     public static final int LOGIN_REQUEST_CODE = 2;
     public static final int PROFILE_REQUEST_CODE = 3;
     public static final int SHARE_REPO_REQUEST_CODE = 4;
+    public static final int SEARCH_REQUEST_CODE = 5;
 
     private static ProgressDialog progressDialog;
 

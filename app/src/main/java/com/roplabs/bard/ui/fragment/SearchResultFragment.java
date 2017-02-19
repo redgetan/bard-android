@@ -242,7 +242,7 @@ public class SearchResultFragment extends Fragment {
     }
 
     public void initScenes() {
-        final Context self = ClientApp.getContext();
+        final Context self = getActivity();
 
         this.sceneList = new ArrayList<Scene>();
 

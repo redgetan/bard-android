@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.activity;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
@@ -103,16 +104,18 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         // Expand the search view and request focus
         searchItem.expandActionView();
         searchView.requestFocus();
+        final Activity self = this;
         MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
             @Override
             public boolean onMenuItemActionExpand(MenuItem item) {
-                return false;
+                return true;
             }
 
             @Override
             public boolean onMenuItemActionCollapse(MenuItem item) {
-                finish();
-                return false;
+                Intent parentIntent = new Intent(getApplicationContext(), SceneSelectActivity.class);
+                startActivity(parentIntent);
+                return true;
             }
         });
 
@@ -145,15 +148,6 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     @Override
     public void onPause() {
         super.onPause();
-    }
-
-    @Override
-    public void onBackPressed() {
-        // go to home
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
     }
 
     @Override
