@@ -12,6 +12,7 @@ import android.graphics.Rect;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -544,16 +545,21 @@ public class Helper {
             repo = Repo.create(token, url, "", sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
             JSONObject properties = new JSONObject();
+            Bundle params = new Bundle();
             try {
                 properties.put("wordTags", wordList);
                 properties.put("sceneToken", sceneToken);
                 properties.put("scene", sceneName);
-//                properties.put("character", character.getName());
+
+                params.putString("wordTags", wordList);
+                params.putString("sceneToken", sceneToken);
+                params.putString("scene", sceneName);
             } catch (JSONException e) {
                 e.printStackTrace();
                 CrashReporter.logException(e);
             }
             Analytics.track(ClientApp.getContext(), "saveRepo", properties);
+            Analytics.track(ClientApp.getContext(), "saveRepo", params);
 
             listener.onSaved(repo);
 

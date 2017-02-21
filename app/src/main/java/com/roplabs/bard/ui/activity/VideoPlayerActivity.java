@@ -186,16 +186,6 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
                     displayError("Unable delete from remote server. ");
                 } else {
 
-                    JSONObject properties = new JSONObject();
-                    try {
-                        properties.put("wordTags", repo.getWordList());
-                        properties.put("characterToken", repo.getCharacterToken());
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        CrashReporter.logException(e);
-                    }
-                    Analytics.track(ClientApp.getContext(), "deleteRepo", properties);
-
                     if(new File(repo.getFilePath()).delete()) {
                         repo.delete();
                         finish();

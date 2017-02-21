@@ -133,14 +133,17 @@ public class SearchResultFragment extends Fragment {
         scrollListener.resetState();
 
         JSONObject properties = new JSONObject();
+        Bundle params = new Bundle();
 
         try {
             properties.put("text", text);
+            params.putString("text", text);
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
         }
         Analytics.track(ClientApp.getContext(), "search", properties);
+        Analytics.track(ClientApp.getContext(), "search", params);
 
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));

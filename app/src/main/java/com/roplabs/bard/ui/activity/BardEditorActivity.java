@@ -437,15 +437,20 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void initAnalytics() {
         JSONObject properties = new JSONObject();
+        Bundle params = new Bundle();
+
         try {
             properties.put("sceneToken", sceneToken);
             properties.put("scene", scene.getName());
+
+            params.putString("sceneToken", sceneToken);
+            params.putString("scene", scene.getName());
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
         }
         Analytics.track(this, "compose", properties);
-
+        Analytics.track(this, "compose", params);
     }
 
     private void initChatText() {
@@ -1412,20 +1417,23 @@ public class BardEditorActivity extends BaseActivity implements
     private void trackGenerateBardVideo() {
 
         JSONObject properties = new JSONObject();
+        Bundle params = new Bundle();
 
         try {
             properties.put("wordTags", lastMergedWordTagList);
             properties.put("sceneToken", sceneToken);
             properties.put("scene", scene.getName());
 
-//            properties.put("characterToken", characterToken);
-//            properties.put("character", character.getName());
+            params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
+            params.putString("sceneToken", sceneToken);
+            params.putString("scene", scene.getName());
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
         }
 
         Analytics.track(this, "generateBardVideo", properties);
+        Analytics.track(this, "generateBardVideo", params);
         Analytics.sendQueuedEvents(this);
     }
 

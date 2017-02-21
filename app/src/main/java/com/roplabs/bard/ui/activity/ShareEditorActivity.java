@@ -215,17 +215,24 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void trackSharing(String medium) {
         JSONObject properties = new JSONObject();
+        Bundle params = new Bundle();
 
         try {
             properties.put("medium", medium);
             properties.put("sceneName", sceneName);
             properties.put("sceneToken", sceneToken);
             properties.put("wordTags", Arrays.asList(wordTagListString.split(",")));
+
+            params.putString("medium", medium);
+            params.putString("sceneName", sceneName);
+            params.putString("sceneToken", sceneToken);
+            params.putString("wordTags", wordTagListString);
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
         }
         Analytics.track(this, "shareSocialAttempt", properties);
+        Analytics.track(this, "shareSocialAttempt", params);
     }
 
     private void startLinkShare() {
