@@ -40,8 +40,6 @@ import com.amazonaws.services.s3.internal.crypto.ByteRangeCapturingInputStream;
 import com.bumptech.glide.Glide;
 import com.crashlytics.android.Crashlytics;
 import com.jakewharton.disklrucache.DiskLruCache;
-import com.google.android.gms.analytics.HitBuilders;
-import com.google.android.gms.analytics.Tracker;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.InputPagerAdapter;
