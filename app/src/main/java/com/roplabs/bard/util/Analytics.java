@@ -11,6 +11,8 @@ import java.util.Date;
 
 public class Analytics {
     private static MixpanelAPI mixpanel;
+//    private FirebaseAnalytics mFirebaseAnalytics;
+
 
     public static void identify(Context context) {
         getMixpanelInstance(context).identify(Setting.getUsername(context));

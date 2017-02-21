@@ -438,10 +438,6 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void initAnalytics() {
-        Tracker mTracker = ((ClientApp) getApplication()).getDefaultTracker();
-        mTracker.setScreenName("ChatActivity");
-        mTracker.send(new HitBuilders.ScreenViewBuilder().build());
-
         JSONObject properties = new JSONObject();
         try {
             properties.put("sceneToken", sceneToken);
