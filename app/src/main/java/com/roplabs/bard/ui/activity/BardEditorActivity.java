@@ -1423,10 +1423,12 @@ public class BardEditorActivity extends BaseActivity implements
             properties.put("wordTags", lastMergedWordTagList);
             properties.put("sceneToken", sceneToken);
             properties.put("scene", scene.getName());
+            properties.put("length", lastMergedWordTagList.size());
 
             params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
             params.putString("sceneToken", sceneToken);
             params.putString("scene", scene.getName());
+            params.putString("length", lastMergedWordTagList.size());
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
