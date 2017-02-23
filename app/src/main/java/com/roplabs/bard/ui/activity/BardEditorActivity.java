@@ -1428,7 +1428,7 @@ public class BardEditorActivity extends BaseActivity implements
             params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
             params.putString("sceneToken", sceneToken);
             params.putString("scene", scene.getName());
-            params.putString("length", lastMergedWordTagList.size());
+            params.putString("length", String.valueOf(lastMergedWordTagList.size()));
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);

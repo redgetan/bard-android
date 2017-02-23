@@ -54,6 +54,15 @@
         <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
     </style>
 
+    <style name="SceneSelectTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabBackground">@color/dark_gray</item>
+        <item name="tabPaddingStart">12dp</item>
+        <item name="tabPaddingEnd">12dp</item>
+        <item name="tabTextAppearance">@style/MyCustomTabTextAppearance</item>
+        <item name="tabIndicatorColor">@color/mediumaquamarine</item>
+        <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
+    </style>
+
     <style name="MyCustomTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textColor">@color/iron</item>
