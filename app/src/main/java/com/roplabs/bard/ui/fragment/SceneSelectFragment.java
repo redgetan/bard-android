@@ -31,6 +31,7 @@ public class SceneSelectFragment extends Fragment {
     public static final String SCENE_TYPE = "SCENE_TYPE";
 
     private int mPage;
+    private boolean isVisibleToUser = false;
 
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
 
@@ -226,14 +227,6 @@ public class SceneSelectFragment extends Fragment {
         int timeNow = Calendar.getInstance().get(Calendar.SECOND);
         if (timeNow > sceneListCacheExpiry) {
             sceneListCache.clear();
-        }
-
-        // fetch data if blank (i.e. previously no internet connection)
-        if (recyclerView.getAdapter().getItemCount() == 0) {
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("page",String.valueOf(1));
-            map.put("category", sceneType);
-            syncRemoteData(map);
         }
 
         super.onResume();
