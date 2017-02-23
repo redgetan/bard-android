@@ -118,6 +118,10 @@ public class SceneSelectFragment extends Fragment {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Request Failed");
                     emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                } else if (remoteSceneList.isEmpty() && sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                    emptyStateTitle.setText("No Favorites");
+                    emptyStateDescription.setText("Start adding videos that you like to your favorites");
                 } else {
                     hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
@@ -228,6 +232,14 @@ public class SceneSelectFragment extends Fragment {
         if (timeNow > sceneListCacheExpiry) {
             sceneListCache.clear();
         }
+
+
+        // only for category "popular" (we want to also display results right away on fragment visible)
+        // fetch data if blank (i.e. previously no internet connection)
+        if (sceneType.equals("popular") && recyclerView.getAdapter().getItemCount() == 0) {
+            displayResults();
+        }
+
 
         super.onResume();
     }

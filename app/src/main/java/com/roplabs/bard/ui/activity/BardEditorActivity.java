@@ -21,6 +21,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
@@ -83,7 +84,7 @@ public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener,
-        Helper.KeyboardVisibilityListener {
+        Helper.KeyboardVisibilityListener, PopupMenu.OnMenuItemClickListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -348,6 +349,31 @@ public class BardEditorActivity extends BaseActivity implements
         characterToken = savedInstanceState.getString("characterToken");
         sceneToken = savedInstanceState.getString("sceneToken");
 
+    }
+
+    public void onMoreBtnClick(View view) {
+        PopupMenu popup = new PopupMenu(this, view);
+        popup.setOnMenuItemClickListener(this);
+        popup.inflate(R.menu.menu_bard_editor_more);
+        popup.show();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        final Context self = this;
+        switch (item.getItemId()) {
+            case R.id.share_editor_item:
+                return true;
+            case R.id.copy_editor_link_item:
+                return true;
+            case R.id.view_editor_source_item:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public void onFavoriteBtnClick(View view) {
     }
 
     // when everything is built (i.e. creating the wordTrie)

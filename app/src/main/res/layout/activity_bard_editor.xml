@@ -39,8 +39,37 @@
                     android:paddingLeft="8dp"
                     android:paddingRight="3dp"
                     android:layout_width="wrap_content"
-                    android:layout_height="30dp"
+                    android:layout_height="match_parent"
                     android:contentDescription="@string/close_editor"/>
+
+            <LinearLayout android:layout_width="wrap_content"
+                          android:layout_height="match_parent"
+                          android:orientation="horizontal"
+                          android:layout_gravity="right"
+            >
+                <ImageView
+                        android:id="@+id/favorite_btn"
+                        android:layout_width="30dp"
+                        android:layout_weight="0.1"
+                        android:padding="2dp"
+                        android:layout_height="match_parent"
+                        android:onClick="onMoreBtnClick"
+                        android:src="@drawable/ic_favorite_border_white_18dp"
+                        android:contentDescription="favorite"/>
+
+                <ImageView
+                        android:id="@+id/more_btn"
+                        android:layout_width="30dp"
+                        android:layout_weight="0.1"
+                        android:padding="0dp"
+                        android:layout_gravity="right"
+                        android:layout_height="match_parent"
+                        android:onClick="onFavoriteBtnClick"
+                        android:layout_marginRight="10dp"
+                        android:layout_marginLeft="5dp"
+                        android:src="@drawable/ic_more_vert_white_24dp"
+                        android:contentDescription="@string/share"/>
+            </LinearLayout>
 
 
 

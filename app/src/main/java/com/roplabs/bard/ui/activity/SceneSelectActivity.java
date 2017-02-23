@@ -98,11 +98,6 @@ public class SceneSelectActivity extends BaseActivity  {
             }
         });
 
-        // show results for first tab
-        int tabIndex = 0;
-        SceneSelectFragment popularSceneFragment = (SceneSelectFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + tabIndex);
-        popularSceneFragment.displayResults();
-
 
         // Give the TabLayout the ViewPager
         TabLayout tabLayout = (TabLayout) findViewById(R.id.scene_select_tabs);

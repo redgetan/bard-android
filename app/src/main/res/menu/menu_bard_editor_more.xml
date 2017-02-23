@@ -1,0 +1,8 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/share_editor_item"
+      android:title="Share to Friend" />
+<item android:id="@+id/copy_editor_link_item"
+      android:title="Copy Link" />
+<item android:id="@+id/view_editor_source_item"
+      android:title="View Source" />
+</menu>
