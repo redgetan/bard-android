@@ -52,6 +52,10 @@ public class SearchActivity extends BaseActivity {
     private ViewPager viewPager;
     private EditText searchBar;
 
+    private Drawable searchIcon;
+    private Drawable clearIcon;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -61,6 +65,8 @@ public class SearchActivity extends BaseActivity {
         mContext = this;
 
         searchBar = (EditText) toolbar.findViewById(R.id.video_search_input);
+        searchIcon = searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX];
+        clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.search_result_pager);
