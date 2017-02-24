@@ -1,5 +1,7 @@
 package com.roplabs.bard.models;
 
+import io.realm.RealmList;
+
 import java.util.HashMap;
 import java.util.Map;
 

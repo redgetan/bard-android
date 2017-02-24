@@ -15,7 +15,9 @@ import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.models.Favorite;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
@@ -118,10 +120,18 @@ public class SceneSelectFragment extends Fragment {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Request Failed");
                     emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
-                } else if (remoteSceneList.isEmpty() && sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-                    emptyStateContainer.setVisibility(View.VISIBLE);
-                    emptyStateTitle.setText("No Favorites");
-                    emptyStateDescription.setText("Start adding videos that you like to your favorites");
+                } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+                    if (remoteSceneList.isEmpty()) {
+                        emptyStateContainer.setVisibility(View.VISIBLE);
+                        emptyStateTitle.setText("No Favorites");
+                        emptyStateDescription.setText("Start adding videos that you like to your favorites");
+                    } else {
+                        // add remote favorite to local if missing
+                        hideEmptySearchMessage();
+                        populateScenes(remoteSceneList, options);
+                        syncRemoteFavoritesToLocal(remoteSceneList);
+
+                    }
                 } else {
                     hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
@@ -147,6 +157,10 @@ public class SceneSelectFragment extends Fragment {
         });
     }
 
+    private void syncRemoteFavoritesToLocal(List<Scene> remoteSceneList) {
+        Favorite.createOrUpdate(remoteSceneList);
+    }
+
     private void populateScenes(List<Scene> remoteSceneList, Map<String, String> options) {
         for (Scene scene : remoteSceneList) {
             if (scene.getToken() == null) continue;
@@ -169,7 +183,11 @@ public class SceneSelectFragment extends Fragment {
     public void initScenes() {
         final Context self = getActivity();
 
-        this.sceneList = new ArrayList<Scene>();
+        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            this.sceneList = Scene.favoritesForUsername(Setting.getUsername(self));
+        } else {
+            this.sceneList = new ArrayList<Scene>();
+        }
 
         // set adapter
         SceneListAdapter adapter = new SceneListAdapter(self, this.sceneList);
@@ -246,6 +264,12 @@ public class SceneSelectFragment extends Fragment {
 
 
     public void displayResults() {
+        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            // fetch from local db
+            this.sceneList = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
+            recyclerView.getAdapter().notifyDataSetChanged();
+        }
+
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
         map.put("category", sceneType);

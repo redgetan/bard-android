@@ -46,6 +46,18 @@ public class Scene extends RealmObject {
         return realm.where(Scene.class).equalTo("token", token).findFirst();
     }
 
+    public static RealmResults<Scene> favoritesForUsername(String username) {
+        Realm realm = Realm.getDefaultInstance();
+        RealmQuery<Scene> query = realm.where(Scene.class);
+
+        RealmResults<Favorite> userFavorites = Favorite.forUsername(username);
+        for (Favorite favorite : userFavorites) {
+            query = query.equalTo("token", favorite.getSceneToken());
+        }
+
+        return query.findAll();
+    }
+
     public static Scene forWordTagString(String wordTagString) {
         Realm realm = Realm.getDefaultInstance();
         return realm.where(Scene.class).contains("wordList", wordTagString).findFirst();

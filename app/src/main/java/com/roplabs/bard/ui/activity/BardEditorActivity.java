@@ -374,6 +374,14 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void onFavoriteBtnClick(View view) {
+        Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
+        if (favorite == null) {
+            // create
+
+        } else {
+            // delete
+
+        }
     }
 
     // when everything is built (i.e. creating the wordTrie)
