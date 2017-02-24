@@ -37,7 +37,7 @@ import android.support.v7.widget.SearchView;
 
 import java.util.*;
 
-public class SearchActivity extends BaseActivity implements SearchResultFragment.OnSearchListener {
+public class SearchActivity extends BaseActivity {
     private Context mContext;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -50,18 +50,17 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     private String lastSearch;
     private SearchView searchView;
     private ViewPager viewPager;
+    private EditText searchBar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        BardLogger.log("Scene Select onCreate");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_search);
 
         mContext = this;
 
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(R.string.search);
+        searchBar = (EditText) toolbar.findViewById(R.id.video_search_input);
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.search_result_pager);
@@ -76,7 +75,7 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
             @Override
             public void onPageSelected(int position) {
                 SearchResultFragment page = (SearchResultFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.search_result_pager + ":" + position);
-                page.performSearch(searchView.getQuery().toString());
+                page.performSearch(searchBar.getText().toString());
             }
 
             @Override
@@ -99,50 +98,66 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_search_field, menu);
 
-        MenuItem searchItem = menu.findItem(R.id.action_search);
-        searchView = (SearchView) MenuItemCompat.getActionView(searchItem);
-        // Expand the search view and request focus
-        searchItem.expandActionView();
-        searchView.requestFocus();
-        final Activity self = this;
-        MenuItemCompat.setOnActionExpandListener(searchItem, new MenuItemCompat.OnActionExpandListener() {
+        initSearch();
+
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    private void initSearch() {
+        lastSearch = "";
+        searchIcon.setAlpha(100); // make search icon opacity set to 50%
+        clearIcon.setAlpha(0); // invisible at beginning
+
+        searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
-            public boolean onMenuItemActionExpand(MenuItem item) {
-                return true;
-            }
-
-            @Override
-            public boolean onMenuItemActionCollapse(MenuItem item) {
-                Intent parentIntent = new Intent(getApplicationContext(), SceneSelectActivity.class);
-                startActivity(parentIntent);
-                return true;
-            }
-        });
-
-        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-            @Override
-            public boolean onQueryTextSubmit(String query) {
-                // perform query here
-                SearchResultFragment page = (SearchResultFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.search_result_pager + ":" + viewPager.getCurrentItem());
-                page.performSearch(query);
-
-
-                // workaround to avoid issues with some emulators and keyboard devices firing twice if a keyboard enter is used
-                // see https://code.google.com/p/android/issues/detail?id=24599
-                searchView.clearFocus();
-
-                return true;
-            }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                    BardLogger.log("user clicked search icon ...");
+                    SearchResultFragment page = (SearchResultFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.search_result_pager + ":" + viewPager.getCurrentItem());
+                    page.performSearch(v.getText().toString());
+                    return true;
+                }
                 return false;
             }
         });
 
+        searchBar.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if (event.getAction()==KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
+                    SearchResultFragment page = (SearchResultFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.search_result_pager + ":" + viewPager.getCurrentItem());
+                    page.performSearch(searchBar.getText().toString());
+                    return true;
+                }
+                if (!searchBar.getText().toString().isEmpty()) {
+                    clearIcon.setAlpha(100); // make it visible if there's text
+                } else {
+                    clearIcon.setAlpha(0); // hide if empty
+                }
+                return false;
+            }
+        });
 
+        searchBar.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                final int DRAWABLE_LEFT = 0;
+                final int DRAWABLE_TOP = 1;
+                final int DRAWABLE_RIGHT = 2;
+                final int DRAWABLE_BOTTOM = 3;
 
-        return super.onCreateOptionsMenu(menu);
+                if(event.getAction() == MotionEvent.ACTION_UP) {
+                    if(event.getRawX() >= (searchBar.getRight() - clearIcon.getBounds().width())) {
+                        // clear button clicked
+                        searchBar.setText("");
+                        clearIcon.setAlpha(0); // hide clear button again
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+
     }
 
     @Override
@@ -154,9 +169,4 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 
-
-    @Override
-    public String getSearchQuery() {
-        return searchView.getQuery().toString();
-    }
 }

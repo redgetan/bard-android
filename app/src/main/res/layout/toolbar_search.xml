@@ -7,15 +7,26 @@
         android:theme="@style/ToolbarTheme">
 
     <EditText
+            android:id="@+id/video_search_input"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:textColor="@color/white"
-            android:textSize="18dp"
-            android:maxLength="25"
-            android:ellipsize="end"
-            android:singleLine="true"
+            android:layout_height="40dp"
+            android:background="@drawable/search_bar_background"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:textSize="14sp"
+            android:textAlignment="center"
             android:hint="Search"
-            android:layout_gravity="center"
-            android:id="@+id/toolbar_title" />
+            android:text="search by word"
+            android:textColor="@color/black"
+            android:drawablePadding="5dp"
+            android:visibility="visible"
+            android:drawableLeft="@drawable/ic_search_black_18dp"
+            android:drawableStart="@drawable/ic_search_black_18dp"
+            android:drawableRight="@drawable/ic_clear_black_18dp"
+            android:drawableEnd="@drawable/ic_clear_black_18dp"
+            android:layout_margin="10dp"
+            android:imeOptions="actionSearch"
+            android:inputType="text"/>
+
 
 </android.support.v7.widget.Toolbar>
