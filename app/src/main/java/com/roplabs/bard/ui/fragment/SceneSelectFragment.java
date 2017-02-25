@@ -256,10 +256,14 @@ public class SceneSelectFragment extends Fragment {
         }
 
 
-        // only for category "popular" (we want to also display results right away on fragment visible)
+        // for category "popular" (we want to also display results right away on fragment visible)
         // fetch data if blank (i.e. previously no internet connection)
-        if (sceneType.equals("popular") && recyclerView.getAdapter().getItemCount() == 0) {
+        if (sceneType.equals(Helper.POPULAR_SCENE_TYPE) && recyclerView.getAdapter().getItemCount() == 0) {
             displayResults();
+        } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            displayResults();
+        } else {
+
         }
 
 
@@ -274,6 +278,9 @@ public class SceneSelectFragment extends Fragment {
             this.sceneList = new ArrayList<Scene>(localFavorites);
             SceneListAdapter adapter = new SceneListAdapter(getActivity(), this.sceneList);
             recyclerView.setAdapter(adapter);
+            recyclerView.getAdapter().notifyDataSetChanged();
+            scrollListener.resetState();
+            return;
         }
 
         Map<String, String> map = new HashMap<String, String>();

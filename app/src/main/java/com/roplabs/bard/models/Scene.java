@@ -48,16 +48,14 @@ public class Scene extends RealmObject {
 
     public static RealmResults<Scene> favoritesForUsername(String username) {
         Realm realm = Realm.getDefaultInstance();
-        RealmQuery<Scene> query = realm.where(Scene.class);
+
+
+        // HACK: this will return empty query by default
+        RealmQuery<Scene> query = realm.where(Scene.class).equalTo("token", "99999999999999999999999999999999999");
 
         RealmResults<Favorite> userFavorites = Favorite.forUsername(username);
         for (Favorite favorite : userFavorites) {
-            query = query.equalTo("token", favorite.getSceneToken());
-        }
-
-        if (userFavorites.isEmpty()) {
-            // HACK: this will return empty query
-            query = query.equalTo("token", "99999999999999999999999999999999999");
+            query = query.or().equalTo("token", favorite.getSceneToken());
         }
 
         return query.findAll();
