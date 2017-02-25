@@ -11,7 +11,6 @@ import com.roplabs.bard.util.Helper;
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
             Helper.POPULAR_SCENE_TYPE,
-            Helper.NEW_SCENE_TYPE,
             Helper.FAVORITES_SCENE_TYPE
     };
     private Context context;
