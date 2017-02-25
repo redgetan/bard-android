@@ -17,6 +17,7 @@ import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.adapters.SearchFragmentPagerAdapter;
@@ -75,7 +76,7 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.search_result_pager);
         viewPager.setAdapter(new SearchFragmentPagerAdapter(getSupportFragmentManager(),
-                SearchActivity.this));
+                this));
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -140,8 +141,8 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         cancelSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                setResult(RESULT_OK);
-                finish();
+                Intent intent = new Intent(ClientApp.getContext(), SceneSelectActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -153,6 +154,8 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         });
 
     }
+
+
 
     @Override
     public void onPause() {

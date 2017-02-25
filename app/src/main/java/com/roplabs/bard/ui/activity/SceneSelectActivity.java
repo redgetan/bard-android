@@ -162,7 +162,7 @@ public class SceneSelectActivity extends BaseActivity  {
                 return true;
             case R.id.menu_item_search:
                 intent = new Intent(this, SearchActivity.class);
-                startActivityForResult(intent, SEARCH_REQUEST_CODE);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
