@@ -124,9 +124,6 @@ public class SceneSelectFragment extends Fragment {
                 } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
                     // maybe empty on server (i.e. page 2 empty), but if page 1 has results or local db has favorites, then dont say empty
                     if (remoteSceneList.isEmpty() && sceneList.isEmpty()) {
-                        emptyStateContainer.setVisibility(View.VISIBLE);
-                        emptyStateTitle.setText("No Favorites");
-                        emptyStateDescription.setText("Start adding videos that you like to your favorites");
                     } else {
                         // add remote favorite to local if missing
                         hideEmptySearchMessage();
@@ -270,16 +267,25 @@ public class SceneSelectFragment extends Fragment {
         super.onResume();
     }
 
+    public void displayFavorites() {
+        // fetch from local db
+        RealmResults<Scene> localFavorites = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
+        this.sceneList = new ArrayList<Scene>(localFavorites);
+        SceneListAdapter adapter = new SceneListAdapter(getActivity(), this.sceneList);
+        recyclerView.setAdapter(adapter);
+        recyclerView.getAdapter().notifyDataSetChanged();
+        scrollListener.resetState();
+
+        if (localFavorites.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+            emptyStateTitle.setText("No Favorites");
+            emptyStateDescription.setText("Start adding videos that you like to your favorites");
+        }
+    }
 
     public void displayResults() {
         if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            // fetch from local db
-            RealmResults<Scene> localFavorites = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
-            this.sceneList = new ArrayList<Scene>(localFavorites);
-            SceneListAdapter adapter = new SceneListAdapter(getActivity(), this.sceneList);
-            recyclerView.setAdapter(adapter);
-            recyclerView.getAdapter().notifyDataSetChanged();
-            scrollListener.resetState();
+            displayFavorites();
             return;
         }
 

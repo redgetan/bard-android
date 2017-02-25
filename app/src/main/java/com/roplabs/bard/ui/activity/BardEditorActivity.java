@@ -405,10 +405,26 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void doFavoriteScene() {
+        // cant upload unless you're loggedin
+        if (!Setting.isLogined(this)) {
+            loginDialog = new CustomDialog(this, "You must login to favorite a video");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+            return;
+        }
+
+        favoriteBtn.setEnabled(false);
+
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().favoriteScene(sceneToken);
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                favoriteBtn.setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
@@ -422,6 +438,8 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                favoriteBtn.setEnabled(true);
+
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
             }
@@ -430,10 +448,26 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void doUnfavoriteScene(final Favorite favorite) {
+        // cant upload unless you're loggedin
+        if (!Setting.isLogined(this)) {
+            loginDialog = new CustomDialog(this, "You must login to favorite a video");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+            return;
+        }
+
+        favoriteBtn.setEnabled(false);
+
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unfavoriteScene(sceneToken);
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                favoriteBtn.setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
@@ -447,6 +481,8 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                favoriteBtn.setEnabled(true);
+
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
             }

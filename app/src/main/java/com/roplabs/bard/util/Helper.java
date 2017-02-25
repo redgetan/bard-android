@@ -72,8 +72,8 @@ public class Helper {
     public static final int SHARE_REPO_REQUEST_CODE = 4;
     public static final int SEARCH_REQUEST_CODE = 5;
 
-    public static final String POPULAR_SCENE_TYPE = "popular";
-    public static final String NEW_SCENE_TYPE = "new";
+    public static final String POPULAR_SCENE_TYPE = "top";
+    public static final String NEW_SCENE_TYPE = "latest";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
 
 
