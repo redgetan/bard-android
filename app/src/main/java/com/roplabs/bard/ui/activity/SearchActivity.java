@@ -52,7 +52,8 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     private ViewPager viewPager;
     private EditText searchBar;
 
-    private ImageView clearBtn;
+    private ImageView cancelSearchBtn;
+    private ImageView clearSearchBtn;
 
 
     @Override
@@ -64,7 +65,10 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         mContext = this;
 
         searchBar = (EditText) toolbar.findViewById(R.id.video_search_input);
-        clearBtn = (ImageView) toolbar.findViewById(R.id.clear_search_btn);
+        clearSearchBtn = (ImageView) toolbar.findViewById(R.id.clear_search_btn);
+        cancelSearchBtn = (ImageView) toolbar.findViewById(R.id.cancel_search_btn);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+
 
         initSearch();
 
@@ -133,7 +137,15 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
             }
         });
 
-        clearBtn.setOnClickListener(new View.OnClickListener() {
+        cancelSearchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                setResult(RESULT_OK);
+                finish();
+            }
+        });
+
+        clearSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 searchBar.setText("");

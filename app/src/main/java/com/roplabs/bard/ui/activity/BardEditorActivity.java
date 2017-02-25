@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.*;
+import android.content.ClipboardManager;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -365,12 +366,21 @@ public class BardEditorActivity extends BaseActivity implements
             case R.id.share_editor_item:
                 return true;
             case R.id.copy_editor_link_item:
+                String url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
+                copyEditorLinkToClipboard(url);
                 return true;
             case R.id.view_editor_source_item:
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void copyEditorLinkToClipboard(String url) {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+        ClipData clip = ClipData.newPlainText(url, url);
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(ClientApp.getContext(), url + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
     public void onFavoriteBtnClick(View view) {
