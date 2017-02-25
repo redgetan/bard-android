@@ -66,6 +66,7 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         mContext = this;
 
         searchBar = (EditText) toolbar.findViewById(R.id.video_search_input);
+        searchBar.requestFocus();
         clearSearchBtn = (ImageView) toolbar.findViewById(R.id.clear_search_btn);
         cancelSearchBtn = (ImageView) toolbar.findViewById(R.id.cancel_search_btn);
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);

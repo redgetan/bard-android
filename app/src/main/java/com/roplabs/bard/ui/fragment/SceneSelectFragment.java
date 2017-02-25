@@ -280,6 +280,8 @@ public class SceneSelectFragment extends Fragment {
             emptyStateContainer.setVisibility(View.VISIBLE);
             emptyStateTitle.setText("No Favorites");
             emptyStateDescription.setText("Start adding videos that you like to your favorites");
+        } else {
+            hideEmptySearchMessage();
         }
     }
 
