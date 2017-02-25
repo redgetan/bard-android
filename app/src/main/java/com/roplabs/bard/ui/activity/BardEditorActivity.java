@@ -1582,7 +1582,6 @@ public class BardEditorActivity extends BaseActivity implements
 
         Analytics.track(this, "generateBardVideo", properties);
         Analytics.track(this, "generateBardVideo", params);
-        Analytics.sendQueuedEvents(this);
     }
 
     private void playRemoteVideoAndDisplayThubmnail(String wordTagString) {
