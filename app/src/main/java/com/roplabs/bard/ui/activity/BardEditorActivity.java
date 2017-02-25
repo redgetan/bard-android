@@ -80,6 +80,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static com.roplabs.bard.ClientApp.getContext;
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.SHARE_SCENE_REQUEST_CODE;
 
 public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
@@ -374,12 +375,17 @@ public class BardEditorActivity extends BaseActivity implements
         final Context self = this;
         switch (item.getItemId()) {
             case R.id.share_editor_item:
+                Intent intent = new Intent(this, ShareEditorActivity.class);
+                intent.putExtra("sceneToken", sceneToken);
+                startActivityForResult(intent, SHARE_SCENE_REQUEST_CODE);
                 return true;
             case R.id.copy_editor_link_item:
                 String url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
                 copyEditorLinkToClipboard(url);
                 return true;
             case R.id.view_editor_source_item:
+                String youtubeUrl = "https://www.youtube.com/watch?v=" + sceneToken;
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl)));
                 return true;
             default:
                 return false;

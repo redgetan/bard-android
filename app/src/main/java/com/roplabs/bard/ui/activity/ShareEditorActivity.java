@@ -125,7 +125,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startMessengerShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.setPackage("com.facebook.orca");
 
         try {
@@ -138,7 +138,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startWhatsappShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.setPackage("com.whatsapp");
 
         try {
@@ -151,7 +151,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startTelegramShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.setPackage("org.telegram.messenger");
 
         try {
@@ -164,7 +164,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startTwitterShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.setClassName("com.twitter.android", "com.twitter.android.composer.ComposerActivity");
 
         try {
@@ -177,7 +177,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startKikShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.setPackage("kik.android");
 
         try {
@@ -190,7 +190,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startEmailShare() {
-        Intent intent = getRepoShareIntent();
+        Intent intent = getShareIntent();
         intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
         intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
 
@@ -200,12 +200,12 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             trackSharing("email");
         }
         catch (android.content.ActivityNotFoundException ex) {
-            intent = getRepoShareIntent();
+            intent = getShareIntent();
             intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
             intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
             startActivity(Intent.createChooser(intent, "Send email"));
         } catch (SecurityException ex) {
-            intent = getRepoShareIntent();
+            intent = getShareIntent();
             intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
             intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
             startActivity(Intent.createChooser(intent, "Send email"));
@@ -218,15 +218,30 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         Bundle params = new Bundle();
 
         try {
-            properties.put("medium", medium);
-            properties.put("sceneName", sceneName);
-            properties.put("sceneToken", sceneToken);
-            properties.put("wordTags", Arrays.asList(wordTagListString.split(",")));
+            if (repo != null) {
+                // repo share properties
+                properties.put("medium", medium);
+                properties.put("sceneName", sceneName);
+                properties.put("sceneToken", sceneToken);
+                properties.put("wordTags", Arrays.asList(wordTagListString.split(",")));
 
-            params.putString("medium", medium);
-            params.putString("sceneName", sceneName);
-            params.putString("sceneToken", sceneToken);
-            params.putString("wordTags", wordTagListString);
+                params.putString("medium", medium);
+                params.putString("sceneName", sceneName);
+                params.putString("sceneToken", sceneToken);
+                params.putString("wordTags", wordTagListString);
+            } else {
+                // scene share properties
+                properties.put("medium", medium);
+                properties.put("sceneName", sceneName);
+                properties.put("sceneToken", sceneToken);
+                properties.put("shareType", "scene");
+
+                params.putString("medium", medium);
+                params.putString("sceneName", sceneName);
+                params.putString("sceneToken", sceneToken);
+                params.putString("shareType", "scene");
+
+            }
         } catch (JSONException e) {
             e.printStackTrace();
             CrashReporter.logException(e);
@@ -235,7 +250,20 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         Analytics.track(this, "shareSocialAttempt", params);
     }
 
+
     private void startLinkShare() {
+        if (repo != null) {
+            startRepoLinkShare();
+        } else {
+            startSceneLinkShare();
+        }
+    }
+
+    private void startSceneLinkShare() {
+        copyRepoLinkToClipboard(getSceneUrl(sceneToken));
+    }
+
+    private void startRepoLinkShare() {
         final Context self = this;
         if (repo != null && (repo.getUrl() != null)) {
             // already published
@@ -274,6 +302,22 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startTextShare() {
+        if (repo != null) {
+            startRepoTextShare();
+        } else {
+            startSceneTextShare();
+        }
+    }
+
+    private void startSceneTextShare() {
+        sendText(getSceneUrl(sceneToken));
+    }
+
+    private String getSceneUrl(String sceneToken) {
+        return Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
+    }
+
+    private void startRepoTextShare() {
         final Context self = this;
         if (repo != null && (repo.getUrl() != null)) {
             // already published
@@ -331,7 +375,27 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startMoreShare() {
-        startActivity(Intent.createChooser(getRepoShareIntent(), "Share"));
+        startActivity(Intent.createChooser(getShareIntent(), "Share"));
+    }
+
+    public Intent getShareIntent() {
+        if (repo != null) {
+            // share repo
+            return getRepoShareIntent();
+        } else if (sceneToken != null) {
+            // share scene
+            return getSceneShareIntent();
+        } else {
+            return new Intent();
+        }
+    }
+
+    public Intent getSceneShareIntent() {
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        String text = getSceneUrl(sceneToken);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+        return sendIntent;
     }
 
     public Intent getRepoShareIntent() {
