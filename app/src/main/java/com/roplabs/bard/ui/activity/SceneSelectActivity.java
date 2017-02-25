@@ -41,6 +41,7 @@ import java.util.*;
 
 import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
+import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
 public class SceneSelectActivity extends BaseActivity  {
     private Context mContext;
@@ -161,7 +162,7 @@ public class SceneSelectActivity extends BaseActivity  {
                 return true;
             case R.id.menu_item_search:
                 intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, SEARCH_REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

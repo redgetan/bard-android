@@ -37,7 +37,7 @@ import android.support.v7.widget.SearchView;
 
 import java.util.*;
 
-public class SearchActivity extends BaseActivity {
+public class SearchActivity extends BaseActivity implements SearchResultFragment.OnSearchListener {
     private Context mContext;
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
@@ -52,8 +52,7 @@ public class SearchActivity extends BaseActivity {
     private ViewPager viewPager;
     private EditText searchBar;
 
-    private Drawable searchIcon;
-    private Drawable clearIcon;
+    private ImageView clearBtn;
 
 
     @Override
@@ -65,8 +64,9 @@ public class SearchActivity extends BaseActivity {
         mContext = this;
 
         searchBar = (EditText) toolbar.findViewById(R.id.video_search_input);
-        searchIcon = searchBar.getCompoundDrawables()[LEFT_DRAWABLE_INDEX];
-        clearIcon = searchBar.getCompoundDrawables()[RIGHT_DRAWABLE_INDEX];
+        clearBtn = (ImageView) toolbar.findViewById(R.id.clear_search_btn);
+
+        initSearch();
 
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.search_result_pager);
@@ -102,17 +102,11 @@ public class SearchActivity extends BaseActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search_field, menu);
-
-        initSearch();
-
         return super.onCreateOptionsMenu(menu);
     }
 
     private void initSearch() {
         lastSearch = "";
-        searchIcon.setAlpha(100); // make search icon opacity set to 50%
-        clearIcon.setAlpha(0); // invisible at beginning
 
         searchBar.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
@@ -135,32 +129,14 @@ public class SearchActivity extends BaseActivity {
                     page.performSearch(searchBar.getText().toString());
                     return true;
                 }
-                if (!searchBar.getText().toString().isEmpty()) {
-                    clearIcon.setAlpha(100); // make it visible if there's text
-                } else {
-                    clearIcon.setAlpha(0); // hide if empty
-                }
                 return false;
             }
         });
 
-        searchBar.setOnTouchListener(new View.OnTouchListener() {
+        clearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                final int DRAWABLE_LEFT = 0;
-                final int DRAWABLE_TOP = 1;
-                final int DRAWABLE_RIGHT = 2;
-                final int DRAWABLE_BOTTOM = 3;
-
-                if(event.getAction() == MotionEvent.ACTION_UP) {
-                    if(event.getRawX() >= (searchBar.getRight() - clearIcon.getBounds().width())) {
-                        // clear button clicked
-                        searchBar.setText("");
-                        clearIcon.setAlpha(0); // hide clear button again
-                        return true;
-                    }
-                }
-                return false;
+            public void onClick(View v) {
+                searchBar.setText("");
             }
         });
 
@@ -175,4 +151,8 @@ public class SearchActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     }
 
+    @Override
+    public String getSearchQuery() {
+        return searchBar.getText().toString();
+    }
 }

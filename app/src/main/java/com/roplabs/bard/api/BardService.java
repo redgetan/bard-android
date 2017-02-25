@@ -26,6 +26,12 @@ public interface BardService {
     @GET("scenes/{sceneToken}")
     Call<Scene> getScene(@Path("sceneToken") String sceneToken);
 
+    @POST("scenes/{sceneToken}/favorite")
+    Call<HashMap<String, String>> favoriteScene(@Path("sceneToken") String sceneToken);
+
+    @POST("scenes/{sceneToken}/unfavorite")
+    Call<HashMap<String, String>> unfavoriteScene(@Path("sceneToken") String sceneToken);
+
     @GET("scenes/{sceneToken}/word_list")
     Call<Scene> getSceneWordList(@Path("sceneToken") String sceneToken);
 

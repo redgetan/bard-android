@@ -377,11 +377,57 @@ public class BardEditorActivity extends BaseActivity implements
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite == null) {
             // create
-
+            doFavoriteScene();
         } else {
             // delete
-
+            doUnfavoriteScene(favorite);
         }
+    }
+
+    private void doFavoriteScene() {
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().favoriteScene(sceneToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                Favorite.create(realm, sceneToken, Setting.getUsername(ClientApp.getContext()));
+                realm.commitTransaction();
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
+    }
+
+    private void doUnfavoriteScene(final Favorite favorite) {
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unfavoriteScene(sceneToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                favorite.deleteFromRealm();
+                realm.commitTransaction();
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
     }
 
     // when everything is built (i.e. creating the wordTrie)

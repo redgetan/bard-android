@@ -4,16 +4,12 @@ import com.google.gson.annotations.SerializedName;
 import com.roplabs.bard.ClientApp;
 import io.realm.*;
 import io.realm.annotations.Ignore;
-import io.realm.annotations.PrimaryKey;
-import io.realm.annotations.Required;
 
 import java.io.Serializable;
 import java.util.*;
 
 public class Favorite extends RealmObject {
 
-    @PrimaryKey
-    @Required
     private String sceneToken;
     private String username;
     private Date createdAt;

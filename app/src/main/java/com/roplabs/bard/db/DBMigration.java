@@ -1,5 +1,6 @@
 package com.roplabs.bard.db;
 
+import com.roplabs.bard.util.BardLogger;
 import io.realm.DynamicRealm;
 import io.realm.FieldAttribute;
 import io.realm.RealmMigration;
@@ -46,6 +47,23 @@ public class DBMigration implements RealmMigration {
 
             schema.get("Scene")
                     .addPrimaryKey("token");
+
+            oldVersion++;
+        }
+
+        if (oldVersion == 2) {
+            oldVersion++;
+        }
+
+        if (oldVersion == 3) {
+            oldVersion++;
+        }
+
+        if (oldVersion == 4) {
+            schema.create("Favorite")
+                    .addField("sceneToken", String.class)
+                    .addField("username", String.class)
+                    .addField("createdAt", Date.class);
 
             oldVersion++;
         }
