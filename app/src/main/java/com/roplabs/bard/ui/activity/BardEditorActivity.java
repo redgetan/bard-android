@@ -167,6 +167,7 @@ public class BardEditorActivity extends BaseActivity implements
     private Surface previewSurface;
     private View previewOverlay;
     private Runnable fetchWordTagSegmentUrl;
+    private ImageView favoriteBtn;
 
     private int originalVideoHeight = -1;
 
@@ -190,6 +191,7 @@ public class BardEditorActivity extends BaseActivity implements
         wordTagPlayHandler = new Handler();
         inputContainer = (RelativeLayout) findViewById(R.id.input_container);
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
+        favoriteBtn = (ImageView) findViewById(R.id.favorite_btn);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
@@ -244,11 +246,19 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoPlayer();
 
 
+        initFavorites();
         initEmptyState();
         hideKeyboard();
         initVideoStorage();
         initChatText();
         updatePlayMessageBtnState();
+    }
+
+    private void initFavorites() {
+        Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
+        if (favorite != null) {
+            favoriteBtn.setImageResource(R.drawable.ic_favorite_white_18dp);
+        }
     }
 
     @Override
@@ -402,6 +412,8 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
+                favoriteBtn.setImageResource(R.drawable.ic_favorite_white_18dp);
+
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 Favorite.create(realm, sceneToken, Setting.getUsername(ClientApp.getContext()));
@@ -424,6 +436,8 @@ public class BardEditorActivity extends BaseActivity implements
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
+
+                favoriteBtn.setImageResource(R.drawable.ic_favorite_border_white_18dp);
 
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();

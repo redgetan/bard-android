@@ -22,6 +22,7 @@ import com.roplabs.bard.ui.activity.BardEditorActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -121,7 +122,8 @@ public class SceneSelectFragment extends Fragment {
                     emptyStateTitle.setText("Request Failed");
                     emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
                 } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-                    if (remoteSceneList.isEmpty()) {
+                    // maybe empty on server (i.e. page 2 empty), but if page 1 has results or local db has favorites, then dont say empty
+                    if (remoteSceneList.isEmpty() && sceneList.isEmpty()) {
                         emptyStateContainer.setVisibility(View.VISIBLE);
                         emptyStateTitle.setText("No Favorites");
                         emptyStateDescription.setText("Start adding videos that you like to your favorites");
@@ -130,7 +132,7 @@ public class SceneSelectFragment extends Fragment {
                         hideEmptySearchMessage();
                         populateScenes(remoteSceneList, options);
                         syncRemoteFavoritesToLocal(remoteSceneList);
-
+                        sceneListCache.put(getCacheKey(options), remoteSceneList);
                     }
                 } else {
                     hideEmptySearchMessage();
@@ -175,19 +177,21 @@ public class SceneSelectFragment extends Fragment {
         }
         progressBar.setVisibility(View.GONE);
         int oldPosition = sceneList.size();
-        sceneList.addAll(remoteSceneList);
-        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, remoteSceneList.size());
+        int itemAdded = 0;
+        for (Scene remoteScene : remoteSceneList) {
+            if (!sceneList.contains(remoteScene)) {
+                sceneList.add(remoteScene);
+                itemAdded++;
+            }
+        }
+        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
 
     }
 
     public void initScenes() {
         final Context self = getActivity();
 
-        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            this.sceneList = Scene.favoritesForUsername(Setting.getUsername(self));
-        } else {
-            this.sceneList = new ArrayList<Scene>();
-        }
+        this.sceneList = new ArrayList<Scene>();
 
         // set adapter
         SceneListAdapter adapter = new SceneListAdapter(self, this.sceneList);
@@ -266,8 +270,10 @@ public class SceneSelectFragment extends Fragment {
     public void displayResults() {
         if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
             // fetch from local db
-            this.sceneList = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
-            recyclerView.getAdapter().notifyDataSetChanged();
+            RealmResults<Scene> localFavorites = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
+            this.sceneList = new ArrayList<Scene>(localFavorites);
+            SceneListAdapter adapter = new SceneListAdapter(getActivity(), this.sceneList);
+            recyclerView.setAdapter(adapter);
         }
 
         Map<String, String> map = new HashMap<String, String>();

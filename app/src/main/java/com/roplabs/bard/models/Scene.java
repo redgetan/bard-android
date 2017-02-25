@@ -55,6 +55,11 @@ public class Scene extends RealmObject {
             query = query.equalTo("token", favorite.getSceneToken());
         }
 
+        if (userFavorites.isEmpty()) {
+            // HACK: this will return empty query
+            query = query.equalTo("token", "99999999999999999999999999999999999");
+        }
+
         return query.findAll();
     }
 
@@ -174,5 +179,14 @@ public class Scene extends RealmObject {
     public void setAdditionalProperties(String name, Object value) {
         this.additionalProperties.put(name, value);
     }
+
+    public boolean equals(Object o){
+        if(o instanceof Scene){
+            Scene toCompare = (Scene) o;
+            return this.getToken().equals(toCompare.getToken());
+        }
+        return false;
+    }
+
 
 }
