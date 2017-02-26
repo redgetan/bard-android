@@ -99,7 +99,10 @@ public class Repo extends RealmObject {
     public String title() {
         List<String> phrase = new ArrayList<String>();
 
-        String[] wordTagStrings = getWordList().split(",");
+        String repoTitle = getWordList();
+        if (repoTitle == null) return "";
+
+        String[] wordTagStrings = repoTitle.split(",");
         for (String wordTagString : wordTagStrings) {
            String word = wordTagString.split(":")[0];
             phrase.add(word);
