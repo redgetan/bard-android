@@ -13,7 +13,9 @@ public class WordTag  {
             this.word = tokens[0];
             this.tag = tokens[1];
 
-            if (tokens.length == 3) {
+            // if wordtagString format is "hello:zwe45kw:0.20:101.34"
+            // items are: word:token:duration:startTime
+            if (tokens.length >= 3) {
                 this.duration = Float.valueOf(tokens[2]);
             } else {
                 this.duration = 1;
