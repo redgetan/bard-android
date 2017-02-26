@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
+import com.roplabs.bard.adapters.SearchListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
@@ -47,6 +48,7 @@ public class SearchResultFragment extends Fragment {
     private ProgressBar progressBar;
     public List<Scene> sceneList;
     private EndlessRecyclerViewScrollListener scrollListener;
+    private SearchListAdapter searchListAdapter;
 
     private OnSearchListener searchListener;
 
@@ -225,6 +227,11 @@ public class SearchResultFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDetach() {
+        super.onDetach();
+    }
+
     private void populateScenes(List<Scene> remoteSceneList, Map<String, String> options) {
         for (Scene scene : remoteSceneList) {
             if (scene.getToken() == null) continue;
@@ -250,8 +257,8 @@ public class SearchResultFragment extends Fragment {
         this.sceneList = new ArrayList<Scene>();
 
         // set adapter
-        SceneListAdapter adapter = new SceneListAdapter(self, this.sceneList);
-        adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
+        searchListAdapter = new SearchListAdapter(self, this.sceneList);
+        searchListAdapter.setOnItemClickListener(new SearchListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent(self, BardEditorActivity.class);
@@ -260,7 +267,7 @@ public class SearchResultFragment extends Fragment {
                 startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
             }
         });
-        recyclerView.setAdapter(adapter);
+        recyclerView.setAdapter(searchListAdapter);
 
         // set layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(self);

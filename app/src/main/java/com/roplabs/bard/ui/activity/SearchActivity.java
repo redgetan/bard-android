@@ -142,8 +142,7 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
         cancelSearchBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(ClientApp.getContext(), SceneSelectActivity.class);
-                startActivity(intent);
+            finish();
             }
         });
 
@@ -156,7 +155,11 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
 
     }
 
-
+    @Override
+    protected void onDestroy() {
+        BardLogger.log("search activity destroy");
+        super.onDestroy();
+    }
 
     @Override
     public void onPause() {

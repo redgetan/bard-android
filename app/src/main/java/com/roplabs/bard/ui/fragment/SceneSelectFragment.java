@@ -197,7 +197,7 @@ public class SceneSelectFragment extends Fragment {
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent(self, BardEditorActivity.class);
                 intent.putExtra("sceneToken", scene.getToken());
-                BardLogger.trace("[sceneSearch] " + scene.getToken());
+                BardLogger.trace("[sceneSelect] " + scene.getToken());
                 startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
             }
         });
@@ -245,7 +245,7 @@ public class SceneSelectFragment extends Fragment {
 
     @Override
     public void onResume() {
-        BardLogger.log("Search onResume");
+        BardLogger.log("SceneSelect onResume");
 
         int timeNow = Calendar.getInstance().get(Calendar.SECOND);
         if (timeNow > sceneListCacheExpiry) {
