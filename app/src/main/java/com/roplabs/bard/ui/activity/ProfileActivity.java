@@ -155,6 +155,8 @@ public class ProfileActivity extends BaseActivity {
                                 sendGmail();
                             } catch(ActivityNotFoundException ex) {
                                 sendRegularMail();
+                            } catch (SecurityException ex) {
+                                sendRegularMail();
                             }
                         }
                     });
