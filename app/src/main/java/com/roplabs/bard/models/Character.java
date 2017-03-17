@@ -73,9 +73,8 @@ public class Character extends RealmObject {
     }
 
     public static void create(Realm realm, String token, String name, String details, String thumbnailUrl, Integer timestamp) {
-        Character character = realm.createObject(Character.class);
+        Character character = realm.createObject(Character.class, token);
         character.setIsBundleDownloaded(false);
-        character.setToken(token);
         character.setName(name);
         character.setThumbnailUrl(thumbnailUrl);
         character.setTimestamp(timestamp);

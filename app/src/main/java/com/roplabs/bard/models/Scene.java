@@ -107,8 +107,7 @@ public class Scene extends RealmObject {
     }
 
     public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl) {
-        Scene scene = realm.createObject(Scene.class);
-        scene.setToken(token);
+        Scene scene = realm.createObject(Scene.class, token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
         scene.setThumbnailUrl(thumbnailUrl);
