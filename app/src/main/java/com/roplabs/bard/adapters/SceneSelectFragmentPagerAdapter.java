@@ -34,7 +34,11 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
-        return capitalize(tabTitles[position]);
+        if (tabTitles[position].equals(Helper.FAVORITES_SCENE_TYPE)) {
+            return "Bookmarks";
+        } else {
+            return capitalize(tabTitles[position]);
+        }
     }
 
     private String capitalize(final String text) {

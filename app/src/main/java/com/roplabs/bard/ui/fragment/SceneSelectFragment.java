@@ -279,8 +279,8 @@ public class SceneSelectFragment extends Fragment {
 
         if (localFavorites.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);
-            emptyStateTitle.setText("No Favorites");
-            emptyStateDescription.setText("Start adding videos that you like to your favorites");
+            emptyStateTitle.setText("No Bookmarks");
+            emptyStateDescription.setText("Start adding videos that you like to your bookmarks");
         } else {
             hideEmptySearchMessage();
         }
