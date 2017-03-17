@@ -496,13 +496,13 @@ public class BardEditorActivity extends BaseActivity implements
             return;
         }
 
-        editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(false);
+        editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(false);
 
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unfavoritePack(characterToken);
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(true);
 
                 if (response.code() != 200) {
                     return;
@@ -521,7 +521,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(true);
 
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
@@ -855,6 +855,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void displayEmptyWordListError() {
+        progressBar.setVisibility(View.GONE);
+        debugView.setText("");
+
         emptyStateTitle.setText("No Words Found");
         emptyStateDescription.setText("Failed to load word list from server. Try again later.");
         emptyStateContainer.setVisibility(View.VISIBLE);
@@ -916,6 +919,50 @@ public class BardEditorActivity extends BaseActivity implements
             }
 
         }).execute(wordListString);
+    }
+
+    private void createCharacterWithWordList() {
+        progressBar.setVisibility(View.VISIBLE);
+        debugView.setText("Downloading");
+
+        Call<Character> call = BardClient.getAuthenticatedBardService().getCharacter(characterToken);
+        call.enqueue(new Callback<Character>() {
+            @Override
+            public void onResponse(Call<Character> call, Response<Character> response) {
+                Character remoteCharacter = response.body();
+
+                if (remoteCharacter == null) {
+                    displayEmptyWordListError();
+                    return;
+                }
+
+                wordListByScene = remoteCharacter.getWordListByScene();
+
+                List<String> combinedWordList = new ArrayList<String>();
+                for (Map.Entry<String, String> wordListEntry : wordListByScene.entrySet()) {
+                    String givenWordList = wordListEntry.getValue();
+                    combinedWordList.add(givenWordList);
+                }
+
+                asyncWordListSetup(TextUtils.join(",",combinedWordList), new OnWordListSetupListener() {
+                    @Override
+                    public void onWordListPrepared() {
+                        Realm realm = Realm.getDefaultInstance();
+                        realm.beginTransaction();
+                        character.setIsBundleDownloaded(true);
+                        realm.commitTransaction();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onFailure(Call<Character> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+                Toast.makeText(getApplicationContext(), "Failed to download word list", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void initCharacterWordList() {
@@ -1699,13 +1746,23 @@ public class BardEditorActivity extends BaseActivity implements
 
         try {
             properties.put("wordTags", lastMergedWordTagList);
-            properties.put("sceneToken", sceneToken);
-            properties.put("scene", scene.getName());
+            if (scene != null) {
+                properties.put("sceneToken", sceneToken);
+                properties.put("scene", scene.getName());
+            } else if (character != null) {
+                properties.put("packToken", characterToken);
+                properties.put("pack", character.getName());
+            }
             properties.put("length", lastMergedWordTagList.size());
 
             params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
-            params.putString("sceneToken", sceneToken);
-            params.putString("scene", scene.getName());
+            if (scene != null) {
+                params.putString("sceneToken", sceneToken);
+                params.putString("scene", scene.getName());
+            } else if (character != null) {
+                params.putString("packToken", characterToken);
+                params.putString("pack", character.getName());
+            }
             params.putString("length", String.valueOf(lastMergedWordTagList.size()));
         } catch (JSONException e) {
             e.printStackTrace();
@@ -1731,11 +1788,14 @@ public class BardEditorActivity extends BaseActivity implements
             playMessageBtn.setEnabled(false);
 
             // if were editing a character/pack, sceneToken is blank, we need to find which scene a wordTagString belongs to
+            String targetSceneToken;
             if (sceneToken.isEmpty()) {
-                sceneToken = getSceneTokenFromWordTagString(wordTagString);
+                targetSceneToken = getSceneTokenFromWordTagString(wordTagString);
+            } else {
+                targetSceneToken = sceneToken;
             }
 
-            Storage.cacheVideo(wordTagString, sceneToken, new Storage.OnCacheVideoListener() {
+            Storage.cacheVideo(wordTagString, targetSceneToken, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     playMessageBtn.setEnabled(true);
@@ -1978,7 +2038,10 @@ public class BardEditorActivity extends BaseActivity implements
 
         intent.putExtra("wordTags", TextUtils.join(",",lastMergedWordTagList));
         intent.putExtra("sceneToken", sceneToken);
-        intent.putExtra("sceneName", scene.getName());
+        intent.putExtra("characterToken", characterToken);
+        if (scene != null) {
+            intent.putExtra("sceneName", scene.getName());
+        }
         startActivity(intent);
     }
 

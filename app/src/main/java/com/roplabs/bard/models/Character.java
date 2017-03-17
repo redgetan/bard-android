@@ -66,6 +66,7 @@ public class Character extends RealmObject {
             } else {
                 obj.setName(character.getName());
                 obj.setThumbnailUrl(character.getThumbnailUrl());
+                obj.setOwner(character.getOwner());
             }
         }
         realm.commitTransaction();

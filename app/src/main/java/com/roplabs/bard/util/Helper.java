@@ -41,10 +41,8 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
-import com.roplabs.bard.models.AmazonCognito;
-import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.models.Scene;
-import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.models.*;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.activity.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -296,7 +294,9 @@ public class Helper {
         String username = Setting.getUsername(context);
         ProfileDrawerItem profileDrawerItem;
         final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
+        final List<Character> userPacks = UserPack.packsForUser(Setting.getUsername(context));
         String libraryCount = String.valueOf(repos.size());
+        String packCount = String.valueOf(userPacks.size());
 
         if (username.equals("anonymous")) {
             profileDrawerItem = new ProfileDrawerItem().withName("Click Avatar to Login"); // .withIcon(getResources().getDrawable(R.drawable.profile))
@@ -332,7 +332,7 @@ public class Helper {
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
-                        new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp), // .withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
+                        new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp).withBadge(packCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.settings_string).withTextColor(textColor).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
@@ -544,7 +544,7 @@ public class Helper {
         });
     }
 
-    public static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, OnRepoSaved listener) {
+    public static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
 
         // set initial token as size of repo + 1
         if (token == null) {
@@ -555,7 +555,7 @@ public class Helper {
         Repo repo;
 
         if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            repo = Repo.create(token, url, "", sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+            repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
             JSONObject properties = new JSONObject();
             Bundle params = new Bundle();

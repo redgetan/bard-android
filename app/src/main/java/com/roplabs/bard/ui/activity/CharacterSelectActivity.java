@@ -145,6 +145,17 @@ public class CharacterSelectActivity extends BaseActivity {
 
     @Override
     protected void onResume() {
+        // fetch from local db
+        RealmResults<Character> characters = UserPack.packsForUser(Setting.getUsername(this));
+        ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);
+        recyclerView.getAdapter().notifyDataSetChanged();
+
+        if (characters.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+        } else {
+            emptyStateContainer.setVisibility(View.GONE);
+        }
+
         super.onResume();
     }
 

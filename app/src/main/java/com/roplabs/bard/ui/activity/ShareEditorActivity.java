@@ -50,6 +50,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private String sceneName;
     private String sceneToken;
     private String characterToken;
+    private String shareType;
     private boolean isPerformingLinkGeneration;
     private boolean isPerformingTextSend;
 
@@ -64,6 +65,9 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
 
         Intent intent = getIntent();
+        shareType = intent.getStringExtra("shareType");
+        if (shareType == null) shareType = "";
+
         sceneToken = intent.getStringExtra("sceneToken");
         sceneName = intent.getStringExtra("sceneName");
         wordTagListString = intent.getStringExtra("wordTags");
@@ -260,7 +264,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
 
     private void startLinkShare() {
-        if (repo != null) {
+        if (shareType.equals("repo")) {
             startRepoLinkShare();
         } else if (character != null) {
             startPackLinkShare();
@@ -292,7 +296,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
                 }
             });
         } else {
-            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
                 @Override
                 public void onSaved(Repo createdRepo) {
                     repo = createdRepo;
@@ -316,7 +320,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void startTextShare() {
-        if (repo != null) {
+        if (shareType.equals("repo")) {
             startRepoTextShare();
         } else if (character != null) {
             startPackTextShare();
@@ -356,7 +360,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
                 }
             });
         } else {
-            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken,  new Helper.OnRepoSaved() {
                 @Override
                 public void onSaved(Repo createdRepo) {
                     repo = createdRepo;
@@ -403,7 +407,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     public Intent getShareIntent() {
-        if (repo != null) {
+        if (shareType.equals("repo")) {
             // share repo
             return getRepoShareIntent();
         } else if (sceneToken != null) {

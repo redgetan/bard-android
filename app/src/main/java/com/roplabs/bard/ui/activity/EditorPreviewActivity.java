@@ -39,6 +39,7 @@ public class EditorPreviewActivity extends BaseActivity {
     private String wordTagListString;
     private String sceneName;
     private String sceneToken;
+    private String characterToken;
     private Repo repo;
 
     @Override
@@ -48,6 +49,7 @@ public class EditorPreviewActivity extends BaseActivity {
 
         Intent intent = getIntent();
         sceneToken = intent.getStringExtra("sceneToken");
+        characterToken = intent.getStringExtra("characterToken");
         sceneName = intent.getStringExtra("sceneName");
         wordTagListString = intent.getStringExtra("wordTags");
 
@@ -163,7 +165,9 @@ public class EditorPreviewActivity extends BaseActivity {
 
         intent.putExtra("wordTags", wordTagListString);
         intent.putExtra("sceneToken", sceneToken);
+        intent.putExtra("characterToken", characterToken);
         intent.putExtra("sceneName", sceneName);
+        intent.putExtra("shareType", "repo");
         if (repo != null) {
             intent.putExtra("repoToken", repo.getToken());
         }
@@ -176,7 +180,7 @@ public class EditorPreviewActivity extends BaseActivity {
             return;
         }
 
-        Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, new Helper.OnRepoSaved() {
+        Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
             @Override
             public void onSaved(Repo createdRepo) {
                 repo = createdRepo;
