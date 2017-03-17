@@ -1,5 +1,6 @@
 package com.roplabs.bard.models;
 
+import io.realm.Realm;
 import io.realm.RealmList;
 
 import java.util.HashMap;
@@ -12,6 +13,7 @@ public class User {
     private String password;
     private String authenticationToken;
     private String error;
+    private RealmList<Character> characters;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
     public User(String username, String email, String password) {

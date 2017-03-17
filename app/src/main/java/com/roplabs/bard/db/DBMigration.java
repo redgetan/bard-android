@@ -67,12 +67,31 @@ public class DBMigration implements RealmMigration {
                         .addField("createdAt", Date.class);
             }
 
+            schema.get("Character")
+                    .addField("thumbnailUrl", String.class);
+
             oldVersion++;
         }
 
+        // migrate to version 6
         if (oldVersion == 5) {
+
+            if (!schema.contains("UserPack")) {
+                schema.create("UserPack")
+                        .addField("packToken", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+
+            oldVersion++;
+        }
+
+        // migrate to version 7
+        if (oldVersion == 6) {
             schema.get("Character")
-                    .addField("thumbnailUrl", String.class);
+                    .addField("wordListByScene", String.class)
+                    .addField("timestamp", Integer.class);
+
 
             oldVersion++;
         }

@@ -160,6 +160,7 @@ public class BardEditorActivity extends BaseActivity implements
     private FrameLayout previewContainer;
     private Runnable delayedWordPreviewPlayback;
     private Handler wordTagPlayHandler;
+    private Map<String, String> wordListByScene;
 
     private WordTagSelector wordTagSelector;
     private TextureView previewTagView;
@@ -243,6 +244,7 @@ public class BardEditorActivity extends BaseActivity implements
         previewOverlay = findViewById(R.id.preview_video_overlay);
         wordTagPlayHandler = new Handler();
         word_tag_status.setText("");
+        wordListByScene = new HashMap<String, String>();
 
         initVideoPlayer();
 
@@ -795,11 +797,14 @@ public class BardEditorActivity extends BaseActivity implements
     private void initCharacterWordList() {
 
         if (character.getIsBundleDownloaded()) {
-            RealmResults<Scene> scenes = Scene.forCharacterToken(characterToken);
+            Character character = Character.forToken(characterToken);
 
-            final List<String> combinedWordList = new ArrayList<String>();
-            for (Scene scene : scenes) {
-                combinedWordList.add(scene.getWordList());
+            this.wordListByScene = character.getWordListByScene();
+
+            List<String> combinedWordList = new ArrayList<String>();
+            for (Map.Entry<String, String> wordListEntry : wordListByScene.entrySet()) {
+                String givenWordList = wordListEntry.getValue();
+                combinedWordList.add(givenWordList);
             }
 
             asyncWordListSetup(TextUtils.join(",",combinedWordList));
@@ -811,22 +816,11 @@ public class BardEditorActivity extends BaseActivity implements
             call.enqueue(new Callback<HashMap<String, String>>() {
                 @Override
                 public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                    HashMap<String, String> wordListBySceneToken = response.body();
+                    wordListByScene = response.body();
+
                     List<String> combinedWordList = new ArrayList<String>();
-                    for (Map.Entry<String, String> wordListEntry : wordListBySceneToken.entrySet()) {
-                        String givenSceneToken = wordListEntry.getKey();
+                    for (Map.Entry<String, String> wordListEntry : wordListByScene.entrySet()) {
                         String givenWordList = wordListEntry.getValue();
-
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.beginTransaction();
-                        Scene scene = Scene.forToken(givenSceneToken);
-
-                        if (scene == null) {
-                            scene = Scene.create(realm, givenSceneToken, characterToken, "", "");
-                            scene.setWordList(givenWordList);
-                        }
-
-                        realm.commitTransaction();
                         combinedWordList.add(givenWordList);
                     }
 
@@ -835,6 +829,7 @@ public class BardEditorActivity extends BaseActivity implements
                         public void onWordListPrepared() {
                             Realm realm = Realm.getDefaultInstance();
                             realm.beginTransaction();
+                            character.setWordListByScene(wordListByScene);
                             character.setIsBundleDownloaded(true);
                             realm.commitTransaction();
                         }
@@ -864,6 +859,17 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         initWordTagSelector(availableWordList);
+    }
+
+    // for a pack, a wordTagString can belong to one of the many sceneTokens it has
+    // determine which one it belongs to
+    public String getSceneTokenFromWordTagString(String wordTagString) {
+        for (Map.Entry<String, String> wordListEntry : wordListByScene.entrySet()) {
+            String givenWordList = wordListEntry.getValue();
+            if (givenWordList.contains(wordTagString)) return wordListEntry.getKey();
+        }
+
+        return ""; // if none found, return empty string
     }
 
     private void addSceneWordListToDictionary(String wordList) {
@@ -1599,6 +1605,12 @@ public class BardEditorActivity extends BaseActivity implements
         } else {
             progressBar.setVisibility(View.VISIBLE);
             playMessageBtn.setEnabled(false);
+
+            // if were editing a character/pack, sceneToken is blank, we need to find which scene a wordTagString belongs to
+            if (sceneToken.isEmpty()) {
+                sceneToken = getSceneTokenFromWordTagString(wordTagString);
+            }
+
             Storage.cacheVideo(wordTagString, sceneToken, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {

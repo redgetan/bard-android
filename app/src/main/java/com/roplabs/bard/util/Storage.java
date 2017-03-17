@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import com.jakewharton.disklrucache.DiskLruCache;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.VideoDownloader;
 
@@ -87,6 +88,7 @@ public class Storage {
             final DiskLruCache.Editor editor = getDiskCache().edit(cacheKey);
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
+
                 VideoDownloader.downloadUrlToStream(Segment.sourceUrlFromWordTagString(wordTagString, sceneToken), outputStream, new VideoDownloader.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess() {

@@ -22,11 +22,13 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Character;
+import com.roplabs.bard.models.UserPack;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.adapters.CharacterListAdapter;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.BardLogger;
+import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
 import retrofit2.Call;
@@ -34,6 +36,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.List;
+import java.util.Set;
 
 public class CharacterSelectActivity extends BaseActivity {
     private final int BARD_EDITOR_REQUEST_CODE = 1;
@@ -57,7 +60,7 @@ public class CharacterSelectActivity extends BaseActivity {
         progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
 
 
-        RealmResults<Character> characters = Character.findAll();
+        RealmResults<Character> characters = UserPack.packsForUser(Setting.getUsername(this));
         displayCharacterList(characters);
 
         if (characters.size() == 0) {
@@ -70,13 +73,34 @@ public class CharacterSelectActivity extends BaseActivity {
     }
 
     private void syncRemoteData() {
-        Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters(Setting.getUsername(this));
+        // this fetches packs created by user
+        final String username = Setting.getUsername(this);
+        Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters(username);
         call.enqueue(new Callback<List<Character>>() {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
                 Character.createOrUpdate(characterList);
-                RealmResults<Character> characters = Character.findAll();
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                for (Character character : characterList) {
+                    UserPack userPack = UserPack.forPackTokenAndUsername(character.getToken(), username);
+                    if (userPack == null) {
+                        UserPack.create(realm, character.getToken(), username);
+                    } else {
+                        // check if timestamp is different (means need to pull in new update)
+                        Character localPack = Character.forToken(userPack.getPackToken());
+                        if (!localPack.getTimestamp().equals(character.getTimestamp())) {
+                            // clear wordList cache
+                            localPack.setIsBundleDownloaded(false);
+                        }
+                    }
+                }
+                realm.commitTransaction();
+
+                RealmResults<Character> characters = UserPack.packsForUser(username);
+
                 progressBar.setVisibility(View.GONE);
                 ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);
             }
