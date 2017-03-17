@@ -29,6 +29,7 @@ import com.roplabs.bard.adapters.ShareListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.*;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.util.*;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,9 +45,11 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private GridView shareListView;
     private ProgressDialog progressDialog;
     private Repo repo;
+    private Character character;
     private String wordTagListString;
     private String sceneName;
     private String sceneToken;
+    private String characterToken;
     private boolean isPerformingLinkGeneration;
     private boolean isPerformingTextSend;
 
@@ -68,6 +71,11 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         String repoToken = intent.getStringExtra("repoToken");
         if (repoToken != null) {
             repo = Repo.forToken(repoToken);
+        }
+
+        characterToken = intent.getStringExtra("characterToken");
+        if (characterToken != null) {
+            character = Character.forToken(characterToken);
         }
 
         initShare();
@@ -254,6 +262,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private void startLinkShare() {
         if (repo != null) {
             startRepoLinkShare();
+        } else if (character != null) {
+            startPackLinkShare();
         } else {
             startSceneLinkShare();
         }
@@ -261,6 +271,10 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startSceneLinkShare() {
         copyRepoLinkToClipboard(getSceneUrl(sceneToken));
+    }
+
+    private void startPackLinkShare() {
+        copyRepoLinkToClipboard(getPackUrl(characterToken));
     }
 
     private void startRepoLinkShare() {
@@ -304,6 +318,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private void startTextShare() {
         if (repo != null) {
             startRepoTextShare();
+        } else if (character != null) {
+            startPackTextShare();
         } else {
             startSceneTextShare();
         }
@@ -313,8 +329,16 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         sendText(getSceneUrl(sceneToken));
     }
 
+    private void startPackTextShare() {
+        sendText(getPackUrl(characterToken));
+    }
+
     private String getSceneUrl(String sceneToken) {
         return Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
+    }
+
+    private String getPackUrl(String characterToken) {
+        return Configuration.bardAPIBaseURL() + "/packs/" + characterToken;
     }
 
     private void startRepoTextShare() {
@@ -385,6 +409,9 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         } else if (sceneToken != null) {
             // share scene
             return getSceneShareIntent();
+        } else if (character != null) {
+            // share pack
+            return getPackShareIntent();
         } else {
             return new Intent();
         }
@@ -393,6 +420,14 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     public Intent getSceneShareIntent() {
         Intent sendIntent = new Intent(Intent.ACTION_SEND);
         String text = getSceneUrl(sceneToken);
+        sendIntent.setType("text/plain");
+        sendIntent.putExtra(Intent.EXTRA_TEXT, text);
+        return sendIntent;
+    }
+
+    public Intent getPackShareIntent() {
+        Intent sendIntent = new Intent(Intent.ACTION_SEND);
+        String text = getPackUrl(characterToken);
         sendIntent.setType("text/plain");
         sendIntent.putExtra(Intent.EXTRA_TEXT, text);
         return sendIntent;

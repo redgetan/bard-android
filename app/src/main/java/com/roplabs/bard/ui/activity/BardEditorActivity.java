@@ -4,69 +4,40 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.*;
 import android.content.ClipboardManager;
-import android.content.pm.ActivityInfo;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
 import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.ThumbnailUtils;
 import android.net.Uri;
 import android.os.*;
-import android.provider.MediaStore;
 import android.support.design.widget.NavigationView;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.*;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.ImageSpan;
-import android.util.DisplayMetrics;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.internal.crypto.ByteRangeCapturingInputStream;
 import com.bumptech.glide.Glide;
-import com.crashlytics.android.Crashlytics;
-import com.jakewharton.disklrucache.DiskLruCache;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
-import com.roplabs.bard.adapters.InputPagerAdapter;
-import com.roplabs.bard.adapters.ShareListAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
-import com.roplabs.bard.events.*;
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
-import com.roplabs.bard.ui.fragment.VideoResultFragment;
-import com.roplabs.bard.ui.fragment.WordListFragment;
 import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.InputViewPager;
-import com.roplabs.bard.ui.widget.SquareImageView;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
-import io.fabric.sdk.android.services.common.Crash;
 import io.realm.Realm;
-import io.realm.RealmResults;
 import org.apache.commons.collections4.Trie;
 import org.apache.commons.collections4.trie.PatriciaTrie;
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -76,7 +47,6 @@ import retrofit2.Response;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.util.*;
-import java.util.concurrent.CountDownLatch;
 
 import static com.roplabs.bard.ClientApp.getContext;
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
@@ -130,6 +100,7 @@ public class BardEditorActivity extends BaseActivity implements
     private String[] mDrawerItems;
     private ActionBarDrawerToggle mDrawerToggle;
     private CustomDialog loginDialog;
+    private PopupMenu editorMenu;
 
     private Trie<String, String> wordTrie;
     private List<String> lastMergedWordTagList;
@@ -169,7 +140,6 @@ public class BardEditorActivity extends BaseActivity implements
     private Surface previewSurface;
     private View previewOverlay;
     private Runnable fetchWordTagSegmentUrl;
-    private ImageView favoriteBtn;
 
     private int originalVideoHeight = -1;
 
@@ -193,7 +163,6 @@ public class BardEditorActivity extends BaseActivity implements
         wordTagPlayHandler = new Handler();
         inputContainer = (RelativeLayout) findViewById(R.id.input_container);
         progressBar = (ProgressBar) findViewById(R.id.query_video_progress_bar);
-        favoriteBtn = (ImageView) findViewById(R.id.favorite_btn);
         vpPagerContainer = (FrameLayout) findViewById(R.id.vp_pager_container);
         invalidWords = new HashSet<String>();
         editTextContainer = (LinearLayout) findViewById(R.id.bard_text_entry);
@@ -249,19 +218,11 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoPlayer();
 
 
-        initFavorites();
         initEmptyState();
         hideKeyboard();
         initVideoStorage();
         initChatText();
         updatePlayMessageBtnState();
-    }
-
-    private void initFavorites() {
-        Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
-        if (favorite != null) {
-            favoriteBtn.setImageResource(R.drawable.ic_favorite_white_18dp);
-        }
     }
 
     @Override
@@ -366,28 +327,62 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void onMoreBtnClick(View view) {
-        PopupMenu popup = new PopupMenu(this, view);
-        popup.setOnMenuItemClickListener(this);
-        popup.inflate(R.menu.menu_bard_editor_more);
-        popup.show();
+        editorMenu = new PopupMenu(this, view);
+        editorMenu.setOnMenuItemClickListener(this);
+        if (character != null) {
+            editorMenu.inflate(R.menu.menu_pack_editor_more);
+        } else {
+            editorMenu.inflate(R.menu.menu_scene_editor_more);
+            setFavoriteSceneItemState();
+        }
+        editorMenu.show();
+    }
+
+
+    private void setFavoriteSceneItemState() {
+        MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
+        Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
+        if (favorite != null) {
+            item.setTitle("Remove from bookmarks");
+        } else {
+            item.setTitle("Add to bookmarks");
+        }
     }
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
         final Context self = this;
+        String url;
+        Intent intent;
         switch (item.getItemId()) {
             case R.id.share_editor_item:
-                Intent intent = new Intent(this, ShareEditorActivity.class);
+                intent = new Intent(this, ShareEditorActivity.class);
                 intent.putExtra("sceneToken", sceneToken);
                 startActivityForResult(intent, SHARE_SCENE_REQUEST_CODE);
                 return true;
             case R.id.copy_editor_link_item:
-                String url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
+                url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
                 copyEditorLinkToClipboard(url);
                 return true;
             case R.id.view_editor_source_item:
                 String youtubeUrl = "https://www.youtube.com/watch?v=" + sceneToken;
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl)));
+                return true;
+            case R.id.favorite_scene_item:
+                toggleSceneFavorite();
+                return true;
+            case R.id.favorite_pack_item:
+                url = Configuration.bardAPIBaseURL() + "/packs/" + characterToken ;
+                copyEditorLinkToClipboard(url);
+                return true;
+            case R.id.share_pack_item:
+                intent = new Intent(this, ShareEditorActivity.class);
+                intent.putExtra("characterToken", sceneToken);
+                startActivityForResult(intent, SHARE_SCENE_REQUEST_CODE);
+                return true;
+            case R.id.copy_pack_link_item:
+                url = Configuration.bardAPIBaseURL() + "/packs/" + characterToken ;
+                copyEditorLinkToClipboard(url);
                 return true;
             default:
                 return false;
@@ -401,7 +396,7 @@ public class BardEditorActivity extends BaseActivity implements
         Toast.makeText(ClientApp.getContext(), url + " has been copied to clipboard", Toast.LENGTH_SHORT).show();
     }
 
-    public void onFavoriteBtnClick(View view) {
+    public void toggleSceneFavorite() {
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite == null) {
             // create
@@ -415,19 +410,19 @@ public class BardEditorActivity extends BaseActivity implements
     private void doFavoriteScene() {
         // cant upload unless you're loggedin
         if (!Setting.isLogined(this)) {
-            loginDialog = new CustomDialog(this, "You must login to favorite a video");
+            loginDialog = new CustomDialog(this, "You must login to bookmark a video");
             loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             loginDialog.show();
             return;
         }
 
-        favoriteBtn.setEnabled(false);
+        editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(false);
 
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().favoriteScene(sceneToken);
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                favoriteBtn.setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
 
                 if (response.code() != 200) {
                     return;
@@ -436,7 +431,7 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
-                favoriteBtn.setImageResource(R.drawable.ic_favorite_white_18dp);
+                setFavoriteSceneItemState();
 
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
@@ -446,7 +441,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                favoriteBtn.setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
 
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
@@ -458,19 +453,19 @@ public class BardEditorActivity extends BaseActivity implements
     private void doUnfavoriteScene(final Favorite favorite) {
         // cant upload unless you're loggedin
         if (!Setting.isLogined(this)) {
-            loginDialog = new CustomDialog(this, "You must login to favorite a video");
+            loginDialog = new CustomDialog(this, "You must login to bookmark a video");
             loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
             loginDialog.show();
             return;
         }
 
-        favoriteBtn.setEnabled(false);
+        editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(false);
 
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unfavoriteScene(sceneToken);
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                favoriteBtn.setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
 
                 if (response.code() != 200) {
                     return;
@@ -479,7 +474,7 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
-                favoriteBtn.setImageResource(R.drawable.ic_favorite_border_white_18dp);
+                setFavoriteSceneItemState();
 
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
@@ -489,7 +484,7 @@ public class BardEditorActivity extends BaseActivity implements
 
             @Override
             public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                favoriteBtn.setEnabled(true);
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
 
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");

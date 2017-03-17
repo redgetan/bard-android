@@ -1,4 +1,6 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
+<item android:id="@+id/favorite_scene_item"
+      android:title="Add to Bookmarks" />
 <item android:id="@+id/share_editor_item"
       android:title="Share to Friend" />
 <item android:id="@+id/copy_editor_link_item"

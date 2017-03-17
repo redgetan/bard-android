@@ -47,15 +47,6 @@
                           android:orientation="horizontal"
                           android:layout_gravity="right"
             >
-                <ImageView
-                        android:id="@+id/favorite_btn"
-                        android:layout_width="30dp"
-                        android:layout_weight="0.1"
-                        android:padding="2dp"
-                        android:layout_height="match_parent"
-                        android:onClick="onFavoriteBtnClick"
-                        android:src="@drawable/ic_favorite_border_white_18dp"
-                        android:contentDescription="favorite"/>
 
                 <ImageView
                         android:id="@+id/more_btn"
