@@ -17,8 +17,8 @@ public interface BardService {
     @POST("users")
     Call<User> signUp(@Body User user);
 
-    @GET("bundles")
-    Call<List<Character>> listCharacters();
+    @GET("users/{username}/packs")
+    Call<List<Character>> listCharacters(@Path("username") String username);
 
     @GET("scenes")
     Call<List<Scene>> listScenes(@QueryMap Map<String, String> options);

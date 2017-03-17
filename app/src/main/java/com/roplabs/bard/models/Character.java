@@ -20,6 +20,7 @@ public class Character extends RealmObject {
     private String token;
     private String name;
     private String details;
+    private String thumbnailUrl;
     private Boolean isBundleDownloaded;
     private Date createdAt;
 
@@ -58,17 +59,21 @@ public class Character extends RealmObject {
         for (Character character : characters) {
             Character obj = Character.forToken(character.getToken());
             if (obj == null) {
-                Character.create(realm, character.getToken(), character.getName(), character.getDetails());
+                Character.create(realm, character.getToken(), character.getName(), character.getDetails(), character.getThumbnailUrl());
+            } else {
+                obj.setName(character.getName());
+                obj.setThumbnailUrl(character.getThumbnailUrl());
             }
         }
         realm.commitTransaction();
     }
 
-    public static void create(Realm realm, String token, String name, String details) {
+    public static void create(Realm realm, String token, String name, String details, String thumbnailUrl) {
         Character character = realm.createObject(Character.class);
         character.setIsBundleDownloaded(false);
         character.setToken(token);
         character.setName(name);
+        character.setThumbnailUrl(thumbnailUrl);
         character.setDetails(details);
         character.setCreatedAt(new Date(System.currentTimeMillis()));
     }
@@ -89,6 +94,14 @@ public class Character extends RealmObject {
     public void setCreatedAt(Date createdAt) {
 
         this.createdAt = createdAt;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public String getDetails() {

@@ -36,7 +36,6 @@ import retrofit2.Response;
 import java.util.List;
 
 public class CharacterSelectActivity extends BaseActivity {
-    private final int NUM_GRID_COLUMNS = 2;
     private final int BARD_EDITOR_REQUEST_CODE = 1;
 
     private RecyclerView recyclerView;
@@ -65,11 +64,13 @@ public class CharacterSelectActivity extends BaseActivity {
             progressBar.setVisibility(View.VISIBLE);
         }
 
-        syncRemoteData();
+        if (Setting.isLogined(this)) {
+            syncRemoteData();
+        }
     }
 
     private void syncRemoteData() {
-        Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters();
+        Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters(Setting.getUsername(this));
         call.enqueue(new Callback<List<Character>>() {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {

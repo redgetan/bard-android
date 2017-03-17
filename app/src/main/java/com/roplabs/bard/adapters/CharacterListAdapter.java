@@ -5,7 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
 
@@ -52,6 +54,14 @@ public class CharacterListAdapter extends
         TextView textView = viewHolder.indexNameView;
         textView.setText(character.getName());
 
+        ImageView thumbnail = viewHolder.packThumbnail;
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+                .load(character.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(thumbnail);
+
     }
 
     // Return the total count of items
@@ -76,6 +86,7 @@ public class CharacterListAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView indexNameView;
+        public ImageView packThumbnail;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -85,6 +96,7 @@ public class CharacterListAdapter extends
             // to access the context from any ViewHolder instance.
             super(itemView);
             indexNameView = (TextView) itemView.findViewById(R.id.index_name);
+            packThumbnail = (ImageView) itemView.findViewById(R.id.pack_thumbnail);
 
             this.context = context;
             itemView.setOnClickListener(this);

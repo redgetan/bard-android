@@ -60,10 +60,19 @@ public class DBMigration implements RealmMigration {
         }
 
         if (oldVersion == 4) {
-            schema.create("Favorite")
-                    .addField("sceneToken", String.class)
-                    .addField("username", String.class)
-                    .addField("createdAt", Date.class);
+            if (!schema.contains("Favorite")) {
+                schema.create("Favorite")
+                        .addField("sceneToken", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+
+            oldVersion++;
+        }
+
+        if (oldVersion == 5) {
+            schema.get("Character")
+                    .addField("thumbnailUrl", String.class);
 
             oldVersion++;
         }

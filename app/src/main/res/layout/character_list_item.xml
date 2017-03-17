@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout
+<LinearLayout
         xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:paddingTop="10dp"
-              android:paddingBottom="10dp"
-              android:layout_width="wrap_content"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:background="@drawable/selector_grid"
 >
+    <ImageView
+            android:id="@+id/pack_thumbnail"
+            android:layout_width="70dp"
+            android:layout_height="50dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="10dp"
+    />
 
     <TextView
             android:id="@+id/index_name"
-            android:textColor="@color/oil"
-            android:layout_width="match_parent"
-            android:layout_height="25dp"
-            android:layout_marginLeft="10dp"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="13sp"
+            android:textColor="@color/ink"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="0dp"
             android:layout_marginRight="10dp"
     />
-</RelativeLayout>
+</LinearLayout>

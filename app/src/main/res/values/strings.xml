@@ -36,7 +36,7 @@
     <string name="settings_string">Settings</string>
     <string name="search">Search</string>
     <string name="profile">Profile</string>
-    <string name="choose_character">Choose Actor</string>
+    <string name="choose_character">My Packs</string>
     <string name="choose_scene">Choose Video</string>
     <string name="feedback_btn_string">Give Feedback</string>
     <string name="bard_library">My Library</string>
@@ -62,4 +62,5 @@
     <string name="delete">Delete</string>
     <string name="click_to_login">Click to Login</string>
     <string name="publish_repo">Publish</string>
+    <string name="my_packs">Packs</string>
 </resources>

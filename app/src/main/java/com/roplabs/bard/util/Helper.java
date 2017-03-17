@@ -65,6 +65,7 @@ public class Helper {
     public static final int UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER = 4;
     public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
+    public static final int MY_PACKS_DRAWER_ITEM_IDENTIFIER = 7;
 
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
@@ -330,6 +331,7 @@ public class Helper {
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
+                        new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp), // .withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
                         new PrimaryDrawerItem().withName(R.string.settings_string).withTextColor(textColor).withIdentifier(PROFILE_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_settings_black_24dp)
@@ -343,6 +345,10 @@ public class Helper {
                         switch ((int) drawerItem.getIdentifier()) {
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case MY_PACKS_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), CharacterSelectActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER:
