@@ -228,9 +228,9 @@ public class BardEditorActivity extends BaseActivity implements
         lastMergedWordTagList = new ArrayList<String>();
 
         Intent intent = getIntent();
-        characterToken = "";
+        characterToken = intent.getStringExtra("characterToken");
         sceneToken = intent.getStringExtra("sceneToken");
-
+        character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
         notifyInvalidWordsHandler = new Handler();
@@ -602,10 +602,12 @@ public class BardEditorActivity extends BaseActivity implements
     private void initChatText() {
         clearChatCursor();
 
-        if (scene == null) {
-            createSceneWithWordList();
-        } else {
+        if (character != null) {
+            initCharacterWordList();
+        } else if (scene != null) {
             initSceneWordList();
+        } else {
+            createSceneWithWordList();
         }
     }
 

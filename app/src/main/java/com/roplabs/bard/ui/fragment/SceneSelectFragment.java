@@ -196,6 +196,7 @@ public class SceneSelectFragment extends Fragment {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
                 Intent intent = new Intent(self, BardEditorActivity.class);
+                intent.putExtra("characterToken", "");
                 intent.putExtra("sceneToken", scene.getToken());
                 BardLogger.trace("[sceneSelect] " + scene.getToken());
                 startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);

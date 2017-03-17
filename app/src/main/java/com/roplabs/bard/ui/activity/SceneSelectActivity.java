@@ -112,6 +112,7 @@ public class SceneSelectActivity extends BaseActivity  {
 
         if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
+            newIntent.putExtra("characterToken", "");
             newIntent.putExtra("sceneToken", sceneToken);
             BardLogger.trace("[sceneSelect] " + sceneToken);
             startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
