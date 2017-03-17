@@ -22,6 +22,7 @@ public class Character extends RealmObject {
     private String details;
     private String thumbnailUrl;
     private String wordListByScene;
+    private String owner;
     private Integer timestamp;
     private Boolean isBundleDownloaded;
     private Date createdAt;
@@ -96,6 +97,15 @@ public class Character extends RealmObject {
 
     public String getName() {
         return name;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getOwner() {
+        if (owner == null) return  "";
+        return owner;
     }
 
     public Date getCreatedAt() {

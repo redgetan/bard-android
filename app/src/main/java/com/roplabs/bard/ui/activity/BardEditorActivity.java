@@ -49,6 +49,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static com.roplabs.bard.ClientApp.getContext;
+import static com.roplabs.bard.util.Helper.SHARE_PACK_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.SHARE_SCENE_REQUEST_CODE;
 
@@ -331,6 +332,7 @@ public class BardEditorActivity extends BaseActivity implements
         editorMenu.setOnMenuItemClickListener(this);
         if (character != null) {
             editorMenu.inflate(R.menu.menu_pack_editor_more);
+            setFavoritePackItemState();
         } else {
             editorMenu.inflate(R.menu.menu_scene_editor_more);
             setFavoriteSceneItemState();
@@ -346,6 +348,23 @@ public class BardEditorActivity extends BaseActivity implements
             item.setTitle("Remove from bookmarks");
         } else {
             item.setTitle("Add to bookmarks");
+        }
+    }
+
+    private void setFavoritePackItemState() {
+        MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_pack_item);
+        String username = Setting.getUsername(this);
+        if (character.getOwner().equals(username)) {
+            item.setTitle("You own this pack");
+            item.setEnabled(false);
+            return;
+        }
+
+        UserPack userPack = UserPack.forPackTokenAndUsername(characterToken, username);
+        if (userPack != null) {
+            item.setTitle("Remove from packs");
+        } else {
+            item.setTitle("Add to packs");
         }
     }
 
@@ -372,13 +391,13 @@ public class BardEditorActivity extends BaseActivity implements
                 toggleSceneFavorite();
                 return true;
             case R.id.favorite_pack_item:
-                url = Configuration.bardAPIBaseURL() + "/packs/" + characterToken ;
-                copyEditorLinkToClipboard(url);
+                togglePackFavorite();
+
                 return true;
             case R.id.share_pack_item:
                 intent = new Intent(this, ShareEditorActivity.class);
-                intent.putExtra("characterToken", sceneToken);
-                startActivityForResult(intent, SHARE_SCENE_REQUEST_CODE);
+                intent.putExtra("characterToken", characterToken);
+                startActivityForResult(intent, SHARE_PACK_REQUEST_CODE);
                 return true;
             case R.id.copy_pack_link_item:
                 url = Configuration.bardAPIBaseURL() + "/packs/" + characterToken ;
@@ -407,6 +426,110 @@ public class BardEditorActivity extends BaseActivity implements
         }
     }
 
+    public void togglePackFavorite() {
+        UserPack favorite = UserPack.forPackTokenAndUsername(characterToken, Setting.getUsername(this));
+        if (favorite == null) {
+            // create
+            doFavoritePack();
+        } else {
+            // delete
+            doUnfavoritePack(favorite);
+        }
+    }
+
+    private void doFavoritePack() {
+        // anonymous user, save pack locally only
+        if (!Setting.isLogined(this)) {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            UserPack.create(realm, characterToken, Setting.getUsername(ClientApp.getContext()));
+            realm.commitTransaction();
+            setFavoritePackItemState();
+
+            return;
+        }
+
+        editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(false);
+
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().favoritePack(characterToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                UserPack.create(realm, characterToken, Setting.getUsername(ClientApp.getContext()));
+                realm.commitTransaction();
+
+                setFavoritePackItemState();
+
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                editorMenu.getMenu().findItem(R.id.favorite_pack_item).setEnabled(true);
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
+    }
+
+    private void doUnfavoritePack(final UserPack userPack) {
+        // anonymous user, save pack locally only
+        if (!Setting.isLogined(this)) {
+            Realm realm = Realm.getDefaultInstance();
+            realm.beginTransaction();
+            userPack.deleteFromRealm();
+            realm.commitTransaction();
+            setFavoritePackItemState();
+
+            return;
+        }
+
+        editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(false);
+
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unfavoritePack(characterToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                userPack.deleteFromRealm();
+                realm.commitTransaction();
+
+                setFavoritePackItemState();
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                editorMenu.getMenu().findItem(R.id.favorite_scene_item).setEnabled(true);
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
+    }
+
     private void doFavoriteScene() {
         // cant upload unless you're loggedin
         if (!Setting.isLogined(this)) {
@@ -431,12 +554,12 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
-                setFavoriteSceneItemState();
-
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 Favorite.create(realm, sceneToken, Setting.getUsername(ClientApp.getContext()));
                 realm.commitTransaction();
+
+                setFavoriteSceneItemState();
             }
 
             @Override
@@ -474,12 +597,12 @@ public class BardEditorActivity extends BaseActivity implements
                 progressBar.setVisibility(View.GONE);
                 debugView.setText("");
 
-                setFavoriteSceneItemState();
-
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
                 favorite.deleteFromRealm();
                 realm.commitTransaction();
+
+                setFavoriteSceneItemState();
             }
 
             @Override
@@ -599,12 +722,18 @@ public class BardEditorActivity extends BaseActivity implements
     private void initChatText() {
         clearChatCursor();
 
-        if (character != null) {
-            initCharacterWordList();
-        } else if (scene != null) {
-            initSceneWordList();
-        } else {
-            createSceneWithWordList();
+        if (!characterToken.isEmpty()) {
+            if (character != null) {
+                initCharacterWordList();
+            } else {
+                createCharacterWithWordList();
+            }
+        } else if (!sceneToken.isEmpty()) {
+            if (scene != null) {
+                initSceneWordList();
+            } else {
+                createSceneWithWordList();
+            }
         }
     }
 

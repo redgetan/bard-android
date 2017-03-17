@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -43,6 +44,9 @@ public class CharacterSelectActivity extends BaseActivity {
 
     private RecyclerView recyclerView;
     private ProgressBar progressBar;
+    private FrameLayout emptyStateContainer;
+    private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,21 +63,40 @@ public class CharacterSelectActivity extends BaseActivity {
 
         progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
 
+        initEmptyState();
 
         RealmResults<Character> characters = UserPack.packsForUser(Setting.getUsername(this));
         displayCharacterList(characters);
 
-        if (characters.size() == 0) {
-            progressBar.setVisibility(View.VISIBLE);
-        }
 
         if (Setting.isLogined(this)) {
+            if (characters.size() == 0) {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+
             syncRemoteData();
+        } else {
+            if (characters.size() == 0) {
+                emptyStateContainer.setVisibility(View.VISIBLE);
+            }
+
         }
+    }
+
+    private void initEmptyState() {
+        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_no_internet_container);
+        emptyStateTitle = (TextView) findViewById(R.id.empty_state_title);
+        emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
+
+        emptyStateTitle.setText("Packs - combine multiple videos");
+        emptyStateDescription.setText("Visit https://bard.co/pack_builder from desktop browser while logged-in to create packs and list them here. ");
+
+        emptyStateContainer.setVisibility(View.GONE);
     }
 
     private void syncRemoteData() {
         // this fetches packs created by user
+
         final String username = Setting.getUsername(this);
         Call<List<Character>> call = BardClient.getAuthenticatedBardService().listCharacters(username);
         call.enqueue(new Callback<List<Character>>() {
@@ -100,6 +123,10 @@ public class CharacterSelectActivity extends BaseActivity {
                 realm.commitTransaction();
 
                 RealmResults<Character> characters = UserPack.packsForUser(username);
+
+                if (characters.isEmpty()) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                }
 
                 progressBar.setVisibility(View.GONE);
                 ((CharacterListAdapter) recyclerView.getAdapter()).swap(characters);

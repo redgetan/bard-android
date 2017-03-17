@@ -109,12 +109,19 @@ public class SceneSelectActivity extends BaseActivity  {
     private void deepLinkNavigate() {
         Intent intent = getIntent();
         String sceneToken;
+        String characterToken;
 
         if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
             newIntent.putExtra("characterToken", "");
             newIntent.putExtra("sceneToken", sceneToken);
-            BardLogger.trace("[sceneSelect] " + sceneToken);
+            BardLogger.trace("[sceneDeepLink] " + sceneToken);
+            startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
+        } else if ((characterToken = intent.getStringExtra("packTokenEditorDeepLink")) != null) {
+            Intent newIntent = new Intent(this, BardEditorActivity.class);
+            newIntent.putExtra("characterToken", characterToken);
+            newIntent.putExtra("sceneToken", "");
+            BardLogger.trace("[packDeepLink] " + characterToken);
             startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
         }
     }

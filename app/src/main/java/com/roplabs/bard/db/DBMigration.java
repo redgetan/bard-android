@@ -96,6 +96,15 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 8
+        if (oldVersion == 7) {
+            schema.get("Character")
+                    .addField("owner", String.class);
+
+
+            oldVersion++;
+        }
+
     }
 }
 

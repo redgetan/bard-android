@@ -46,5 +46,11 @@ public interface BardService {
 
     @POST("repos/{repoToken}/delete")
     Call<HashMap<String, String>> deleteRepo(@Path("repoToken") String repoToken);
+
+    @POST("packs/{packToken}/favorite")
+    Call<HashMap<String, String>> favoritePack(@Path("packToken") String packToken);
+
+    @POST("packs/{packToken}/unfavorite")
+    Call<HashMap<String, String>> unfavoritePack(@Path("packToken") String packToken);
 }
 
