@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +47,6 @@ public class SceneSelectFragment extends Fragment {
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
 
-    private String lastSearch;
     private HashMap<String, List<Scene>> sceneListCache;
     private int sceneListCacheExpiry;
     private RecyclerView recyclerView;
@@ -98,7 +98,6 @@ public class SceneSelectFragment extends Fragment {
     }
 
     private void initSearch() {
-        lastSearch = "";
 
         // hide keyboard on focus out
         final Context self = this.getActivity();
@@ -111,7 +110,35 @@ public class SceneSelectFragment extends Fragment {
                 }
             }
         });
+
+
+        // handle search
+        searchBar.setOnKeyListener(new View.OnKeyListener() {
+            @Override
+            public boolean onKey(View v, int keyCode, KeyEvent event) {
+                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
+                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
+                    // Perform action on key press
+                    performSearch(searchBar.getText().toString());
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        searchTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                performSearch(searchBar.getText().toString());
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
     }
+
 
     private void initEmptyState(View view) {
         emptyStateContainer = (FrameLayout) view.findViewById(R.id.empty_state_no_internet_container);
@@ -122,33 +149,22 @@ public class SceneSelectFragment extends Fragment {
     }
 
     public void performSearch(String text) {
-        if (lastSearch.equals(text)) return; // avoids accidental DDOS
         hideEmptySearchMessage();
 
         sceneList.clear();
         recyclerView.getAdapter().notifyDataSetChanged();
         scrollListener.resetState();
 
-        JSONObject properties = new JSONObject();
-        Bundle params = new Bundle();
-
-        try {
-            properties.put("text", text);
-            params.putString("text", text);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            CrashReporter.logException(e);
-        }
-        Analytics.track(ClientApp.getContext(), "search", properties);
-        Analytics.track(ClientApp.getContext(), "search", params);
-
         Map<String, String> map = new HashMap<String, String>();
         map.put("page",String.valueOf(1));
-        map.put("search", text);
-        map.put("type",getSearchType());
-        syncRemoteData(map);
 
-        lastSearch = text;
+        if (!getSearchQuery().isEmpty()) {
+            map.put("search", text);
+            map.put("type",getSearchType());
+        }
+
+        map.put("category", sceneType);
+        syncRemoteData(map);
     }
 
     private String getSearchType() {
@@ -171,6 +187,15 @@ public class SceneSelectFragment extends Fragment {
         if (cachedScenes != null) {
             populateScenes(cachedScenes, options);
             return;
+        }
+
+
+        // track search
+        if (options.get("search") != null) {
+            Bundle params = new Bundle();
+            params.putString("text", options.get("search"));
+            params.putString("type", options.get("type"));
+            Analytics.track(ClientApp.getContext(), "search", params);
         }
 
 

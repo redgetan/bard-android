@@ -702,20 +702,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void initAnalytics() {
-        JSONObject properties = new JSONObject();
         Bundle params = new Bundle();
-
-        try {
-            properties.put("sceneToken", sceneToken);
-            properties.put("scene", scene.getName());
-
-            params.putString("sceneToken", sceneToken);
-            params.putString("scene", scene.getName());
-        } catch (JSONException e) {
-            e.printStackTrace();
-            CrashReporter.logException(e);
-        }
-        Analytics.track(this, "compose", properties);
+        params.putString("sceneToken", sceneToken);
+        params.putString("scene", scene.getName());
         Analytics.track(this, "compose", params);
     }
 
@@ -1741,35 +1730,18 @@ public class BardEditorActivity extends BaseActivity implements
 
     private void trackGenerateBardVideo() {
 
-        JSONObject properties = new JSONObject();
         Bundle params = new Bundle();
 
-        try {
-            properties.put("wordTags", lastMergedWordTagList);
-            if (scene != null) {
-                properties.put("sceneToken", sceneToken);
-                properties.put("scene", scene.getName());
-            } else if (character != null) {
-                properties.put("packToken", characterToken);
-                properties.put("pack", character.getName());
-            }
-            properties.put("length", lastMergedWordTagList.size());
-
-            params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
-            if (scene != null) {
-                params.putString("sceneToken", sceneToken);
-                params.putString("scene", scene.getName());
-            } else if (character != null) {
-                params.putString("packToken", characterToken);
-                params.putString("pack", character.getName());
-            }
-            params.putString("length", String.valueOf(lastMergedWordTagList.size()));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            CrashReporter.logException(e);
+        params.putString("wordTags", TextUtils.join(",", lastMergedWordTagList));
+        if (scene != null) {
+            params.putString("sceneToken", sceneToken);
+            params.putString("scene", scene.getName());
+        } else if (character != null) {
+            params.putString("packToken", characterToken);
+            params.putString("pack", character.getName());
         }
+        params.putString("length", String.valueOf(lastMergedWordTagList.size()));
 
-        Analytics.track(this, "generateBardVideo", properties);
         Analytics.track(this, "generateBardVideo", params);
     }
 

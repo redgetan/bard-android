@@ -96,17 +96,8 @@ public class UploadVideoActivity extends BaseActivity {
                     uploadResultMessage.setText(result.get("result"));
                     uploadResultMessage.setTextColor(ContextCompat.getColor(ClientApp.getContext(), R.color.md_green_300));
 
-                    JSONObject properties = new JSONObject();
                     Bundle params = new Bundle();
-                    try {
-                        properties.put("youtubeUrl", youtubeUrl);
-                        params.putString("youtubeUrl", youtubeUrl);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                        CrashReporter.logException(e);
-                    }
-
-                    Analytics.track(ClientApp.getContext(), "uploadVideo", properties);
+                    params.putString("youtubeUrl", youtubeUrl);
                     Analytics.track(ClientApp.getContext(), "uploadVideo", params);
 
                 }

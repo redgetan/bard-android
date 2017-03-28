@@ -559,21 +559,10 @@ public class Helper {
         if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
             repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
-            JSONObject properties = new JSONObject();
             Bundle params = new Bundle();
-            try {
-                properties.put("wordTags", wordList);
-                properties.put("sceneToken", sceneToken);
-                properties.put("scene", sceneName);
-
-                params.putString("wordTags", wordList);
-                params.putString("sceneToken", sceneToken);
-                params.putString("scene", sceneName);
-            } catch (JSONException e) {
-                e.printStackTrace();
-                CrashReporter.logException(e);
-            }
-            Analytics.track(ClientApp.getContext(), "saveRepo", properties);
+            params.putString("wordTags", wordList);
+            params.putString("sceneToken", sceneToken);
+            params.putString("scene", sceneName);
             Analytics.track(ClientApp.getContext(), "saveRepo", params);
 
             listener.onSaved(repo);

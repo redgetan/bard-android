@@ -134,17 +134,8 @@ public class SearchResultFragment extends Fragment {
         recyclerView.getAdapter().notifyDataSetChanged();
         scrollListener.resetState();
 
-        JSONObject properties = new JSONObject();
         Bundle params = new Bundle();
-
-        try {
-            properties.put("text", text);
-            params.putString("text", text);
-        } catch (JSONException e) {
-            e.printStackTrace();
-            CrashReporter.logException(e);
-        }
-        Analytics.track(ClientApp.getContext(), "search", properties);
+        params.putString("text", text);
         Analytics.track(ClientApp.getContext(), "search", params);
 
         Map<String, String> map = new HashMap<String, String>();

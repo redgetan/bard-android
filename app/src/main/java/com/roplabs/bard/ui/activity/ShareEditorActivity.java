@@ -226,39 +226,18 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     }
 
     private void trackSharing(String medium) {
-        JSONObject properties = new JSONObject();
         Bundle params = new Bundle();
 
-        try {
-            if (repo != null) {
-                // repo share properties
-                properties.put("medium", medium);
-                properties.put("sceneName", sceneName);
-                properties.put("sceneToken", sceneToken);
-                properties.put("wordTags", Arrays.asList(wordTagListString.split(",")));
+        params.putString("medium", medium);
+        params.putString("sceneName", sceneName);
+        params.putString("sceneToken", sceneToken);
 
-                params.putString("medium", medium);
-                params.putString("sceneName", sceneName);
-                params.putString("sceneToken", sceneToken);
-                params.putString("wordTags", wordTagListString);
-            } else {
-                // scene share properties
-                properties.put("medium", medium);
-                properties.put("sceneName", sceneName);
-                properties.put("sceneToken", sceneToken);
-                properties.put("shareType", "scene");
-
-                params.putString("medium", medium);
-                params.putString("sceneName", sceneName);
-                params.putString("sceneToken", sceneToken);
-                params.putString("shareType", "scene");
-
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-            CrashReporter.logException(e);
+        if (repo != null) {
+            params.putString("wordTags", wordTagListString);
+        } else {
+            params.putString("shareType", "scene");
         }
-        Analytics.track(this, "shareSocialAttempt", properties);
+
         Analytics.track(this, "shareSocialAttempt", params);
     }
 
