@@ -10,8 +10,8 @@ import com.roplabs.bard.util.Helper;
 
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
-            Helper.POPULAR_SCENE_TYPE,
-            Helper.FAVORITES_SCENE_TYPE
+            Helper.ONLINE_LIBRARY,
+            Helper.MY_VIDEOS
     };
     private Context context;
 
@@ -34,10 +34,12 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
-        if (tabTitles[position].equals(Helper.FAVORITES_SCENE_TYPE)) {
-            return "Bookmarks";
+        if (tabTitles[position].equals(Helper.MY_VIDEOS)) {
+            return "My Videos";
+        } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
+            return "All";
         } else {
-            return capitalize(tabTitles[position]);
+            return "All";
         }
     }
 

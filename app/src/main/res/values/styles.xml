@@ -55,7 +55,7 @@
     </style>
 
     <style name="SceneSelectTabLayout" parent="Widget.Design.TabLayout">
-        <item name="tabBackground">@color/dark_gray</item>
+        <item name="tabBackground">@color/purple</item>
         <item name="tabPaddingStart">12dp</item>
         <item name="tabPaddingEnd">12dp</item>
         <item name="tabTextAppearance">@style/MyCustomTabTextAppearance</item>

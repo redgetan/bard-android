@@ -43,7 +43,7 @@ import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
-public class SceneSelectActivity extends BaseActivity  {
+public class SceneSelectActivity extends BaseActivity {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
 

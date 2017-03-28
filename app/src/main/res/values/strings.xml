@@ -13,6 +13,10 @@
     <string name="button_play_video">Play Video</string>
     <string name="button_play_all">Generate</string>
     <string name="no_network_connection">No network connection. </string>
+    <string-array name="scene_search_types">
+        <item>Words</item>
+        <item>Title</item>
+    </string-array>
     <string-array name="drawer_items">
         <item>Create</item>
         <item>Explore</item>

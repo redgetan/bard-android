@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,11 +10,15 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
+import com.roplabs.bard.adapters.SearchListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Favorite;
 import com.roplabs.bard.models.Scene;
@@ -23,6 +28,8 @@ import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import org.json.JSONException;
+import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -50,6 +57,9 @@ public class SceneSelectFragment extends Fragment {
     public List<Scene> sceneList;
     private EndlessRecyclerViewScrollListener scrollListener;
     private String sceneType;
+    private EditText searchBar;
+
+    private SearchListAdapter searchListAdapter;
 
     public static SceneSelectFragment newInstance(String sceneType, int page) {
         Bundle args = new Bundle();
@@ -76,15 +86,33 @@ public class SceneSelectFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.scene_list);
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
+        searchBar = (EditText) view.findViewById(R.id.scene_search_input);
         sceneListCache = new HashMap<String, List<Scene>>();
         sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
 
         initEmptyState(view);
         initScenes();
+        initSearch();
+
 
         return view;
     }
 
+    private void initSearch() {
+        lastSearch = "";
+
+        // hide keyboard on focus out
+        final Context self = this.getActivity();
+        searchBar.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                        InputMethodManager imm = (InputMethodManager) self.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        imm.hideSoftInputFromWindow(searchBar.getWindowToken(), 0);
+                }
+            }
+        });
+    }
 
     private void initEmptyState(View view) {
         emptyStateContainer = (FrameLayout) view.findViewById(R.id.empty_state_no_internet_container);
@@ -94,8 +122,54 @@ public class SceneSelectFragment extends Fragment {
         emptyStateContainer.setVisibility(View.GONE);
     }
 
+    public void performSearch(String text) {
+        if (lastSearch.equals(text)) return; // avoids accidental DDOS
+        hideEmptySearchMessage();
+
+        sceneList.clear();
+        recyclerView.getAdapter().notifyDataSetChanged();
+        scrollListener.resetState();
+
+        JSONObject properties = new JSONObject();
+        Bundle params = new Bundle();
+
+        try {
+            properties.put("text", text);
+            params.putString("text", text);
+        } catch (JSONException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        }
+        Analytics.track(ClientApp.getContext(), "search", properties);
+        Analytics.track(ClientApp.getContext(), "search", params);
+
+        Map<String, String> map = new HashMap<String, String>();
+        map.put("page",String.valueOf(1));
+        map.put("search", text);
+        map.put("type",getSearchType());
+        syncRemoteData(map);
+
+        lastSearch = text;
+    }
+
+    private String getSearchType() {
+        if (mPage == 1) {
+            return "title";
+        } else if (mPage == 2) {
+            return "words";
+        } else {
+            return "";
+        }
+    }
+
     private void hideEmptySearchMessage() {
         emptyStateContainer.setVisibility(View.GONE);
+    }
+
+    private void displayEmptySearchMessage() {
+        emptyStateTitle.setText("No results found");
+        emptyStateDescription.setText("Try another search or upload an existing video");
+        emptyStateContainer.setVisibility(View.VISIBLE);
     }
 
 
@@ -131,7 +205,15 @@ public class SceneSelectFragment extends Fragment {
                         syncRemoteFavoritesToLocal(remoteSceneList);
                         sceneListCache.put(getCacheKey(options), remoteSceneList);
                     }
+                } else if (remoteSceneList.isEmpty() && options.containsKey("page") && options.get("page").equals("1")) {
+
+                    // when performing a search, it will do two requests if initial list is < threshold for pagination trigger
+                    // in that case, the 2nd request will be empty (but since first request contains results, we dont want
+                    // to display no results found message
+                    // ONLY TRIGGER THIS FOR REMOTE SEARCH ON PUBLIC BOARD THOUGH, if its searching on own board, empty search doesnt make sense??
+                    displayEmptySearchMessage();
                 } else {
+
                     hideEmptySearchMessage();
                     populateScenes(remoteSceneList, options);
                     sceneListCache.put(getCacheKey(options), remoteSceneList);
@@ -230,7 +312,18 @@ public class SceneSelectFragment extends Fragment {
         data.put("page", String.valueOf(page));
         data.put("category", sceneType);
 
+        String search = getSearchQuery();
+
+        if (!search.isEmpty()) {
+            data.put("search", search);
+            data.put("type", getSearchType());
+        }
+
         syncRemoteData(data);
+    }
+
+    private String getSearchQuery() {
+        return searchBar.getText().toString();
     }
 
     private String getCacheKey(Map<String, String> options) {

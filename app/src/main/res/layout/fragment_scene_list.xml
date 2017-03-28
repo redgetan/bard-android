@@ -3,6 +3,35 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
+    <LinearLayout
+            android:id="@+id/scene_search_container"
+                  android:layout_width="match_parent"
+                  android:layout_height="50dp"
+            android:orientation="horizontal"
+                  android:background="@color/iron"
+                  android:padding="10dp"
+    >
+        <EditText
+                  android:id="@+id/scene_search_input"
+                  android:layout_width="match_parent"
+                  android:layout_height="match_parent"
+                  android:layout_weight="1"
+                  android:background="@color/white"
+                  android:hint="Search"
+                  android:textColorHint="@color/base"
+                  android:paddingLeft="10dp"
+        />
+
+        <Spinner
+                android:id="@+id/planets_spinner"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:entries="@array/scene_search_types"
+        />
+
+        />
+
+    </LinearLayout>
 
 <include
         layout="@layout/empty_no_internet"
