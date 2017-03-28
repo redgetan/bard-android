@@ -46,7 +46,7 @@ import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
 public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
-    private static final int MAX_SCENE_COMBO_LENGTH = 5;
+    private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
 
