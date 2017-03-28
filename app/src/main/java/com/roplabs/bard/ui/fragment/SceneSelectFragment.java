@@ -11,10 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
@@ -58,6 +55,7 @@ public class SceneSelectFragment extends Fragment {
     private EndlessRecyclerViewScrollListener scrollListener;
     private String sceneType;
     private EditText searchBar;
+    private Spinner searchTypeSpinner;
 
     private SearchListAdapter searchListAdapter;
 
@@ -87,6 +85,7 @@ public class SceneSelectFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.scene_list);
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
+        searchTypeSpinner = (Spinner) view.findViewById(R.id.scene_search_spinner);
         sceneListCache = new HashMap<String, List<Scene>>();
         sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
 
@@ -153,13 +152,7 @@ public class SceneSelectFragment extends Fragment {
     }
 
     private String getSearchType() {
-        if (mPage == 1) {
-            return "title";
-        } else if (mPage == 2) {
-            return "words";
-        } else {
-            return "";
-        }
+        return searchTypeSpinner.getSelectedItem().toString().toLowerCase();
     }
 
     private void hideEmptySearchMessage() {
@@ -328,12 +321,15 @@ public class SceneSelectFragment extends Fragment {
 
     private String getCacheKey(Map<String, String> options) {
         String search = options.get("search");
+        String searchType = options.get("type");
 
-        if (search == null) {
-            return options.get("page");
-        } else {
-            return options.get("page") + search;
+        String cacheKey = options.get("page");
+
+        if (search != null) {
+            cacheKey = cacheKey + search + searchType;
         }
+
+        return cacheKey;
 
     }
 
