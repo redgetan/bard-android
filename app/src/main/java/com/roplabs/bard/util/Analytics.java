@@ -3,7 +3,6 @@ package com.roplabs.bard.util;
 import android.content.Context;
 import android.os.Bundle;
 import com.google.firebase.analytics.FirebaseAnalytics;
-import com.mixpanel.android.mpmetrics.MixpanelAPI;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Setting;
@@ -14,29 +13,17 @@ import java.util.Date;
 import java.util.Iterator;
 
 public class Analytics {
-    private static MixpanelAPI mixpanel;
     private static FirebaseAnalytics mFirebaseAnalytics;
+    private static long startTime;
+    private static long endTime;
 
 
     public static void identify(Context context) {
-        getMixpanelInstance(context).identify(Setting.getUsername(context));
-        getMixpanelInstance(context).getPeople().identify(Setting.getUsername(context));
-        getMixpanelInstance(context).getPeople().set("$name", Setting.getUsername(context));
-        getMixpanelInstance(context).getPeople().set("$email", Setting.getEmail(context));
 
     }
 
     public static void identify(Context context, Date createdAt) {
         identify(context);
-        getMixpanelInstance(context).getPeople().set("$created", createdAt);
-    }
-
-    public static MixpanelAPI getMixpanelInstance(Context context) {
-        if (mixpanel == null ) {
-            mixpanel = MixpanelAPI.getInstance(context, Configuration.mixpanelAPIKey());
-        }
-
-        return mixpanel;
     }
 
     public static FirebaseAnalytics getFirebaseInstance(Context context) {
@@ -49,22 +36,22 @@ public class Analytics {
 
 
     public static void timeEvent(Context context, String event) {
-        getMixpanelInstance(context).timeEvent(event);
+        startTime = System.currentTimeMillis();
+
     }
 
     public static void track(Context context, String event) {
-        getMixpanelInstance(context).track(event);
-    }
 
-    public static void track(Context context, String event, JSONObject properties) {
-        getMixpanelInstance(context).track(event, properties);
     }
 
     public static void track(Context context, String event, Bundle properties) {
+        endTime = System.currentTimeMillis();
+        if (event.equals("generateBardVideo")) {
+            long duration = (endTime - startTime) / 1000;
+            BardLogger.log("generateBardVideo took: " + duration + " seconds");
+            properties.putString("duration", String.valueOf(duration));
+        }
         getFirebaseInstance(context).logEvent(event, properties);
     }
 
-    public static void sendQueuedEvents(Context context) {
-        getMixpanelInstance(context).flush();
-    }
 }

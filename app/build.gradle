@@ -76,7 +76,6 @@ dependencies {
         transitive = true
     }
     compile 'com.google.android.gms:play-services-base:10.2.0'
-    compile "com.mixpanel.android:mixpanel-android:4.9.1"
 
     debugCompile 'com.squareup.haha:haha:2.0.3'
     debugCompile 'com.squareup.leakcanary:leakcanary-android:1.4-beta2'

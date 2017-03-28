@@ -89,8 +89,6 @@ public class SceneSelectActivity extends BaseActivity {
 
             @Override
             public void onPageSelected(int position) {
-                SceneSelectFragment page = (SceneSelectFragment) getSupportFragmentManager().findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + position);
-                page.displayResults();
             }
 
             @Override

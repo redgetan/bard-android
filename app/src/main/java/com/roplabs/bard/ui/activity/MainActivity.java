@@ -86,7 +86,6 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void onDestroy() {
-        Analytics.sendQueuedEvents(this);
         super.onDestroy();
     }
 

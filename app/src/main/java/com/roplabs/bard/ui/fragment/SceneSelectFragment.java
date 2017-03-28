@@ -99,14 +99,11 @@ public class SceneSelectFragment extends Fragment {
 
     private void initSearch() {
 
-        // hide keyboard on focus out
-        final Context self = this.getActivity();
         searchBar.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (!hasFocus) {
-                        InputMethodManager imm = (InputMethodManager) self.getSystemService(Activity.INPUT_METHOD_SERVICE);
-                        imm.hideSoftInputFromWindow(searchBar.getWindowToken(), 0);
+                    hideKeyboard();
                 }
             }
         });
@@ -120,6 +117,8 @@ public class SceneSelectFragment extends Fragment {
                         (keyCode == KeyEvent.KEYCODE_ENTER)) {
                     // Perform action on key press
                     performSearch(searchBar.getText().toString());
+                    hideKeyboard();
+
                     return true;
                 }
                 return false;
@@ -137,6 +136,11 @@ public class SceneSelectFragment extends Fragment {
 
             }
         });
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getActivity().getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchBar.getWindowToken(), 0);
     }
 
 
@@ -207,6 +211,7 @@ public class SceneSelectFragment extends Fragment {
         call.enqueue(new Callback<List<Scene>>() {
             @Override
             public void onResponse(Call<List<Scene>> call, Response<List<Scene>> response) {
+                progressBar.setVisibility(View.GONE);
                 List<Scene> remoteSceneList = response.body();
 
                 if (remoteSceneList == null) {
@@ -216,6 +221,7 @@ public class SceneSelectFragment extends Fragment {
                 } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
                     // maybe empty on server (i.e. page 2 empty), but if page 1 has results or local db has favorites, then dont say empty
                     if (remoteSceneList.isEmpty() && sceneList.isEmpty()) {
+                        showEmptyBookmarkMessage();
                     } else {
                         // add remote favorite to local if missing
                         hideEmptySearchMessage();
@@ -362,53 +368,20 @@ public class SceneSelectFragment extends Fragment {
     public void onResume() {
         BardLogger.log("SceneSelect onResume");
 
+        sceneListCache.clear();
         int timeNow = Calendar.getInstance().get(Calendar.SECOND);
         if (timeNow > sceneListCacheExpiry) {
-            sceneListCache.clear();
         }
 
-
-        // for category "popular" (we want to also display results right away on fragment visible)
-        // fetch data if blank (i.e. previously no internet connection)
-        if (sceneType.equals(Helper.POPULAR_SCENE_TYPE) && recyclerView.getAdapter().getItemCount() == 0) {
-            displayResults();
-        } else if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            displayResults();
-        } else {
-
-        }
-
+        // refresh data
+        performSearch(getSearchQuery());
 
         super.onResume();
     }
 
-    public void displayFavorites() {
-        // fetch from local db
-        RealmResults<Scene> localFavorites = Scene.favoritesForUsername(Setting.getUsername(getActivity()));
-        this.sceneList = new ArrayList<Scene>(localFavorites);
-        SceneListAdapter adapter = new SceneListAdapter(getActivity(), this.sceneList);
-        recyclerView.setAdapter(adapter);
-        recyclerView.getAdapter().notifyDataSetChanged();
-        scrollListener.resetState();
-
-        if (localFavorites.isEmpty()) {
-            emptyStateContainer.setVisibility(View.VISIBLE);
-            emptyStateTitle.setText("No Bookmarks");
-            emptyStateDescription.setText("Start adding videos that you like to your bookmarks");
-        } else {
-            hideEmptySearchMessage();
-        }
+    private void showEmptyBookmarkMessage() {
+        emptyStateContainer.setVisibility(View.VISIBLE);
+        emptyStateTitle.setText("No results");
     }
 
-    public void displayResults() {
-        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            displayFavorites();
-            return;
-        }
-
-        Map<String, String> map = new HashMap<String, String>();
-        map.put("page",String.valueOf(1));
-        map.put("category", sceneType);
-        syncRemoteData(map);
-    }
 }
