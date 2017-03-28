@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -45,6 +46,7 @@ import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
 public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
+    private static final int MAX_SCENE_COMBO_LENGTH = 5;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
 
@@ -58,6 +60,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     private List<Scene> sceneComboList;
     private Button clearSceneComboButton;
     private Button enterSceneComboButton;
+    private ProgressBar sceneDownloadProgress;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,6 +92,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         sceneComboListContainer = (LinearLayout) findViewById(R.id.scene_combo_list_container);
         clearSceneComboButton = (Button) findViewById(R.id.clear_scene_combo_btn);
         enterSceneComboButton = (Button) findViewById(R.id.enter_scene_combo_btn);
+        sceneDownloadProgress = (ProgressBar) findViewById(R.id.scene_download_progress);
 
         sceneComboList = new ArrayList<Scene>();
 
@@ -104,6 +108,20 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         enterSceneComboButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                List<String> sceneTokens = new ArrayList<String>();
+                for (Scene scene : sceneComboList) {
+                    if (!scene.getWordList().isEmpty()) {
+                        sceneTokens.add(scene.getToken());
+                    }
+                }
+
+
+                Intent intent = new Intent(getApplicationContext(), BardEditorActivity.class);
+                intent.putExtra("characterToken", "");
+                intent.putExtra("sceneToken", "");
+                intent.putExtra("sceneTokens", TextUtils.join(",",sceneTokens));
+                BardLogger.trace("[multiSceneSelect] " + sceneTokens.toString());
+                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
 
             }
         });
@@ -244,14 +262,31 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
 
     @Override
-    public void onComboAdd(Scene scene) {
-        if (!sceneComboContainer.isShown()) {
-            sceneComboContainer.setVisibility(View.VISIBLE);
-        }
+    public void onItemLongClick(Scene scene) {
         addComboItem(scene);
     }
 
+    @Override
+    public void onItemClick(Scene scene) {
+        if (sceneComboList.isEmpty()) {
+            Intent intent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("characterToken", "");
+            intent.putExtra("sceneToken", scene.getToken());
+            BardLogger.trace("[sceneSelect] " + scene.getToken());
+            startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+        } else {
+            addComboItem(scene);
+        }
+    }
+
     private void addComboItem(Scene scene) {
+        if (sceneComboList.size() >= MAX_SCENE_COMBO_LENGTH) return;
+        if (sceneComboList.contains(scene)) return;
+
+        if (!sceneComboContainer.isShown()) {
+            sceneComboContainer.setVisibility(View.VISIBLE);
+        }
+
         LayoutInflater inflater = LayoutInflater.from(this);
         ViewGroup parent = (ViewGroup) findViewById(android.R.id.content);
 
@@ -275,6 +310,66 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
                 View comboItem = (View) v.getParent();
                 int sceneIndex = sceneComboListContainer.indexOfChild(comboItem);
                 removeComboItem(sceneIndex);
+            }
+        });
+
+        getWordList(scene);
+    }
+
+    private void onWordListDownloadSuccess() {
+
+    }
+
+    private void onWordListDownloadFailure() {
+
+    }
+
+    private void getWordList(final Scene scene) {
+        if (!scene.getWordList().isEmpty()) {
+            onWordListDownloadSuccess();
+            return ;
+        }
+
+        enterSceneComboButton.setEnabled(false);
+        sceneDownloadProgress.setVisibility(View.VISIBLE);
+        viewPager.setEnabled(false);
+
+        Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(scene.getToken());
+        call.enqueue(new Callback<Scene>() {
+            @Override
+            public void onResponse(Call<Scene> call, Response<Scene> response) {
+                sceneDownloadProgress.setVisibility(View.GONE);
+                enterSceneComboButton.setEnabled(true);
+                viewPager.setEnabled(true);
+
+                Scene remoteScene = response.body();
+
+                if (remoteScene == null) {
+                    onWordListDownloadFailure();
+                    return;
+                }
+
+                String wordList = remoteScene.getWordList();
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                scene.setWordList(wordList);
+                realm.commitTransaction();
+
+                if (wordList.isEmpty()) {
+                    onWordListDownloadFailure();
+                } else {
+                    onWordListDownloadSuccess();
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<Scene> call, Throwable t) {
+                enterSceneComboButton.setEnabled(true);
+                sceneDownloadProgress.setVisibility(View.GONE);
+                viewPager.setEnabled(true);
+                onWordListDownloadFailure();
             }
         });
     }

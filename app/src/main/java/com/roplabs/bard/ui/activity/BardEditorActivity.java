@@ -111,6 +111,7 @@ public class BardEditorActivity extends BaseActivity implements
     private String lastPlayedWordTag = "";
     private String characterToken;
     private String sceneToken;
+    private String sceneTokens;
     private Character character;
     private Scene scene;
     private Repo repo;
@@ -201,6 +202,8 @@ public class BardEditorActivity extends BaseActivity implements
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
         sceneToken = intent.getStringExtra("sceneToken");
+        sceneTokens = intent.getStringExtra("sceneTokens");
+        if (sceneTokens == null) sceneTokens = "";
         character  = Character.forToken(characterToken);
         scene      = Scene.forToken(sceneToken);
         wordTagAssignHandler = new Handler();
@@ -345,9 +348,9 @@ public class BardEditorActivity extends BaseActivity implements
         MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite != null) {
-            item.setTitle("Remove from bookmarks");
+            item.setTitle("Remove from My Videos");
         } else {
-            item.setTitle("Add to bookmarks");
+            item.setTitle("Add to My Videos");
         }
     }
 
@@ -711,7 +714,9 @@ public class BardEditorActivity extends BaseActivity implements
     private void initChatText() {
         clearChatCursor();
 
-        if (!characterToken.isEmpty()) {
+        if (!sceneTokens.isEmpty()) {
+            initMultiSceneWordList();
+        } else if (!characterToken.isEmpty()) {
             if (character != null) {
                 initCharacterWordList();
             } else {
@@ -953,6 +958,25 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
     }
+
+    private void initMultiSceneWordList() {
+        wordListByScene = new HashMap<String, String>();
+        String[] sceneTokenArray = sceneTokens.split(",");
+        Scene targetScene;
+        for (String targetSceneToken : sceneTokenArray) {
+            targetScene = Scene.forToken(targetSceneToken);
+            wordListByScene.put(targetSceneToken, targetScene.getWordList());
+        }
+
+        List<String> combinedWordList = new ArrayList<String>();
+        for (Map.Entry<String, String> wordListEntry : wordListByScene.entrySet()) {
+            String givenWordList = wordListEntry.getValue();
+            combinedWordList.add(givenWordList);
+        }
+
+        asyncWordListSetup(TextUtils.join(",",combinedWordList));
+    }
+
 
     private void initCharacterWordList() {
 

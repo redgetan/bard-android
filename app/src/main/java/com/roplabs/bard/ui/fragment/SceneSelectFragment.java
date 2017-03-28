@@ -71,7 +71,8 @@ public class SceneSelectFragment extends Fragment {
     // Define the events that the fragment will use to communicate
     public interface OnSceneListener  {
         // This can be any number of events to be sent to the activity
-        public void onComboAdd(Scene scene);
+        public void onItemClick(Scene scene);
+        public void onItemLongClick(Scene scene);
     }
 
     public static SceneSelectFragment newInstance(String sceneType, int page) {
@@ -331,17 +332,13 @@ public class SceneSelectFragment extends Fragment {
         adapter.setOnItemClickListener(new SceneListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("characterToken", "");
-                intent.putExtra("sceneToken", scene.getToken());
-                BardLogger.trace("[sceneSelect] " + scene.getToken());
-                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                parentListener.onItemClick(scene);
             }
 
             @Override
             public void onItemLongClick(View itemView, int position, Scene scene) {
                 hideKeyboard();
-                parentListener.onComboAdd(scene);
+                parentListener.onItemLongClick(scene);
             }
         });
         recyclerView.setAdapter(adapter);
