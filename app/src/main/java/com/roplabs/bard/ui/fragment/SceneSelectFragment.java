@@ -66,6 +66,14 @@ public class SceneSelectFragment extends Fragment {
 
     private SearchListAdapter searchListAdapter;
 
+    private OnSceneListener parentListener;
+
+    // Define the events that the fragment will use to communicate
+    public interface OnSceneListener  {
+        // This can be any number of events to be sent to the activity
+        public void onComboAdd(Scene scene);
+    }
+
     public static SceneSelectFragment newInstance(String sceneType, int page) {
         Bundle args = new Bundle();
         args.putInt(ARG_PAGE, page);
@@ -94,11 +102,6 @@ public class SceneSelectFragment extends Fragment {
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
         searchTypeSpinner = (Spinner) view.findViewById(R.id.scene_search_spinner);
-        sceneComboContainer = (LinearLayout) view.findViewById(R.id.scene_combo_container);
-//        sceneComboContainer.setVisibility(View.GONE);
-        sceneComboListContainer = (LinearLayout) view.findViewById(R.id.scene_combo_list_container);
-        clearSceneComboButton = (Button) view.findViewById(R.id.clear_scene_combo_btn);
-        enterSceneComboButton = (Button) view.findViewById(R.id.enter_scene_combo_btn);
 
 
         sceneListCache = new HashMap<String, List<Scene>>();
@@ -107,69 +110,21 @@ public class SceneSelectFragment extends Fragment {
         initEmptyState(view);
         initScenes();
         initSearch();
-        initCombo();
 
 
         return view;
     }
 
-    private void initCombo() {
-        sceneComboList = new ArrayList<Scene>();
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
 
-        clearSceneComboButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sceneComboListContainer.removeAllViews();
-                sceneComboList.clear();
-                sceneComboContainer.setVisibility(View.GONE);
-            }
-        });
-
-        enterSceneComboButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-
-            }
-        });
-    }
-
-    private void addComboItem(Scene scene) {
-        LayoutInflater inflater = LayoutInflater.from(getContext());
-
-        View sceneComboItem = inflater.inflate(R.layout.scene_combo_item, fragmentContainer, false);
-        sceneComboListContainer.addView(sceneComboItem);
-        sceneComboList.add(scene);
-
-        ImageView thumbnail = (ImageView) sceneComboItem.findViewById(R.id.scene_combo_item_thumbnail);
-        ImageButton deleteComboItemButton = (ImageButton) sceneComboItem.findViewById(R.id.scene_combo_item_delete_btn);
-
-        for (int i=0; i<3; i++) {
-            TextView ribbonItem=new TextView(getContext());
-            ribbonItem.setText("text - "+i);
-            ribbonItem.setWidth(100);
-            ribbonItem.setLayoutParams(new RelativeLayout.LayoutParams((int) ViewGroup.LayoutParams.WRAP_CONTENT,(int) ViewGroup.LayoutParams.WRAP_CONTENT));
-            sceneComboListContainer.addView(ribbonItem);
+        if (context instanceof OnSceneListener) {
+            parentListener = (OnSceneListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement SceneSelectFragment.OnSceneListener");
         }
-
-        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(getContext())
-                .load(scene.getThumbnailUrl())
-                .placeholder(R.drawable.thumbnail_placeholder)
-                .crossFade()
-                .into(thumbnail);
-
-        deleteComboItemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                int sceneIndex = sceneComboListContainer.indexOfChild(v);
-                removeComboItem(sceneIndex);
-            }
-        });
-    }
-
-    private void removeComboItem(int sceneIndex) {
-        sceneComboListContainer.removeViewAt(sceneIndex);
-        sceneComboList.remove(sceneIndex);
     }
 
     private void initSearch() {
@@ -385,10 +340,7 @@ public class SceneSelectFragment extends Fragment {
 
             @Override
             public void onItemLongClick(View itemView, int position, Scene scene) {
-                if (!sceneComboContainer.isShown()) {
-                    sceneComboContainer.setVisibility(View.VISIBLE);
-                }
-                addComboItem(scene);
+                parentListener.onComboAdd(scene);
             }
         });
         recyclerView.setAdapter(adapter);

@@ -16,6 +16,7 @@ import android.view.*;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
@@ -43,7 +44,7 @@ import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
-public class SceneSelectActivity extends BaseActivity {
+public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
     private Context mContext;
     private DrawerLayout mDrawerLayout;
 
@@ -51,6 +52,12 @@ public class SceneSelectActivity extends BaseActivity {
     private final static int RIGHT_DRAWABLE_INDEX = 2;
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
     private ViewPager viewPager;
+
+    private LinearLayout sceneComboContainer;
+    private LinearLayout sceneComboListContainer;
+    private List<Scene> sceneComboList;
+    private Button clearSceneComboButton;
+    private Button enterSceneComboButton;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,10 +77,38 @@ public class SceneSelectActivity extends BaseActivity {
         deepLinkNavigate();
 
         initPager();
+        initCombo();
 
         Helper.initNavigationViewDrawer(this, toolbar);
         Helper.askStoragePermission(this);
     }
+
+    private void initCombo() {
+        sceneComboContainer = (LinearLayout) findViewById(R.id.scene_combo_container);
+        sceneComboContainer.setVisibility(View.GONE);
+        sceneComboListContainer = (LinearLayout) findViewById(R.id.scene_combo_list_container);
+        clearSceneComboButton = (Button) findViewById(R.id.clear_scene_combo_btn);
+        enterSceneComboButton = (Button) findViewById(R.id.enter_scene_combo_btn);
+
+        sceneComboList = new ArrayList<Scene>();
+
+        clearSceneComboButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sceneComboListContainer.removeAllViews();
+                sceneComboList.clear();
+                sceneComboContainer.setVisibility(View.GONE);
+            }
+        });
+
+        enterSceneComboButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
 
     private void initPager() {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
@@ -205,5 +240,48 @@ public class SceneSelectActivity extends BaseActivity {
         }
     }
 
+
+
+
+    @Override
+    public void onComboAdd(Scene scene) {
+        if (!sceneComboContainer.isShown()) {
+            sceneComboContainer.setVisibility(View.VISIBLE);
+        }
+        addComboItem(scene);
+    }
+
+    private void addComboItem(Scene scene) {
+        LayoutInflater inflater = LayoutInflater.from(this);
+        ViewGroup parent = (ViewGroup) findViewById(android.R.id.content);
+
+        View sceneComboItem = inflater.inflate(R.layout.scene_combo_item, parent, false);
+        sceneComboListContainer.addView(sceneComboItem);
+        sceneComboList.add(scene);
+
+        ImageView thumbnail = (ImageView) sceneComboItem.findViewById(R.id.scene_combo_item_thumbnail);
+        ImageButton deleteComboItemButton = (ImageButton) sceneComboItem.findViewById(R.id.scene_combo_item_delete_btn);
+
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(this)
+                .load(scene.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(thumbnail);
+
+        deleteComboItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                View comboItem = (View) v.getParent();
+                int sceneIndex = sceneComboListContainer.indexOfChild(comboItem);
+                removeComboItem(sceneIndex);
+            }
+        });
+    }
+
+    private void removeComboItem(int sceneIndex) {
+        sceneComboListContainer.removeViewAt(sceneIndex);
+        sceneComboList.remove(sceneIndex);
+    }
 
 }
