@@ -31,13 +31,11 @@
                 android:entries="@array/scene_search_types"
         />
 
-        />
-
     </LinearLayout>
 
 <include
         layout="@layout/empty_no_internet"
-        android:visibility="visible"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
@@ -64,6 +62,55 @@
             android:layout_height="wrap_content"
             android:visibility="gone"
     />
+
+    <LinearLayout
+                  android:id="@+id/scene_combo_container"
+                  android:background="@color/md_yellow_300"
+                  android:layout_width="match_parent"
+                  android:layout_gravity="bottom"
+                  android:orientation="vertical"
+                  android:layout_height="wrap_content">
+        <HorizontalScrollView android:id="@+id/scene_combo_list_scrollview"
+                      android:layout_width="wrap_content"
+                      android:layout_height="100dp">
+            <LinearLayout
+                          android:id="@+id/scene_combo_list_container"
+                          android:orientation="horizontal"
+                          android:layout_width="wrap_content"
+                          android:layout_height="match_parent">
+
+            </LinearLayout>
+
+        </HorizontalScrollView>
+        <RelativeLayout android:id="@+id/scene_combine_action_container"
+                      android:layout_width="match_parent"
+                      android:padding="10dp"
+                      android:layout_height="50dp">
+            <Button
+                    android:id="@+id/clear_scene_combo_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentLeft="true"
+                    android:text="Clear List"
+                    android:textAllCaps="false"
+                    android:textColor="@color/md_blue_400"
+                    android:background="?android:attr/selectableItemBackground"
+            />
+
+            <Button
+                    android:id="@+id/enter_scene_combo_btn"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:layout_alignParentRight="true"
+                    android:text="Go"
+                    android:textAllCaps="false"
+                    android:textColor="@color/white"
+                    android:background="@color/purple"
+            />
+
+        </RelativeLayout>
+
+    </LinearLayout>
 
 </FrameLayout>
 

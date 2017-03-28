@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import com.bumptech.glide.Glide;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneListAdapter;
@@ -56,6 +57,12 @@ public class SceneSelectFragment extends Fragment {
     private String sceneType;
     private EditText searchBar;
     private Spinner searchTypeSpinner;
+    private LinearLayout sceneComboContainer;
+    private LinearLayout sceneComboListContainer;
+    private List<Scene> sceneComboList;
+    private Button clearSceneComboButton;
+    private Button enterSceneComboButton;
+    private ViewGroup fragmentContainer;
 
     private SearchListAdapter searchListAdapter;
 
@@ -78,6 +85,7 @@ public class SceneSelectFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        fragmentContainer = container;
         View view = inflater.inflate(R.layout.fragment_scene_list, container, false);
 //        TextView textView = (TextView) view;
 //        textView.setText("Fragment #" + mPage);
@@ -86,15 +94,82 @@ public class SceneSelectFragment extends Fragment {
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
         searchTypeSpinner = (Spinner) view.findViewById(R.id.scene_search_spinner);
+        sceneComboContainer = (LinearLayout) view.findViewById(R.id.scene_combo_container);
+//        sceneComboContainer.setVisibility(View.GONE);
+        sceneComboListContainer = (LinearLayout) view.findViewById(R.id.scene_combo_list_container);
+        clearSceneComboButton = (Button) view.findViewById(R.id.clear_scene_combo_btn);
+        enterSceneComboButton = (Button) view.findViewById(R.id.enter_scene_combo_btn);
+
+
         sceneListCache = new HashMap<String, List<Scene>>();
         sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
 
         initEmptyState(view);
         initScenes();
         initSearch();
+        initCombo();
 
 
         return view;
+    }
+
+    private void initCombo() {
+        sceneComboList = new ArrayList<Scene>();
+
+        clearSceneComboButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                sceneComboListContainer.removeAllViews();
+                sceneComboList.clear();
+                sceneComboContainer.setVisibility(View.GONE);
+            }
+        });
+
+        enterSceneComboButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+    }
+
+    private void addComboItem(Scene scene) {
+        LayoutInflater inflater = LayoutInflater.from(getContext());
+
+        View sceneComboItem = inflater.inflate(R.layout.scene_combo_item, fragmentContainer, false);
+        sceneComboListContainer.addView(sceneComboItem);
+        sceneComboList.add(scene);
+
+        ImageView thumbnail = (ImageView) sceneComboItem.findViewById(R.id.scene_combo_item_thumbnail);
+        ImageButton deleteComboItemButton = (ImageButton) sceneComboItem.findViewById(R.id.scene_combo_item_delete_btn);
+
+        for (int i=0; i<3; i++) {
+            TextView ribbonItem=new TextView(getContext());
+            ribbonItem.setText("text - "+i);
+            ribbonItem.setWidth(100);
+            ribbonItem.setLayoutParams(new RelativeLayout.LayoutParams((int) ViewGroup.LayoutParams.WRAP_CONTENT,(int) ViewGroup.LayoutParams.WRAP_CONTENT));
+            sceneComboListContainer.addView(ribbonItem);
+        }
+
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(getContext())
+                .load(scene.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(thumbnail);
+
+        deleteComboItemButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                int sceneIndex = sceneComboListContainer.indexOfChild(v);
+                removeComboItem(sceneIndex);
+            }
+        });
+    }
+
+    private void removeComboItem(int sceneIndex) {
+        sceneComboListContainer.removeViewAt(sceneIndex);
+        sceneComboList.remove(sceneIndex);
     }
 
     private void initSearch() {
@@ -306,6 +381,14 @@ public class SceneSelectFragment extends Fragment {
                 intent.putExtra("sceneToken", scene.getToken());
                 BardLogger.trace("[sceneSelect] " + scene.getToken());
                 startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+            }
+
+            @Override
+            public void onItemLongClick(View itemView, int position, Scene scene) {
+                if (!sceneComboContainer.isShown()) {
+                    sceneComboContainer.setVisibility(View.VISIBLE);
+                }
+                addComboItem(scene);
             }
         });
         recyclerView.setAdapter(adapter);
