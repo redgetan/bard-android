@@ -282,6 +282,10 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     private void removeComboItem(int sceneIndex) {
         sceneComboListContainer.removeViewAt(sceneIndex);
         sceneComboList.remove(sceneIndex);
+
+        if (sceneComboList.isEmpty()) {
+            sceneComboContainer.setVisibility(View.GONE);
+        }
     }
 
 }

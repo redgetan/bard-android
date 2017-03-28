@@ -340,6 +340,7 @@ public class SceneSelectFragment extends Fragment {
 
             @Override
             public void onItemLongClick(View itemView, int position, Scene scene) {
+                hideKeyboard();
                 parentListener.onComboAdd(scene);
             }
         });
