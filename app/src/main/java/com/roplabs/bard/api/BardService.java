@@ -53,7 +53,7 @@ public interface BardService {
     @POST("packs/{packToken}/unfavorite")
     Call<HashMap<String, String>> unfavoritePack(@Path("packToken") String packToken);
 
-    @GET("packs")
+    @POST("packs")
     Call<Character> createPack(@Body HashMap<String, String> body);
 
     @GET("packs/{packToken}")

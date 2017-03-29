@@ -52,10 +52,11 @@ public class UserPack extends RealmObject {
                     .findFirst();
     }
 
-    public static void create(Realm realm, String packToken, String username) {
+    public static UserPack create(Realm realm, String packToken, String username) {
         UserPack userPack = realm.createObject(UserPack.class);
         userPack.setPackToken(packToken);
         userPack.setUsername(username);
+        return userPack;
     }
 
     public Date getCreatedAt() {

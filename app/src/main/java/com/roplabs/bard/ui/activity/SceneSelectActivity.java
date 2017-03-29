@@ -206,7 +206,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_search, menu);
+//        getMenuInflater().inflate(R.menu.menu_search, menu);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -283,6 +283,9 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         if (sceneComboList.size() >= MAX_SCENE_COMBO_LENGTH) return;
         if (sceneComboList.contains(scene)) return;
 
+        // scene could be a remoteScene which do not contain wordList so we check local db record
+        scene = Scene.forToken(scene.getToken());
+
         if (!sceneComboContainer.isShown()) {
             sceneComboContainer.setVisibility(View.VISIBLE);
         }
@@ -330,8 +333,8 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
             return ;
         }
 
-        enterSceneComboButton.setEnabled(false);
         sceneDownloadProgress.setVisibility(View.VISIBLE);
+        enterSceneComboButton.setEnabled(false);
         viewPager.setEnabled(false);
 
         Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(scene.getToken());
@@ -366,8 +369,8 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
             @Override
             public void onFailure(Call<Scene> call, Throwable t) {
-                enterSceneComboButton.setEnabled(true);
                 sceneDownloadProgress.setVisibility(View.GONE);
+                enterSceneComboButton.setEnabled(true);
                 viewPager.setEnabled(true);
                 onWordListDownloadFailure();
             }

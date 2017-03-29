@@ -12,6 +12,7 @@ import android.widget.EditText;
 public class SavePackDialog {
     private String packName;
     private AlertDialog.Builder builder;
+    private AlertDialog alert;
 
     private OnPackDialogEvent listener;
 
@@ -34,13 +35,10 @@ public class SavePackDialog {
         builder = new AlertDialog.Builder(context);
         builder.setTitle("Name your pack");
 
-// Set up the input
         final EditText input = new EditText(context);
-// Specify the type of input expected; this, for example, sets the input as a password, and will mask the text
-        input.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        input.setInputType(InputType.TYPE_CLASS_TEXT);
         builder.setView(input);
 
-// Set up the buttons
         builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -54,10 +52,15 @@ public class SavePackDialog {
                 dialog.cancel();
             }
         });
+        alert = builder.create();
     }
 
     public void show() {
-        builder.show();
+        alert.show();
+    }
+
+    public void dismiss() {
+        alert.dismiss();
     }
 
     public String getPackName() {

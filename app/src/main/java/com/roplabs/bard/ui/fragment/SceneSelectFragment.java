@@ -415,6 +415,7 @@ public class SceneSelectFragment extends Fragment {
     private void showEmptyBookmarkMessage() {
         emptyStateContainer.setVisibility(View.VISIBLE);
         emptyStateTitle.setText("No results");
+        emptyStateDescription.setText("");
     }
 
 }

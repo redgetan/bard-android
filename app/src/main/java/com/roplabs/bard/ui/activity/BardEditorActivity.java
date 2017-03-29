@@ -66,6 +66,8 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
 
+    private boolean isPackSaved = false;
+
     private Context mContext;
     private RelativeLayout inputContainer;
     private ImageView findNextBtn;
@@ -632,7 +634,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     @Override
-    public void onSavePackConfirm(String packName) {
+    public void onSavePackConfirm(final String packName) {
+        savePackDialog.dismiss();
+
         if (!Setting.isLogined(this)) {
             loginDialog = new CustomDialog(this, "You must login to create pack");
             loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -654,13 +658,20 @@ public class BardEditorActivity extends BaseActivity implements
                         return;
                     }
 
-                    Character pack = response.body();
+                    Character remotePack = response.body();
+                    Character.create(remotePack);
+
                     Realm realm = Realm.getDefaultInstance();
+
                     realm.beginTransaction();
-                    UserPack.create(realm, pack.getToken(), Setting.getUsername(ClientApp.getContext()));
+                    UserPack userPack = UserPack.create(realm, remotePack.getToken(), Setting.getUsername(ClientApp.getContext()));
                     realm.commitTransaction();
-                    editorMenu.getMenu().findItem(R.id.save_as_pack_item).setTitle("Pack Saved");
-                    editorMenu.getMenu().findItem(R.id.save_as_pack_item).setEnabled(false);
+                    isPackSaved = true;
+
+                    MenuItem item = editorMenu.getMenu().findItem(R.id.save_as_pack_item);
+                    item.setTitle("Pack Saved");
+                    item.setEnabled(false);
+                    invalidateOptionsMenu();
                 }
 
                 @Override
@@ -671,6 +682,16 @@ public class BardEditorActivity extends BaseActivity implements
             });
 
         }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        if (isPackSaved) {
+            MenuItem item = editorMenu.getMenu().findItem(R.id.save_as_pack_item);
+            item.setTitle("Pack Saved");
+            item.setEnabled(false);
+        }
+        return super.onPrepareOptionsMenu(menu);
     }
 
     // when everything is built (i.e. creating the wordTrie)
