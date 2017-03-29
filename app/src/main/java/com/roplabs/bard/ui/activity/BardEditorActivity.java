@@ -33,6 +33,7 @@ import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.InputViewPager;
+import com.roplabs.bard.ui.widget.SavePackDialog;
 import com.roplabs.bard.ui.widget.WordsAutoCompleteTextView;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
@@ -57,7 +58,7 @@ public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener,
-        Helper.KeyboardVisibilityListener, PopupMenu.OnMenuItemClickListener {
+        Helper.KeyboardVisibilityListener, PopupMenu.OnMenuItemClickListener, SavePackDialog.OnPackDialogEvent {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -142,6 +143,7 @@ public class BardEditorActivity extends BaseActivity implements
     private Surface previewSurface;
     private View previewOverlay;
     private Runnable fetchWordTagSegmentUrl;
+    private SavePackDialog savePackDialog;
 
     private int originalVideoHeight = -1;
 
@@ -218,6 +220,7 @@ public class BardEditorActivity extends BaseActivity implements
         wordTagPlayHandler = new Handler();
         word_tag_status.setText("");
         wordListByScene = new HashMap<String, String>();
+        savePackDialog = new SavePackDialog(this);
 
         initVideoPlayer();
 
@@ -336,6 +339,8 @@ public class BardEditorActivity extends BaseActivity implements
         if (character != null) {
             editorMenu.inflate(R.menu.menu_pack_editor_more);
             setFavoritePackItemState();
+        } else if (!sceneTokens.isEmpty()) {
+            editorMenu.inflate(R.menu.menu_multi_scene_editor_more);
         } else {
             editorMenu.inflate(R.menu.menu_scene_editor_more);
             setFavoriteSceneItemState();
@@ -393,6 +398,9 @@ public class BardEditorActivity extends BaseActivity implements
             case R.id.favorite_scene_item:
                 toggleSceneFavorite();
                 return true;
+            case R.id.save_as_pack_item:
+                saveAsPackItem();
+                return true;
             case R.id.favorite_pack_item:
                 togglePackFavorite();
 
@@ -409,6 +417,10 @@ public class BardEditorActivity extends BaseActivity implements
             default:
                 return false;
         }
+    }
+
+    private void saveAsPackItem() {
+        savePackDialog.show();
     }
 
     private void copyEditorLinkToClipboard(String url) {
@@ -617,6 +629,48 @@ public class BardEditorActivity extends BaseActivity implements
             }
         });
 
+    }
+
+    @Override
+    public void onSavePackConfirm(String packName) {
+        if (!Setting.isLogined(this)) {
+            loginDialog = new CustomDialog(this, "You must login to create pack");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+        } else {
+            HashMap<String, String> packMap = new HashMap<String, String>();
+            packMap.put("name", packName);
+            packMap.put("scene_tokens", sceneTokens);
+
+            progressBar.setVisibility(View.VISIBLE);
+
+            Call<Character> call = BardClient.getAuthenticatedBardService().createPack(packMap);
+            call.enqueue(new Callback<Character>() {
+                @Override
+                public void onResponse(Call<Character> call, Response<Character> response) {
+                    progressBar.setVisibility(View.GONE);
+
+                    if (response.code() != 200) {
+                        return;
+                    }
+
+                    Character pack = response.body();
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    UserPack.create(realm, pack.getToken(), Setting.getUsername(ClientApp.getContext()));
+                    realm.commitTransaction();
+                    editorMenu.getMenu().findItem(R.id.save_as_pack_item).setTitle("Pack Saved");
+                    editorMenu.getMenu().findItem(R.id.save_as_pack_item).setEnabled(false);
+                }
+
+                @Override
+                public void onFailure(Call<Character> call, Throwable t) {
+                    progressBar.setVisibility(View.GONE);
+
+                }
+            });
+
+        }
     }
 
     // when everything is built (i.e. creating the wordTrie)
