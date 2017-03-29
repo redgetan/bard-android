@@ -88,8 +88,8 @@ public class CharacterSelectActivity extends BaseActivity {
         emptyStateTitle = (TextView) findViewById(R.id.empty_state_title);
         emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
 
-        emptyStateTitle.setText("Packs - combine multiple videos");
-        emptyStateDescription.setText("Visit https://bard.co/pack_builder from desktop browser while logged-in to create packs and list them here. ");
+        emptyStateTitle.setText("");
+        emptyStateDescription.setText("You can assemble words from multiple videos at the same time by doing a 'long tap' on a video instead of a single tap. You can also save your favorite combinations into a pack ");
 
         emptyStateContainer.setVisibility(View.GONE);
     }
@@ -136,9 +136,6 @@ public class CharacterSelectActivity extends BaseActivity {
             public void onFailure(Call<List<Character>> call, Throwable t) {
                 RealmResults<Character> characters = Character.findAll();
                 progressBar.setVisibility(View.GONE);
-                if (characters.isEmpty()) {
-                    Toast.makeText(getApplicationContext(), "Failed to load. Make sure internet is enabled", Toast.LENGTH_LONG).show();
-                }
             }
         });
     }

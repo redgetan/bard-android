@@ -343,6 +343,7 @@ public class BardEditorActivity extends BaseActivity implements
             setFavoritePackItemState();
         } else if (!sceneTokens.isEmpty()) {
             editorMenu.inflate(R.menu.menu_multi_scene_editor_more);
+            setSavePackItemState();
         } else {
             editorMenu.inflate(R.menu.menu_scene_editor_more);
             setFavoriteSceneItemState();
@@ -350,6 +351,13 @@ public class BardEditorActivity extends BaseActivity implements
         editorMenu.show();
     }
 
+    private void setSavePackItemState() {
+        if (isPackSaved) {
+            MenuItem item = editorMenu.getMenu().findItem(R.id.save_as_pack_item);
+            item.setTitle("Pack Saved");
+            item.setEnabled(false);
+        }
+    }
 
     private void setFavoriteSceneItemState() {
         MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
@@ -669,9 +677,6 @@ public class BardEditorActivity extends BaseActivity implements
                     isPackSaved = true;
 
                     MenuItem item = editorMenu.getMenu().findItem(R.id.save_as_pack_item);
-                    item.setTitle("Pack Saved");
-                    item.setEnabled(false);
-                    invalidateOptionsMenu();
                 }
 
                 @Override
@@ -686,11 +691,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public boolean onPrepareOptionsMenu(Menu menu) {
-        if (isPackSaved) {
-            MenuItem item = editorMenu.getMenu().findItem(R.id.save_as_pack_item);
-            item.setTitle("Pack Saved");
-            item.setEnabled(false);
-        }
         return super.onPrepareOptionsMenu(menu);
     }
 

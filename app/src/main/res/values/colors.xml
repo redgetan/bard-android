@@ -2,6 +2,7 @@
 <resources>
     <color name="drawer_divider">#333333</color>
     <color name="purple">#704def</color>
+    <color name="purple_disabled">#50704def</color>
     <color name="mediumaquamarine">#66cdaa</color>
     <color name="white">@android:color/white</color>
     <color name="primary_blue">#53777A</color>
