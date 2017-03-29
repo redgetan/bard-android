@@ -159,6 +159,7 @@ public class SceneSelectFragment extends Fragment {
         searchTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                searchBar.setHint("Search by " + getSearchType());
                 performSearch(searchBar.getText().toString());
             }
 
