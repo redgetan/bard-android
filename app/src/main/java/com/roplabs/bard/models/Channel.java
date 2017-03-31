@@ -50,6 +50,10 @@ public class Channel extends RealmObject {
         return realm.where(Channel.class).equalTo("token", token).findFirst();
     }
 
+    public static void create(Channel remoteChannel) {
+        create(remoteChannel.getToken(), remoteChannel.getName(), remoteChannel.getDescription(), remoteChannel.getCreatedAt());
+    }
+
     public static Channel create(String token, String name, String description, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -115,5 +119,31 @@ public class Channel extends RealmObject {
         this.username = username;
     }
 
+    public Date getCreatedAt() {
+        return createdAt;
+    }
 
+    public void setCreatedAt(Date createdAt) {
+
+        this.createdAt = createdAt;
+    }
+
+
+    public static void createOrUpdate(List<Channel> channelList) {
+
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+
+        for (Channel channel : channelList) {
+            Channel obj = Channel.forToken(channel.getToken());
+            if (obj == null) {
+                Channel.create(channel);
+            } else {
+                obj.setName(channel.getName());
+                obj.setDescription(channel.getDescription());
+            }
+        }
+        realm.commitTransaction();
+    }
 }

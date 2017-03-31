@@ -67,4 +67,5 @@
     <string name="click_to_login">Click to Login</string>
     <string name="publish_repo">Publish</string>
     <string name="my_packs">Packs</string>
+    <string name="my_channels">Channels</string>
 </resources>

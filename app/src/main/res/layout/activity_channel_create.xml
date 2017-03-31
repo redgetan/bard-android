@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+        android:layout_width="match_parent"
+        android:orientation="vertical"
+        android:layout_height="match_parent"
+        xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <include
+            layout="@layout/toolbar_main"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    <ScrollView
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:fillViewport="true">
+
+        <RelativeLayout
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingLeft="24dp"
+                android:paddingRight="24dp">
+
+            <LinearLayout
+                    android:id="@+id/main_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="50dp"
+                    android:orientation="vertical">
+
+                <EditText android:id="@+id/input_channel_name"
+                          android:layout_width="match_parent"
+                          android:padding="15dp"
+                          android:layout_height="wrap_content"
+                          android:hint="Channel Name"
+                          tools:ignore="TextFields"/>
+
+                <!--  Password Label -->
+                <EditText android:id="@+id/input_channel_description"
+                          android:layout_width="match_parent"
+                          android:layout_height="wrap_content"
+                          android:padding="15dp"
+                          android:hint="Description (Optional)"/>
+
+                <android.support.v7.widget.AppCompatButton
+                        android:id="@+id/btn_create_channel"
+                        android:onClick="onChannelCreate"
+                        android:layout_width="fill_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="10dp"
+                        android:layout_marginBottom="10dp"
+                        android:textColor="@color/jet"
+                        android:padding="12dp"
+                        android:text="Create"/>
+
+            </LinearLayout>
+
+            <LinearLayout
+                    android:id="@+id/channel_footer"
+                    android:layout_alignParentBottom="true"
+                    android:layout_below="@id/main_layout"
+                    android:orientation="horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp">
+
+            </LinearLayout>
+
+
+
+        </RelativeLayout>
+    </ScrollView>
+</LinearLayout>

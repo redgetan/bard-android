@@ -64,6 +64,7 @@ public class Helper {
     public static final int PROFILE_DRAWER_ITEM_IDENTIFIER = 5;
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
     public static final int MY_PACKS_DRAWER_ITEM_IDENTIFIER = 7;
+    public static final int MY_CHANNELS_DRAWER_ITEM_IDENTIFIER = 8;
 
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
@@ -72,12 +73,15 @@ public class Helper {
     public static final int SEARCH_REQUEST_CODE = 5;
     public static final int SHARE_SCENE_REQUEST_CODE = 6;
     public static final int SHARE_PACK_REQUEST_CODE = 7;
+    public static final int CHANNEL_REQUEST_CODE = 8;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String NEW_SCENE_TYPE = "latest";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
     public static final String ONLINE_LIBRARY = "latest";
     public static final String MY_VIDEOS = "favorites";
+    public static final String CHANNEL_FEED = "channel_feed";
+    public static final String CHANNEL_VIDEOS = "channel_videos";
 
 
     private static ProgressDialog progressDialog;
@@ -297,8 +301,10 @@ public class Helper {
         ProfileDrawerItem profileDrawerItem;
         final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
         final List<Character> userPacks = UserPack.packsForUser(Setting.getUsername(context));
+        final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
         String libraryCount = String.valueOf(repos.size());
         String packCount = String.valueOf(userPacks.size());
+        String channelCount = String.valueOf(channels.size());
 
         if (username.equals("anonymous")) {
             profileDrawerItem = new ProfileDrawerItem().withName("Click Avatar to Login"); // .withIcon(getResources().getDrawable(R.drawable.profile))
@@ -333,6 +339,7 @@ public class Helper {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
+                        new PrimaryDrawerItem().withName(R.string.my_channels).withTextColor(textColor).withIdentifier(MY_CHANNELS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_theaters_black_24dp).withBadge(channelCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp).withBadge(packCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
@@ -348,6 +355,10 @@ public class Helper {
                         switch ((int) drawerItem.getIdentifier()) {
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                context.startActivity(intent);
+                                break;
+                            case MY_CHANNELS_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), ChannelListActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case MY_PACKS_DRAWER_ITEM_IDENTIFIER:

@@ -6,6 +6,8 @@ import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
@@ -25,6 +27,8 @@ import retrofit2.Response;
 
 import java.util.List;
 
+import static com.roplabs.bard.util.Helper.CHANNEL_REQUEST_CODE;
+
 public class ChannelListActivity extends BaseActivity {
     private final int BARD_EDITOR_REQUEST_CODE = 1;
 
@@ -42,12 +46,12 @@ public class ChannelListActivity extends BaseActivity {
         setContentView(R.layout.activity_channel_list);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(R.string.choose_character);
+        title.setText("Channels");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
 
-        progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
+        progressBar = (ProgressBar) findViewById(R.id.channel_progress_bar);
 
         initEmptyState();
 
@@ -63,13 +67,35 @@ public class ChannelListActivity extends BaseActivity {
         emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
 
         emptyStateTitle.setText("Create or Join Channels");
-        emptyStateDescription.setText("Channels let you talk to other users. You can add videos to a channel, and let people talk using only words from those videos. ");
+        emptyStateDescription.setText("Channels let you talk to other users around a particular topic. You can add videos to a channel, and let people talk using only words from those videos. ");
 
         emptyStateContainer.setVisibility(View.GONE);
     }
 
     private void syncRemoteData() {
+        progressBar.setVisibility(View.VISIBLE);
 
+        final String username = Setting.getUsername(this);
+        Call<List<Channel>> call = BardClient.getAuthenticatedBardService().listChannels(username);
+        call.enqueue(new Callback<List<Channel>>() {
+            @Override
+            public void onResponse(Call<List<Channel>> call, Response<List<Channel>> response) {
+                List<Channel> channelList = response.body();
+                Channel.createOrUpdate(channelList);
+
+                if (channelList.isEmpty()) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                }
+
+                progressBar.setVisibility(View.GONE);
+                ((ChannelListAdapter) recyclerView.getAdapter()).swap(channelList);
+            }
+
+            @Override
+            public void onFailure(Call<List<Channel>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
     }
 
     @Override
@@ -103,24 +129,18 @@ public class ChannelListActivity extends BaseActivity {
     public void displayChannelList() {
         final List<Channel> channels = Channel.forUsername(Setting.getUsername(this));
 
-        if (channels.isEmpty()) {
-            emptyStateContainer.setVisibility(View.VISIBLE);
-            return;
-        } else {
-            emptyStateContainer.setVisibility(View.GONE);
-        }
         BardLogger.log("displaying channels count: " + channels.size());
 
-        recyclerView = (RecyclerView) findViewById(R.id.index_list);
+        recyclerView = (RecyclerView) findViewById(R.id.channel_list);
         ChannelListAdapter adapter = new ChannelListAdapter(this, channels);
         final Context self = this;
         adapter.setOnItemClickListener(new ChannelListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Channel channel) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
+                Intent intent = new Intent(self, ChannelActivity.class);
                 intent.putExtra("channelToken", channel.getToken());
                 BardLogger.trace("[view channel] " + channel.getToken());
-                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                startActivityForResult(intent, CHANNEL_REQUEST_CODE);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -136,19 +156,24 @@ public class ChannelListActivity extends BaseActivity {
         }
     }
 
-    // http://developer.android.com/guide/topics/ui/menus.html
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        if (item.getItemId() == android.R.id.home) {
-//            if (mDrawerLayout.isDrawerOpen(mDrawerLayout.getChildAt(1)))
-//                mDrawerLayout.closeDrawers();
-//            else {
-//                mDrawerLayout.openDrawer(mDrawerLayout.getChildAt(1));
-//            }
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_channel_list, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.menu_item_channel_add:
+                intent = new Intent(this, ChannelCreateActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
 
 
 }

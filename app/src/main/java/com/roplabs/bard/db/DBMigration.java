@@ -105,6 +105,18 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 9
+        if (oldVersion == 8) {
+            if (!schema.contains("Channel")) {
+                schema.create("Channel")
+                        .addField("name", String.class)
+                        .addField("description", String.class)
+                        .addField("token", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+        }
+
     }
 }
 

@@ -1,5 +1,6 @@
 package com.roplabs.bard.api;
 
+import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.User;
@@ -19,6 +20,9 @@ public interface BardService {
 
     @GET("users/{username}/packs")
     Call<List<Character>> listCharacters(@Path("username") String username);
+
+    @GET("users/{username}/channels")
+    Call<List<Channel>> listChannels(@Path("username") String username);
 
     @GET("scenes")
     Call<List<Scene>> listScenes(@QueryMap Map<String, String> options);
@@ -58,5 +62,9 @@ public interface BardService {
 
     @GET("packs/{packToken}")
     Call<Character> getCharacter(@Path("packToken") String packToken);
+
+    @POST("channels")
+    Call<Channel> createChannel(@Body HashMap<String, String> body);
+
 }
 
