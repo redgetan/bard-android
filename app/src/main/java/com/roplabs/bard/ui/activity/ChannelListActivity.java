@@ -56,8 +56,9 @@ public class ChannelListActivity extends BaseActivity {
         initEmptyState();
 
         displayChannelList();
-
-
+        if (Setting.isLogined(this)) {
+            syncRemoteData();
+        }
 
     }
 
@@ -80,14 +81,20 @@ public class ChannelListActivity extends BaseActivity {
         call.enqueue(new Callback<List<Channel>>() {
             @Override
             public void onResponse(Call<List<Channel>> call, Response<List<Channel>> response) {
+                progressBar.setVisibility(View.GONE);
                 List<Channel> channelList = response.body();
+
+                if (channelList == null) {
+                    return;
+                }
+
+
                 Channel.createOrUpdate(channelList);
 
                 if (channelList.isEmpty()) {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                 }
 
-                progressBar.setVisibility(View.GONE);
                 ((ChannelListAdapter) recyclerView.getAdapter()).swap(channelList);
             }
 

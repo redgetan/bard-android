@@ -72,4 +72,13 @@
         <item name="android:textSize">10sp</item>
     </style>
 
+    <style name="ChannelTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabBackground">@color/purple</item>
+        <item name="tabPaddingStart">12dp</item>
+        <item name="tabPaddingEnd">12dp</item>
+        <item name="tabTextAppearance">@style/MyCustomTabTextAppearance</item>
+        <item name="tabIndicatorColor">@color/mediumaquamarine</item>
+        <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
+    </style>
+
 </resources>

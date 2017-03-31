@@ -2,7 +2,8 @@ package com.roplabs.bard.adapters;
 
 import android.content.Context;
         import android.content.Intent;
-        import android.support.v7.widget.RecyclerView;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.RecyclerView;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
@@ -11,8 +12,9 @@ import android.content.Context;
         import com.bumptech.glide.Glide;
         import com.roplabs.bard.R;
 import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.ui.widget.LetterAvatar;
 
-        import java.util.List;
+import java.util.List;
 
 public class ChannelListAdapter extends
         RecyclerView.Adapter<ChannelListAdapter.ViewHolder> {
@@ -56,6 +58,10 @@ public class ChannelListAdapter extends
         textView.setText(channel.getName());
 
         ImageView thumbnail = viewHolder.channelThumbnail;
+        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };
+        int color = colors[position % colors.length];
+        LetterAvatar avatar = new LetterAvatar(context, ContextCompat.getColor(this.context, color), channel.getName().toUpperCase().substring(0,1), 20);
+        thumbnail.setImageDrawable(avatar);
     }
 
     // Return the total count of items
