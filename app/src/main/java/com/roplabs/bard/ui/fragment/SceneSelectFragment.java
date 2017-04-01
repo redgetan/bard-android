@@ -56,7 +56,6 @@ public class SceneSelectFragment extends Fragment {
     private EndlessRecyclerViewScrollListener scrollListener;
     private String sceneType;
     private EditText searchBar;
-    private Spinner searchTypeSpinner;
     private LinearLayout sceneComboContainer;
     private LinearLayout sceneComboListContainer;
     private List<Scene> sceneComboList;
@@ -102,7 +101,6 @@ public class SceneSelectFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.scene_list);
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
-        searchTypeSpinner = (Spinner) view.findViewById(R.id.scene_search_spinner);
 
 
         sceneListCache = new HashMap<String, List<Scene>>();
@@ -155,19 +153,6 @@ public class SceneSelectFragment extends Fragment {
                 return false;
             }
         });
-
-        searchTypeSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-            @Override
-            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                searchBar.setHint("Search by " + getSearchType());
-                performSearch(searchBar.getText().toString());
-            }
-
-            @Override
-            public void onNothingSelected(AdapterView<?> parent) {
-
-            }
-        });
     }
 
     private void hideKeyboard() {
@@ -204,7 +189,7 @@ public class SceneSelectFragment extends Fragment {
     }
 
     private String getSearchType() {
-        return searchTypeSpinner.getSelectedItem().toString().toLowerCase();
+        return "words";
     }
 
     private void hideEmptySearchMessage() {

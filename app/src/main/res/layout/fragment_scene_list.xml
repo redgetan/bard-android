@@ -18,17 +18,9 @@
                   android:layout_weight="1"
                   android:background="@color/white"
                   android:textSize="14sp"
-                  android:hint="Search"
+                  android:hint="Find words"
                   android:textColorHint="@color/base"
                   android:paddingLeft="10dp"
-        />
-
-        <Spinner
-                android:id="@+id/scene_search_spinner"
-                style="@style/MySpinnerItemStyle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:entries="@array/scene_search_types"
         />
 
     </LinearLayout>
