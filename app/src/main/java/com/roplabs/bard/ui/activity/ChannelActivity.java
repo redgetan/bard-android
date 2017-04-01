@@ -8,11 +8,13 @@ import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelPagerAdapter;
 import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 
 /**
  * Created by reg on 2017-03-30.
  */
-public class ChannelActivity extends BaseActivity {
+public class ChannelActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
 
     private String channelToken;
     private Channel channel;
@@ -62,4 +64,13 @@ public class ChannelActivity extends BaseActivity {
         tabLayout.setupWithViewPager(viewPager);
     }
 
+    @Override
+    public void onItemClick(Scene scene) {
+
+    }
+
+    @Override
+    public void onItemLongClick(Scene scene) {
+
+    }
 }

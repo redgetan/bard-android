@@ -81,4 +81,12 @@
         <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
     </style>
 
+    <style name="FeedButton" parent="android:Widget">
+        <item name="android:gravity">center</item>
+        <item name="android:clickable">true</item>
+        <item name="android:background">?attr/selectableItemBackground</item>
+        <item name="android:textAppearance">@style/TextAppearance.AppCompat.Caption</item>
+    </style>
+
+
 </resources>

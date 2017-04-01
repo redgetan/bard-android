@@ -74,14 +74,12 @@ public class ChannelListActivity extends BaseActivity {
     }
 
     private void syncRemoteData() {
-        progressBar.setVisibility(View.VISIBLE);
 
         final String username = Setting.getUsername(this);
         Call<List<Channel>> call = BardClient.getAuthenticatedBardService().listChannels(username);
         call.enqueue(new Callback<List<Channel>>() {
             @Override
             public void onResponse(Call<List<Channel>> call, Response<List<Channel>> response) {
-                progressBar.setVisibility(View.GONE);
                 List<Channel> channelList = response.body();
 
                 if (channelList == null) {
@@ -100,7 +98,6 @@ public class ChannelListActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<List<Channel>> call, Throwable t) {
-                progressBar.setVisibility(View.GONE);
             }
         });
     }
