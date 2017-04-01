@@ -268,7 +268,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             return;
         } else if (repo != null) {
             // repo exists but not yet published
-            Helper.publishRepo(repo, this, new Helper.OnRepoPublished() {
+            Helper.publishRepo(repo, this, null,new Helper.OnRepoPublished() {
                 @Override
                 public void onPublished(Repo publishedRepo) {
                     copyRepoLinkToClipboard(publishedRepo.getUrl());
@@ -279,7 +279,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
                 @Override
                 public void onSaved(Repo createdRepo) {
                     repo = createdRepo;
-                    Helper.publishRepo(repo, self, new Helper.OnRepoPublished() {
+                    Helper.publishRepo(repo, self, null, new Helper.OnRepoPublished() {
                         @Override
                         public void onPublished(Repo publishedRepo) {
                             copyRepoLinkToClipboard(publishedRepo.getUrl());
@@ -332,7 +332,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             return;
         } else if (repo != null) {
             // repo exists but not yet published
-            Helper.publishRepo(repo, this, new Helper.OnRepoPublished() {
+            Helper.publishRepo(repo, this, null, new Helper.OnRepoPublished() {
                 @Override
                 public void onPublished(Repo publishedRepo) {
                     sendText(publishedRepo.getUrl());
@@ -343,7 +343,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
                 @Override
                 public void onSaved(Repo createdRepo) {
                     repo = createdRepo;
-                    Helper.publishRepo(repo, self, new Helper.OnRepoPublished() {
+                    Helper.publishRepo(repo, self, null, new Helper.OnRepoPublished() {
                         @Override
                         public void onPublished(Repo publishedRepo) {
                             sendText(publishedRepo.getUrl());

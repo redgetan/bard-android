@@ -116,14 +116,33 @@ public class DBMigration implements RealmMigration {
                         .addField("createdAt", Date.class);
             }
 
+            if (!schema.get("Repo").hasField("sourceUrl")) {
+                schema.get("Repo")
+                        .addField("sourceUrl", String.class);
+            }
+
+            if (!schema.contains("Post")) {
+                schema.create("Post")
+                        .addField("id", int.class)
+                        .addField("repoTitle", String.class)
+                        .addField("repoSourceUrl", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+
             oldVersion++;
         }
 
         // migrate to version 10
         if (oldVersion == 9) {
-            schema.get("Repo")
-                    .addField("sourceUrl", String.class);
-
+            if (!schema.contains("Post")) {
+                schema.create("Post")
+                        .addField("id", int.class)
+                        .addField("repoTitle", String.class)
+                        .addField("repoSourceUrl", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
 
             oldVersion++;
         }

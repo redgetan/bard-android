@@ -158,8 +158,8 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
         popup.setOnMenuItemClickListener(this);
         popup.inflate(R.menu.menu_repo_more);
         if (this.repo.getUrl() != null) {
-            popup.getMenu().findItem(R.id.publish_repo_link_item).setTitle("Published");
-            popup.getMenu().findItem(R.id.publish_repo_link_item).setEnabled(false);
+//            popup.getMenu().findItem(R.id.publish_repo_link_item).setTitle("Published");
+//            popup.getMenu().findItem(R.id.publish_repo_link_item).setEnabled(false);
         }
         popup.show();
     }
@@ -217,14 +217,14 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
     public boolean onMenuItemClick(MenuItem item) {
         final Context self = this;
         switch (item.getItemId()) {
-            case R.id.publish_repo_link_item:
-                Helper.publishRepo(repo, this, new Helper.OnRepoPublished() {
-                    @Override
-                    public void onPublished(Repo publishedRepo) {
-                        Toast.makeText(self,"Successfully published", Toast.LENGTH_LONG).show();
-                    }
-                });
-                return true;
+//            case R.id.publish_repo_link_item:
+//                Helper.publishRepo(repo, this, null, new Helper.OnRepoPublished() {
+//                    @Override
+//                    public void onPublished(Repo publishedRepo) {
+//                        Toast.makeText(self,"Successfully published", Toast.LENGTH_LONG).show();
+//                    }
+//                });
+//                return true;
             case R.id.delete_repo_item:
                 deleteRepo(repo);
                 return true;

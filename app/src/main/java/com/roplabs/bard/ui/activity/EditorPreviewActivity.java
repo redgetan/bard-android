@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.media.MediaPlayer;
@@ -10,17 +11,19 @@ import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.VideoView;
+import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 import java.io.File;
+import java.util.HashMap;
 
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
@@ -40,6 +43,7 @@ public class EditorPreviewActivity extends BaseActivity {
     private String sceneName;
     private String sceneToken;
     private String characterToken;
+    private String channelToken;
     private Repo repo;
 
     @Override
@@ -51,6 +55,7 @@ public class EditorPreviewActivity extends BaseActivity {
         sceneToken = intent.getStringExtra("sceneToken");
         characterToken = intent.getStringExtra("characterToken");
         sceneName = intent.getStringExtra("sceneName");
+        channelToken = intent.getStringExtra("channelToken");
         wordTagListString = intent.getStringExtra("wordTags");
 
         videoView = (VideoView) findViewById(R.id.video_view);
@@ -188,5 +193,50 @@ public class EditorPreviewActivity extends BaseActivity {
             }
         });
 
+    }
+
+    public void postRepoToChannel(View view) {
+        final Context self = this;
+        if (!channelToken.isEmpty()) {
+            // publish repo, and post to channel
+            // if repo doesnt exist yet
+            if (repo == null) {
+                Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken,  new Helper.OnRepoSaved() {
+                    @Override
+                    public void onSaved(Repo createdRepo) {
+                        repo = createdRepo;
+                        Helper.publishRepo(repo, self, channelToken, new Helper.OnRepoPublished() {
+                            @Override
+                            public void onPublished(Repo publishedRepo) {
+                                Intent intent = new Intent();
+                                intent.putExtra("backToChannel", true);
+                                setResult(RESULT_OK);
+                                finish();
+                            }
+                        });
+                    }
+                });
+            } else {
+                HashMap<String, String> map = new HashMap<String, String>();
+                map.put("channel_token", channelToken);
+                Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepoToChannel(repo.getToken(), map);
+                call.enqueue(new Callback<HashMap<String, String>>() {
+                    @Override
+                    public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                        Intent intent = new Intent();
+                        intent.putExtra("backToChannel", true);
+                        setResult(RESULT_OK);
+                        finish();
+                    }
+
+                    @Override
+                    public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                        Toast.makeText(self,"Unable to post to channel", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+            }
+
+        }
     }
 }

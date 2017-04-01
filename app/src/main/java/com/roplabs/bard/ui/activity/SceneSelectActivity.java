@@ -77,10 +77,14 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         title.setText(R.string.app_name);
         title.setTextSize(24);
 
-        deepLinkNavigate();
-
         initPager();
         initCombo();
+
+        postInitSetup();
+    }
+
+    public void postInitSetup() {
+        deepLinkNavigate();
 
         Helper.initNavigationViewDrawer(this, toolbar);
         Helper.askStoragePermission(this);
@@ -206,7 +210,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_search, menu);
+        getMenuInflater().inflate(R.menu.menu_search, menu);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }

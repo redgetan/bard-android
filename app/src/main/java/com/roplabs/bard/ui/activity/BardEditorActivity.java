@@ -50,9 +50,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 import static com.roplabs.bard.ClientApp.getContext;
-import static com.roplabs.bard.util.Helper.SHARE_PACK_REQUEST_CODE;
-import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
-import static com.roplabs.bard.util.Helper.SHARE_SCENE_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.*;
 
 public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
@@ -112,6 +110,7 @@ public class BardEditorActivity extends BaseActivity implements
     private TextView repoTitle;
 
     private String lastPlayedWordTag = "";
+    private String channelToken;
     private String characterToken;
     private String sceneToken;
     private String sceneTokens;
@@ -205,6 +204,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         Intent intent = getIntent();
         characterToken = intent.getStringExtra("characterToken");
+        channelToken = intent.getStringExtra("channelToken");
         sceneToken = intent.getStringExtra("sceneToken");
         sceneTokens = intent.getStringExtra("sceneTokens");
         if (sceneTokens == null) sceneTokens = "";
@@ -1591,6 +1591,12 @@ public class BardEditorActivity extends BaseActivity implements
         } else if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
             setResult(RESULT_OK);
             finish();
+        } else if (resultCode == RESULT_OK && requestCode == EDITOR_PREVIEW_REQUEST_CODE) {
+            boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
+            if (shouldBackToChannel) {
+                setResult(RESULT_OK);
+                finish();
+            }
         }
     }
 
@@ -2110,10 +2116,11 @@ public class BardEditorActivity extends BaseActivity implements
         intent.putExtra("wordTags", TextUtils.join(",",lastMergedWordTagList));
         intent.putExtra("sceneToken", sceneToken);
         intent.putExtra("characterToken", characterToken);
+        intent.putExtra("channelToken", channelToken);
         if (scene != null) {
             intent.putExtra("sceneName", scene.getName());
         }
-        startActivity(intent);
+        startActivityForResult(intent, EDITOR_PREVIEW_REQUEST_CODE);
     }
 
 

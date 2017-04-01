@@ -66,5 +66,8 @@ public interface BardService {
     @POST("channels")
     Call<Channel> createChannel(@Body HashMap<String, String> body);
 
+    @POST("repos/{repoToken}/post_to_channel")
+    Call<HashMap<String, String>> postRepoToChannel(@Path("repoToken") String repoToken, @Body HashMap<String, String> body);
+
 }
 

@@ -74,6 +74,8 @@ public class Helper {
     public static final int SHARE_SCENE_REQUEST_CODE = 6;
     public static final int SHARE_PACK_REQUEST_CODE = 7;
     public static final int CHANNEL_REQUEST_CODE = 8;
+    public static final int BARD_EDITOR_REQUEST_CODE = 9;
+    public static final int EDITOR_PREVIEW_REQUEST_CODE = 10;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String NEW_SCENE_TYPE = "latest";
@@ -436,56 +438,14 @@ public class Helper {
         void onPublished(Repo repo);
     }
 
-//    public static void saveRepo(Context context, String wordTagListString, final String sceneToken, final String sceneName, final OnRepoSaved listener) {
-//        progressDialog = new ProgressDialog(context);
-//        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-//        progressDialog.setMessage("Saving...");
-//        progressDialog.show();
-//
-//        final String wordList = wordTagListString;
-//
-//        // upload to S3
-//
-//        final String uuid = UUID.randomUUID().toString();
-//        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
-//        TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
-//        TransferObserver observer = transferUtility.upload(
-//                Configuration.s3UserBucket(),
-//                getRepositoryS3Key(uuid),
-//                new File(Storage.getMergedOutputFilePath())
-//        );
-//
-//        observer.setTransferListener(new TransferListener(){
-//
-//            @Override
-//            public void onStateChanged(int id, TransferState state) {
-//                // do something
-//                if (state == TransferState.COMPLETED) {
-//                    saveRemoteRepo(uuid, wordList, sceneToken, sceneName, listener);
-//                }
-//            }
-//
-//            @Override
-//            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-//                int percentage = (int) (bytesCurrent/bytesTotal * 100);
-//                //Display percentage transfered to user
-//            }
-//
-//            @Override
-//            public void onError(int id, Exception ex) {
-//                // do something
-//                displayError("Unable to upload to server", ex);
-//            }
-//
-//        });
-//
-//    }
-
-    private static void saveRemoteRepo(final Repo repo, String uuid, final OnRepoPublished listener) {
+    private static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("uuid", uuid);
         body.put("word_list", repo.getWordList());
         body.put("scene_token", repo.getSceneToken());
+        if (channelToken != null) {
+            body.put("channel_token", channelToken);
+        }
 //        body.put("character_token", this.characterToken);
         Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepo(body);
 
@@ -511,7 +471,7 @@ public class Helper {
         });
     }
 
-    public static void publishRepo(final Repo repo, Context context, final OnRepoPublished listener) {
+    public static void publishRepo(final Repo repo, Context context, final String channelToken, final OnRepoPublished listener) {
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
         progressDialog.setMessage("Publishing...");
@@ -537,7 +497,7 @@ public class Helper {
             public void onStateChanged(int id, TransferState state) {
                 // do something
                 if (state == TransferState.COMPLETED) {
-                    saveRemoteRepo(repo, uuid, listener);
+                    saveRemoteRepo(repo, uuid, channelToken, listener);
                 }
             }
 
