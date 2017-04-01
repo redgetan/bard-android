@@ -54,7 +54,7 @@ public class ChannelFeedFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_feed_list);
         initFeed();
-        getChannelFeedsNextPage(1);
+//        getChannelFeedsNextPage(1);
 
         return view;
     }

@@ -9,17 +9,19 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.roplabs.bard.R;
-import im.ene.toro.exoplayer2.ExoVideoView;
-import im.ene.toro.exoplayer2.ExoVideoViewHolder;
+import im.ene.toro.exoplayer2.*;
 
-public class VideoViewHolder extends ExoVideoViewHolder {
+public class VideoViewHolder extends ExoPlayerViewHolder {
 
     static final int LAYOUT_RES = R.layout.channel_feed_item;
 
     private TimelineItem.VideoItem videoItem;
     private ImageView mThumbnail;
     private TextView mInfo;
+    private MediaSource mediaSource;
 
     public VideoViewHolder(View itemView) {
         super(itemView);
@@ -27,8 +29,13 @@ public class VideoViewHolder extends ExoVideoViewHolder {
         mInfo = (TextView) itemView.findViewById(R.id.info);
     }
 
-    @Override protected ExoVideoView findVideoView(View itemView) {
-        return (ExoVideoView) itemView.findViewById(R.id.video);
+    @Override protected ExoPlayerView findVideoView(View itemView) {
+        return (ExoPlayerView) itemView.findViewById(R.id.video);
+    }
+
+    @Override
+    protected MediaSource getMediaSource() {
+        return this.mediaSource;
     }
 
     @Override protected void onBind(RecyclerView.Adapter adapter, @Nullable Object object) {
@@ -38,7 +45,16 @@ public class VideoViewHolder extends ExoVideoViewHolder {
         }
 
         this.videoItem = (TimelineItem.VideoItem) ((TimelineItem) object).getEmbedItem();
-        this.playerView.setMedia(Uri.parse(videoItem.getVideoUrl()));
+        String userAgent = com.google.android.exoplayer2.util.Util.getUserAgent(itemView.getContext(), "Toro-sample");
+        Uri uri = Uri.parse(this.videoItem.getVideoUrl());
+        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(itemView.getContext(),
+                        userAgent);
+        this.mediaSource = ExoPlayerHelper.buildMediaSource(
+                                itemView.getContext(),
+                                uri,
+                                dataSourceFactory,
+                                itemView.getHandler(),
+                null);
     }
 
     @Override public void setOnItemClickListener(View.OnClickListener listener) {
