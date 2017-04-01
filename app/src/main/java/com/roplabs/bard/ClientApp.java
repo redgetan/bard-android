@@ -10,6 +10,7 @@ import com.roplabs.bard.db.DBMigration;
 import com.roplabs.bard.models.AmazonCognito;
 import com.roplabs.bard.util.CrashReporter;
 import com.squareup.leakcanary.LeakCanary;
+import im.ene.toro.Toro;
 import io.fabric.sdk.android.Fabric;
 import io.realm.Realm;
 import io.realm.RealmConfiguration;
@@ -35,6 +36,7 @@ public class ClientApp extends MultiDexApplication {
         Realm.setDefaultConfiguration(config);
 
         AmazonCognito.init(this);
+        Toro.init(this);
         Fabric.with(this, new Crashlytics());
 //        CrashReporter.init(this);
     }

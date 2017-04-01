@@ -23,7 +23,7 @@
                 android:padding="4dp"
 >
 
-    <TextureView
+    <im.ene.toro.exoplayer2.ExoVideoView
             android:id="@+id/video"
             android:layout_width="match_parent"
             android:layout_height="180dp"
