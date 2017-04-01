@@ -115,6 +115,17 @@ public class DBMigration implements RealmMigration {
                         .addField("username", String.class)
                         .addField("createdAt", Date.class);
             }
+
+            oldVersion++;
+        }
+
+        // migrate to version 10
+        if (oldVersion == 9) {
+            schema.get("Repo")
+                    .addField("sourceUrl", String.class);
+
+
+            oldVersion++;
         }
 
     }

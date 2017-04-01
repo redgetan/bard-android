@@ -14,6 +14,8 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.roplabs.bard.R;
 import im.ene.toro.exoplayer2.*;
 
+import java.io.File;
+
 public class VideoViewHolder extends ExoPlayerViewHolder {
 
     static final int LAYOUT_RES = R.layout.channel_feed_item;
@@ -46,8 +48,9 @@ public class VideoViewHolder extends ExoPlayerViewHolder {
 
         this.videoItem = (TimelineItem.VideoItem) ((TimelineItem) object).getEmbedItem();
         String userAgent = com.google.android.exoplayer2.util.Util.getUserAgent(itemView.getContext(), "Toro-sample");
-        Uri uri = Uri.parse(this.videoItem.getVideoUrl());
-        DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(itemView.getContext(),
+//        Uri uri = Uri.parse(this.videoItem.getVideoUrl());
+        Uri uri = Uri.fromFile(new File("/storage/emulated/0/Movies/Bard/1487885490.mp4"));
+                DefaultDataSourceFactory dataSourceFactory = new DefaultDataSourceFactory(itemView.getContext(),
                         userAgent);
         this.mediaSource = ExoPlayerHelper.buildMediaSource(
                                 itemView.getContext(),

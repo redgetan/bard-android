@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import com.roplabs.bard.models.Repo;
 import im.ene.toro.BaseAdapter;
 import im.ene.toro.ToroAdapter;
 import java.util.ArrayList;
@@ -18,16 +19,15 @@ public class TimelineAdapter extends BaseAdapter<ToroAdapter.ViewHolder>
     static final int TYPE_VIDEO = 3;
 
 
-    private static final int ITEM_COUNT = 10;
     private final List<TimelineItem> items;
     private Context context;
 
-    public TimelineAdapter(Context context) {
+    public TimelineAdapter(Context context, List<Repo> repoList) {
         this.context = context;
 
         this.items = new ArrayList<TimelineItem>();
-        for (int i = 0; i < ITEM_COUNT; i++) {
-            items.add(new TimelineItem(context));
+        for (int i = 0; i < repoList.size(); i++) {
+            items.add(new TimelineItem(context, repoList.get(i)));
         }
     }
 
@@ -62,12 +62,12 @@ public class TimelineAdapter extends BaseAdapter<ToroAdapter.ViewHolder>
     }
 
     @Override public int getItemCount() {
-        return ITEM_COUNT;
+        return this.items.size();
     }
 
     @Override public int firstVideoPosition() {
         int firstVideo = -1;
-        for (int i = 0; i < ITEM_COUNT; i++) {
+        for (int i = 0; i < items.size(); i++) {
             if (TimelineItem.VideoItem.class.getSimpleName()
                     .equals(getItem(i).getEmbedItem().getClassName())) {
                 firstVideo = i;

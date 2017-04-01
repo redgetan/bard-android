@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelFeedAdapter;
 import com.roplabs.bard.models.Repo;
@@ -60,7 +61,8 @@ public class ChannelFeedFragment extends Fragment {
     }
 
     private void initFeed() {
-        this.repoList = new ArrayList<Repo>();
+//        this.repoList = new ArrayList<Repo>();
+        this.repoList = Repo.forUsername(Setting.getUsername(ClientApp.getContext()));
 
         // set adapter
 //        ChannelFeedAdapter adapter = new ChannelFeedAdapter(getActivity(), this.repoList);
@@ -71,7 +73,7 @@ public class ChannelFeedFragment extends Fragment {
 //            }
 //        });
 
-        adapter = new TimelineAdapter(getActivity());
+        adapter = new TimelineAdapter(getActivity(), this.repoList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);

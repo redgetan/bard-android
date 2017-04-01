@@ -14,6 +14,7 @@ public class Repo extends RealmObject {
 
     private String token;
     private String url;
+    private String sourceUrl;
     private String filePath;
     private String username;
     private Boolean isPublished;
@@ -239,5 +240,13 @@ public class Repo extends RealmObject {
         this.token = token;
     }
 
+
+    public String getSourceUrl() {
+        return this.sourceUrl;
+    }
+
+    public void setSourceUrl(String sourceUrl) {
+        this.sourceUrl = sourceUrl;
+    }
 
 }
