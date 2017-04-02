@@ -210,7 +210,7 @@ public class EditorPreviewActivity extends BaseActivity {
                             public void onPublished(Repo publishedRepo) {
                                 Intent intent = new Intent();
                                 intent.putExtra("backToChannel", true);
-                                setResult(RESULT_OK);
+                                setResult(RESULT_OK, intent);
                                 finish();
                             }
                         });
