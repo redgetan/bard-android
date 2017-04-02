@@ -36,10 +36,9 @@ import retrofit2.Response;
 import java.util.*;
 
 public class SceneSelectFragment extends Fragment {
-    public static final String ARG_PAGE = "ARG_PAGE";
     public static final String SCENE_TYPE = "SCENE_TYPE";
+    public static final String CHANNEL_TOKEN = "CHANNEL_TOKEN";
 
-    private int mPage;
     private boolean isVisibleToUser = false;
 
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
@@ -55,6 +54,7 @@ public class SceneSelectFragment extends Fragment {
     public List<Scene> sceneList;
     private EndlessRecyclerViewScrollListener scrollListener;
     private String sceneType;
+    private String channelToken;
     private EditText searchBar;
     private LinearLayout sceneComboContainer;
     private LinearLayout sceneComboListContainer;
@@ -74,9 +74,17 @@ public class SceneSelectFragment extends Fragment {
         public void onItemLongClick(Scene scene);
     }
 
-    public static SceneSelectFragment newInstance(String sceneType, int page) {
+    public static SceneSelectFragment newInstance(String sceneType) {
         Bundle args = new Bundle();
-        args.putInt(ARG_PAGE, page);
+        args.putString(SCENE_TYPE, sceneType);
+        SceneSelectFragment fragment = new SceneSelectFragment();
+        fragment.setArguments(args);
+        return fragment;
+    }
+
+    public static SceneSelectFragment newInstance(String sceneType, String channelToken) {
+        Bundle args = new Bundle();
+        args.putString(CHANNEL_TOKEN, channelToken);
         args.putString(SCENE_TYPE, sceneType);
         SceneSelectFragment fragment = new SceneSelectFragment();
         fragment.setArguments(args);
@@ -86,8 +94,8 @@ public class SceneSelectFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mPage = getArguments().getInt(ARG_PAGE);
         sceneType = getArguments().getString(SCENE_TYPE);
+        channelToken = getArguments().getString(CHANNEL_TOKEN);
     }
 
     @Override
@@ -95,8 +103,6 @@ public class SceneSelectFragment extends Fragment {
                              Bundle savedInstanceState) {
         fragmentContainer = container;
         View view = inflater.inflate(R.layout.fragment_scene_list, container, false);
-//        TextView textView = (TextView) view;
-//        textView.setText("Fragment #" + mPage);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.scene_list);
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
@@ -185,6 +191,10 @@ public class SceneSelectFragment extends Fragment {
         }
 
         map.put("category", sceneType);
+
+        if (channelToken != null) {
+            map.put("channel_token", channelToken);
+        }
         syncRemoteData(map);
     }
 
@@ -354,6 +364,9 @@ public class SceneSelectFragment extends Fragment {
         Map<String, String> data = new HashMap<String, String>();
         data.put("page", String.valueOf(page));
         data.put("category", sceneType);
+        if (channelToken != null) {
+            data.put("channel_token", channelToken);
+        }
 
         String search = getSearchQuery();
 

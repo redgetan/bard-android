@@ -28,7 +28,7 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
-        return SceneSelectFragment.newInstance(sceneType, position + 1);
+        return SceneSelectFragment.newInstance(sceneType);
     }
 
     @Override

@@ -14,10 +14,12 @@ public class ChannelPagerAdapter extends FragmentPagerAdapter {
             Helper.CHANNEL_VIDEOS
     };
     private Context context;
+    private String channelToken;
 
-    public ChannelPagerAdapter(FragmentManager fm, Context context) {
+    public ChannelPagerAdapter(FragmentManager fm, Context context, String channelToken) {
         super(fm);
         this.context = context;
+        this.channelToken = channelToken;
     }
 
     @Override
@@ -30,9 +32,9 @@ public class ChannelPagerAdapter extends FragmentPagerAdapter {
         if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
             return ChannelFeedFragment.newInstance();
         } else if (tabTitles[position].equals(Helper.CHANNEL_VIDEOS)) {
-            return SceneSelectFragment.newInstance(Helper.CHANNEL_VIDEOS, position + 1);
+            return SceneSelectFragment.newInstance(Helper.CHANNEL_VIDEOS, channelToken);
         } else {
-            return SceneSelectFragment.newInstance(Helper.CHANNEL_VIDEOS, position + 1);
+            return SceneSelectFragment.newInstance(Helper.CHANNEL_VIDEOS, channelToken);
         }
     }
 

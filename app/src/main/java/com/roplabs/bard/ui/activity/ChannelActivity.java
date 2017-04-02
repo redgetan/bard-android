@@ -106,7 +106,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.channel_pager);
         viewPager.setAdapter(new ChannelPagerAdapter(getSupportFragmentManager(),
-                ChannelActivity.this));
+                ChannelActivity.this, channelToken));
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

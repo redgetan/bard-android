@@ -341,7 +341,7 @@ public class Helper {
                 .withToolbar(toolbar)
                 .addDrawerItems(
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
-                        new PrimaryDrawerItem().withName(R.string.my_channels).withTextColor(textColor).withIdentifier(MY_CHANNELS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_theaters_black_24dp).withBadge(channelCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
+//                        new PrimaryDrawerItem().withName(R.string.my_channels).withTextColor(textColor).withIdentifier(MY_CHANNELS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_theaters_black_24dp).withBadge(channelCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp).withBadge(packCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
