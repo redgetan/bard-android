@@ -8,9 +8,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewParent;
+import android.widget.FrameLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelFeedAdapter;
+import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.models.Post;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
@@ -20,23 +25,29 @@ import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
 import im.ene.toro.Toro;
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroStrategy;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 public class ChannelFeedFragment extends Fragment {
 
-    private List<Repo> repoList;
+    private List<Post> postList;
     private RecyclerView recyclerView;
     private EndlessRecyclerViewScrollListener scrollListener;
     TimelineAdapter adapter;
+    private ProgressBar progressBar;
+    private String channelToken;
 
+    private FrameLayout emptyStateContainer;
+    private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
 
-    public static ChannelFeedFragment newInstance() {
+    public static ChannelFeedFragment newInstance(String channelToken) {
         Bundle args = new Bundle();
         ChannelFeedFragment fragment = new ChannelFeedFragment();
+        args.putString("channelToken", channelToken);
         fragment.setArguments(args);
         return fragment;
     }
@@ -44,6 +55,8 @@ public class ChannelFeedFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        channelToken = getArguments().getString("channelToken");
     }
 
     @Override
@@ -54,26 +67,26 @@ public class ChannelFeedFragment extends Fragment {
 
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_feed_list);
-        initFeed();
-//        getChannelFeedsNextPage(1);
+        progressBar = (ProgressBar) view.findViewById(R.id.channel_feed_progress_bar);
+        this.postList = new ArrayList<Post>();
+
+//        initFeed();
+        initEmptyState(view);
+        getChannelFeedsNextPage(1);
 
         return view;
     }
 
+    private void initEmptyState(View view) {
+        emptyStateContainer = (FrameLayout) view.findViewById(R.id.empty_state_no_internet_container);
+        emptyStateTitle = (TextView) view.findViewById(R.id.empty_state_title);
+        emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
+
+        emptyStateContainer.setVisibility(View.GONE);
+    }
+
     private void initFeed() {
-//        this.repoList = new ArrayList<Repo>();
-        this.repoList = Repo.forUsername(Setting.getUsername(ClientApp.getContext()));
-
-        // set adapter
-//        ChannelFeedAdapter adapter = new ChannelFeedAdapter(getActivity(), this.repoList);
-//        adapter.setOnItemClickListener(new ChannelFeedAdapter.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(View itemView, int position, Repo repo) {
-//                parentListener.onItemClick(scene);
-//            }
-//        });
-
-        adapter = new TimelineAdapter(getActivity(), this.repoList);
+        adapter = new TimelineAdapter(getActivity(), this.postList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
@@ -134,23 +147,55 @@ public class ChannelFeedFragment extends Fragment {
         Toro.unregister(recyclerView);
     }
 
-    private void getChannelFeedsNextPage(int page) {
-        if (page == 1) {
-            List<Repo> repos = Repo.forUsername(Setting.getUsername(getActivity()));
-            populateFeed(repos);
-        }
+    private void getChannelFeedsNextPage(final int page) {
+        Map<String, String> options = new HashMap<String, String>();
+        options.put("page", String.valueOf(page));
+
+        // fetch remote
+
+        Call<List<Post>> call = BardClient.getAuthenticatedBardService().getChannelPosts(channelToken, options);
+        call.enqueue(new Callback<List<Post>>() {
+            @Override
+            public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                List<Post> remotePostList = response.body();
+                if (remotePostList == null) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                    emptyStateTitle.setText("Request Failed");
+                    emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                } else if (remotePostList.isEmpty() && page == 1) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                    emptyStateTitle.setText("Make your first Post");
+                    emptyStateDescription.setText("No one has posted in this channel yet");
+                } else {
+                    emptyStateContainer.setVisibility(View.GONE);
+                    populateFeed(remotePostList);
+                }
+
+            }
+
+            @Override
+            public void onFailure(Call<List<Post>> call, Throwable t) {
+                emptyStateContainer.setVisibility(View.VISIBLE);
+                emptyStateTitle.setText("Request Failed");
+                emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+            }
+        });
+
     }
 
-    private void populateFeed(List<Repo> remoteRepoList) {
-        int oldPosition = repoList.size();
+
+
+    private void populateFeed(List<Post> remotePostList) {
+        int oldPosition = postList.size();
         int itemAdded = 0;
-        for (Repo remoteRepo : remoteRepoList) {
-            if (!repoList.contains(remoteRepo)) {
-                repoList.add(remoteRepo);
+        for (Post remoteRepo : remotePostList) {
+            if (!postList.contains(remoteRepo)) {
+                postList.add(remoteRepo);
                 itemAdded++;
             }
         }
-        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
+        initFeed();
+//        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
 
     }
 }

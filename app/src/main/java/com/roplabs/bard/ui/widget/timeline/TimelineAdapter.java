@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.view.ViewGroup;
+import com.roplabs.bard.models.Post;
 import com.roplabs.bard.models.Repo;
 import im.ene.toro.BaseAdapter;
 import im.ene.toro.ToroAdapter;
@@ -22,12 +23,12 @@ public class TimelineAdapter extends BaseAdapter<ToroAdapter.ViewHolder>
     private final List<TimelineItem> items;
     private Context context;
 
-    public TimelineAdapter(Context context, List<Repo> repoList) {
+    public TimelineAdapter(Context context, List<Post> postList) {
         this.context = context;
 
         this.items = new ArrayList<TimelineItem>();
-        for (int i = 0; i < repoList.size(); i++) {
-            items.add(new TimelineItem(context, repoList.get(i)));
+        for (int i = 0; i < postList.size(); i++) {
+            items.add(new TimelineItem(context, postList.get(i)));
         }
     }
 

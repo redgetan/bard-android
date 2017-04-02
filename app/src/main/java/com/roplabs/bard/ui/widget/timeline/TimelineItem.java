@@ -6,6 +6,7 @@ import android.os.Parcelable;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import com.roplabs.bard.R;
+import com.roplabs.bard.models.Post;
 import com.roplabs.bard.models.Repo;
 
 public class TimelineItem {
@@ -13,12 +14,12 @@ public class TimelineItem {
     @NonNull private final FbUser author;
     @NonNull private final String itemContent;
     @NonNull private final EmbedItem embedItem;
-    private Repo repo;
+    private Post post;
 
-    public TimelineItem(Context context, Repo repo) {
+    public TimelineItem(Context context, Post post) {
         author = new FbUser();
         itemContent = "hello world yoshi";
-        embedItem = Factory.newItem(context, repo);
+        embedItem = Factory.newItem(context, post);
     }
 
     @NonNull public FbUser getAuthor() {
@@ -58,8 +59,8 @@ public class TimelineItem {
             videoUrl = "http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4";
         }
 
-        public VideoItem(Repo repo) {
-            this.videoUrl = repo.getUrl();
+        public VideoItem(Post post) {
+            this.videoUrl = post.getRepoSourceUrl();
         }
 
         protected VideoItem(Parcel in) {
@@ -100,8 +101,8 @@ public class TimelineItem {
 
     static class Factory {
 
-        static EmbedItem newItem(Context context, Repo repo) {
-            return new VideoItem(repo);
+        static EmbedItem newItem(Context context, Post post) {
+            return new VideoItem(post);
         }
     }
 }

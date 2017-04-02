@@ -10,6 +10,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class BardClient {
@@ -85,10 +86,13 @@ public class BardClient {
                         return false;
                     }
                 })
+                .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
                 .create();
 
         return GsonConverterFactory.create(gson);
     }
+
+
 }
 
 

@@ -225,7 +225,7 @@ public class EditorPreviewActivity extends BaseActivity {
                     public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
                         Intent intent = new Intent();
                         intent.putExtra("backToChannel", true);
-                        setResult(RESULT_OK);
+                        setResult(RESULT_OK, intent);
                         finish();
                     }
 

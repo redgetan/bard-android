@@ -1,9 +1,7 @@
 package com.roplabs.bard.api;
 
-import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
-import com.roplabs.bard.models.Scene;
-import com.roplabs.bard.models.User;
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -65,6 +63,9 @@ public interface BardService {
 
     @POST("channels")
     Call<Channel> createChannel(@Body HashMap<String, String> body);
+
+    @GET("channels/{channelToken}/posts")
+    Call<List<Post>> getChannelPosts(@Path("channelToken") String channelToken, @QueryMap Map<String, String> options);
 
     @POST("repos/{repoToken}/post_to_channel")
     Call<HashMap<String, String>> postRepoToChannel(@Path("repoToken") String repoToken, @Body HashMap<String, String> body);

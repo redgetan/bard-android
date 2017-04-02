@@ -30,7 +30,7 @@ public class ChannelPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
-            return ChannelFeedFragment.newInstance();
+            return ChannelFeedFragment.newInstance(channelToken);
         } else if (tabTitles[position].equals(Helper.CHANNEL_VIDEOS)) {
             return SceneSelectFragment.newInstance(Helper.CHANNEL_VIDEOS, channelToken);
         } else {

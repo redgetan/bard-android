@@ -34,6 +34,11 @@ public class Post extends RealmObject {
         this.createdAt = createdAt;
     }
 
+    public static RealmResults<Post> findAll() {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Post.class).findAll();
+    }
+
     public static int getCount() {
         Realm realm = Realm.getDefaultInstance();
         return (int) realm.where(Post.class).count();
@@ -53,7 +58,7 @@ public class Post extends RealmObject {
     }
 
     public static void create(Post remotePost) {
-        create(remotePost.getId(), remotePost.getRepoTitle(), remotePost.getDescription(), remotePost.getCreatedAt());
+        create(remotePost.getId(), remotePost.getRepoTitle(), remotePost.getRepoSourceUrl(), remotePost.getCreatedAt());
     }
 
     public static Post create(int id, String name, String repoSourceUrl, Date createdAt) {
@@ -65,7 +70,7 @@ public class Post extends RealmObject {
 
         post.setId(id);
         post.setRepoTitle(name);
-        post.setDescription(repoSourceUrl);
+        post.setRepoSourceUrl(repoSourceUrl);
         post.setUsername(Setting.getUsername(ClientApp.getContext()));
 
         realm.commitTransaction();
@@ -105,11 +110,11 @@ public class Post extends RealmObject {
         this.repoTitle = repoTitle;
     }
 
-    public String getDescription() {
+    public String getRepoSourceUrl() {
         return this.repoSourceUrl;
     }
 
-    public void setDescription(String repoSourceUrl) {
+    public void setRepoSourceUrl(String repoSourceUrl) {
         this.repoSourceUrl = repoSourceUrl;
     }
 
@@ -143,7 +148,7 @@ public class Post extends RealmObject {
                 Post.create(post);
             } else {
                 obj.setRepoTitle(post.getRepoTitle());
-                obj.setDescription(post.getDescription());
+                obj.setRepoSourceUrl(post.getRepoSourceUrl());
             }
         }
         realm.commitTransaction();

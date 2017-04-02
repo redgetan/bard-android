@@ -79,10 +79,11 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         title.setText(R.string.app_name);
         title.setTextSize(24);
 
+        channelToken = Configuration.mainChannelToken();
+
         initPager();
         initCombo();
 
-        channelToken = Configuration.mainChannelToken();
         postInitSetup();
     }
 
@@ -140,7 +141,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.scene_select_pager);
         viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(),
-                SceneSelectActivity.this));
+                SceneSelectActivity.this, channelToken));
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

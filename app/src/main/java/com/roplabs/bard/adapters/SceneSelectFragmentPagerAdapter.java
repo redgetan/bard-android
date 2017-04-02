@@ -17,10 +17,12 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
             Helper.CHANNEL_FEED
     };
     private Context context;
+    private String channelToken;
 
-    public SceneSelectFragmentPagerAdapter(FragmentManager fm, Context context) {
+    public SceneSelectFragmentPagerAdapter(FragmentManager fm, Context context, String channelToken) {
         super(fm);
         this.context = context;
+        this.channelToken = channelToken;
     }
 
     @Override
@@ -32,7 +34,7 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
         if (sceneType.equals(Helper.CHANNEL_FEED)) {
-            return ChannelFeedFragment.newInstance();
+            return ChannelFeedFragment.newInstance(channelToken);
         } else {
             return SceneSelectFragment.newInstance(sceneType);
         }
