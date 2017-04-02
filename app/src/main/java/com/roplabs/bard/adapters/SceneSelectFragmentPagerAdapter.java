@@ -4,6 +4,8 @@ import android.content.Context;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import com.roplabs.bard.config.Configuration;
+import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.ui.fragment.SearchResultFragment;
 import com.roplabs.bard.util.Helper;
@@ -11,7 +13,8 @@ import com.roplabs.bard.util.Helper;
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
             Helper.ONLINE_LIBRARY,
-            Helper.MY_VIDEOS
+            Helper.MY_VIDEOS,
+            Helper.CHANNEL_FEED
     };
     private Context context;
 
@@ -28,7 +31,11 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
-        return SceneSelectFragment.newInstance(sceneType);
+        if (sceneType.equals(Helper.CHANNEL_FEED)) {
+            return ChannelFeedFragment.newInstance();
+        } else {
+            return SceneSelectFragment.newInstance(sceneType);
+        }
     }
 
     @Override
@@ -39,7 +46,7 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
             return "All";
         } else {
-            return "All";
+            return "Feed";
         }
     }
 

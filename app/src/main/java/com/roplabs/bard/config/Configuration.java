@@ -19,6 +19,10 @@ public class Configuration {
         }
     }
 
+    public static String mainChannelToken() {
+        return "l9rkdM6ea4I";
+    }
+
     public static String segmentsCdnPath() {
         if (BuildConfig.FLAVOR.equals("dev")) {
             return "https://s3-us-west-2.amazonaws.com/roplabs-mad-staging";

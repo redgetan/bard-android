@@ -49,8 +49,8 @@
                 android:minWidth="0dp"
                 android:textAllCaps="false"
                 android:layout_gravity="right|center_vertical"
-                android:background="@color/md_blue_500"
-                android:text="Post"
+                android:background="@android:color/transparent"
+                android:text="Share"
                 android:textColor="@color/white"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"
@@ -120,7 +120,7 @@
 
             <LinearLayout
                     android:background="@android:color/transparent"
-                    android:onClick="openSharingInPreview"
+                    android:onClick="postRepoToChannel"
                     android:layout_width="wrap_content"
                     android:layout_height="40dp"
                     android:layout_marginTop="20dp"
@@ -138,7 +138,7 @@
                 <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:text="Share"
+                        android:text="Post"
                         android:textColor="@color/white"
                         android:paddingLeft="5dp"
                         android:textSize="16sp"

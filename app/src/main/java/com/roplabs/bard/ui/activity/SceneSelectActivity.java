@@ -23,6 +23,7 @@ import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
@@ -61,6 +62,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     private Button clearSceneComboButton;
     private Button enterSceneComboButton;
     private ProgressBar sceneDownloadProgress;
+    private String channelToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,6 +82,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         initPager();
         initCombo();
 
+        channelToken = Configuration.mainChannelToken();
         postInitSetup();
     }
 
@@ -122,6 +125,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
                 Intent intent = new Intent(getApplicationContext(), BardEditorActivity.class);
                 intent.putExtra("characterToken", "");
+                intent.putExtra("channelToken", channelToken);
                 intent.putExtra("sceneToken", "");
                 intent.putExtra("sceneTokens", TextUtils.join(",",sceneTokens));
                 BardLogger.trace("[multiSceneSelect] " + sceneTokens.toString());
@@ -168,12 +172,14 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
         if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("channelToken", channelToken);
             newIntent.putExtra("characterToken", "");
             newIntent.putExtra("sceneToken", sceneToken);
             BardLogger.trace("[sceneDeepLink] " + sceneToken);
             startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
         } else if ((characterToken = intent.getStringExtra("packTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("channelToken", channelToken);
             newIntent.putExtra("characterToken", characterToken);
             newIntent.putExtra("sceneToken", "");
             BardLogger.trace("[packDeepLink] " + characterToken);
@@ -274,6 +280,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     public void onItemClick(Scene scene) {
         if (sceneComboList.isEmpty()) {
             Intent intent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("channelToken", channelToken);
             intent.putExtra("characterToken", "");
             intent.putExtra("sceneToken", scene.getToken());
             BardLogger.trace("[sceneSelect] " + scene.getToken());
