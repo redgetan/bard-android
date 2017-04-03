@@ -105,7 +105,6 @@ public class ChannelFeedFragment extends Fragment implements
 
         initFeed();
         initEmptyState(view);
-        getChannelFeedsNextPage(1);
         initVideoPlayer();
 
         return view;
@@ -256,17 +255,17 @@ public class ChannelFeedFragment extends Fragment implements
 //        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(getActivity(), R.dimen.scene_item_offset);
 //        recyclerView.addItemDecoration(itemDecoration);
 
-//        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
-//            @Override
-//            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-//                // Triggered only when new data needs to be appended to the list
-//                // Add whatever code is needed to append new items to the bottom of the list
-//                BardLogger.log("LOAD_MORE: " + page);
-//                getChannelFeedsNextPage(page);
-//            }
-//        };
-//
-//        recyclerView.addOnScrollListener(scrollListener);
+        scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
+            @Override
+            public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
+                // Triggered only when new data needs to be appended to the list
+                // Add whatever code is needed to append new items to the bottom of the list
+                BardLogger.log("LOAD_MORE: " + page);
+                getChannelFeedsNextPage(page);
+            }
+        };
+
+        recyclerView.addOnScrollListener(scrollListener);
     }
 
     @Override
@@ -280,10 +279,13 @@ public class ChannelFeedFragment extends Fragment implements
 
         // fetch remote
 
+        progressBar.setVisibility(View.VISIBLE);
+
         Call<List<Post>> call = BardClient.getAuthenticatedBardService().getChannelPosts(channelToken, options);
         call.enqueue(new Callback<List<Post>>() {
             @Override
             public void onResponse(Call<List<Post>> call, Response<List<Post>> response) {
+                progressBar.setVisibility(View.GONE);
                 List<Post> remotePostList = response.body();
                 if (remotePostList == null) {
                     emptyStateContainer.setVisibility(View.VISIBLE);
@@ -296,12 +298,20 @@ public class ChannelFeedFragment extends Fragment implements
                 } else {
                     emptyStateContainer.setVisibility(View.GONE);
                     populateFeed(remotePostList);
+
+                    // play first item if first page loaded
+                    if (!postList.isEmpty() && page == 1) {
+                        int firstItemPosition = 0;
+                        playPost(postList.get(firstItemPosition));
+                        ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(firstItemPosition);
+                    }
                 }
 
             }
 
             @Override
             public void onFailure(Call<List<Post>> call, Throwable t) {
+                progressBar.setVisibility(View.GONE);
                 emptyStateContainer.setVisibility(View.VISIBLE);
                 emptyStateTitle.setText("Request Failed");
                 emptyStateDescription.setText("Tap to refresh.");
@@ -312,7 +322,17 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onResume() {
+        refreshFeed();
+
         super.onResume();
+    }
+
+    private void refreshFeed() {
+        postList.clear();
+        recyclerView.getAdapter().notifyDataSetChanged();
+        scrollListener.resetState();
+
+        getChannelFeedsNextPage(1);
     }
 
     private void populateFeed(List<Post> remotePostList) {
@@ -325,11 +345,6 @@ public class ChannelFeedFragment extends Fragment implements
             }
         }
         recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
-
-        // play first item if none is loaded
-        if (currentPost == null) {
-            playPost(postList.get(0));
-        }
     }
 
 
@@ -424,7 +439,7 @@ public class ChannelFeedFragment extends Fragment implements
     public void onPrepared(MediaPlayer mp) {
         BardLogger.trace("mediaplayer onPrepared. playing it");
         isVideoReady = true;
-//        channelFeedVideoProgress.setVisibility(View.GONE);
+        hideFeedVideoProgress();
         channelFeedControls.setVisibility(View.VISIBLE);
 
         mp.start();

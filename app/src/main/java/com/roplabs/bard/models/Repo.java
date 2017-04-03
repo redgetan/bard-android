@@ -85,6 +85,7 @@ public class Repo extends RealmObject {
 
         this.setToken(token);
         this.setUrl(repoUrl);
+        this.setIsPublished(true);
 
         realm.commitTransaction();
     }
@@ -133,6 +134,7 @@ public class Repo extends RealmObject {
     }
 
     public Boolean getIsPublished() {
+        if (isPublished == null) return false;
         return isPublished;
     }
 

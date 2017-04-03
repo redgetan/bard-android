@@ -195,12 +195,17 @@ public class EditorPreviewActivity extends BaseActivity {
 
     }
 
+    /* repo can be either of 4 states
+      1. not saved                                 (must save local + repos#create w/ channelToken)
+      2. saved locally                             (repos#create w/ channelToken)
+      3. saved locally + remotely                  (post_to_channel)
+      4. saved locally + remotely + channel_posted (dont do anything)
+    */
     public void postRepoToChannel(View view) {
         final Context self = this;
         if (!channelToken.isEmpty()) {
-            // publish repo, and post to channel
-            // if repo doesnt exist yet
             if (repo == null) {
+                // 1. not saved                                 (must save local + repos#create w/ channelToken)
                 Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken,  new Helper.OnRepoSaved() {
                     @Override
                     public void onSaved(Repo createdRepo) {
@@ -216,7 +221,21 @@ public class EditorPreviewActivity extends BaseActivity {
                         });
                     }
                 });
-            } else {
+            } else if (!repo.getIsPublished()) {
+                // 2. saved locally                             (repos#create w/ channelToken)
+
+                Helper.publishRepo(repo, self, channelToken, new Helper.OnRepoPublished() {
+                    @Override
+                    public void onPublished(Repo publishedRepo) {
+                        Intent intent = new Intent();
+                        intent.putExtra("backToChannel", true);
+                        setResult(RESULT_OK, intent);
+                        finish();
+                    }
+                });
+            } else if (repo.getIsPublished()){
+                // 3. saved locally + remotely                  (post_to_channel)
+
                 HashMap<String, String> map = new HashMap<String, String>();
                 map.put("channel_token", channelToken);
                 Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepoToChannel(repo.getToken(), map);
@@ -234,7 +253,6 @@ public class EditorPreviewActivity extends BaseActivity {
                         Toast.makeText(self,"Unable to post to channel", Toast.LENGTH_LONG).show();
                     }
                 });
-
             }
 
         }

@@ -18,6 +18,7 @@ public class ChannelFeedAdapter extends
     private List<Post> posts;
     private Context context;
     private View lastSelectedView;
+    private int selectedPosition = -1;
 
     // Pass in the contact array into the constructor
     public ChannelFeedAdapter(Context context, List<Post> postList) {
@@ -52,6 +53,8 @@ public class ChannelFeedAdapter extends
         // Set item views based on the data model
         TextView textView = viewHolder.channelFeedRepoTitle;
         textView.setText(post.getTitle());
+
+        viewHolder.itemView.setSelected(selectedPosition == position);
     }
 
     // Return the total count of items
@@ -97,18 +100,18 @@ public class ChannelFeedAdapter extends
             int position = getLayoutPosition();
             Post post = posts.get(position);
 
-            if (lastSelectedView != null) {
-                lastSelectedView.setSelected(false);
-            }
-
-            v.setSelected(true);
-
-            lastSelectedView = v;
+            setSelected(position);
 
             if (listener != null) {
                 listener.onItemClick(v, position, post);
             }
         }
 
+    }
+
+    public void setSelected(int targetPosition) {
+        notifyItemChanged(selectedPosition);
+        selectedPosition = targetPosition;
+        notifyItemChanged(selectedPosition);
     }
 }
