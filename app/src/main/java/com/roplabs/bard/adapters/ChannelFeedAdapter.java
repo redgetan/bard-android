@@ -1,7 +1,12 @@
 package com.roplabs.bard.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -52,9 +57,34 @@ public class ChannelFeedAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.channelFeedRepoTitle;
-        textView.setText(post.getTitle());
+        textView.setText(buildPostText(post));
 
         viewHolder.itemView.setSelected(selectedPosition == position);
+    }
+
+    private SpannableStringBuilder buildPostText(Post post) {
+        String postUsername;
+        if (post.getUsername().equals("Anonymous")) {
+            postUsername = "";
+        } else {
+            postUsername = post.getUsername() + ":";
+        }
+        String postMessage  = post.getTitle();
+        final SpannableStringBuilder sb = new SpannableStringBuilder(postUsername + " " + postMessage);
+
+        // Span to set text color to some RGB value
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(R.color.purple);
+
+        // Span to make text bold
+        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
+
+        // Set the text color for first 4 characters
+        sb.setSpan(fcs, 0, postUsername.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        // make them also bold
+        sb.setSpan(bss, 0, postUsername.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        return sb;
     }
 
     // Return the total count of items
