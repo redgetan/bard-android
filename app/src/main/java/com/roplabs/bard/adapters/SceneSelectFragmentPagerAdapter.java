@@ -44,9 +44,9 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
         if (tabTitles[position].equals(Helper.MY_VIDEOS)) {
-            return "My Videos";
+            return "Bookmarks";
         } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
-            return "All";
+            return "Videos";
         } else {
             return "Feed";
         }

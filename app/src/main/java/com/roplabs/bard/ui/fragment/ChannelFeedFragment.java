@@ -119,15 +119,68 @@ public class ChannelFeedFragment extends Fragment implements
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
         emptyStateContainer.setVisibility(View.GONE);
+        emptyStateContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                emptyStateContainer.setVisibility(View.GONE);
+                getChannelFeedsNextPage(1);
+            }
+        });
     }
 
     private void showFeedVideoProgress() {
+        BardLogger.trace("showing video download progress");
         channelFeedVideoProgress.setVisibility(View.VISIBLE);
         new android.os.Handler().postDelayed(new Runnable() {
             public void run() {
                 channelFeedVideoProgress.setVisibility(View.GONE);
             }
         }, MAX_PROGRESS_SHOWN_TIME);
+    }
+
+    private void hideFeedVideoProgress() {
+        BardLogger.trace("hide video download progress");
+        channelFeedVideoProgress.setVisibility(View.GONE);
+    }
+
+    private void playPost(Post post) {
+        if (isPostDownloadInProgress) return;
+
+        if (currentPost != post) {
+            // post changed
+            currentPost = post;
+        }
+
+        showFeedVideoProgress();
+
+        if (new File(currentPost.getCachedVideoFilePath()).exists()) {
+            BardLogger.trace("post video already exist in cache, using it instead");
+            playLocalVideo(currentPost.getCachedVideoFilePath());
+            return;
+        }
+
+        if (!Helper.isConnectedToInternet()) {
+            debugView.setText(R.string.no_network_connection);
+            return;
+        }
+
+        isPostDownloadInProgress = true;
+
+
+        Storage.cacheVideo(post.getCacheKey(), post.getRepoSourceUrl(), new Storage.OnCacheVideoListener() {
+            @Override
+            public void onCacheVideoSuccess(String filePath) {
+                isPostDownloadInProgress = false;
+                BardLogger.trace("video cached at " + filePath);
+                playLocalVideo(filePath);
+            }
+
+            @Override
+            public void onCacheVideoFailure() {
+                isPostDownloadInProgress = false;
+                Toast.makeText(getContext(),"Failed to download post", Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void initFeed() {
@@ -142,38 +195,7 @@ public class ChannelFeedFragment extends Fragment implements
         adapter.setOnItemClickListener(new ChannelFeedAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, final Post post) {
-                if (isPostDownloadInProgress) return;
-
-                if (currentPost != post) {
-                    // post changed
-                    currentPost = post;
-                }
-
-//                showFeedVideoProgress();
-                channelFeedVideoProgress.setVisibility(View.VISIBLE);
-
-                if (new File(currentPost.getCachedVideoFilePath()).exists()) {
-                    playLocalVideo(currentPost.getCachedVideoFilePath());
-                    return;
-                }
-
-                isPostDownloadInProgress = true;
-
-
-                Storage.cacheVideo(post.getCacheKey(), post.getRepoSourceUrl(), new Storage.OnCacheVideoListener() {
-                    @Override
-                    public void onCacheVideoSuccess(String filePath) {
-                        isPostDownloadInProgress = false;
-                        BardLogger.trace("video cached at " + filePath);
-                        playLocalVideo(filePath);
-                    }
-
-                    @Override
-                    public void onCacheVideoFailure() {
-                        isPostDownloadInProgress = false;
-                        Toast.makeText(getContext(),"Failed to download post", Toast.LENGTH_LONG).show();
-                    }
-                });
+                playPost(post);
             }
         });
 
@@ -266,7 +288,7 @@ public class ChannelFeedFragment extends Fragment implements
                 if (remotePostList == null) {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Request Failed");
-                    emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                    emptyStateDescription.setText("Tap to refresh.");
                 } else if (remotePostList.isEmpty() && page == 1) {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Make your first Post");
@@ -282,7 +304,7 @@ public class ChannelFeedFragment extends Fragment implements
             public void onFailure(Call<List<Post>> call, Throwable t) {
                 emptyStateContainer.setVisibility(View.VISIBLE);
                 emptyStateTitle.setText("Request Failed");
-                emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                emptyStateDescription.setText("Tap to refresh.");
             }
         });
 
@@ -304,6 +326,10 @@ public class ChannelFeedFragment extends Fragment implements
         }
         recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
 
+        // play first item if none is loaded
+        if (currentPost == null) {
+            playPost(postList.get(0));
+        }
     }
 
 
@@ -336,18 +362,15 @@ public class ChannelFeedFragment extends Fragment implements
 
     public void playLocalVideo(String sourceUrl) {
         debugView.setText("");
-        if (!Helper.isConnectedToInternet()) {
-            debugView.setText(R.string.no_network_connection);
-            return;
-        }
-
         if (lastUrlPlayed.equals(sourceUrl) && isVideoReady) {
+            BardLogger.trace("sourceUrl: " + sourceUrl + " already loaded in mediaplayer. replaying it..");
             mediaPlayer.seekTo(0);
             mediaPlayer.start();
             return;
         }
 
         try {
+            BardLogger.trace("source/prepare mediaPlayer: " + sourceUrl);
             mediaPlayer.reset();
             mediaPlayer.setDataSource(sourceUrl);
             mediaPlayer.setSurface(channelFeedVideoSurface);
@@ -399,9 +422,9 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        BardLogger.trace("mediaplayer onPrepared");
+        BardLogger.trace("mediaplayer onPrepared. playing it");
         isVideoReady = true;
-        channelFeedVideoProgress.setVisibility(View.GONE);
+//        channelFeedVideoProgress.setVisibility(View.GONE);
         channelFeedControls.setVisibility(View.VISIBLE);
 
         mp.start();

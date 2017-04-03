@@ -363,9 +363,9 @@ public class BardEditorActivity extends BaseActivity implements
         MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite != null) {
-            item.setTitle("Remove from My Videos");
+            item.setTitle("Remove from Bookmarks");
         } else {
-            item.setTitle("Add to My Videos");
+            item.setTitle("Add to Bookmarks");
         }
     }
 
@@ -1594,7 +1594,7 @@ public class BardEditorActivity extends BaseActivity implements
         } else if (resultCode == RESULT_OK && requestCode == EDITOR_PREVIEW_REQUEST_CODE) {
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
-                setResult(RESULT_OK);
+                setResult(RESULT_OK, data);
                 finish();
             }
         }
@@ -1884,6 +1884,7 @@ public class BardEditorActivity extends BaseActivity implements
                 @Override
                 public void onCacheVideoFailure() {
                     playMessageBtn.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
                 }
             });

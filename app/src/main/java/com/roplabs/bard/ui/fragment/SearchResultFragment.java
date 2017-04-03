@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.fragment;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,6 +10,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.FrameLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -56,6 +58,8 @@ public class SearchResultFragment extends Fragment {
     public interface OnSearchListener  {
         // This can be any number of events to be sent to the activity
         public String getSearchQuery();
+        public void onItemClick(Scene scene);
+        public void onItemLongClick(Scene scene);
     }
 
     public static SearchResultFragment newInstance(int page) {
@@ -252,11 +256,12 @@ public class SearchResultFragment extends Fragment {
         searchListAdapter.setOnItemClickListener(new SearchListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Scene scene) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("characterToken", "");
-                intent.putExtra("sceneToken", scene.getToken());
-                BardLogger.trace("[sceneSearch] " + scene.getToken());
-                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                searchListener.onItemClick(scene);
+            }
+
+            @Override
+            public void onItemLongClick(View itemView, int position, Scene scene) {
+                searchListener.onItemLongClick(scene);
             }
         });
         recyclerView.setAdapter(searchListAdapter);

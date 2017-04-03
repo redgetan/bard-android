@@ -173,6 +173,14 @@ public class SceneSelectFragment extends Fragment {
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
         emptyStateContainer.setVisibility(View.GONE);
+        emptyStateContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // tap to refresh
+                hideEmptySearchMessage();
+                getScenesNextPage(1);
+            }
+        });
     }
 
     public void performSearch(String text) {
@@ -279,7 +287,10 @@ public class SceneSelectFragment extends Fragment {
 
                 if (Helper.isConnectedToInternet()) {
                     emptyStateTitle.setText("Request Failed");
-                    emptyStateDescription.setText("Currently unable to fetch data from server. Try again later.");
+                    emptyStateDescription.setText("Tap to refresh.");
+                } else {
+                    emptyStateTitle.setText(R.string.no_network_connection);
+                    emptyStateDescription.setText("Tap to refresh");
                 }
 
 //                if (Scene.findAll().size() == 0) {

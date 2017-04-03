@@ -232,6 +232,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
                 return true;
             case R.id.menu_item_search:
                 intent = new Intent(this, SearchActivity.class);
+                intent.putExtra("channelToken", channelToken);
                 startActivity(intent);
                 return true;
             default:
@@ -264,7 +265,12 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
-            finish();
+            boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
+            if (shouldBackToChannel) {
+                // navigate to feed tab
+                viewPager.setCurrentItem(viewPager.getAdapter().getCount());
+
+            }
         } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
         }
     }

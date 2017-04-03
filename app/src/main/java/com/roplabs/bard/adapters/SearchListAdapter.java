@@ -80,6 +80,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Scene scene);
+        void onItemLongClick(View itemView, int position, Scene scene);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
