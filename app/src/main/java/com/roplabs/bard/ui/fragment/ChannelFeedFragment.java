@@ -1,16 +1,14 @@
 package com.roplabs.bard.ui.fragment;
 
+import android.graphics.SurfaceTexture;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewParent;
-import android.widget.FrameLayout;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.view.*;
+import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelFeedAdapter;
@@ -20,8 +18,7 @@ import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.ui.widget.timeline.TimelineAdapter;
-import com.roplabs.bard.util.BardLogger;
-import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
+import com.roplabs.bard.util.*;
 import im.ene.toro.Toro;
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroStrategy;
@@ -29,20 +26,39 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.IOException;
 import java.util.*;
 
-public class ChannelFeedFragment extends Fragment {
+public class ChannelFeedFragment extends Fragment implements
+        TextureView.SurfaceTextureListener,
+        MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnCompletionListener
+{
 
     private List<Post> postList;
     private RecyclerView recyclerView;
     private EndlessRecyclerViewScrollListener scrollListener;
-    TimelineAdapter adapter;
+    private ChannelFeedAdapter adapter;
     private ProgressBar progressBar;
     private String channelToken;
+    private ProgressBar channelFeedVideoProgress;
+    private TextureView channelFeedVideo;
+    private Surface channelFeedVideoSurface;
+    private MediaPlayer mediaPlayer;
+    private TextView debugView;
+    private boolean isVideoReady;
+    private String lastUrlPlayed = "";
+
 
     private FrameLayout emptyStateContainer;
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
+    private ImageView likeChannelPostButton;
+    private ImageView shareChannelPostButton;
+    private LinearLayout channelFeedControls;
+    private boolean isPostDownloadInProgress;
+
+    private int MAX_PROGRESS_SHOWN_TIME = 10000;
 
     public static ChannelFeedFragment newInstance(String channelToken) {
         Bundle args = new Bundle();
@@ -68,14 +84,25 @@ public class ChannelFeedFragment extends Fragment {
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_feed_list);
         progressBar = (ProgressBar) view.findViewById(R.id.channel_feed_progress_bar);
+        channelFeedVideo = (TextureView) view.findViewById(R.id.channel_feed_video);
+        channelFeedVideoProgress = (ProgressBar) view.findViewById(R.id.channel_feed_video_progress);
+        debugView = (TextView) view.findViewById(R.id.channel_feed_video_debug);
+        likeChannelPostButton = (ImageView) view.findViewById(R.id.like_channel_post_btn);
+        shareChannelPostButton = (ImageView) view.findViewById(R.id.share_channel_post_btn);
+        channelFeedControls = (LinearLayout) view.findViewById(R.id.channel_feed_control_container);
+        channelFeedControls.setVisibility(View.GONE);
+
         this.postList = new ArrayList<Post>();
 
-//        initFeed();
+        initFeed();
         initEmptyState(view);
         getChannelFeedsNextPage(1);
+        initVideoPlayer();
 
         return view;
     }
+
+
 
     private void initEmptyState(View view) {
         emptyStateContainer = (FrameLayout) view.findViewById(R.id.empty_state_no_internet_container);
@@ -86,42 +113,51 @@ public class ChannelFeedFragment extends Fragment {
     }
 
     private void initFeed() {
-        adapter = new TimelineAdapter(getActivity(), this.postList);
+        adapter = new ChannelFeedAdapter(getActivity(), this.postList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setAdapter(adapter);
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setHasFixedSize(false);
 
-        final ToroStrategy oldStrategy = Toro.getStrategy();
-        final int firstVideoPosition = adapter.firstVideoPosition();
+        adapter.setOnItemClickListener(new ChannelFeedAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View itemView, int position, Post post) {
+                if (isPostDownloadInProgress) return;
 
-        Toro.setStrategy(new ToroStrategy() {
-            boolean isFirstPlayerDone = firstVideoPosition != -1; // Valid first position only
+                isPostDownloadInProgress = true;
+                Storage.cacheVideo(post.getCacheKey(), post.getRepoSourceUrl(), new Storage.OnCacheVideoListener() {
+                    @Override
+                    public void onCacheVideoSuccess(String filePath) {
+                        isPostDownloadInProgress = false;
+                        BardLogger.trace("video cached at " + filePath);
+                        playLocalVideo(filePath);
+                        progressBar.setVisibility(View.GONE);
+                    }
 
-            @Override public String getDescription() {
-                return "First video plays first";
-            }
-
-            @Override public ToroPlayer findBestPlayer(List<ToroPlayer> candidates) {
-                return oldStrategy.findBestPlayer(candidates);
-            }
-
-            @Override public boolean allowsToPlay(ToroPlayer player, ViewParent parent) {
-                boolean allowToPlay = (isFirstPlayerDone || player.getPlayOrder() == firstVideoPosition)  //
-                        && oldStrategy.allowsToPlay(player, parent);
-
-                // A work-around to keep track of first video on top.
-                if (player.getPlayOrder() == firstVideoPosition) {
-                    isFirstPlayerDone = true;
-                }
-                return allowToPlay;
+                    @Override
+                    public void onCacheVideoFailure() {
+                        isPostDownloadInProgress = false;
+                        Toast.makeText(getContext(),"Failed to download post", Toast.LENGTH_LONG).show();
+                    }
+                });
             }
         });
 
-        Toro.register(recyclerView);
+        // controls
+        likeChannelPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
 
+            }
+        });
 
+        shareChannelPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // save as Repo (store at last_shared_repo.mp4)
 
+            }
+        });
 
 
         // set decorator
@@ -144,7 +180,6 @@ public class ChannelFeedFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Toro.unregister(recyclerView);
     }
 
     private void getChannelFeedsNextPage(final int page) {
@@ -194,8 +229,121 @@ public class ChannelFeedFragment extends Fragment {
                 itemAdded++;
             }
         }
-        initFeed();
-//        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
+        recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
 
     }
+
+
+    private void initVideoPlayer() {
+        // video
+        channelFeedVideo.setOpaque(false);
+        channelFeedVideo.setSurfaceTextureListener(this);
+
+        channelFeedVideo.setOnTouchListener(new OnSwipeTouchListener(getContext()) {
+            @Override
+            public void onSwipeLeft() {
+            }
+
+            @Override
+            public void onSwipeRight() {
+            }
+
+            @Override
+            public void onTouchUp() {
+                if (!isVideoReady) return;
+
+                mediaPlayer.seekTo(0);
+                mediaPlayer.start();
+            }
+        });
+
+
+    }
+
+
+    public void playLocalVideo(String sourceUrl) {
+        debugView.setText("");
+        if (!Helper.isConnectedToInternet()) {
+            debugView.setText(R.string.no_network_connection);
+            return;
+        }
+
+        if (lastUrlPlayed.equals(sourceUrl) && isVideoReady) {
+            mediaPlayer.seekTo(0);
+            mediaPlayer.start();
+            return;
+        }
+
+        try {
+            mediaPlayer.reset();
+            mediaPlayer.setDataSource(sourceUrl);
+            mediaPlayer.setSurface(channelFeedVideoSurface);
+
+            channelFeedVideoProgress.setVisibility(View.VISIBLE);
+            new android.os.Handler().postDelayed(
+                new Runnable() {
+                    public void run() {
+                        channelFeedVideoProgress.setVisibility(View.GONE);
+                    }
+                },
+            MAX_PROGRESS_SHOWN_TIME);
+
+
+            mediaPlayer.prepareAsync();
+
+            lastUrlPlayed = sourceUrl;
+        } catch (IOException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        } catch (IllegalStateException e) {
+            e.printStackTrace();
+            CrashReporter.logException(e);
+        }
+
+    }
+
+
+
+
+
+    @Override
+    public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {
+        channelFeedVideoSurface = new Surface(surface);
+        mediaPlayer = new MediaPlayer();
+        mediaPlayer.setSurface(channelFeedVideoSurface);
+        mediaPlayer.setOnPreparedListener(this);
+        mediaPlayer.setOnCompletionListener(this);
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+    }
+
+    @Override
+    public void onSurfaceTextureSizeChanged(SurfaceTexture surface, int width, int height) {
+
+    }
+
+    @Override
+    public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
+        return false;
+    }
+
+    @Override
+    public void onSurfaceTextureUpdated(SurfaceTexture surface) {
+
+
+    }
+
+    @Override
+    public void onPrepared(MediaPlayer mp) {
+        BardLogger.trace("mediaplayer onPrepared");
+        isVideoReady = true;
+        channelFeedVideoProgress.setVisibility(View.GONE);
+        channelFeedControls.setVisibility(View.VISIBLE);
+
+        mp.start();
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mp) {
+    }
+
 }

@@ -474,7 +474,7 @@ public class Helper {
     public static void publishRepo(final Repo repo, Context context, final String channelToken, final OnRepoPublished listener) {
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Publishing...");
+        progressDialog.setMessage("Processing...");
         progressDialog.show();
 
         final String wordList = repo.getWordList();

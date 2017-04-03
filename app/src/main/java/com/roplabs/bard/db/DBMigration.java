@@ -147,6 +147,12 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 11
+        if (oldVersion == 10) {
+            schema.get("Post")
+                    .addField("repoToken", String.class);
+        }
+
     }
 }
 

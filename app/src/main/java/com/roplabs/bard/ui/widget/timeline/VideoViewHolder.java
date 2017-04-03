@@ -18,7 +18,7 @@ import java.io.File;
 
 public class VideoViewHolder extends ExoPlayerViewHolder {
 
-    static final int LAYOUT_RES = R.layout.channel_feed_item;
+    static final int LAYOUT_RES = R.layout.toro_channel_feed_item;
 
     private TimelineItem.VideoItem videoItem;
     private ImageView mThumbnail;

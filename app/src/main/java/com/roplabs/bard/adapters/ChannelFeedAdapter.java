@@ -5,11 +5,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.TextView;
 import com.roplabs.bard.R;
-import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.ui.widget.LetterAvatar;
+import com.roplabs.bard.models.Post;
 
 import java.util.List;
 
@@ -17,17 +15,18 @@ public class ChannelFeedAdapter extends
         RecyclerView.Adapter<ChannelFeedAdapter.ViewHolder> {
 
     // Store a member variable for the contacts
-    private List<Repo> repos;
+    private List<Post> posts;
     private Context context;
+    private View lastSelectedView;
 
     // Pass in the contact array into the constructor
-    public ChannelFeedAdapter(Context context, List<Repo> repoList) {
-        this.repos = repoList;
+    public ChannelFeedAdapter(Context context, List<Post> postList) {
+        this.posts = postList;
         this.context = context;
     }
 
-    public void swap(List<Repo> repos){
-        this.repos = repos;
+    public void swap(List<Post> posts){
+        this.posts = posts;
         notifyDataSetChanged();
     }
 
@@ -48,23 +47,23 @@ public class ChannelFeedAdapter extends
     @Override
     public void onBindViewHolder(ChannelFeedAdapter.ViewHolder viewHolder, int position) {
         // Get the data model based on position
-        Repo repo = repos.get(position);
+        Post post = posts.get(position);
 
         // Set item views based on the data model
         TextView textView = viewHolder.channelFeedRepoTitle;
-        textView.setText(repo.title());
+        textView.setText(post.getRepoTitle());
     }
 
     // Return the total count of items
     @Override
     public int getItemCount() {
-        return repos.size();
+        return posts.size();
     }
 
     private static OnItemClickListener listener;
 
     public interface OnItemClickListener {
-        void onItemClick(View itemView, int position, Repo channel);
+        void onItemClick(View itemView, int position, Post post);
     }
 
     public void setOnItemClickListener(OnItemClickListener listener) {
@@ -96,10 +95,18 @@ public class ChannelFeedAdapter extends
         public void onClick(View v) {
 
             int position = getLayoutPosition();
-            Repo channel = repos.get(position);
+            Post post = posts.get(position);
+
+            if (lastSelectedView != null) {
+                lastSelectedView.setSelected(false);
+            }
+
+            v.setSelected(true);
+
+            lastSelectedView = v;
 
             if (listener != null) {
-                listener.onItemClick(v, position, channel);
+                listener.onItemClick(v, position, post);
             }
         }
 

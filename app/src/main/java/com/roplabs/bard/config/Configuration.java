@@ -5,7 +5,7 @@ import com.roplabs.bard.BuildConfig;
 public class Configuration {
     public static String bardAPIBaseURL() {
         if (BuildConfig.FLAVOR.equals("dev")) {
-            return "http://100.65.98.109:3000";
+            return "http://192.168.2.84:3000";
         } else {
             return "https://bard.co";
         }

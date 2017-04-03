@@ -1871,8 +1871,8 @@ public class BardEditorActivity extends BaseActivity implements
             } else {
                 targetSceneToken = sceneToken;
             }
-
-            Storage.cacheVideo(wordTagString, targetSceneToken, new Storage.OnCacheVideoListener() {
+            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, sceneToken);
+            Storage.cacheVideo(wordTagString, remoteVideoUrl, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     playMessageBtn.setEnabled(true);

@@ -1,6 +1,7 @@
 package com.roplabs.bard.models;
 
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.util.Storage;
 import io.realm.Realm;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
@@ -17,6 +18,7 @@ public class Post extends RealmObject {
     private int id;
     private String repoSourceUrl;
     private String repoTitle;
+    private String repoToken;
     private String username;
     private Date createdAt;
 
@@ -152,5 +154,13 @@ public class Post extends RealmObject {
             }
         }
         realm.commitTransaction();
+    }
+
+    public String getCacheKey() {
+        return "post" + String.valueOf(getId());
+    }
+
+    public String getCachedVideoFilePath() {
+        return Storage.getCachedVideoFilePath(getCacheKey());
     }
 }
