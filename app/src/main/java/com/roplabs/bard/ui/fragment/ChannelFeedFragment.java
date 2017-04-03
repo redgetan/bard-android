@@ -1,5 +1,7 @@
 package com.roplabs.bard.ui.fragment;
 
+import android.content.Context;
+import android.content.Intent;
 import android.graphics.SurfaceTexture;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -13,21 +15,27 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelFeedAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Post;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.ui.activity.ShareEditorActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.ui.widget.timeline.TimelineAdapter;
 import com.roplabs.bard.util.*;
 import im.ene.toro.Toro;
 import im.ene.toro.ToroPlayer;
 import im.ene.toro.ToroStrategy;
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.*;
+
+import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
 public class ChannelFeedFragment extends Fragment implements
         TextureView.SurfaceTextureListener,
@@ -48,6 +56,7 @@ public class ChannelFeedFragment extends Fragment implements
     private TextView debugView;
     private boolean isVideoReady;
     private String lastUrlPlayed = "";
+    private Post currentPost;
 
 
     private FrameLayout emptyStateContainer;
@@ -113,6 +122,8 @@ public class ChannelFeedFragment extends Fragment implements
     }
 
     private void initFeed() {
+        final Context self = getActivity();
+
         adapter = new ChannelFeedAdapter(getActivity(), this.postList);
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setAdapter(adapter);
@@ -121,17 +132,23 @@ public class ChannelFeedFragment extends Fragment implements
 
         adapter.setOnItemClickListener(new ChannelFeedAdapter.OnItemClickListener() {
             @Override
-            public void onItemClick(View itemView, int position, Post post) {
+            public void onItemClick(View itemView, int position, final Post post) {
                 if (isPostDownloadInProgress) return;
+
+                if (currentPost != null) {
+                    if (new File(currentPost.getCachedVideoFilePath()).exists()) {
+                        playLocalVideo(currentPost.getCachedVideoFilePath());
+                    }
+                }
 
                 isPostDownloadInProgress = true;
                 Storage.cacheVideo(post.getCacheKey(), post.getRepoSourceUrl(), new Storage.OnCacheVideoListener() {
                     @Override
                     public void onCacheVideoSuccess(String filePath) {
                         isPostDownloadInProgress = false;
+                        currentPost = post;
                         BardLogger.trace("video cached at " + filePath);
                         playLocalVideo(filePath);
-                        progressBar.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -155,6 +172,42 @@ public class ChannelFeedFragment extends Fragment implements
             @Override
             public void onClick(View v) {
                 // save as Repo (store at last_shared_repo.mp4)
+                if (currentPost != null) {
+                    String repoToken = currentPost.getRepoToken();
+                    Repo repo = Repo.forToken(repoToken);
+
+                    if (repo != null ) {
+                        if (new File(repo.getFilePath()).exists()) {
+                        } else {
+                            String repoFilePath = Storage.getLocalSavedFilePath();
+                            Helper.copyFile(currentPost.getCachedVideoFilePath(),repoFilePath);
+
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.beginTransaction();
+                            repo.setFilePath(repoFilePath);
+                            realm.commitTransaction();
+
+                        }
+                    } else {
+                        String repoFilePath = Storage.getLocalSavedFilePath();
+                        Helper.copyFile(currentPost.getCachedVideoFilePath(),repoFilePath);
+                        String repoUrl = Configuration.bardAPIBaseURL() + "/r/" + repoToken;
+                        repo = Repo.create(repoToken, repoUrl, "", "", repoFilePath, currentPost.getRepoWordList(), Calendar.getInstance().getTime());
+                    }
+
+
+                    Intent intent = new Intent(self, ShareEditorActivity.class);
+
+                    intent.putExtra("wordTags", repo.getWordList());
+                    intent.putExtra("sceneToken", "");
+                    intent.putExtra("characterToken", "");
+                    intent.putExtra("sceneName", "");
+                    intent.putExtra("shareType", "repo");
+                    intent.putExtra("repoToken", repo.getToken());
+                    startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
+
+
+                }
 
             }
         });

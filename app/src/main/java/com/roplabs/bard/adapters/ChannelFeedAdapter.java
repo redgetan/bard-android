@@ -51,7 +51,7 @@ public class ChannelFeedAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.channelFeedRepoTitle;
-        textView.setText(post.getRepoTitle());
+        textView.setText(post.getTitle());
     }
 
     // Return the total count of items

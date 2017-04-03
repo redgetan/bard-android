@@ -150,6 +150,7 @@ public class DBMigration implements RealmMigration {
         // migrate to version 11
         if (oldVersion == 10) {
             schema.get("Post")
+                    .addField("repoWordList", String.class)
                     .addField("repoToken", String.class);
         }
 
