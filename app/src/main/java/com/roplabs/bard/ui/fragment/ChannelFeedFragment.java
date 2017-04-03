@@ -121,6 +121,15 @@ public class ChannelFeedFragment extends Fragment implements
         emptyStateContainer.setVisibility(View.GONE);
     }
 
+    private void showFeedVideoProgress() {
+        channelFeedVideoProgress.setVisibility(View.VISIBLE);
+        new android.os.Handler().postDelayed(new Runnable() {
+            public void run() {
+                channelFeedVideoProgress.setVisibility(View.GONE);
+            }
+        }, MAX_PROGRESS_SHOWN_TIME);
+    }
+
     private void initFeed() {
         final Context self = getActivity();
 
@@ -135,18 +144,26 @@ public class ChannelFeedFragment extends Fragment implements
             public void onItemClick(View itemView, int position, final Post post) {
                 if (isPostDownloadInProgress) return;
 
-                if (currentPost != null) {
-                    if (new File(currentPost.getCachedVideoFilePath()).exists()) {
-                        playLocalVideo(currentPost.getCachedVideoFilePath());
-                    }
+                if (currentPost != post) {
+                    // post changed
+                    currentPost = post;
+                }
+
+//                showFeedVideoProgress();
+                channelFeedVideoProgress.setVisibility(View.VISIBLE);
+
+                if (new File(currentPost.getCachedVideoFilePath()).exists()) {
+                    playLocalVideo(currentPost.getCachedVideoFilePath());
+                    return;
                 }
 
                 isPostDownloadInProgress = true;
+
+
                 Storage.cacheVideo(post.getCacheKey(), post.getRepoSourceUrl(), new Storage.OnCacheVideoListener() {
                     @Override
                     public void onCacheVideoSuccess(String filePath) {
                         isPostDownloadInProgress = false;
-                        currentPost = post;
                         BardLogger.trace("video cached at " + filePath);
                         playLocalVideo(filePath);
                     }
@@ -271,7 +288,10 @@ public class ChannelFeedFragment extends Fragment implements
 
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
 
     private void populateFeed(List<Post> remotePostList) {
         int oldPosition = postList.size();
@@ -332,16 +352,6 @@ public class ChannelFeedFragment extends Fragment implements
             mediaPlayer.setDataSource(sourceUrl);
             mediaPlayer.setSurface(channelFeedVideoSurface);
 
-            channelFeedVideoProgress.setVisibility(View.VISIBLE);
-            new android.os.Handler().postDelayed(
-                new Runnable() {
-                    public void run() {
-                        channelFeedVideoProgress.setVisibility(View.GONE);
-                    }
-                },
-            MAX_PROGRESS_SHOWN_TIME);
-
-
             mediaPlayer.prepareAsync();
 
             lastUrlPlayed = sourceUrl;
@@ -367,6 +377,8 @@ public class ChannelFeedFragment extends Fragment implements
         mediaPlayer.setOnPreparedListener(this);
         mediaPlayer.setOnCompletionListener(this);
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+
+        isVideoReady = false;
     }
 
     @Override
