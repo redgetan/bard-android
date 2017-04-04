@@ -2,10 +2,13 @@ package com.roplabs.bard.ui.fragment;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.graphics.SurfaceTexture;
+import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -16,10 +19,13 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelFeedAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
+import com.roplabs.bard.models.Like;
 import com.roplabs.bard.models.Post;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.ui.activity.BardEditorActivity;
 import com.roplabs.bard.ui.activity.ShareEditorActivity;
+import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.ui.widget.timeline.TimelineAdapter;
 import com.roplabs.bard.util.*;
@@ -35,6 +41,8 @@ import java.io.File;
 import java.io.IOException;
 import java.util.*;
 
+import static android.app.Activity.RESULT_OK;
+import static com.roplabs.bard.util.Helper.BARD_EDITOR_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
 public class ChannelFeedFragment extends Fragment implements
@@ -59,11 +67,13 @@ public class ChannelFeedFragment extends Fragment implements
     private Post currentPost;
 
 
+    private CustomDialog loginDialog;
     private FrameLayout emptyStateContainer;
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
-    private ImageView likeChannelPostButton;
-    private ImageView shareChannelPostButton;
+    private LinearLayout likeChannelPostButton;
+    private LinearLayout shareChannelPostButton;
+    private LinearLayout reuseChannelPostButton;
     private LinearLayout channelFeedControls;
     private boolean isPostDownloadInProgress;
 
@@ -96,8 +106,9 @@ public class ChannelFeedFragment extends Fragment implements
         channelFeedVideo = (TextureView) view.findViewById(R.id.channel_feed_video);
         channelFeedVideoProgress = (ProgressBar) view.findViewById(R.id.channel_feed_video_progress);
         debugView = (TextView) view.findViewById(R.id.channel_feed_video_debug);
-        likeChannelPostButton = (ImageView) view.findViewById(R.id.like_channel_post_btn);
-        shareChannelPostButton = (ImageView) view.findViewById(R.id.share_channel_post_btn);
+        likeChannelPostButton = (LinearLayout) view.findViewById(R.id.like_channel_post_btn);
+        shareChannelPostButton = (LinearLayout) view.findViewById(R.id.share_channel_post_btn);
+        reuseChannelPostButton = (LinearLayout) view.findViewById(R.id.reuse_channel_post_btn);
         channelFeedControls = (LinearLayout) view.findViewById(R.id.channel_feed_control_container);
         channelFeedControls.setVisibility(View.GONE);
 
@@ -148,6 +159,7 @@ public class ChannelFeedFragment extends Fragment implements
         if (currentPost != post) {
             // post changed
             currentPost = post;
+            setLikeButtonState();
         }
 
         showFeedVideoProgress();
@@ -202,6 +214,27 @@ public class ChannelFeedFragment extends Fragment implements
         likeChannelPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                toggleRepoLike();
+            }
+        });
+
+        reuseChannelPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                if (!currentPost.getSceneToken().isEmpty()) {
+                    Intent intent = new Intent(getActivity(), BardEditorActivity.class);
+                    intent.putExtra("channelToken", channelToken);
+                    intent.putExtra("characterToken", "");
+                    intent.putExtra("sceneToken", currentPost.getSceneToken());
+                    startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                } else if (!currentPost.getPackToken().isEmpty()) {
+                    Intent intent = new Intent(getActivity(), BardEditorActivity.class);
+                    intent.putExtra("channelToken", channelToken);
+                    intent.putExtra("characterToken", currentPost.getPackToken());
+                    intent.putExtra("sceneToken", "");
+                    startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                }
 
             }
         });
@@ -237,8 +270,8 @@ public class ChannelFeedFragment extends Fragment implements
                     Intent intent = new Intent(self, ShareEditorActivity.class);
 
                     intent.putExtra("wordTags", repo.getWordList());
-                    intent.putExtra("sceneToken", "");
-                    intent.putExtra("characterToken", "");
+                    intent.putExtra("sceneToken", currentPost.getSceneToken());
+                    intent.putExtra("characterToken", currentPost.getPackToken());
                     intent.putExtra("sceneName", "");
                     intent.putExtra("shareType", "repo");
                     intent.putExtra("repoToken", repo.getToken());
@@ -447,6 +480,141 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+    }
+
+    public void toggleRepoLike() {
+        Like like = Like.forRepoTokenAndUsername(currentPost.getRepoToken(), Setting.getUsername(getActivity()));
+        if (like == null) {
+            // create
+            doLikeRepo(currentPost.getRepoToken());
+        } else {
+            // delete
+            doUnlikeRepo(like, currentPost.getRepoToken());
+        }
+    }
+
+    private void doLikeRepo(final String repoToken) {
+        // cant upload unless you're loggedin
+        if (!Setting.isLogined(getActivity())) {
+            loginDialog = new CustomDialog(getActivity(), "You must login to like user posts");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+            return;
+        }
+
+        likeChannelPostButton.setEnabled(false);
+
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().likeRepo(repoToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                likeChannelPostButton.setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                Like.create(realm, repoToken, Setting.getUsername(ClientApp.getContext()));
+                realm.commitTransaction();
+
+                setLikeButtonState();
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                likeChannelPostButton.setEnabled(true);
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
+    }
+
+    private void doUnlikeRepo(final Like like, String repoToken) {
+        // cant upload unless you're loggedin
+        if (!Setting.isLogined(getActivity())) {
+            loginDialog = new CustomDialog(getActivity(), "You must login to like user posts");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+            return;
+        }
+
+        likeChannelPostButton.setEnabled(false);
+
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unlikeRepo(repoToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                likeChannelPostButton.setEnabled(true);
+
+                if (response.code() != 200) {
+                    return;
+                }
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+                like.deleteFromRealm();
+                realm.commitTransaction();
+
+                setLikeButtonState();
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                likeChannelPostButton.setEnabled(true);
+
+                progressBar.setVisibility(View.GONE);
+                debugView.setText("");
+            }
+        });
+
+    }
+
+    private void setLikeButtonState() {
+        Like favorite = Like.forRepoTokenAndUsername(currentPost.getRepoToken(), Setting.getUsername(getActivity()));
+        TextView likeButtonLabel = (TextView) likeChannelPostButton.findViewById(R.id.like_repo_label);
+        ImageView likeButtonIcon = (ImageView) likeChannelPostButton.findViewById(R.id.like_repo_icon);
+        if (favorite != null) {
+            likeButtonLabel.setText("Liked");
+            likeButtonIcon.setImageResource(R.drawable.ic_favorite_white_18dp);
+        } else {
+            likeButtonLabel.setText("Like");
+            likeButtonIcon.setImageResource(R.drawable.ic_favorite_border_white_18dp);
+        }
+    }
+
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
+        } else if (resultCode == RESULT_OK && requestCode == CustomDialog.SIGNUP_REQUEST_CODE) {
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
+        } else if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
+        }
     }
 
 }

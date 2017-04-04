@@ -34,6 +34,12 @@ public interface BardService {
     @POST("scenes/{sceneToken}/unfavorite")
     Call<HashMap<String, String>> unfavoriteScene(@Path("sceneToken") String sceneToken);
 
+    @POST("repos/{repoToken}/like")
+    Call<HashMap<String, String>> likeRepo(@Path("repoToken") String repoToken);
+
+    @POST("repos/{repoToken}/unlike")
+    Call<HashMap<String, String>> unlikeRepo(@Path("repoToken") String repoToken);
+
     @GET("scenes/{sceneToken}/word_list")
     Call<Scene> getSceneWordList(@Path("sceneToken") String sceneToken);
 

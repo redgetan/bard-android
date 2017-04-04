@@ -2,10 +2,7 @@ package com.roplabs.bard.models;
 
 import android.text.TextUtils;
 import com.roplabs.bard.ClientApp;
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
-import io.realm.Sort;
+import io.realm.*;
 import io.realm.annotations.Ignore;
 
 import java.util.*;
@@ -44,6 +41,21 @@ public class Repo extends RealmObject {
                                           .equalTo("username", username)
                                           .findAllSorted("createdAt", Sort.DESCENDING);
         return results;
+    }
+
+    public static RealmResults<Repo> likesForUsername(String username) {
+        Realm realm = Realm.getDefaultInstance();
+
+
+        // HACK: this will return empty query by default
+        RealmQuery<Repo> query = realm.where(Repo.class).equalTo("token", "99999999999999999999999999999999999");
+
+        RealmResults<Like> userLikes = Like.forUsername(username);
+        for (Like like : userLikes) {
+            query = query.or().equalTo("token", like.getRepoToken());
+        }
+
+        return query.findAll();
     }
 
     public static int getCount() {

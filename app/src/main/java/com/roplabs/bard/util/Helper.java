@@ -65,6 +65,7 @@ public class Helper {
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
     public static final int MY_PACKS_DRAWER_ITEM_IDENTIFIER = 7;
     public static final int MY_CHANNELS_DRAWER_ITEM_IDENTIFIER = 8;
+    public static final int MY_LIKES_DRAWER_ITEM_IDENTIFIER = 9;
 
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
@@ -302,9 +303,11 @@ public class Helper {
         String username = Setting.getUsername(context);
         ProfileDrawerItem profileDrawerItem;
         final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
+        final List<Like> userLikes = Like.forUsername(Setting.getUsername(context));
         final List<Character> userPacks = UserPack.packsForUser(Setting.getUsername(context));
         final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
         String libraryCount = String.valueOf(repos.size());
+        String likeCount = String.valueOf(userLikes.size());
         String packCount = String.valueOf(userPacks.size());
         String channelCount = String.valueOf(channels.size());
 
@@ -343,6 +346,7 @@ public class Helper {
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
 //                        new PrimaryDrawerItem().withName(R.string.my_channels).withTextColor(textColor).withIdentifier(MY_CHANNELS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_theaters_black_24dp).withBadge(channelCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
+                        new PrimaryDrawerItem().withName(R.string.my_likes).withTextColor(textColor).withIdentifier(MY_LIKES_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_favorite_black_24dp).withBadge(likeCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp).withBadge(packCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
@@ -357,6 +361,12 @@ public class Helper {
                         switch ((int) drawerItem.getIdentifier()) {
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                intent.putExtra("repoListType","created");
+                                context.startActivity(intent);
+                                break;
+                            case MY_LIKES_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                intent.putExtra("repoListType","likes");
                                 context.startActivity(intent);
                                 break;
                             case MY_CHANNELS_DRAWER_ITEM_IDENTIFIER:

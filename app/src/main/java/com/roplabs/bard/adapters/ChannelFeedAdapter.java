@@ -10,7 +10,9 @@ import android.text.style.StyleSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
+import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Post;
 
@@ -58,6 +60,14 @@ public class ChannelFeedAdapter extends
         // Set item views based on the data model
         TextView textView = viewHolder.channelFeedRepoTitle;
         textView.setText(buildPostText(post));
+
+        ImageView thumbnail = viewHolder.channelFeedThumbnail;
+        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        Glide.with(context)
+                .load(post.getThumbnailUrl())
+                .placeholder(R.drawable.thumbnail_placeholder)
+                .crossFade()
+                .into(thumbnail);
 
         viewHolder.itemView.setSelected(selectedPosition == position);
     }
@@ -109,6 +119,7 @@ public class ChannelFeedAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView channelFeedRepoTitle;
+        public ImageView channelFeedThumbnail;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -119,6 +130,7 @@ public class ChannelFeedAdapter extends
             super(itemView);
 
             channelFeedRepoTitle = (TextView) itemView.findViewById(R.id.channel_feed_repo_title);
+            channelFeedThumbnail = (ImageView) itemView.findViewById(R.id.channel_feed_thumbnail);
 
             this.context = context;
             itemView.setOnClickListener(this);

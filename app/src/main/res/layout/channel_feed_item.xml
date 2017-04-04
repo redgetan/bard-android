@@ -5,6 +5,9 @@
               android:padding="5dp"
               android:layout_width="match_parent"
               android:layout_height="wrap_content">
+    <ImageView android:id="@+id/channel_feed_thumbnail"
+               android:layout_width="50dp"
+               android:layout_height="match_parent"/>
     <TextView
               android:id="@+id/channel_feed_repo_title"
               android:layout_width="match_parent"

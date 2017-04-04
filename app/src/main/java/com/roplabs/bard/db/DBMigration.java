@@ -152,6 +152,31 @@ public class DBMigration implements RealmMigration {
             schema.get("Post")
                     .addField("repoWordList", String.class)
                     .addField("repoToken", String.class);
+
+            oldVersion++;
+        }
+
+        // migrate to version 12
+        if (oldVersion == 11) {
+            if (!schema.contains("Like")) {
+                schema.create("Like")
+                        .addField("repoToken", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+
+            oldVersion++;
+        }
+
+        // migrate to version 13
+        if (oldVersion == 12) {
+            schema.get("Post")
+                    .addField("sceneToken", String.class)
+                    .addField("packToken", String.class)
+                    .addField("thumbnailUrl", String.class);
+
+
+            oldVersion++;
         }
 
     }

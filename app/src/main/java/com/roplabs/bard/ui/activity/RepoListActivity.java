@@ -48,14 +48,22 @@ public class RepoListActivity extends BaseActivity {
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";
     public static final String REPO_TOKEN_MESSAGE = "com.roplabs.bard.REPO_TOKEN";
     public static final String REPO_URL_MESSAGE = "com.roplabs.bard.REPO_URL";
+    private String repoListType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_project_list);
 
+        Intent intent = getIntent();
+        repoListType = intent.getStringExtra("repoListType");
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(R.string.bard_library);
+
+        if (repoListType.equals("likes")) {
+            title.setText(R.string.my_likes);
+        } else {
+            title.setText(R.string.bard_library);
+        }
 
         initEmptyState();
         displayRepoList();
@@ -81,7 +89,12 @@ public class RepoListActivity extends BaseActivity {
 
 
     public void displayRepoList() {
-        final List<Repo> repos = Repo.forUsername(Setting.getUsername(this));
+        final List<Repo> repos;
+        if (repoListType.equals("likes")) {
+            repos = Repo.likesForUsername(Setting.getUsername(this));
+        } else {
+            repos = Repo.forUsername(Setting.getUsername(this));
+        }
 
         if (repos.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);
