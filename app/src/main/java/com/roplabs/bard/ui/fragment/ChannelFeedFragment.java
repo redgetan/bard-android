@@ -9,6 +9,7 @@ import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -72,10 +73,12 @@ public class ChannelFeedFragment extends Fragment implements
     private TextView emptyStateTitle;
     private TextView emptyStateDescription;
     private LinearLayout likeChannelPostButton;
+    private FloatingActionButton createChannelPostButton;
     private LinearLayout shareChannelPostButton;
     private LinearLayout reuseChannelPostButton;
     private LinearLayout channelFeedControls;
     private boolean isPostDownloadInProgress;
+    private OnChannelFeedListener parentListener;
 
     private int MAX_PROGRESS_SHOWN_TIME = 10000;
 
@@ -107,6 +110,7 @@ public class ChannelFeedFragment extends Fragment implements
         channelFeedVideoProgress = (ProgressBar) view.findViewById(R.id.channel_feed_video_progress);
         debugView = (TextView) view.findViewById(R.id.channel_feed_video_debug);
         likeChannelPostButton = (LinearLayout) view.findViewById(R.id.like_channel_post_btn);
+        createChannelPostButton = (FloatingActionButton) view.findViewById(R.id.create_channel_post_btn);
         shareChannelPostButton = (LinearLayout) view.findViewById(R.id.share_channel_post_btn);
         reuseChannelPostButton = (LinearLayout) view.findViewById(R.id.reuse_channel_post_btn);
         channelFeedControls = (LinearLayout) view.findViewById(R.id.channel_feed_control_container);
@@ -194,6 +198,23 @@ public class ChannelFeedFragment extends Fragment implements
         });
     }
 
+    public interface OnChannelFeedListener  {
+        // This can be any number of events to be sent to the activity
+        public void onCreatePostClicked();
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof OnChannelFeedListener) {
+            parentListener = (OnChannelFeedListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement SceneSelectFragment.OnSceneListener");
+        }
+    }
+
     private void initFeed() {
         final Context self = getActivity();
 
@@ -211,6 +232,14 @@ public class ChannelFeedFragment extends Fragment implements
         });
 
         // controls
+
+        createChannelPostButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                parentListener.onCreatePostClicked();
+            }
+        });
+
         likeChannelPostButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

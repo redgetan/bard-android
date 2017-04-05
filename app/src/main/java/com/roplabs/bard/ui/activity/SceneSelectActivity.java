@@ -26,6 +26,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
@@ -46,7 +47,7 @@ import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
-public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
+public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
@@ -268,7 +269,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
                 // navigate to feed tab
-                viewPager.setCurrentItem(viewPager.getAdapter().getCount());
+                viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
 
             }
         } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
@@ -400,4 +401,9 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         }
     }
 
+    @Override
+    public void onCreatePostClicked() {
+        // go to All Videos tab
+        viewPager.setCurrentItem(0);
+    }
 }

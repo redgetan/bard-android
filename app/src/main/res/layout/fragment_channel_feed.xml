@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
@@ -122,12 +123,6 @@
 
     </LinearLayout>
 
-    <include
-            layout="@layout/empty_no_internet"
-            android:visibility="gone"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
         <ProgressBar
                 android:id="@+id/channel_feed_progress_bar"
@@ -138,7 +133,6 @@
                 android:visibility="gone"
         />
 
-
         <android.support.v7.widget.RecyclerView
                 android:id="@+id/channel_feed_list"
                 android:layout_width="match_parent"
@@ -147,6 +141,22 @@
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
         />
+
+        <include
+                layout="@layout/empty_no_internet"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+
+        <android.support.design.widget.FloatingActionButton
+                android:id="@+id/create_channel_post_btn"
+                android:src="@drawable/ic_create_white_24dp"
+                app:fabSize="normal"
+                android:layout_gravity="bottom|right"
+                app:backgroundTint="@color/purple"
+                android:layout_margin="16dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
     </FrameLayout>
 
 
