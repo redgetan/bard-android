@@ -1702,7 +1702,7 @@ public class BardEditorActivity extends BaseActivity implements
                     final long endTime = System.currentTimeMillis();
                     BardLogger.log(String.valueOf(endTime - startTime) + " seconds" );
                     lastMergedWordTagList = wordTagList;
-                    onJoinSegmentsSuccess(outputFilePath);
+                    onJoinSegmentsSuccess();
                 } else {
                     // report error
                     CrashReporter.logException(new Throwable(result));
@@ -1713,7 +1713,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
-    private void onJoinSegmentsSuccess(String outputFilePath) {
+    private void onJoinSegmentsSuccess() {
         // remember result (for sharing)
         playMessageBtn.setEnabled(true);
         word_tag_status.setText("");
@@ -1825,6 +1825,7 @@ public class BardEditorActivity extends BaseActivity implements
         if (editText.containsInvalidWord()) return;
         if (!isAllWordsTagged(wordTagList)) return;
 
+        lastMergedWordTagList = wordTagList;
         goToEditorResultsPreview();
 
 //        joinSegments(wordTagList);

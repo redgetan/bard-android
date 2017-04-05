@@ -31,6 +31,7 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
+import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
 import retrofit2.Call;
@@ -38,7 +39,10 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
@@ -89,14 +93,20 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
         ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
 
 
-        MediaSource source_a = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/88951.mp4"), dataSourceFactory, extractorsFactory, null, null);
-        MediaSource source_b = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90972.mp4"), dataSourceFactory, extractorsFactory, null, null);
-        MediaSource source_c = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90047.mp4"), dataSourceFactory, extractorsFactory, null, null);
+        List<String> cachedSegments = getCachedSegmentFiles();
+        MediaSource[] mediaSources = new MediaSource[cachedSegments.size()];
+        for (int i = 0; i < cachedSegments.size(); i++) {
+            mediaSources[i] = new ExtractorMediaSource(Uri.fromFile(new File(cachedSegments.get(i))), dataSourceFactory, extractorsFactory, null, null);
+        }
+//        MediaSource source_a = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/88951.mp4"), dataSourceFactory, extractorsFactory, null, null);
+//        MediaSource source_b = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90972.mp4"), dataSourceFactory, extractorsFactory, null, null);
+//        MediaSource source_c = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90047.mp4"), dataSourceFactory, extractorsFactory, null, null);
 //        MediaSource source_c = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/u5mFI9spp10/V4OfkjCK0rU5.mp4"), dataSourceFactory, extractorsFactory, null, null);
 
-//        ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(source_c);
-        ConcatenatingMediaSource concatenatedSource =
-                new ConcatenatingMediaSource(source_a, source_b, source_c);
+        ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(mediaSources);
+
+//        ConcatenatingMediaSource concatenatedSource =
+//                new ConcatenatingMediaSource(source_a, source_b, source_c);
 // Prepare the player with the source.
         player.prepare(concatenatedSource);
 
@@ -105,7 +115,6 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     @Override
     protected void onResume() {
         initVideoPlayer();
-        playLocalVideo();
 
         super.onResume();
     }
@@ -227,6 +236,30 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
 //        player.seekTo(0);
 //        player.setPlayWhenReady(true);
     }
+
+    private List<String> getCachedSegmentFiles() {
+        // we just need cached file location here (no need to know sceneToken)
+        List<Segment> segments = Segment.buildFromWordTagList(Arrays.asList(wordTagListString.split(",")), "");
+
+        // get only segments that exist
+        List<String> validSegmentLocation = new ArrayList<String>();
+        for (Segment segment : segments) {
+            if (new File(segment.getFilePath()).exists()) {
+                validSegmentLocation.add(segment.getFilePath());
+            }
+        }
+
+        return validSegmentLocation;
+    }
+
+    private void deleteOldMergeVideo() {
+        String outputFilePath = Storage.getMergedOutputFilePath();
+        // delete old one before merging (since we rely on checking presence to see if merge is success or not)
+        if ((new File(outputFilePath)).exists()) {
+            new File(outputFilePath).delete();
+        }
+    }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
