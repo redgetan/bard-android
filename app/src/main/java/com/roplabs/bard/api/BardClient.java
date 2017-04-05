@@ -10,11 +10,13 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 public class BardClient {
     static BardService  nonauthenticatedBardService;
     static BardService  authenticatedBardService;
+    static BardService  lambdaService;
 
     private static final OkHttpClient client = new OkHttpClient();
 
@@ -47,6 +49,18 @@ public class BardClient {
         }
 
         return nonauthenticatedBardService;
+    }
+
+    public static BardService  getLambdaBardService() {
+        if (lambdaService == null) {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Configuration.bardLambdaBaseURL())
+                    .client(getHTTPClient(Setting.isLogined(ClientApp.getContext())))
+                    .build();
+            lambdaService = retrofit.create(BardService.class);
+        }
+
+        return lambdaService;
     }
 
     private static OkHttpClient getHTTPClient(final Boolean isAuthenticated) {
@@ -85,10 +99,13 @@ public class BardClient {
                         return false;
                     }
                 })
+                .registerTypeAdapter(Date.class, new GsonUTCDateAdapter())
                 .create();
 
         return GsonConverterFactory.create(gson);
     }
+
+
 }
 
 

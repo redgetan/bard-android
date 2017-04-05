@@ -46,6 +46,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.*;
+import java.lang.Process;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -63,6 +64,7 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
+    private static final int MAX_WORD_TAG_COUNT = 25;
 
     private boolean isPackSaved = false;
 
@@ -147,6 +149,8 @@ public class BardEditorActivity extends BaseActivity implements
     private SavePackDialog savePackDialog;
 
     private int originalVideoHeight = -1;
+    private Process process;
+    private boolean isMergeInterrupted = false;
 
     ShareActionProvider mShareActionProvider;
     private String editTextbeforeChange = "";
@@ -1594,7 +1598,7 @@ public class BardEditorActivity extends BaseActivity implements
         } else if (resultCode == RESULT_OK && requestCode == EDITOR_PREVIEW_REQUEST_CODE) {
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
-                setResult(RESULT_OK);
+                setResult(RESULT_OK, data);
                 finish();
             }
         }
@@ -1650,6 +1654,8 @@ public class BardEditorActivity extends BaseActivity implements
     public void joinSegments(final List<String> wordTagList) {
         Analytics.timeEvent(this, "generateBardVideo");
 
+        final BardEditorActivity self = this;
+
         disableControls();
         restoreOriginalVideoHeight();
         progressBar.setVisibility(View.VISIBLE);
@@ -1677,7 +1683,12 @@ public class BardEditorActivity extends BaseActivity implements
         (new AsyncTask<String[], Integer, String>() {
             @Override
             protected String doInBackground(String[]... cmds) {
-                return Helper.runCmd(cmds[0]);
+                return Helper.runCmd(cmds[0], new ProcessListener() {
+                    @Override
+                    public void onProcessAvailable(Process process) {
+                        self.process = process;
+                    }
+                });
             }
 
             @Override
@@ -1686,11 +1697,13 @@ public class BardEditorActivity extends BaseActivity implements
                 BardLogger.trace(result);
                 enableControls();
                 // check if file was created
-                if ((new File(outputFilePath)).exists()) {
+                if (isMergeInterrupted) {
+                    return;
+                } else if ((new File(outputFilePath)).exists()) {
                     final long endTime = System.currentTimeMillis();
                     BardLogger.log(String.valueOf(endTime - startTime) + " seconds" );
                     lastMergedWordTagList = wordTagList;
-                    onJoinSegmentsSuccess(outputFilePath);
+                    onJoinSegmentsSuccess();
                 } else {
                     // report error
                     CrashReporter.logException(new Throwable(result));
@@ -1701,7 +1714,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     }
 
-    private void onJoinSegmentsSuccess(String outputFilePath) {
+    private void onJoinSegmentsSuccess() {
         // remember result (for sharing)
         playMessageBtn.setEnabled(true);
         word_tag_status.setText("");
@@ -1773,6 +1786,10 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void closeEditor(View view) {
+        if (process != null) {
+            isMergeInterrupted = true;
+            process.destroy();
+        }
         finish();
     }
 
@@ -1809,7 +1826,15 @@ public class BardEditorActivity extends BaseActivity implements
         if (editText.containsInvalidWord()) return;
         if (!isAllWordsTagged(wordTagList)) return;
 
-        joinSegments(wordTagList);
+        if (wordTagList.size() > MAX_WORD_TAG_COUNT) {
+            Toast.makeText(getContext(),"Cannot exceed " + MAX_WORD_TAG_COUNT + " words", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        lastMergedWordTagList = wordTagList;
+        goToEditorResultsPreview();
+
+//        joinSegments(wordTagList);
     }
 
     public List<String> getWordTagList() {
@@ -1871,8 +1896,8 @@ public class BardEditorActivity extends BaseActivity implements
             } else {
                 targetSceneToken = sceneToken;
             }
-
-            Storage.cacheVideo(wordTagString, targetSceneToken, new Storage.OnCacheVideoListener() {
+            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, targetSceneToken);
+            Storage.cacheVideo(wordTagString, remoteVideoUrl, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
                     playMessageBtn.setEnabled(true);
@@ -1884,6 +1909,7 @@ public class BardEditorActivity extends BaseActivity implements
                 @Override
                 public void onCacheVideoFailure() {
                     playMessageBtn.setEnabled(true);
+                    progressBar.setVisibility(View.GONE);
                     Toast.makeText(getContext(),"Failed to download word preview", Toast.LENGTH_LONG).show();
                 }
             });

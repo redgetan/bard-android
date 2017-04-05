@@ -1,9 +1,8 @@
 package com.roplabs.bard.api;
 
-import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
-import com.roplabs.bard.models.Scene;
-import com.roplabs.bard.models.User;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -36,6 +35,12 @@ public interface BardService {
     @POST("scenes/{sceneToken}/unfavorite")
     Call<HashMap<String, String>> unfavoriteScene(@Path("sceneToken") String sceneToken);
 
+    @POST("repos/{repoToken}/like")
+    Call<HashMap<String, String>> likeRepo(@Path("repoToken") String repoToken);
+
+    @POST("repos/{repoToken}/unlike")
+    Call<HashMap<String, String>> unlikeRepo(@Path("repoToken") String repoToken);
+
     @GET("scenes/{sceneToken}/word_list")
     Call<Scene> getSceneWordList(@Path("sceneToken") String sceneToken);
 
@@ -66,8 +71,14 @@ public interface BardService {
     @POST("channels")
     Call<Channel> createChannel(@Body HashMap<String, String> body);
 
+    @GET("channels/{channelToken}/posts")
+    Call<List<Post>> getChannelPosts(@Path("channelToken") String channelToken, @QueryMap Map<String, String> options);
+
     @POST("repos/{repoToken}/post_to_channel")
     Call<HashMap<String, String>> postRepoToChannel(@Path("repoToken") String repoToken, @Body HashMap<String, String> body);
+
+    @POST("query")
+    Call<ResponseBody> lambdaConcat(@Query("text") String text);
 
 }
 

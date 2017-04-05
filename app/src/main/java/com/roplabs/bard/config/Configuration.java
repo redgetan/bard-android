@@ -5,9 +5,17 @@ import com.roplabs.bard.BuildConfig;
 public class Configuration {
     public static String bardAPIBaseURL() {
         if (BuildConfig.FLAVOR.equals("dev")) {
-            return "http://100.65.98.109:3000";
+            return "http://100.65.102.2:3000";
         } else {
             return "https://bard.co";
+        }
+    }
+
+    public static String bardLambdaBaseURL() {
+        if (BuildConfig.FLAVOR.equals("dev")) {
+            return "http://100.65.102.2:9000";
+        } else {
+            return "https://api.bard.co";
         }
     }
 
@@ -17,6 +25,10 @@ public class Configuration {
         } else {
             return "us-west-2:a42a156a-30f6-4fb7-a2ea-78599fa4d180";
         }
+    }
+
+    public static String mainChannelToken() {
+        return "l9rkdM6ea4I";
     }
 
     public static String segmentsCdnPath() {

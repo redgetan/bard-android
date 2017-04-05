@@ -1,37 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:background="@drawable/selector_channel_feed_item"
+              android:padding="0dp"
+              android:gravity="center_vertical"
               android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:orientation="vertical"
->
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/activity_vertical_margin"
-            android:background="#e5e5e5"
-    />
-
-    <include layout="@layout/channel_feed_item_user"/>
-
+              android:layout_height="wrap_content">
+    <ImageView android:id="@+id/channel_feed_thumbnail"
+               android:layout_width="25dp"
+               android:layout_marginRight="10dp"
+               android:layout_height="25dp"/>
     <TextView
-            android:id="@+id/channel_feed_repo_title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="#f5f5f5"
-            android:lineSpacingMultiplier="1.2"
-            android:padding="8dp"
-            android:text="Just some text"
-            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-    />
+              android:id="@+id/channel_feed_repo_title"
+              android:layout_width="match_parent"
+              android:textSize="12sp"
+              android:layout_height="wrap_content"/>
 
-    <include layout="@layout/channel_feed_item_video"/>
-
-    <View
-            android:layout_width="match_parent"
-            android:layout_height="0.5dp"
-            android:layout_marginLeft="24dp"
-            android:layout_marginRight="24dp"
-            android:background="#e5e5e5"
-    />
-
-    <include layout="@layout/channel_feed_item_bottom"/>
 </LinearLayout>

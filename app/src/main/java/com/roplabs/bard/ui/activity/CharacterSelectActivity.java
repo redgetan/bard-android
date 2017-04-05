@@ -58,9 +58,6 @@ public class CharacterSelectActivity extends BaseActivity {
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.choose_character);
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
-
         progressBar = (ProgressBar) findViewById(R.id.character_progress_bar);
 
         initEmptyState();
@@ -160,13 +157,6 @@ public class CharacterSelectActivity extends BaseActivity {
     public void onPause() {
         super.onPause();
     }
-
-    @Override
-    public void onBackPressed() {
-        // Disable going back to the MainActivity
-        moveTaskToBack(true);
-    }
-
 
     public void displayCharacterList(List<Character> characterList) {
         BardLogger.log("displaying characters count: " + characterList.size());

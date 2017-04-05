@@ -2,10 +2,7 @@ package com.roplabs.bard.models;
 
 import android.text.TextUtils;
 import com.roplabs.bard.ClientApp;
-import io.realm.Realm;
-import io.realm.RealmObject;
-import io.realm.RealmResults;
-import io.realm.Sort;
+import io.realm.*;
 import io.realm.annotations.Ignore;
 
 import java.util.*;
@@ -15,6 +12,7 @@ public class Repo extends RealmObject {
     private String token;
     private String url;
     private String sourceUrl;
+    private String uuid;
     private String filePath;
     private String username;
     private Boolean isPublished;
@@ -46,6 +44,21 @@ public class Repo extends RealmObject {
         return results;
     }
 
+    public static RealmResults<Repo> likesForUsername(String username) {
+        Realm realm = Realm.getDefaultInstance();
+
+
+        // HACK: this will return empty query by default
+        RealmQuery<Repo> query = realm.where(Repo.class).equalTo("token", "99999999999999999999999999999999999");
+
+        RealmResults<Like> userLikes = Like.forUsername(username);
+        for (Like like : userLikes) {
+            query = query.or().equalTo("token", like.getRepoToken());
+        }
+
+        return query.findAll();
+    }
+
     public static int getCount() {
         Realm realm = Realm.getDefaultInstance();
         return (int) realm.where(Repo.class).count();
@@ -56,7 +69,7 @@ public class Repo extends RealmObject {
         return realm.where(Repo.class).equalTo("token", token).findFirst();
     }
 
-    public static Repo create(String token, String repoUrl, String characterToken, String sceneToken,
+    public static Repo create(String token, String repoUrl, String uuid, String characterToken, String sceneToken,
                               String videoPath, String wordList, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -69,6 +82,7 @@ public class Repo extends RealmObject {
         repo.setCharacterToken(characterToken);
         repo.setSceneToken(sceneToken);
         repo.setUrl(repoUrl);
+        repo.setUUID(uuid);
         repo.setFilePath(videoPath);
         repo.setWordList(wordList);
         repo.setCreatedAt(createdAt);
@@ -85,6 +99,7 @@ public class Repo extends RealmObject {
 
         this.setToken(token);
         this.setUrl(repoUrl);
+        this.setIsPublished(true);
 
         realm.commitTransaction();
     }
@@ -133,6 +148,7 @@ public class Repo extends RealmObject {
     }
 
     public Boolean getIsPublished() {
+        if (isPublished == null) return false;
         return isPublished;
     }
 
@@ -240,6 +256,14 @@ public class Repo extends RealmObject {
         this.token = token;
     }
 
+
+    public String getUUID() {
+        return this.uuid;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getSourceUrl() {
         return this.sourceUrl;

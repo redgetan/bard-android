@@ -1,0 +1,37 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical"
+>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/activity_vertical_margin"
+            android:background="#e5e5e5"
+    />
+
+    <include layout="@layout/channel_feed_item_user"/>
+
+    <TextView
+            android:id="@+id/channel_feed_repo_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#f5f5f5"
+            android:lineSpacingMultiplier="1.2"
+            android:padding="8dp"
+            android:text="Just some text"
+            android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+    />
+
+    <include layout="@layout/channel_feed_item_video"/>
+
+    <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:layout_marginLeft="24dp"
+            android:layout_marginRight="24dp"
+            android:background="#e5e5e5"
+    />
+
+    <include layout="@layout/channel_feed_item_bottom"/>
+</LinearLayout>

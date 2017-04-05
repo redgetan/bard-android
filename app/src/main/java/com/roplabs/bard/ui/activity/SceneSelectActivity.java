@@ -23,8 +23,10 @@ import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
@@ -45,7 +47,7 @@ import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
-public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
+public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
@@ -61,6 +63,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     private Button clearSceneComboButton;
     private Button enterSceneComboButton;
     private ProgressBar sceneDownloadProgress;
+    private String channelToken;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -76,6 +79,8 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.app_name);
         title.setTextSize(24);
+
+        channelToken = Configuration.mainChannelToken();
 
         initPager();
         initCombo();
@@ -122,6 +127,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
                 Intent intent = new Intent(getApplicationContext(), BardEditorActivity.class);
                 intent.putExtra("characterToken", "");
+                intent.putExtra("channelToken", channelToken);
                 intent.putExtra("sceneToken", "");
                 intent.putExtra("sceneTokens", TextUtils.join(",",sceneTokens));
                 BardLogger.trace("[multiSceneSelect] " + sceneTokens.toString());
@@ -136,7 +142,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (ViewPager) findViewById(R.id.scene_select_pager);
         viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(),
-                SceneSelectActivity.this));
+                SceneSelectActivity.this, channelToken));
         viewPager.setOffscreenPageLimit(2);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
@@ -168,12 +174,14 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
         if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("channelToken", channelToken);
             newIntent.putExtra("characterToken", "");
             newIntent.putExtra("sceneToken", sceneToken);
             BardLogger.trace("[sceneDeepLink] " + sceneToken);
             startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
         } else if ((characterToken = intent.getStringExtra("packTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
+            intent.putExtra("channelToken", channelToken);
             newIntent.putExtra("characterToken", characterToken);
             newIntent.putExtra("sceneToken", "");
             BardLogger.trace("[packDeepLink] " + characterToken);
@@ -225,7 +233,8 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
                 return true;
             case R.id.menu_item_search:
                 intent = new Intent(this, SearchActivity.class);
-                startActivity(intent);
+                intent.putExtra("channelToken", channelToken);
+                startActivityForResult(intent, SEARCH_REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -256,8 +265,14 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
-            finish();
+        if (resultCode == RESULT_OK &&
+                (requestCode == BARD_EDITOR_REQUEST_CODE || requestCode == SEARCH_REQUEST_CODE) ) {
+            boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
+            if (shouldBackToChannel) {
+                // navigate to feed tab
+                viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
+
+            }
         } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
         }
     }
@@ -272,15 +287,12 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     public void onItemClick(Scene scene) {
-        if (sceneComboList.isEmpty()) {
-            Intent intent = new Intent(this, BardEditorActivity.class);
-            intent.putExtra("characterToken", "");
-            intent.putExtra("sceneToken", scene.getToken());
-            BardLogger.trace("[sceneSelect] " + scene.getToken());
-            startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
-        } else {
-            addComboItem(scene);
-        }
+        Intent intent = new Intent(this, BardEditorActivity.class);
+        intent.putExtra("channelToken", channelToken);
+        intent.putExtra("characterToken", "");
+        intent.putExtra("sceneToken", scene.getToken());
+        BardLogger.trace("[sceneSelect] " + scene.getToken());
+        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
     }
 
     private void addComboItem(Scene scene) {
@@ -390,4 +402,9 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         }
     }
 
+    @Override
+    public void onCreatePostClicked() {
+        // go to All Videos tab
+        viewPager.setCurrentItem(0);
+    }
 }

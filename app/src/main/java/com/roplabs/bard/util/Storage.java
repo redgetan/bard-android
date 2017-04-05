@@ -41,8 +41,8 @@ public class Storage {
     //   "directory/" + key + "." + i
     // based on
     // https://github.com/JakeWharton/DiskLruCache/blob/disklrucache-2.0.2/src/main/java/com/jakewharton/disklrucache/DiskLruCache.java#L923
-    public static String getCachedVideoFilePath(String wordTagString) {
-        String cacheKey = getCacheKey(wordTagString);
+    public static String getCachedVideoFilePath(String key) {
+        String cacheKey = getCacheKey(key);
         int index = NUM_OF_VALUES_IN_VIDEO_CACHE_KEY - 1;
         return ClientApp.getContext().getExternalCacheDir().getAbsolutePath() + "/" + cacheKey + "." + index;
     }
@@ -82,14 +82,14 @@ public class Storage {
 
     // reference code for writing binary data to DiskLRUCache
     // http://www.programcreek.com/java-api-examples/index.php?source_dir=petsworld-master/ActionBar/libary/libcore/io/ImageCache.java
-    public static void cacheVideo(final String wordTagString, String sceneToken, final OnCacheVideoListener cacheVideoListener) {
-        String cacheKey = Storage.getCacheKey(wordTagString);
+    public static void cacheVideo(final String key, String remoteVideoUrl, final OnCacheVideoListener cacheVideoListener) {
+        String cacheKey = Storage.getCacheKey(key);
         try {
             final DiskLruCache.Editor editor = getDiskCache().edit(cacheKey);
             if (editor != null) {
                 OutputStream outputStream = editor.newOutputStream(0);
 
-                VideoDownloader.downloadUrlToStream(Segment.sourceUrlFromWordTagString(wordTagString, sceneToken), outputStream, new VideoDownloader.OnDownloadListener() {
+                VideoDownloader.downloadUrlToStream(remoteVideoUrl, outputStream, new VideoDownloader.OnDownloadListener() {
                     @Override
                     public void onDownloadSuccess() {
                         try {
@@ -100,7 +100,7 @@ public class Storage {
                                 @Override
                                 public void run() {
                                     // code to interact with UI
-                                    cacheVideoListener.onCacheVideoSuccess(Storage.getCachedVideoFilePath(wordTagString));
+                                    cacheVideoListener.onCacheVideoSuccess(Storage.getCachedVideoFilePath(key));
                                 }
                             });
                         } catch (IOException e) {

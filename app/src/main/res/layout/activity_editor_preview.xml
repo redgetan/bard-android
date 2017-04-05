@@ -49,7 +49,7 @@
                 android:minWidth="0dp"
                 android:textAllCaps="false"
                 android:layout_gravity="right|center_vertical"
-                android:background="@color/md_blue_500"
+                android:background="@drawable/transparent_background_rounded_border"
                 android:text="Post"
                 android:textColor="@color/white"
                 android:paddingLeft="10dp"
@@ -69,11 +69,13 @@
         <FrameLayout android:layout_height="wrap_content"
                      android:layout_width="match_parent"
                      android:layout_marginBottom="10dp"
+                     android:background="@color/black"
                      >
-            <com.roplabs.bard.ui.widget.SquareVideoView android:id="@+id/video_view"
-                                                        android:layout_width="match_parent"
-                                                        android:layout_height="wrap_content"
-            />
+            <com.google.android.exoplayer2.ui.SimpleExoPlayerView
+                    android:id="@+id/video_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="200dp"/>
+
             <ImageView
                     android:id="@+id/editor_preview_play_button"
                     android:layout_width="wrap_content"
@@ -133,7 +135,7 @@
                 <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_replay_white_18dp"
+                        android:src="@drawable/ic_share_white_18dp"
                         android:contentDescription="@string/share"/>
                 <TextView
                         android:layout_width="wrap_content"

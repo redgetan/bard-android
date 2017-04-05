@@ -44,6 +44,7 @@ import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.activity.*;
+import okhttp3.ResponseBody;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -65,6 +66,7 @@ public class Helper {
     public static final int TELL_FRIEND_DRAWER_ITEM_IDENTIFIER = 6;
     public static final int MY_PACKS_DRAWER_ITEM_IDENTIFIER = 7;
     public static final int MY_CHANNELS_DRAWER_ITEM_IDENTIFIER = 8;
+    public static final int MY_LIKES_DRAWER_ITEM_IDENTIFIER = 9;
 
     public static final int REQUEST_WRITE_STORAGE = 1;
     public static final int LOGIN_REQUEST_CODE = 2;
@@ -127,13 +129,17 @@ public class Helper {
         return word.toString().toLowerCase().replaceAll("[\"\'.?!]","");
     }
 
+    public interface ProcessListener {
+        public void onProcessAvailable(Process process);
+    }
 
 
     // http://gimite.net/en/index.php?Run%20native%20executable%20in%20Android%20App
-    public static String runCmd(String[] cmd) {
+    public static String runCmd(String[] cmd, ProcessListener processListener) {
         try {
             // Executes the command.
             Process process = Runtime.getRuntime().exec(cmd);
+            processListener.onProcessAvailable(process);
 
             // Reads stdout.
             // NOTE: You can write to stdin of the command using
@@ -302,9 +308,11 @@ public class Helper {
         String username = Setting.getUsername(context);
         ProfileDrawerItem profileDrawerItem;
         final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
+        final List<Like> userLikes = Like.forUsername(Setting.getUsername(context));
         final List<Character> userPacks = UserPack.packsForUser(Setting.getUsername(context));
         final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
         String libraryCount = String.valueOf(repos.size());
+        String likeCount = String.valueOf(userLikes.size());
         String packCount = String.valueOf(userPacks.size());
         String channelCount = String.valueOf(channels.size());
 
@@ -343,6 +351,7 @@ public class Helper {
                         new PrimaryDrawerItem().withName("Upload a Video").withTextColor(textColor).withIdentifier(UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_videocam_black_24dp),
 //                        new PrimaryDrawerItem().withName(R.string.my_channels).withTextColor(textColor).withIdentifier(MY_CHANNELS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_theaters_black_24dp).withBadge(channelCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.bard_library).withTextColor(textColor).withIdentifier(MY_PROJECTS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_inbox_black_24dp).withBadge(libraryCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
+                        new PrimaryDrawerItem().withName(R.string.my_likes).withTextColor(textColor).withIdentifier(MY_LIKES_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_favorite_border_black_24dp).withBadge(likeCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new PrimaryDrawerItem().withName(R.string.my_packs).withTextColor(textColor).withIdentifier(MY_PACKS_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_photo_library_black_24dp).withBadge(packCount).withBadgeStyle(new BadgeStyle().withTextColor(Color.WHITE).withColorRes(R.color.jumbo)),
                         new DividerDrawerItem(),
                         new PrimaryDrawerItem().withName(R.string.tell_friend).withTextColor(textColor).withIdentifier(TELL_FRIEND_DRAWER_ITEM_IDENTIFIER).withIcon(R.drawable.ic_person_add_black_24dp),
@@ -357,6 +366,12 @@ public class Helper {
                         switch ((int) drawerItem.getIdentifier()) {
                             case MY_PROJECTS_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                intent.putExtra("repoListType","created");
+                                context.startActivity(intent);
+                                break;
+                            case MY_LIKES_DRAWER_ITEM_IDENTIFIER:
+                                intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
+                                intent.putExtra("repoListType","likes");
                                 context.startActivity(intent);
                                 break;
                             case MY_CHANNELS_DRAWER_ITEM_IDENTIFIER:
@@ -438,7 +453,7 @@ public class Helper {
         void onPublished(Repo repo);
     }
 
-    private static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
+    public static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("uuid", uuid);
         body.put("word_list", repo.getWordList());
@@ -474,7 +489,7 @@ public class Helper {
     public static void publishRepo(final Repo repo, Context context, final String channelToken, final OnRepoPublished listener) {
         progressDialog = new ProgressDialog(context);
         progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Publishing...");
+        progressDialog.setMessage("Processing...");
         progressDialog.show();
 
         final String wordList = repo.getWordList();
@@ -517,7 +532,65 @@ public class Helper {
         });
     }
 
-    public static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
+    public interface OnMergeRemoteComplete {
+        public void onMergeRemoteComplete(String sourceUrl);
+    }
+
+    public static void mergeSegmentsRemotely(Context context, String wordList, final OnMergeRemoteComplete listener) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Processing...");
+        progressDialog.show();
+
+        Call<ResponseBody> call = BardClient.getLambdaBardService().lambdaConcat(wordList);
+        call.enqueue(new Callback<ResponseBody>() {
+            @Override
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
+                try {
+                    final String mergeResultSourceUrl = response.body().string();
+                    if (mergeResultSourceUrl == null) {
+                        progressDialog.dismiss();
+                        listener.onMergeRemoteComplete("");
+                        return;
+                    }
+
+                    String filePath = Storage.getLocalSavedFilePath();
+
+                    FileOutputStream fileOutput = new FileOutputStream(new File(filePath));
+                    VideoDownloader.downloadUrlToStream(mergeResultSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess() {
+                            progressDialog.dismiss();
+                            listener.onMergeRemoteComplete(mergeResultSourceUrl);
+                        }
+
+                        @Override
+                        public void onDownloadFailure() {
+                            progressDialog.dismiss();
+                            listener.onMergeRemoteComplete("");
+                        }
+                    });
+                } catch (FileNotFoundException e) {
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+                    listener.onMergeRemoteComplete("");
+                } catch (IOException e) {
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+                    listener.onMergeRemoteComplete("");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
+                listener.onMergeRemoteComplete("");
+            }
+        });
+    }
+
+    public static void saveLocalRepo(String token, String url, String uuid, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
 
         // set initial token as size of repo + 1
         if (token == null) {
@@ -528,7 +601,7 @@ public class Helper {
         Repo repo;
 
         if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+            repo = Repo.create(token, url, uuid, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
             Bundle params = new Bundle();
             params.putString("wordTags", wordList);
