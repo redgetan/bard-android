@@ -548,12 +548,13 @@ public class Helper {
             @Override
             public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
-                    final String mergeResultSourceUrl = response.body().string();
-                    if (mergeResultSourceUrl == null) {
+                    if (response.body() == null) {
                         progressDialog.dismiss();
                         listener.onMergeRemoteComplete("");
                         return;
                     }
+
+                    final String mergeResultSourceUrl = response.body().string();
 
                     String filePath = Storage.getLocalSavedFilePath();
 

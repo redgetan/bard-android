@@ -77,7 +77,7 @@ public interface BardService {
     @POST("repos/{repoToken}/post_to_channel")
     Call<HashMap<String, String>> postRepoToChannel(@Path("repoToken") String repoToken, @Body HashMap<String, String> body);
 
-    @POST("query")
+    @GET("query")
     Call<ResponseBody> lambdaConcat(@Query("text") String text);
 
 }
