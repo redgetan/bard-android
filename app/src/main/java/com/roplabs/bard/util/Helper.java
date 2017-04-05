@@ -128,13 +128,17 @@ public class Helper {
         return word.toString().toLowerCase().replaceAll("[\"\'.?!]","");
     }
 
+    public interface ProcessListener {
+        public void onProcessAvailable(Process process);
+    }
 
 
     // http://gimite.net/en/index.php?Run%20native%20executable%20in%20Android%20App
-    public static String runCmd(String[] cmd) {
+    public static String runCmd(String[] cmd, ProcessListener processListener) {
         try {
             // Executes the command.
             Process process = Runtime.getRuntime().exec(cmd);
+            processListener.onProcessAvailable(process);
 
             // Reads stdout.
             // NOTE: You can write to stdin of the command using

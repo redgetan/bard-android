@@ -46,6 +46,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.*;
+import java.lang.Process;
 import java.lang.reflect.Field;
 import java.util.*;
 
@@ -147,6 +148,8 @@ public class BardEditorActivity extends BaseActivity implements
     private SavePackDialog savePackDialog;
 
     private int originalVideoHeight = -1;
+    private Process process;
+    private boolean isMergeInterrupted = false;
 
     ShareActionProvider mShareActionProvider;
     private String editTextbeforeChange = "";
@@ -1650,6 +1653,8 @@ public class BardEditorActivity extends BaseActivity implements
     public void joinSegments(final List<String> wordTagList) {
         Analytics.timeEvent(this, "generateBardVideo");
 
+        final BardEditorActivity self = this;
+
         disableControls();
         restoreOriginalVideoHeight();
         progressBar.setVisibility(View.VISIBLE);
@@ -1677,7 +1682,12 @@ public class BardEditorActivity extends BaseActivity implements
         (new AsyncTask<String[], Integer, String>() {
             @Override
             protected String doInBackground(String[]... cmds) {
-                return Helper.runCmd(cmds[0]);
+                return Helper.runCmd(cmds[0], new ProcessListener() {
+                    @Override
+                    public void onProcessAvailable(Process process) {
+                        self.process = process;
+                    }
+                });
             }
 
             @Override
@@ -1686,7 +1696,9 @@ public class BardEditorActivity extends BaseActivity implements
                 BardLogger.trace(result);
                 enableControls();
                 // check if file was created
-                if ((new File(outputFilePath)).exists()) {
+                if (isMergeInterrupted) {
+                    return;
+                } else if ((new File(outputFilePath)).exists()) {
                     final long endTime = System.currentTimeMillis();
                     BardLogger.log(String.valueOf(endTime - startTime) + " seconds" );
                     lastMergedWordTagList = wordTagList;
@@ -1773,6 +1785,10 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     public void closeEditor(View view) {
+        if (process != null) {
+            isMergeInterrupted = true;
+            process.destroy();
+        }
         finish();
     }
 

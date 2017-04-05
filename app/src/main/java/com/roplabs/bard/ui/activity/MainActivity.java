@@ -104,7 +104,12 @@ public class MainActivity extends BaseActivity {
                 Crashlytics.logException(e);
             }
 
-            Helper.runCmd(new String[] { "/system/bin/chmod", "744", ffmpegPath});
+            Helper.runCmd(new String[]{"/system/bin/chmod", "744", ffmpegPath}, new Helper.ProcessListener() {
+                @Override
+                public void onProcessAvailable(Process process) {
+
+                }
+            });
         }
     }
 
