@@ -452,7 +452,7 @@ public class Helper {
         void onPublished(Repo repo);
     }
 
-    private static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
+    public static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
         HashMap<String, String> body = new HashMap<String, String>();
         body.put("uuid", uuid);
         body.put("word_list", repo.getWordList());
@@ -531,7 +531,44 @@ public class Helper {
         });
     }
 
-    public static void saveLocalRepo(String token, String url, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
+    public interface OnMergeRemoteComplete {
+        public void onMergeRemoteComplete(String sourceUrl);
+    }
+
+    public static void mergeSegmentsRemotely(String wordList, final OnMergeRemoteComplete listener) {
+        Call<String> call = BardClient.getLambdaBardService().lambdaConcat(wordList);
+        call.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                final String mergeResultSourceUrl = response.body();
+                String filePath = Storage.getLocalSavedFilePath();
+                try {
+                    FileOutputStream fileOutput = new FileOutputStream(new File(filePath));
+                    VideoDownloader.downloadUrlToStream(mergeResultSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
+                        @Override
+                        public void onDownloadSuccess() {
+                            listener.onMergeRemoteComplete(mergeResultSourceUrl);
+                        }
+
+                        @Override
+                        public void onDownloadFailure() {
+                            listener.onMergeRemoteComplete("");
+                        }
+                    });
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                    listener.onMergeRemoteComplete("");
+                }
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                listener.onMergeRemoteComplete("");
+            }
+        });
+    }
+
+    public static void saveLocalRepo(String token, String url, String uuid, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
 
         // set initial token as size of repo + 1
         if (token == null) {
@@ -542,7 +579,7 @@ public class Helper {
         Repo repo;
 
         if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            repo = Repo.create(token, url, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+            repo = Repo.create(token, url, uuid, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
 
             Bundle params = new Bundle();
             params.putString("wordTags", wordList);

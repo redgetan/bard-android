@@ -12,6 +12,7 @@ public class Repo extends RealmObject {
     private String token;
     private String url;
     private String sourceUrl;
+    private String uuid;
     private String filePath;
     private String username;
     private Boolean isPublished;
@@ -68,7 +69,7 @@ public class Repo extends RealmObject {
         return realm.where(Repo.class).equalTo("token", token).findFirst();
     }
 
-    public static Repo create(String token, String repoUrl, String characterToken, String sceneToken,
+    public static Repo create(String token, String repoUrl, String uuid, String characterToken, String sceneToken,
                               String videoPath, String wordList, Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -81,6 +82,7 @@ public class Repo extends RealmObject {
         repo.setCharacterToken(characterToken);
         repo.setSceneToken(sceneToken);
         repo.setUrl(repoUrl);
+        repo.setUUID(uuid);
         repo.setFilePath(videoPath);
         repo.setWordList(wordList);
         repo.setCreatedAt(createdAt);
@@ -254,6 +256,14 @@ public class Repo extends RealmObject {
         this.token = token;
     }
 
+
+    public String getUUID() {
+        return this.uuid;
+    }
+
+    public void setUUID(String uuid) {
+        this.uuid = uuid;
+    }
 
     public String getSourceUrl() {
         return this.sourceUrl;

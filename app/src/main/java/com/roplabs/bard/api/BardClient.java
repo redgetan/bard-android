@@ -50,6 +50,19 @@ public class BardClient {
         return nonauthenticatedBardService;
     }
 
+    public static BardService  getLambdaBardService() {
+        if (nonauthenticatedBardService == null) {
+            Retrofit retrofit = new Retrofit.Builder()
+                    .baseUrl(Configuration.bardLambdaBaseURL())
+                    .addConverterFactory(getGsonConverterFactory())
+                    .client(getHTTPClient(false))
+                    .build();
+            nonauthenticatedBardService = retrofit.create(BardService .class);
+        }
+
+        return nonauthenticatedBardService;
+    }
+
     private static OkHttpClient getHTTPClient(final Boolean isAuthenticated) {
         Interceptor interceptor = new Interceptor() {
             @Override

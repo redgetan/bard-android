@@ -179,6 +179,15 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 14
+        if (oldVersion == 13) {
+            schema.get("Repo")
+                    .addField("uuid", String.class);
+
+
+            oldVersion++;
+        }
+
     }
 }
 

@@ -32,6 +32,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Segment;
+import com.roplabs.bard.models.VideoDownloader;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
 import retrofit2.Call;
@@ -292,15 +293,43 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
             return;
         }
 
-        Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
+        mergeVideosAndSaveLocalRepo(null);
+    }
+
+    public interface OnMergeSuccess {
+        public void onMergeAndSaveComplete(Repo repo);
+    }
+
+    public void mergeVideosAndSaveLocalRepo(final OnMergeSuccess listener) {
+        final Context self = this;
+
+        Helper.mergeSegmentsRemotely(wordTagListString, new Helper.OnMergeRemoteComplete() {
             @Override
-            public void onSaved(Repo createdRepo) {
-                repo = createdRepo;
-                markAsSaved();
+            public void onMergeRemoteComplete(final String sourceUrl) {
+                if (sourceUrl.isEmpty()) {
+                    Toast.makeText(self, "Unable to process video", Toast.LENGTH_LONG).show();
+                } else {
+                    String[] sourceUrlTokens = sourceUrl.split("/");
+                    String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replace("\\.mp4$","");
+                    Helper.saveLocalRepo(null, null, uuid, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
+                        @Override
+                        public void onSaved(Repo createdRepo) {
+                            repo = createdRepo;
+                            markAsSaved();
+                            if (listener != null) {
+                                listener.onMergeAndSaveComplete(repo);
+                            }
+                        }
+                    });
+                }
             }
         });
 
+
+
     }
+
+
 
     /* repo can be either of 4 states
       1. not saved                                 (must save local + repos#create w/ channelToken)
@@ -309,15 +338,15 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
       4. saved locally + remotely + channel_posted (dont do anything)
     */
     public void postRepoToChannel(View view) {
-        final Context self = this;
+        final EditorPreviewActivity self = this;
         if (!channelToken.isEmpty()) {
             if (repo == null) {
                 // 1. not saved                                 (must save local + repos#create w/ channelToken)
-                Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken,  new Helper.OnRepoSaved() {
+                mergeVideosAndSaveLocalRepo(new OnMergeSuccess() {
                     @Override
-                    public void onSaved(Repo createdRepo) {
-                        repo = createdRepo;
-                        Helper.publishRepo(repo, self, channelToken, new Helper.OnRepoPublished() {
+                    public void onMergeAndSaveComplete(Repo repo) {
+                        self.repo = repo;
+                        Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                             @Override
                             public void onPublished(Repo publishedRepo) {
                                 Intent intent = new Intent();
@@ -328,10 +357,11 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                         });
                     }
                 });
+
             } else if (!repo.getIsPublished()) {
                 // 2. saved locally                             (repos#create w/ channelToken)
 
-                Helper.publishRepo(repo, self, channelToken, new Helper.OnRepoPublished() {
+                Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                     @Override
                     public void onPublished(Repo publishedRepo) {
                         Intent intent = new Intent();

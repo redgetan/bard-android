@@ -11,6 +11,14 @@ public class Configuration {
         }
     }
 
+    public static String bardLambdaBaseURL() {
+        if (BuildConfig.FLAVOR.equals("dev")) {
+            return "http://192.168.2.84:9000";
+        } else {
+            return "https://api.bard.co";
+        }
+    }
+
     public static String cognitoIdentityPool() {
         if (BuildConfig.FLAVOR.equals("dev")) {
             return "us-west-2:7bd4263f-57f2-4d08-9855-7672299d73d4";

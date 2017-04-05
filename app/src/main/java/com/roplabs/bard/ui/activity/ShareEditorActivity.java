@@ -262,29 +262,15 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startRepoLinkShare() {
         final Context self = this;
-        if (repo != null && (repo.getUrl() != null)) {
+        if (repo.getUrl() != null) {
             // already published
             copyRepoLinkToClipboard(repo.getUrl());
             return;
-        } else if (repo != null) {
-            // repo exists but not yet published
-            Helper.publishRepo(repo, this, null,new Helper.OnRepoPublished() {
+        } else {
+            Helper.saveRemoteRepo(repo, repo.getUUID(), null, new Helper.OnRepoPublished() {
                 @Override
                 public void onPublished(Repo publishedRepo) {
                     copyRepoLinkToClipboard(publishedRepo.getUrl());
-                }
-            });
-        } else {
-            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
-                @Override
-                public void onSaved(Repo createdRepo) {
-                    repo = createdRepo;
-                    Helper.publishRepo(repo, self, null, new Helper.OnRepoPublished() {
-                        @Override
-                        public void onPublished(Repo publishedRepo) {
-                            copyRepoLinkToClipboard(publishedRepo.getUrl());
-                        }
-                    });
                 }
             });
         }
@@ -326,29 +312,16 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
 
     private void startRepoTextShare() {
         final Context self = this;
-        if (repo != null && (repo.getUrl() != null)) {
+        if (repo.getUrl() != null) {
             // already published
             sendText(repo.getUrl());
             return;
-        } else if (repo != null) {
+        } else {
             // repo exists but not yet published
-            Helper.publishRepo(repo, this, null, new Helper.OnRepoPublished() {
+            Helper.saveRemoteRepo(repo, repo.getUUID(), null, new Helper.OnRepoPublished() {
                 @Override
                 public void onPublished(Repo publishedRepo) {
                     sendText(publishedRepo.getUrl());
-                }
-            });
-        } else {
-            Helper.saveLocalRepo(null, null, wordTagListString, sceneToken, sceneName, characterToken,  new Helper.OnRepoSaved() {
-                @Override
-                public void onSaved(Repo createdRepo) {
-                    repo = createdRepo;
-                    Helper.publishRepo(repo, self, null, new Helper.OnRepoPublished() {
-                        @Override
-                        public void onPublished(Repo publishedRepo) {
-                            sendText(publishedRepo.getUrl());
-                        }
-                    });
                 }
             });
         }
