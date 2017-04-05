@@ -6,12 +6,27 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
+import com.google.android.exoplayer2.*;
+import com.google.android.exoplayer2.extractor.DefaultExtractorsFactory;
+import com.google.android.exoplayer2.extractor.ExtractorsFactory;
+import com.google.android.exoplayer2.source.ConcatenatingMediaSource;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.*;
+import com.google.android.exoplayer2.ui.SimpleExoPlayerView;
+import com.google.android.exoplayer2.upstream.BandwidthMeter;
+import com.google.android.exoplayer2.upstream.DataSource;
+import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
+import com.google.android.exoplayer2.util.Util;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
@@ -27,10 +42,11 @@ import java.util.HashMap;
 
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
-public class EditorPreviewActivity extends BaseActivity {
+public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.EventListener {
 
     private String videoLocation;
-    private VideoView videoView;
+    private SimpleExoPlayerView videoView;
+    private SimpleExoPlayer player;
     private LinearLayout previewSaveButton;
     private ImageView previewSaveButtonIcon;
     private TextView previewSaveButtonLabel;
@@ -58,28 +74,54 @@ public class EditorPreviewActivity extends BaseActivity {
         channelToken = intent.getStringExtra("channelToken");
         wordTagListString = intent.getStringExtra("wordTags");
 
-        videoView = (VideoView) findViewById(R.id.video_view);
         previewSaveButton = (LinearLayout) findViewById(R.id.preview_save_repo_button);
         previewSaveButtonIcon = (ImageView) findViewById(R.id.preview_save_repo_icon);
         previewSaveButtonLabel = (TextView) findViewById(R.id.preview_save_repo_label);
         playBtn = (ImageView) findViewById(R.id.editor_preview_play_button);
 
-        initVideoPlayer();
-        playLocalVideo(Storage.getMergedOutputFilePath());
-
     }
 
-    private void playLocalVideo(String filePath) {
+    private void playLocalVideo() {
         playBtn.setVisibility(View.GONE);
-        videoView.setVideoPath(filePath);
-        videoView.start();
+        DataSource.Factory dataSourceFactory = new DefaultDataSourceFactory(this,
+                Util.getUserAgent(this, "bard-player"));
+        // Produces Extractor instances for parsing the media data.
+        ExtractorsFactory extractorsFactory = new DefaultExtractorsFactory();
+
+
+        MediaSource source_a = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/88951.mp4"), dataSourceFactory, extractorsFactory, null, null);
+        MediaSource source_b = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90972.mp4"), dataSourceFactory, extractorsFactory, null, null);
+        MediaSource source_c = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/Gvl2y34puhY/90047.mp4"), dataSourceFactory, extractorsFactory, null, null);
+//        MediaSource source_c = new ExtractorMediaSource(Uri.parse("https://segments.bard.co/segments/u5mFI9spp10/V4OfkjCK0rU5.mp4"), dataSourceFactory, extractorsFactory, null, null);
+
+//        ConcatenatingMediaSource concatenatedSource = new ConcatenatingMediaSource(source_c);
+        ConcatenatingMediaSource concatenatedSource =
+                new ConcatenatingMediaSource(source_a, source_b, source_c);
+// Prepare the player with the source.
+        player.prepare(concatenatedSource);
+
     }
 
     @Override
     protected void onResume() {
+        initVideoPlayer();
+        playLocalVideo();
 
         super.onResume();
     }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        releaseVideoPlayer();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        releaseVideoPlayer();
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -101,8 +143,38 @@ public class EditorPreviewActivity extends BaseActivity {
         previewSaveButtonLabel.setTextColor(ContextCompat.getColor(ClientApp.getContext(), R.color.md_green_300));
     }
 
+    private void releaseVideoPlayer() {
+        if (player != null) {
+            player.removeListener(this);
+            player.release();
+            player = null;
+        }
+    }
 
     private void initVideoPlayer() {
+        Handler mainHandler = new Handler();
+        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+        TrackSelection.Factory videoTrackSelectionFactory =
+                new AdaptiveTrackSelection.Factory(bandwidthMeter);
+        TrackSelector trackSelector =
+                new DefaultTrackSelector(videoTrackSelectionFactory);
+
+        // 2. Create a default LoadControl
+        LoadControl loadControl = new DefaultLoadControl();
+
+        // 3. Create the player
+        player = ExoPlayerFactory.newSimpleInstance(this, trackSelector, new DefaultLoadControl(),
+                null, SimpleExoPlayer.EXTENSION_RENDERER_MODE_OFF);
+        player.setPlayWhenReady(true);
+        videoView = (SimpleExoPlayerView) findViewById(R.id.video_view);
+        videoView.setPlayer(player);
+        player.addListener(this);
+        playLocalVideo();
+
+
+
+
+        // replay
         playBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -111,21 +183,22 @@ public class EditorPreviewActivity extends BaseActivity {
         });
 
 
-        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                playBtn.setVisibility(View.VISIBLE);
-            }
-        });
 
-        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mp) {
-                videoView.setBackgroundColor(Color.TRANSPARENT);
-                isVideoReady = true;
-                mediaPlayer = mp;
-            }
-        });
+//        videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+//            @Override
+//            public void onCompletion(MediaPlayer mediaPlayer) {
+//                playBtn.setVisibility(View.VISIBLE);
+//            }
+//        });
+//
+//        videoView.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+//            @Override
+//            public void onPrepared(MediaPlayer mp) {
+//                videoView.setBackgroundColor(Color.TRANSPARENT);
+//                isVideoReady = true;
+//                mediaPlayer = mp;
+//            }
+//        });
 
         videoView.setOnTouchListener(new View.OnTouchListener() {
 
@@ -133,9 +206,11 @@ public class EditorPreviewActivity extends BaseActivity {
             public boolean onTouch(View v, MotionEvent event) {
                 // http://stackoverflow.com/a/14163267
                 if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (!isVideoReady) return false;
+                    if (player.getPlaybackState() == ExoPlayer.STATE_READY ||
+                        player.getPlaybackState() == ExoPlayer.STATE_ENDED   ) {
+                        replayVideo();
+                    }
 
-                    replayVideo();
 
                     return false;
                 } else {
@@ -147,11 +222,10 @@ public class EditorPreviewActivity extends BaseActivity {
     }
 
     public void replayVideo() {
-        playBtn.setVisibility(View.GONE);
-        if (mediaPlayer != null) {
-            mediaPlayer.seekTo(0);
-            mediaPlayer.start();
-        }
+        playLocalVideo();
+//        playBtn.setVisibility(View.GONE);
+//        player.seekTo(0);
+//        player.setPlayWhenReady(true);
     }
 
     @Override
@@ -256,5 +330,37 @@ public class EditorPreviewActivity extends BaseActivity {
             }
 
         }
+    }
+
+    @Override
+    public void onTimelineChanged(Timeline timeline, Object manifest) {
+
+    }
+
+    @Override
+    public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+    }
+
+    @Override
+    public void onLoadingChanged(boolean isLoading) {
+
+    }
+
+    @Override
+    public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+        if (playbackState == ExoPlayer.STATE_ENDED) {
+           playBtn.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
+    public void onPlayerError(ExoPlaybackException error) {
+
+    }
+
+    @Override
+    public void onPositionDiscontinuity() {
+
     }
 }

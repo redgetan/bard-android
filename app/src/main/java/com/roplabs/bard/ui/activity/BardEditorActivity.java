@@ -1825,7 +1825,9 @@ public class BardEditorActivity extends BaseActivity implements
         if (editText.containsInvalidWord()) return;
         if (!isAllWordsTagged(wordTagList)) return;
 
-        joinSegments(wordTagList);
+        goToEditorResultsPreview();
+
+//        joinSegments(wordTagList);
     }
 
     public List<String> getWordTagList() {
