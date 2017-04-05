@@ -2,6 +2,7 @@ package com.roplabs.bard.api;
 
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
+import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.*;
 
@@ -77,7 +78,7 @@ public interface BardService {
     Call<HashMap<String, String>> postRepoToChannel(@Path("repoToken") String repoToken, @Body HashMap<String, String> body);
 
     @POST("query")
-    Call<String> lambdaConcat(@Query("text") String text);
+    Call<ResponseBody> lambdaConcat(@Query("text") String text);
 
 }
 

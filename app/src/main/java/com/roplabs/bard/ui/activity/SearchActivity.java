@@ -223,6 +223,14 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
+            boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
+            if (shouldBackToChannel) {
+                // navigate to feed tab
+                setResult(RESULT_OK, data);
+                finish();
+            }
+        }
     }
 
     @Override
@@ -233,6 +241,7 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
     @Override
     public void onItemClick(Scene scene) {
         Intent intent = new Intent(this, BardEditorActivity.class);
+        intent.putExtra("channelToken", channelToken);
         intent.putExtra("characterToken", "");
         intent.putExtra("sceneToken", scene.getToken());
         BardLogger.trace("[sceneSearch] " + scene.getToken());

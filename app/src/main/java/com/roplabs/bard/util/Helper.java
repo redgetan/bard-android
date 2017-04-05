@@ -44,6 +44,7 @@ import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.*;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.ui.activity.*;
+import okhttp3.ResponseBody;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -535,34 +536,55 @@ public class Helper {
         public void onMergeRemoteComplete(String sourceUrl);
     }
 
-    public static void mergeSegmentsRemotely(String wordList, final OnMergeRemoteComplete listener) {
-        Call<String> call = BardClient.getLambdaBardService().lambdaConcat(wordList);
-        call.enqueue(new Callback<String>() {
+    public static void mergeSegmentsRemotely(Context context, String wordList, final OnMergeRemoteComplete listener) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Processing...");
+        progressDialog.show();
+
+        Call<ResponseBody> call = BardClient.getLambdaBardService().lambdaConcat(wordList);
+        call.enqueue(new Callback<ResponseBody>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                final String mergeResultSourceUrl = response.body();
-                String filePath = Storage.getLocalSavedFilePath();
+            public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
                 try {
+                    final String mergeResultSourceUrl = response.body().string();
+                    if (mergeResultSourceUrl == null) {
+                        progressDialog.dismiss();
+                        listener.onMergeRemoteComplete("");
+                        return;
+                    }
+
+                    String filePath = Storage.getLocalSavedFilePath();
+
                     FileOutputStream fileOutput = new FileOutputStream(new File(filePath));
                     VideoDownloader.downloadUrlToStream(mergeResultSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
                         @Override
                         public void onDownloadSuccess() {
+                            progressDialog.dismiss();
                             listener.onMergeRemoteComplete(mergeResultSourceUrl);
                         }
 
                         @Override
                         public void onDownloadFailure() {
+                            progressDialog.dismiss();
                             listener.onMergeRemoteComplete("");
                         }
                     });
                 } catch (FileNotFoundException e) {
+                    progressDialog.dismiss();
+                    e.printStackTrace();
+                    listener.onMergeRemoteComplete("");
+                } catch (IOException e) {
+                    progressDialog.dismiss();
                     e.printStackTrace();
                     listener.onMergeRemoteComplete("");
                 }
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<ResponseBody> call, Throwable t) {
+                progressDialog.dismiss();
                 listener.onMergeRemoteComplete("");
             }
         });

@@ -16,6 +16,7 @@ import java.util.concurrent.TimeUnit;
 public class BardClient {
     static BardService  nonauthenticatedBardService;
     static BardService  authenticatedBardService;
+    static BardService  lambdaService;
 
     private static final OkHttpClient client = new OkHttpClient();
 
@@ -51,16 +52,15 @@ public class BardClient {
     }
 
     public static BardService  getLambdaBardService() {
-        if (nonauthenticatedBardService == null) {
+        if (lambdaService == null) {
             Retrofit retrofit = new Retrofit.Builder()
                     .baseUrl(Configuration.bardLambdaBaseURL())
-                    .addConverterFactory(getGsonConverterFactory())
-                    .client(getHTTPClient(false))
+                    .client(getHTTPClient(Setting.isLogined(ClientApp.getContext())))
                     .build();
-            nonauthenticatedBardService = retrofit.create(BardService .class);
+            lambdaService = retrofit.create(BardService.class);
         }
 
-        return nonauthenticatedBardService;
+        return lambdaService;
     }
 
     private static OkHttpClient getHTTPClient(final Boolean isAuthenticated) {

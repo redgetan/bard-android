@@ -288,7 +288,7 @@ public class ChannelFeedFragment extends Fragment implements
                         String repoFilePath = Storage.getLocalSavedFilePath();
                         Helper.copyFile(currentPost.getCachedVideoFilePath(),repoFilePath);
                         String repoUrl = Configuration.bardAPIBaseURL() + "/r/" + repoToken;
-                        repo = Repo.create(repoToken, repoUrl, "", "", repoFilePath, currentPost.getRepoWordList(), Calendar.getInstance().getTime());
+                        repo = Repo.create(repoToken, repoUrl, "", currentPost.getPackToken(), currentPost.getSceneToken(), repoFilePath, currentPost.getRepoWordList(), Calendar.getInstance().getTime());
                     }
 
 

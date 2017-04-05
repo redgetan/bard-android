@@ -64,6 +64,7 @@ public class BardEditorActivity extends BaseActivity implements
     public static final String EXTRA_VIDEO_URL = "com.roplabs.bard.VIDEO_URL";
     public static final String EXTRA_VIDEO_PATH = "com.roplabs.bard.VIDEO_PATH";
     public static final String EXTRA_WORD_LIST = "com.roplabs.bard.WORD_LIST";
+    private static final int MAX_WORD_TAG_COUNT = 25;
 
     private boolean isPackSaved = false;
 
@@ -1824,6 +1825,11 @@ public class BardEditorActivity extends BaseActivity implements
 
         if (editText.containsInvalidWord()) return;
         if (!isAllWordsTagged(wordTagList)) return;
+
+        if (wordTagList.size() > MAX_WORD_TAG_COUNT) {
+            Toast.makeText(getContext(),"Cannot exceed " + MAX_WORD_TAG_COUNT + " words", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         lastMergedWordTagList = wordTagList;
         goToEditorResultsPreview();

@@ -65,7 +65,7 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     private String sceneToken;
     private String characterToken;
     private String channelToken;
-    private Repo repo;
+    private String repoToken = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -137,9 +137,8 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == SHARE_REPO_REQUEST_CODE) {
             if (data != null) {
-                String repoToken = data.getStringExtra("repoToken");
-                if (repoToken != null) {
-                    repo = Repo.forToken(repoToken);
+                repoToken = data.getStringExtra("repoToken");
+                if (!repoToken.isEmpty()) {
                     markAsSaved();
                 }
             }
@@ -274,21 +273,31 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     }
 
     public void openSharingInPreview(View view) {
-        Intent intent = new Intent(this, ShareEditorActivity.class);
+        final Intent intent = new Intent(this, ShareEditorActivity.class);
 
         intent.putExtra("wordTags", wordTagListString);
         intent.putExtra("sceneToken", sceneToken);
         intent.putExtra("characterToken", characterToken);
         intent.putExtra("sceneName", sceneName);
         intent.putExtra("shareType", "repo");
-        if (repo != null) {
-            intent.putExtra("repoToken", repo.getToken());
+
+        if (!repoToken.isEmpty()) {
+            intent.putExtra("repoToken", repoToken);
+            startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
+        } else {
+            mergeVideosAndSaveLocalRepo(new OnMergeSuccess() {
+                @Override
+                public void onMergeAndSaveComplete(String repoToken) {
+                    intent.putExtra("repoToken", repoToken);
+                    startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
+                }
+            });
+
         }
-        startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
     }
 
     public void saveRepoInPreview(View view) {
-        if (this.repo != null) {
+        if (!repoToken.isEmpty()) {
             // already saved (i.e. when generating online link)
             return;
         }
@@ -297,13 +306,13 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     }
 
     public interface OnMergeSuccess {
-        public void onMergeAndSaveComplete(Repo repo);
+        public void onMergeAndSaveComplete(String repoToken);
     }
 
     public void mergeVideosAndSaveLocalRepo(final OnMergeSuccess listener) {
         final Context self = this;
 
-        Helper.mergeSegmentsRemotely(wordTagListString, new Helper.OnMergeRemoteComplete() {
+        Helper.mergeSegmentsRemotely(this, wordTagListString.replace(","," "), new Helper.OnMergeRemoteComplete() {
             @Override
             public void onMergeRemoteComplete(final String sourceUrl) {
                 if (sourceUrl.isEmpty()) {
@@ -313,12 +322,19 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                     String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replace("\\.mp4$","");
                     Helper.saveLocalRepo(null, null, uuid, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
                         @Override
-                        public void onSaved(Repo createdRepo) {
-                            repo = createdRepo;
-                            markAsSaved();
-                            if (listener != null) {
-                                listener.onMergeAndSaveComplete(repo);
-                            }
+                        public void onSaved(final Repo createdRepo) {
+                            repoToken = createdRepo.getToken();
+
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    markAsSaved();
+                                    if (listener != null) {
+                                        listener.onMergeAndSaveComplete(repoToken);
+                                    }
+                                }
+                            });
+
                         }
                     });
                 }
@@ -339,13 +355,15 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     */
     public void postRepoToChannel(View view) {
         final EditorPreviewActivity self = this;
+        Repo repo = Repo.forToken(repoToken);
+
         if (!channelToken.isEmpty()) {
             if (repo == null) {
                 // 1. not saved                                 (must save local + repos#create w/ channelToken)
                 mergeVideosAndSaveLocalRepo(new OnMergeSuccess() {
                     @Override
-                    public void onMergeAndSaveComplete(Repo repo) {
-                        self.repo = repo;
+                    public void onMergeAndSaveComplete(String repoToken) {
+                        Repo repo = Repo.forToken(repoToken);
                         Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                             @Override
                             public void onPublished(Repo publishedRepo) {

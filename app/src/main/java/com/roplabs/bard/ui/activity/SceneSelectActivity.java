@@ -234,7 +234,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
             case R.id.menu_item_search:
                 intent = new Intent(this, SearchActivity.class);
                 intent.putExtra("channelToken", channelToken);
-                startActivity(intent);
+                startActivityForResult(intent, SEARCH_REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -265,7 +265,8 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (resultCode == RESULT_OK && requestCode == BARD_EDITOR_REQUEST_CODE) {
+        if (resultCode == RESULT_OK &&
+                (requestCode == BARD_EDITOR_REQUEST_CODE || requestCode == SEARCH_REQUEST_CODE) ) {
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
                 // navigate to feed tab
