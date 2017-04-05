@@ -363,9 +363,9 @@ public class BardEditorActivity extends BaseActivity implements
         MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite != null) {
-            item.setTitle("Remove from Bookmarks");
+            item.setTitle("Remove from My Videos");
         } else {
-            item.setTitle("Add to Bookmarks");
+            item.setTitle("Add to My Videos");
         }
     }
 
@@ -1871,7 +1871,7 @@ public class BardEditorActivity extends BaseActivity implements
             } else {
                 targetSceneToken = sceneToken;
             }
-            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, sceneToken);
+            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, targetSceneToken);
             Storage.cacheVideo(wordTagString, remoteVideoUrl, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {

@@ -285,16 +285,12 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
 
     @Override
     public void onItemClick(Scene scene) {
-        if (sceneComboList.isEmpty()) {
-            Intent intent = new Intent(this, BardEditorActivity.class);
-            intent.putExtra("channelToken", channelToken);
-            intent.putExtra("characterToken", "");
-            intent.putExtra("sceneToken", scene.getToken());
-            BardLogger.trace("[sceneSelect] " + scene.getToken());
-            startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
-        } else {
-            addComboItem(scene);
-        }
+        Intent intent = new Intent(this, BardEditorActivity.class);
+        intent.putExtra("channelToken", channelToken);
+        intent.putExtra("characterToken", "");
+        intent.putExtra("sceneToken", scene.getToken());
+        BardLogger.trace("[sceneSelect] " + scene.getToken());
+        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
     }
 
     private void addComboItem(Scene scene) {

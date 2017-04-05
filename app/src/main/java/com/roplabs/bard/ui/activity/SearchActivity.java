@@ -241,7 +241,13 @@ public class SearchActivity extends BaseActivity implements SearchResultFragment
 
     @Override
     public void onItemLongClick(Scene scene) {
+        hideKeyboard();
+        addComboItem(scene);
+    }
 
+    private void hideKeyboard() {
+        InputMethodManager imm = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        imm.hideSoftInputFromWindow(searchBar.getWindowToken(), 0);
     }
 
     private void addComboItem(Scene scene) {
