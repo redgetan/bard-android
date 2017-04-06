@@ -75,6 +75,8 @@ public class ChannelFeedFragment extends Fragment implements
     private LinearLayout channelFeedControls;
     private boolean isPostDownloadInProgress;
     private OnChannelFeedListener parentListener;
+    private boolean isFirstItemLoading = false;
+    private ImageView playBtn;
 
     private int MAX_PROGRESS_SHOWN_TIME = 10000;
 
@@ -111,6 +113,7 @@ public class ChannelFeedFragment extends Fragment implements
         reuseChannelPostButton = (LinearLayout) view.findViewById(R.id.reuse_channel_post_btn);
         channelFeedControls = (LinearLayout) view.findViewById(R.id.channel_feed_control_container);
         channelFeedControls.setVisibility(View.GONE);
+        playBtn = (ImageView) view.findViewById(R.id.channel_preview_play_button);
 
         this.postList = new ArrayList<Post>();
 
@@ -223,6 +226,7 @@ public class ChannelFeedFragment extends Fragment implements
         adapter.setOnItemClickListener(new ChannelFeedAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, final Post post) {
+                isFirstItemLoading = false;
                 playPost(post);
             }
         });
@@ -360,7 +364,8 @@ public class ChannelFeedFragment extends Fragment implements
                     // play first item if first page loaded
                     if (!postList.isEmpty() && page == 1) {
                         int firstItemPosition = 0;
-                        playPost(postList.get(firstItemPosition));
+                        isFirstItemLoading = true;
+                        playPost(postList.get(0));
                         ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(firstItemPosition);
                     }
                 }
@@ -380,8 +385,6 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onResume() {
-        refreshFeed();
-
         super.onResume();
     }
 
@@ -434,6 +437,7 @@ public class ChannelFeedFragment extends Fragment implements
 
 
     public void playLocalVideo(String sourceUrl) {
+        playBtn.setVisibility(View.GONE);
         debugView.setText("");
         if (lastUrlPlayed.equals(sourceUrl) && isVideoReady) {
             BardLogger.trace("sourceUrl: " + sourceUrl + " already loaded in mediaplayer. replaying it..");
@@ -475,6 +479,9 @@ public class ChannelFeedFragment extends Fragment implements
         mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
         isVideoReady = false;
+
+        // only here do we call get feed as mediaplayer already initialized
+        refreshFeed();
     }
 
     @Override
@@ -495,16 +502,23 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onPrepared(MediaPlayer mp) {
+        playBtn.setVisibility(View.VISIBLE);
         BardLogger.trace("mediaplayer onPrepared. playing it");
         isVideoReady = true;
         hideFeedVideoProgress();
         channelFeedControls.setVisibility(View.VISIBLE);
 
-        mp.start();
+        // if its first video, dont play it (just load it)
+        if (isFirstItemLoading) {
+            isFirstItemLoading = false;
+        } else {
+            mp.start();
+        }
     }
 
     @Override
     public void onCompletion(MediaPlayer mp) {
+        playBtn.setVisibility(View.VISIBLE);
     }
 
     public void toggleRepoLike() {
