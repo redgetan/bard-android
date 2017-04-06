@@ -45,11 +45,11 @@ public class Analytics {
     }
 
     public static void track(Context context, String event, Bundle properties) {
-        endTime = System.currentTimeMillis();
-        if (event.equals("generateBardVideo")) {
+        if (startTime > 0) {
+            endTime = System.currentTimeMillis();
             long duration = (endTime - startTime) / 1000;
-            BardLogger.log("generateBardVideo took: " + duration + " seconds");
             properties.putString("duration", String.valueOf(duration));
+            startTime = -1;
         }
         getFirebaseInstance(context).logEvent(event, properties);
     }

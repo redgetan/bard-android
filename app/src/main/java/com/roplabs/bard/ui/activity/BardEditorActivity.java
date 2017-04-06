@@ -1652,8 +1652,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     // use ffmpeg binary to concat videos hosted in cloudfront (run in background thread)
     public void joinSegments(final List<String> wordTagList) {
-        Analytics.timeEvent(this, "generateBardVideo");
-
         final BardEditorActivity self = this;
 
         disableControls();
@@ -1721,7 +1719,6 @@ public class BardEditorActivity extends BaseActivity implements
         progressBar.setVisibility(View.GONE);
 
         hideKeyboard();
-        trackGenerateBardVideo();
         goToEditorResultsPreview();
     }
 
@@ -2137,6 +2134,8 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void goToEditorResultsPreview() {
+        trackGenerateBardVideo();
+
         Intent intent = new Intent(this, EditorPreviewActivity.class);
 
         intent.putExtra("wordTags", TextUtils.join(",",lastMergedWordTagList));

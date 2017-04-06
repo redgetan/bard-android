@@ -33,6 +33,7 @@ import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.VideoDownloader;
+import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
 import retrofit2.Call;
@@ -309,8 +310,20 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
         public void onMergeAndSaveComplete(String repoToken);
     }
 
+    private void trackRemoteMergeSave() {
+
+        Bundle params = new Bundle();
+
+        params.putString("wordTags", wordTagListString);
+        params.putString("sceneToken", sceneToken);
+        params.putString("packToken", characterToken);
+
+        Analytics.track(this, "remoteMergeSave", params);
+    }
+
     public void mergeVideosAndSaveLocalRepo(final OnMergeSuccess listener) {
         final Context self = this;
+        Analytics.timeEvent(this, "remoteMergeSave");
 
         Helper.mergeSegmentsRemotely(this, wordTagListString.replace(","," "), new Helper.OnMergeRemoteComplete() {
             @Override
@@ -324,6 +337,8 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                         @Override
                         public void onSaved(final Repo createdRepo) {
                             repoToken = createdRepo.getToken();
+
+                            trackRemoteMergeSave();
 
                             runOnUiThread(new Runnable() {
                                 @Override
