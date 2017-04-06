@@ -427,6 +427,7 @@ public class ChannelFeedFragment extends Fragment implements
             public void onTouchUp() {
                 if (!isVideoReady) return;
 
+                playBtn.setVisibility(View.GONE);
                 mediaPlayer.seekTo(0);
                 mediaPlayer.start();
             }
@@ -512,6 +513,7 @@ public class ChannelFeedFragment extends Fragment implements
         if (isFirstItemLoading) {
             isFirstItemLoading = false;
         } else {
+            playBtn.setVisibility(View.GONE);
             mp.start();
         }
     }
