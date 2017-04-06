@@ -533,7 +533,7 @@ public class Helper {
     }
 
     public interface OnMergeRemoteComplete {
-        public void onMergeRemoteComplete(String sourceUrl);
+        public void onMergeRemoteComplete(String remoteSourceUrl, String localSourcePath);
     }
 
     public static void mergeSegmentsRemotely(Context context, String wordList, final OnMergeRemoteComplete listener) {
@@ -550,71 +550,66 @@ public class Helper {
                 try {
                     if (response.body() == null) {
                         progressDialog.dismiss();
-                        listener.onMergeRemoteComplete("");
+                        listener.onMergeRemoteComplete("","");
                         return;
                     }
 
-                    final String mergeResultSourceUrl = response.body().string();
+                    // lambda wraps result in a doublequote, so we have to remove them
+                    final String remoteSourceUrl = response.body().string().replace("\"","");
 
-                    String filePath = Storage.getLocalSavedFilePath();
+                    final String localSourcePath = Storage.getLocalSavedFilePath();
 
-                    FileOutputStream fileOutput = new FileOutputStream(new File(filePath));
-                    VideoDownloader.downloadUrlToStream(mergeResultSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
+                    FileOutputStream fileOutput = new FileOutputStream(new File(localSourcePath));
+                    VideoDownloader.downloadUrlToStream(remoteSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
                         @Override
                         public void onDownloadSuccess() {
                             progressDialog.dismiss();
-                            listener.onMergeRemoteComplete(mergeResultSourceUrl);
+                            listener.onMergeRemoteComplete(remoteSourceUrl, localSourcePath);
                         }
 
                         @Override
                         public void onDownloadFailure() {
                             progressDialog.dismiss();
-                            listener.onMergeRemoteComplete("");
+                            listener.onMergeRemoteComplete("","");
                         }
                     });
                 } catch (FileNotFoundException e) {
                     progressDialog.dismiss();
                     e.printStackTrace();
-                    listener.onMergeRemoteComplete("");
+                    listener.onMergeRemoteComplete("","");
                 } catch (IOException e) {
                     progressDialog.dismiss();
                     e.printStackTrace();
-                    listener.onMergeRemoteComplete("");
+                    listener.onMergeRemoteComplete("","");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
                 progressDialog.dismiss();
-                listener.onMergeRemoteComplete("");
+                listener.onMergeRemoteComplete("","");
             }
         });
     }
 
-    public static void saveLocalRepo(String token, String url, String uuid, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
+    public static void saveLocalRepo(String token, String url, String uuid, String localFilePath, String wordList, String sceneToken, String sceneName, String characterToken, OnRepoSaved listener) {
 
         // set initial token as size of repo + 1
         if (token == null) {
             token = String.valueOf(Repo.getCount() + 1);
         }
 
-        String filePath = Storage.getLocalSavedFilePath();
         Repo repo;
 
-        if (Helper.copyFile(Storage.getMergedOutputFilePath(),filePath)) {
-            repo = Repo.create(token, url, uuid, characterToken, sceneToken, filePath, wordList, Calendar.getInstance().getTime());
+        repo = Repo.create(token, url, uuid, characterToken, sceneToken, localFilePath, wordList, Calendar.getInstance().getTime());
 
-            Bundle params = new Bundle();
-            params.putString("wordTags", wordList);
-            params.putString("sceneToken", sceneToken);
-            params.putString("scene", sceneName);
-            Analytics.track(ClientApp.getContext(), "saveRepo", params);
+        Bundle params = new Bundle();
+        params.putString("wordTags", wordList);
+        params.putString("sceneToken", sceneToken);
+        params.putString("scene", sceneName);
+        Analytics.track(ClientApp.getContext(), "saveRepo", params);
 
-            listener.onSaved(repo);
-
-        } else {
-            displayError("Unable to save to phone");
-        }
+        listener.onSaved(repo);
     }
 
     private static void displayError(String message, Throwable t) {

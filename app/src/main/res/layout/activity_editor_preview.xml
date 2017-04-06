@@ -40,7 +40,7 @@
         </LinearLayout>
 
         <Button
-                android:visibility="gone"
+                android:visibility="visible"
                 android:onClick="postRepoToChannel"
                 android:layout_width="wrap_content"
                 android:layout_height="30dp"

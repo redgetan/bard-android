@@ -392,13 +392,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     public Intent getRepoShareIntent() {
         Uri videoUri;
 
-        if (this.repo == null) {
-            File file = new File(Storage.getMergedOutputFilePath());
-            videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
-        } else {
-            File file = new File(this.repo.getFilePath());
-            videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
-        }
+        File file = new File(this.repo.getFilePath());
+        videoUri = FileProvider.getUriForFile(ClientApp.getContext(), getApplicationContext().getPackageName() + ".provider", file);
         // Create share intent as described above
         Intent shareIntent = new Intent();
         shareIntent.setAction(Intent.ACTION_SEND);

@@ -314,13 +314,13 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
 
         Helper.mergeSegmentsRemotely(this, wordTagListString.replace(","," "), new Helper.OnMergeRemoteComplete() {
             @Override
-            public void onMergeRemoteComplete(final String sourceUrl) {
-                if (sourceUrl.isEmpty()) {
+            public void onMergeRemoteComplete(final String remoteSourceUrl, final String localSourcePath) {
+                if (remoteSourceUrl.isEmpty()) {
                     Toast.makeText(self, "Unable to process video", Toast.LENGTH_LONG).show();
                 } else {
-                    String[] sourceUrlTokens = sourceUrl.split("/");
-                    String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replace("\\.mp4$","");
-                    Helper.saveLocalRepo(null, null, uuid, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
+                    String[] sourceUrlTokens = remoteSourceUrl.split("/");
+                    String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replaceAll(".mp4$","");
+                    Helper.saveLocalRepo(null, null, uuid, localSourcePath, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
                         @Override
                         public void onSaved(final Repo createdRepo) {
                             repoToken = createdRepo.getToken();
