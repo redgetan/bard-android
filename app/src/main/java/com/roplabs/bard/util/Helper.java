@@ -78,6 +78,7 @@ public class Helper {
     public static final int CHANNEL_REQUEST_CODE = 8;
     public static final int BARD_EDITOR_REQUEST_CODE = 9;
     public static final int EDITOR_PREVIEW_REQUEST_CODE = 10;
+    public static final int VIDEO_PLAYER_REQUEST_CODE = 11;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String NEW_SCENE_TYPE = "latest";

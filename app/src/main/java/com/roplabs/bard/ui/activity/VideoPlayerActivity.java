@@ -44,6 +44,7 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
     private VideoView videoView;
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
+    private String repoListType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
         this.videoLocation = intent.getStringExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE);
         this.repoToken     = intent.getStringExtra(RepoListActivity.REPO_TOKEN_MESSAGE);
         this.repoUrl       = intent.getStringExtra(RepoListActivity.REPO_URL_MESSAGE);
+        this.repoListType = intent.getStringExtra("repoListType");
         String repoTitle = intent.getStringExtra("title");
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -241,6 +243,30 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
     public void displayError(String message) {
         Toast.makeText(ClientApp.getContext(), message, Toast.LENGTH_LONG).show();
         CrashReporter.logException(new Throwable(message));
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent intent = new Intent();
+        intent.putExtra("repoListType", repoListType);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // click on 'up' button in the action bar, handle it here
+                Intent intent = new Intent();
+                intent.putExtra("repoListType", repoListType);
+                setResult(RESULT_OK, intent);
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

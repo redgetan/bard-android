@@ -39,6 +39,8 @@ import com.roplabs.bard.util.BardLogger;
 
 import java.util.List;
 
+import static com.roplabs.bard.util.Helper.VIDEO_PLAYER_REQUEST_CODE;
+
 public class RepoListActivity extends BaseActivity {
 
 
@@ -57,6 +59,7 @@ public class RepoListActivity extends BaseActivity {
 
         Intent intent = getIntent();
         repoListType = intent.getStringExtra("repoListType");
+
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
 
         if (repoListType.equals("likes")) {
@@ -87,6 +90,15 @@ public class RepoListActivity extends BaseActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == VIDEO_PLAYER_REQUEST_CODE) {
+            if (data != null) {
+                repoListType = data.getStringExtra("repoListType");
+            }
+        }
+    }
+
 
     public void displayRepoList() {
         final List<Repo> repos;
@@ -112,10 +124,11 @@ public class RepoListActivity extends BaseActivity {
             public void onItemClick(View itemView, int position, Repo repo) {
                 Intent intent = new Intent(self, VideoPlayerActivity.class);
                 intent.putExtra("title", repo.title());
+                intent.putExtra("repoListType", repoListType);
                 intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
                 intent.putExtra(RepoListActivity.REPO_URL_MESSAGE, repo.getUrl());
                 intent.putExtra(RepoListActivity.REPO_TOKEN_MESSAGE, repo.getToken());
-                self.startActivity(intent);
+                startActivityForResult(intent, VIDEO_PLAYER_REQUEST_CODE);
             }
         });
         recyclerView.setAdapter(adapter);
