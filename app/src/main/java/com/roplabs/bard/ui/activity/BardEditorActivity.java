@@ -8,6 +8,7 @@ import android.graphics.*;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.*;
@@ -19,6 +20,7 @@ import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.ShareActionProvider;
 import android.text.*;
 import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
@@ -1880,7 +1882,8 @@ public class BardEditorActivity extends BaseActivity implements
         }
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
-        if (new File(filePath).exists()) {
+        File file = new File(filePath);
+        if (file.exists() && isFileValidMP4(file)) {
             playLocalVideo(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
@@ -1893,7 +1896,9 @@ public class BardEditorActivity extends BaseActivity implements
             } else {
                 targetSceneToken = sceneToken;
             }
-            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, targetSceneToken);
+
+            String originalSceneToken = targetSceneToken.split("@")[0];
+            String remoteVideoUrl = Segment.sourceUrlFromWordTagString(wordTagString, originalSceneToken);
             Storage.cacheVideo(wordTagString, remoteVideoUrl, new Storage.OnCacheVideoListener() {
                 @Override
                 public void onCacheVideoSuccess(String filePath) {
@@ -2131,6 +2136,23 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void resetVideo() {
         previewOverlay.setVisibility(View.VISIBLE);
+    }
+
+    private boolean isFileValidMP4(File file) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(mContext, Uri.fromFile(file));
+            String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (duration != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            retriever.release();
+        }
     }
 
     private void goToEditorResultsPreview() {
