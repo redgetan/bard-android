@@ -81,6 +81,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         title.setTextSize(24);
 
         channelToken = Configuration.mainChannelToken();
+        Locale.getDefault().getLanguage();
 
         initPager();
         initCombo();

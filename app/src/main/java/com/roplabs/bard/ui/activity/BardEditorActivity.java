@@ -1883,7 +1883,7 @@ public class BardEditorActivity extends BaseActivity implements
 
         String filePath = Storage.getCachedVideoFilePath(wordTagString);
         File file = new File(filePath);
-        if (file.exists() && isFileValidMP4(file)) {
+        if (file.exists() && Helper.isFileValidMP4(this, file)) {
             playLocalVideo(filePath);
         } else {
             progressBar.setVisibility(View.VISIBLE);
@@ -2136,23 +2136,6 @@ public class BardEditorActivity extends BaseActivity implements
 
     public void resetVideo() {
         previewOverlay.setVisibility(View.VISIBLE);
-    }
-
-    private boolean isFileValidMP4(File file) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            retriever.setDataSource(mContext, Uri.fromFile(file));
-            String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            if (duration != null) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (Exception ex) {
-            return false;
-        } finally {
-            retriever.release();
-        }
     }
 
     private void goToEditorResultsPreview() {

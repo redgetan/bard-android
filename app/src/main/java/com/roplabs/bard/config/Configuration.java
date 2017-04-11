@@ -2,6 +2,8 @@ package com.roplabs.bard.config;
 
 import com.roplabs.bard.BuildConfig;
 
+import java.util.Locale;
+
 public class Configuration {
     public static String bardAPIBaseURL() {
         if (BuildConfig.FLAVOR.equals("dev")) {
@@ -28,7 +30,31 @@ public class Configuration {
     }
 
     public static String mainChannelToken() {
-        return "l9rkdM6ea4I";
+        if (Locale.getDefault().getLanguage().equals(new Locale("ar").getLanguage())) {
+            // arabic
+            return "LRV1Bnd0yjY";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("nl").getLanguage())) {
+            // dutch
+            return "mqEHVR6lkKU";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("es").getLanguage())) {
+            // spanish
+            return "bsJAcWrNaSM";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("pt").getLanguage())) {
+            // portuguese
+            return "aET5aQaGJns";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("hi").getLanguage())) {
+            // hindi
+            return "KhRBeb9MidY";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("ja").getLanguage())) {
+            // japanese
+            return "NSTDEmCW2xU";
+        } else if (Locale.getDefault().getLanguage().equals(new Locale("zh").getLanguage())) {
+            // chinese
+            return "C2iA0mFTX7s";
+        } else {
+            return "l9rkdM6ea4I";
+        }
+
     }
 
     public static String segmentsCdnPath() {

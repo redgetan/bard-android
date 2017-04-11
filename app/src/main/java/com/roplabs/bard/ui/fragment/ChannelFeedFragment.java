@@ -167,7 +167,8 @@ public class ChannelFeedFragment extends Fragment implements
 
         showFeedVideoProgress();
 
-        if (new File(currentPost.getCachedVideoFilePath()).exists()) {
+        File file = new File(currentPost.getCachedVideoFilePath());
+        if (file.exists() && Helper.isFileValidMP4(getActivity(), file)) {
             BardLogger.trace("post video already exist in cache, using it instead");
             playLocalVideo(currentPost.getCachedVideoFilePath());
             return;

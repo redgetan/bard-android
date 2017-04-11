@@ -237,6 +237,8 @@ public class SceneSelectFragment extends Fragment {
             Analytics.track(ClientApp.getContext(), "search", params);
         }
 
+        options.put("locale",Locale.getDefault().getLanguage());
+
 
         // fetch remote
         progressBar.setVisibility(View.VISIBLE);

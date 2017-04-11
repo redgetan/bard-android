@@ -9,6 +9,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -536,6 +537,24 @@ public class Helper {
     public interface OnMergeRemoteComplete {
         public void onMergeRemoteComplete(String remoteSourceUrl, String localSourcePath);
     }
+
+    public static boolean isFileValidMP4(Context context, File file) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        try {
+            retriever.setDataSource(context, Uri.fromFile(file));
+            String duration = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+            if (duration != null) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (Exception ex) {
+            return false;
+        } finally {
+            retriever.release();
+        }
+    }
+
 
     public static void mergeSegmentsRemotely(Context context, String wordList, final OnMergeRemoteComplete listener) {
         progressDialog = new ProgressDialog(context);

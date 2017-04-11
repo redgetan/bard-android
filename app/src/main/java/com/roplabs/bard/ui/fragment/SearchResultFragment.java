@@ -178,6 +178,8 @@ public class SearchResultFragment extends Fragment {
         }
 
 
+        options.put("locale",Locale.getDefault().getLanguage());
+
         // fetch remote
         progressBar.setVisibility(View.VISIBLE);
 
