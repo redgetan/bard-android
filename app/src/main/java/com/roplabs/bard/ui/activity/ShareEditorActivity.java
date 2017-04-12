@@ -45,9 +45,9 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private GridView shareListView;
     private ProgressDialog progressDialog;
     private Repo repo;
+    private Scene scene;
     private Character character;
     private String wordTagListString;
-    private String sceneName;
     private String sceneToken;
     private String characterToken;
     private String repoToken;
@@ -70,7 +70,10 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         if (shareType == null) shareType = "";
 
         sceneToken = intent.getStringExtra("sceneToken");
-        sceneName = intent.getStringExtra("sceneName");
+        if (sceneToken != null) {
+            scene = Scene.forToken(sceneToken);
+        }
+
         wordTagListString = intent.getStringExtra("wordTags");
 
         repoToken = intent.getStringExtra("repoToken");
@@ -230,8 +233,11 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         Bundle params = new Bundle();
 
         params.putString("medium", medium);
-        params.putString("sceneName", sceneName);
         params.putString("sceneToken", sceneToken);
+
+        if (scene != null) {
+            params.putString("sceneName", scene.getName());
+        }
 
         if (character != null) {
             params.putString("packName", character.getName());
