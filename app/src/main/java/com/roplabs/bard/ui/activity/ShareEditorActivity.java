@@ -225,6 +225,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         return intent;
     }
 
+
     private void startEmailShare() {
         Intent intent = getEmailShareIntent();
 
