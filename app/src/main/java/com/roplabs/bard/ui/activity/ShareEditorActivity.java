@@ -50,6 +50,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
     private String sceneName;
     private String sceneToken;
     private String characterToken;
+    private String repoToken;
     private String shareType;
     private boolean isPerformingLinkGeneration;
     private boolean isPerformingTextSend;
@@ -72,7 +73,7 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         sceneName = intent.getStringExtra("sceneName");
         wordTagListString = intent.getStringExtra("wordTags");
 
-        String repoToken = intent.getStringExtra("repoToken");
+        repoToken = intent.getStringExtra("repoToken");
         if (repoToken != null) {
             repo = Repo.forToken(repoToken);
         }
@@ -232,7 +233,13 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         params.putString("sceneName", sceneName);
         params.putString("sceneToken", sceneToken);
 
+        if (character != null) {
+            params.putString("packName", character.getName());
+            params.putString("packToken", character.getToken());
+        }
+
         if (repo != null) {
+            params.putString("repoToken", repoToken);
             params.putString("wordTags", wordTagListString);
         } else {
             params.putString("shareType", "scene");
