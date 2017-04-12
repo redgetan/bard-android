@@ -205,10 +205,28 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         }
     }
 
-    private void startEmailShare() {
+    private Intent getEmailShareIntent() {
         Intent intent = getShareIntent();
-        intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
-        intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
+        if (shareType.equals("repo")) {
+            intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
+            intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
+        } else {
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Let's Bard this Video");
+            String shareUrl;
+            if (character != null) {
+                shareUrl = getPackUrl(characterToken);
+                intent.putExtra(Intent.EXTRA_TEXT, "You can make this video say what you type. Try it at android/ios/web using the link " + shareUrl);
+            } else if (scene != null) {
+                shareUrl = getSceneUrl(sceneToken);
+                intent.putExtra(Intent.EXTRA_TEXT, "You can make this video say what you type. Try it at android/ios/web using the link " + shareUrl);
+            }
+        }
+
+        return intent;
+    }
+
+    private void startEmailShare() {
+        Intent intent = getEmailShareIntent();
 
         try {
             intent.setClassName("com.google.android.gm", "com.google.android.gm.ComposeActivityGmail");
@@ -216,14 +234,10 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             trackSharing("email");
         }
         catch (android.content.ActivityNotFoundException ex) {
-            intent = getShareIntent();
-            intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
-            intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
+            intent = getEmailShareIntent();
             startActivity(Intent.createChooser(intent, "Send email"));
         } catch (SecurityException ex) {
-            intent = getShareIntent();
-            intent.putExtra(Intent.EXTRA_SUBJECT, "I made a Bard");
-            intent.putExtra(Intent.EXTRA_TEXT, "I made this video using https://bard.co");
+            intent = getEmailShareIntent();
             startActivity(Intent.createChooser(intent, "Send email"));
         }
 
