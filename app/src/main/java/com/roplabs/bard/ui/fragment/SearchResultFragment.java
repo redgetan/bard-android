@@ -140,6 +140,7 @@ public class SearchResultFragment extends Fragment {
 
         Bundle params = new Bundle();
         params.putString("text", text);
+        params.putString("type", getSearchType());
         Analytics.track(ClientApp.getContext(), "search", params);
 
         Map<String, String> map = new HashMap<String, String>();
