@@ -188,6 +188,33 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 15
+        if (oldVersion == 14) {
+            schema.get("Scene")
+                    .addField("tag_list", String.class)
+                    .addField("owner", String.class)
+                    .addField("labeler", String.class);
+            oldVersion++;
+        }
+
+        // migrate to version 16
+        if (oldVersion == 15) {
+            schema.get("Scene")
+                    .addField("tagList", String.class);
+
+
+            oldVersion++;
+        }
+
+        // migrate to version 17
+        if (oldVersion == 16) {
+            schema.get("Scene")
+                    .removeField("tag_list");
+
+
+            oldVersion++;
+        }
+
     }
 }
 

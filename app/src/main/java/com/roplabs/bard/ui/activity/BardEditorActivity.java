@@ -860,7 +860,7 @@ public class BardEditorActivity extends BaseActivity implements
 
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
-                scene = Scene.create(realm, remoteScene.getToken(),"",remoteScene.getName(),remoteScene.getThumbnailUrl());
+                scene = Scene.create(realm, remoteScene.getToken(),"",remoteScene.getName(),remoteScene.getThumbnailUrl(), remoteScene.getOwner(), remoteScene.getLabeler(), remoteScene.getTagList());
                 scene.setWordList(wordList);
                 realm.commitTransaction();
 

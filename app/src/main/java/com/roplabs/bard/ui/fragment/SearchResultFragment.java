@@ -237,7 +237,7 @@ public class SearchResultFragment extends Fragment {
                 // create if scene doesnt exist yet
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
-                Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl());
+                Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl(), scene.getOwner(), scene.getLabeler(), scene.getTagList());
                 realm.commitTransaction();
             }
         }

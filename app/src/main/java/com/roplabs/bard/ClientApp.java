@@ -27,7 +27,7 @@ public class ClientApp extends MultiDexApplication {
         Realm.init(this);
 
         RealmConfiguration config = new RealmConfiguration.Builder()
-                .schemaVersion(14)
+                .schemaVersion(17)
                 .migration(new DBMigration())
                 .build();
 

@@ -17,6 +17,9 @@ public class Scene extends RealmObject {
     private String name;
     private String characterToken;
     private String wordList;
+    private String tagList;
+    private String owner;
+    private String labeler;
     private String thumbnailUrl;
     private Date createdAt;
 
@@ -78,9 +81,20 @@ public class Scene extends RealmObject {
         for (Scene scene : scenes) {
             Scene obj = Scene.forToken(scene.getToken());
             if (obj == null) {
-                Scene.create(realm, scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl());
+                Scene.create(realm, scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl(), scene.getOwner(), scene.getLabeler(), scene.getTagList());
             }
         }
+
+        realm.commitTransaction();
+    }
+
+    public static void setOwnerLabelerTagList(Scene localScene, Scene remoteScene) {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        localScene.setOwner(remoteScene.getOwner());
+        localScene.setLabeler(remoteScene.getLabeler());
+        localScene.setTagList(remoteScene.getTagList());
 
         realm.commitTransaction();
     }
@@ -106,11 +120,14 @@ public class Scene extends RealmObject {
         realm.commitTransaction();
     }
 
-    public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl) {
+    public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl, String owner, String labeler, String tagList) {
         Scene scene = realm.createObject(Scene.class, token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
         scene.setThumbnailUrl(thumbnailUrl);
+        scene.setOwner(owner);
+        scene.setLabeler(labeler);
+        scene.setTagList(tagList);
         scene.setCreatedAt(new Date(System.currentTimeMillis()));
         return scene;
     }
@@ -167,6 +184,43 @@ public class Scene extends RealmObject {
 
     public void setToken(String token) {
         this.token = token;
+    }
+
+    public String getTagList() {
+        if (this.tagList == null) return "";
+        return this.tagList;
+    }
+
+    public void setTagList(String tagList) {
+        this.tagList = tagList;
+    }
+
+    public String getOwner() {
+        if (this.owner == null) return "";
+        return this.owner;
+    }
+
+    public void setOwner(String owner) {
+        this.owner = owner;
+    }
+
+    public String getLabeler() {
+        if (this.labeler == null) return "";
+        return this.labeler;
+    }
+
+    public void setLabeler(String labeler) {
+        this.labeler = labeler;
+    }
+
+    public String getProducer() {
+        if (!this.getLabeler().isEmpty()) {
+            return this.labeler;
+        } else if (!this.getOwner().isEmpty()) {
+            return this.owner;
+        } else {
+            return "";
+        }
     }
 
     public Map<String, Object> getAdditionalProperties() {

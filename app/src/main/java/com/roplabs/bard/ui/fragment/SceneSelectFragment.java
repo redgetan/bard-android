@@ -310,12 +310,15 @@ public class SceneSelectFragment extends Fragment {
         for (Scene scene : remoteSceneList) {
             if (scene.getToken() == null) continue;
 
-            if (Scene.forToken(scene.getToken()) == null) {
+            Scene localScene = Scene.forToken(scene.getToken());
+            if (localScene == null) {
                 // create if scene doesnt exist yet
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();
-                Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl());
+                Scene.create(realm, scene.getToken(),"",scene.getName(),scene.getThumbnailUrl(), scene.getOwner(), scene.getLabeler(), scene.getTagList());
                 realm.commitTransaction();
+            } else {
+                Scene.setOwnerLabelerTagList(localScene, scene);
             }
         }
         progressBar.setVisibility(View.GONE);

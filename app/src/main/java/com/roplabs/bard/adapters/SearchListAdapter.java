@@ -60,6 +60,33 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
         TextView textView = viewHolder.sceneNameView;
         textView.setText(scene.getName());
 
+        TextView tagListView = viewHolder.sceneTagList;
+
+        tagListView.setVisibility(View.VISIBLE);
+        if (scene.getTagList().isEmpty()) {
+            tagListView.setVisibility(View.GONE);
+        } else {
+            String[] tags = scene.getTagList().split(",");
+            StringBuilder tagResultBuilder = new StringBuilder();
+            for (String tag : tags) {
+                tagResultBuilder.append("#");
+                tagResultBuilder.append(tag);
+                tagResultBuilder.append(" ");
+            }
+            tagListView.setText(tagResultBuilder.toString());
+        }
+
+
+        TextView sceneProducerView = viewHolder.sceneProducer;
+        sceneProducerView.setVisibility(View.VISIBLE);
+        if (!scene.getLabeler().isEmpty()) {
+            sceneProducerView.setText("by " + scene.getLabeler());
+        } else if (!scene.getOwner().isEmpty()) {
+                sceneProducerView.setText("by " + scene.getOwner());
+        } else {
+            sceneProducerView.setVisibility(View.GONE);
+        }
+
         ImageView thumbnail = viewHolder.sceneThumbnail;
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
         Glide.with(context)
@@ -94,6 +121,8 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
         // for any view that will be set as you render a row
         public TextView sceneNameView;
         public ImageView sceneThumbnail;
+        public TextView sceneProducer;
+        public TextView sceneTagList;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -104,6 +133,9 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
             super(itemView);
             sceneNameView = (TextView) itemView.findViewById(R.id.scene_title);
             sceneThumbnail = (ImageView) itemView.findViewById(R.id.scene_thumbnail);
+            sceneProducer = (TextView) itemView.findViewById(R.id.scene_producer);
+            sceneTagList = (TextView) itemView.findViewById(R.id.scene_tag_list);
+
 
             this.context = context;
             itemView.setOnClickListener(this);
