@@ -19,7 +19,9 @@
         android:layout_height="wrap_content"
         app:tabMode="fixed" />
 
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
+    <FrameLayout android:layout_width="match_parent"
+                 android:layout_weight="1"
+                 android:layout_height="match_parent">
         <android.support.v4.view.ViewPager
                 android:id="@+id/search_result_pager"
                 android:layout_width="match_parent"
@@ -35,12 +37,11 @@
                 android:visibility="gone"
         />
 
-        <include
-                layout="@layout/fragment_combo_container"
-                android:visibility="visible"
-                android:layout_gravity="bottom"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"/>
     </FrameLayout>
+    <include
+            layout="@layout/fragment_combo_container"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
 </LinearLayout>

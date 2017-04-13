@@ -13,12 +13,14 @@
     >
         <EditText
                   android:id="@+id/scene_search_input"
+                  android:imeOptions="actionSearch"
+                  android:inputType="text"
                   android:layout_width="match_parent"
                   android:layout_height="match_parent"
                   android:layout_weight="1"
                   android:background="@color/white"
                   android:textSize="14sp"
-                  android:hint="Find words"
+                  android:hint="Filter by words"
                   android:textColorHint="@color/base"
                   android:paddingLeft="10dp"
         />
