@@ -26,6 +26,15 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/white" />
 
+        <ProgressBar
+                android:id="@+id/scene_download_progress"
+                android:layout_marginTop="100dp"
+                android:layout_gravity = "center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+        />
+
         <include
                 layout="@layout/fragment_combo_container"
                 android:visibility="visible"
