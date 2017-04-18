@@ -139,6 +139,8 @@ public class ProfileFragment extends Fragment {
                     // My Bards
                     textView.setText("My Bards (" + bardCount + ")");
 
+                    profileRow.findViewById(R.id.profile_navigation_icon).setVisibility(View.VISIBLE);
+
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -151,6 +153,8 @@ public class ProfileFragment extends Fragment {
                 case 1:
                     // My Likes
                     textView.setText("My Likes (" + likeCount + ")");
+
+                    profileRow.findViewById(R.id.profile_navigation_icon).setVisibility(View.VISIBLE);
 
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override

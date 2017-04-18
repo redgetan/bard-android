@@ -2,13 +2,24 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="horizontal"
               android:layout_width="match_parent"
-              android:layout_height="match_parent"
+              android:layout_height="wrap_content"
               android:background="@drawable/selector_profile_item">
     <TextView
             android:id="@+id/profile_detail_text"
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"
             android:padding="10dp"
             android:layout_height="wrap_content"
             android:textSize="14sp"
+            />
+    <ImageView
+            android:id="@+id/profile_navigation_icon"
+            android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+            android:tint="@color/base"
+            android:visibility="gone"
+            android:layout_gravity="center_vertical"
+            android:layout_width="40dp"
+            android:layout_height="wrap_content"
+            android:contentDescription="Show"
             />
 </LinearLayout>
