@@ -5,17 +5,15 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import com.roplabs.bard.config.Configuration;
-import com.roplabs.bard.ui.fragment.BardCreateFragment;
-import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
-import com.roplabs.bard.ui.fragment.SceneSelectFragment;
-import com.roplabs.bard.ui.fragment.SearchResultFragment;
+import com.roplabs.bard.ui.activity.SceneSelectActivity;
+import com.roplabs.bard.ui.fragment.*;
 import com.roplabs.bard.util.Helper;
 
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
-            Helper.BARD_CREATE,
-            Helper.CHANNEL_FEED,
-            Helper.MY_VIDEOS
+            Helper.ONLINE_LIBRARY,
+            Helper.PACKS,
+            Helper.CHANNEL_FEED
     };
     private Context context;
     private String channelToken;
@@ -36,10 +34,10 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         String sceneType = tabTitles[position];
         if (sceneType.equals(Helper.CHANNEL_FEED)) {
             return ChannelFeedFragment.newInstance(channelToken);
-        } else if (sceneType.equals(Helper.BARD_CREATE)) {
-            return BardCreateFragment.newInstance();
+        } else if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
+            return SceneSelectFragment.newInstance(sceneType, channelToken);
         } else {
-            return BardCreateFragment.newInstance();
+            return PackSelectFragment.newInstance();
         }
     }
 
@@ -47,11 +45,11 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
         if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
-            return "Channels";
-        } else if (tabTitles[position].equals(Helper.BARD_CREATE)) {
-            return "Create";
+            return "Feed";
+        } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
+            return "Videos";
         } else {
-            return "Upload";
+            return "Packs";
         }
     }
 
