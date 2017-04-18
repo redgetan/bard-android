@@ -87,7 +87,7 @@ public class MainSceneSelectFragment extends Fragment{
                     rightArrow.setVisibility(View.GONE);
                 } else {
                     viewPager.setCurrentItem(MainSceneFragmentPagerAdapter.getOnlineLibraryFragmentPosition());
-                    label.setText("My Videos");
+                    label.setText("Bookmarks");
 
                     Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_bookmark_border_black_24dp);
                     leftArrow.setImageBitmap(allSceneBitmap);

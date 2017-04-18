@@ -426,9 +426,9 @@ public class BardEditorActivity extends BaseActivity implements
         MenuItem item = editorMenu.getMenu().findItem(R.id.favorite_scene_item);
         Favorite favorite = Favorite.forSceneTokenAndUsername(sceneToken, Setting.getUsername(this));
         if (favorite != null) {
-            item.setTitle("Remove from My Videos");
+            item.setTitle("Remove from Bookmarks");
         } else {
-            item.setTitle("Add to My Videos");
+            item.setTitle("Add to Bookmarks");
         }
     }
 

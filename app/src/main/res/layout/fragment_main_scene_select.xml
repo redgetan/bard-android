@@ -18,7 +18,7 @@
                 android:tint="@color/base"
                 android:visibility="visible"
                 android:layout_gravity="center_vertical"
-                android:layout_width="40dp"
+                android:layout_width="70dp"
                 android:layout_height="wrap_content"
                 android:contentDescription="Show"
         />
@@ -28,8 +28,8 @@
                   android:layout_height="wrap_content"
                   android:layout_gravity="center_vertical"
                   android:layout_weight="1"
-                  android:layout_marginLeft="40dp"
-                  android:text="My Videos"
+                  android:layout_marginLeft="10dp"
+                  android:text="Bookmarks"
         />
 
         <ImageView
