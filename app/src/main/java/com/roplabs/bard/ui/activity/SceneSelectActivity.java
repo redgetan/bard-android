@@ -88,60 +88,31 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         fragmentCache = new HashMap<Integer, Fragment>();
 
         fragmentManager = getSupportFragmentManager();
-        viewPager = (ViewPager) findViewById(R.id.bard_create_pager);
+        viewPager = (ViewPager) findViewById(R.id.scene_select_pager);
         viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
         viewPager.setOffscreenPageLimit(2);
 
         bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment currentFragment = null;
-
                 int id = item.getItemId();
                 switch (id){
                     case R.id.action_channels:
-                        currentFragment = fragmentCache.get(R.id.action_channels);
-                        if (currentFragment == null) {
-                            currentFragment = ChannelFeedFragment.newInstance(Configuration.mainChannelToken());
-                            fragmentCache.put(R.id.action_channels, currentFragment);
-                        }
+                        viewPager.setCurrentItem(0);
                         break;
                     case R.id.action_create:
-                        currentFragment = fragmentCache.get(R.id.action_create);
-                        if (currentFragment == null) {
-                            currentFragment = BardCreateFragment.newInstance();
-                            fragmentCache.put(R.id.action_create, currentFragment);
-                        }
+                        viewPager.setCurrentItem(1);
                         break;
                     case R.id.action_profile:
-                        currentFragment = fragmentCache.get(R.id.action_create);
-                        if (currentFragment == null) {
-                            currentFragment = BardCreateFragment.newInstance();
-                            fragmentCache.put(R.id.action_create, currentFragment);
-                        }
+                        viewPager.setCurrentItem(2);
                         break;
                 }
-
-                final FragmentTransaction transaction = fragmentManager.beginTransaction();
-                transaction.detach(fragment); // detach old fragment
-                transaction.attach(currentFragment);
-                transaction.commit();
-
-                fragment = currentFragment;   // remember current fragment
 
                 return true;
             }
         });
 
-
-        //Manually displaying the first fragment - one time only
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        Fragment firstFragment = ChannelFeedFragment.newInstance(Configuration.mainChannelToken());
-        transaction.replace(R.id.bard_create_main_container, firstFragment);
-        transaction.commit();
-
-        fragmentCache.put(R.id.action_channels, firstFragment);
-
+        viewPager.setCurrentItem(0);
 
 
     }
