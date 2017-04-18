@@ -12,48 +12,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
+    <FrameLayout
+            android:id="@+id/bard_create_main_container"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            >
+    </FrameLayout>
+
     <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            app:itemBackground="@color/purple"
-            app:itemIconTint="@color/white"
-            app:itemTextColor="@color/white"
-            app:menu="@menu/bottom_navigation_main" />
-
-    <android.support.design.widget.TabLayout
-            android:id="@+id/scene_select_tabs"
-            style="@style/SceneSelectTabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="fixed" />
-
-    <FrameLayout android:layout_width="match_parent"
-                 android:layout_weight="1"
-                 android:layout_height="match_parent">
-        <android.support.v4.view.ViewPager
-                android:id="@+id/scene_select_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white" />
-
-        <ProgressBar
-                android:id="@+id/scene_download_progress"
-                android:layout_marginTop="100dp"
-                android:layout_gravity = "center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-        />
-
-    </FrameLayout>
-    <include
-            layout="@layout/fragment_combo_container"
-            android:visibility="visible"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-
-
+            app:itemBackground="@color/ios_light_iron"
+            app:itemIconTint="@color/ink"
+            app:itemTextColor="@color/ink"
+            app:menu="@menu/menu_bottom_navigation_main" />
 
 </LinearLayout>

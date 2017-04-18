@@ -10,7 +10,7 @@
             android:id="@+id/bard_create_tabs"
             style="@style/BardCreateTabLayout"
             android:layout_width="match_parent"
-            android:layout_height="30dp"
+            android:layout_height="wrap_content"
             app:tabMode="fixed" />
 
     <FrameLayout android:layout_width="match_parent"
@@ -22,6 +22,21 @@
                 android:layout_height="match_parent"
                 android:background="@android:color/white" />
 
+        <ProgressBar
+                android:id="@+id/scene_download_progress"
+                android:layout_marginTop="100dp"
+                android:layout_gravity = "center_horizontal"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:visibility="gone"
+        />
+
     </FrameLayout>
+
+    <include
+            layout="@layout/fragment_combo_container"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
 </LinearLayout>

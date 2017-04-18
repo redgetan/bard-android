@@ -1,53 +1,41 @@
 package com.roplabs.bard.ui.activity;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.support.design.widget.TabLayout;
+import android.support.annotation.NonNull;
+import android.support.design.widget.BottomNavigationView;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.*;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.R;
-import com.roplabs.bard.adapters.SceneListAdapter;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
-import com.roplabs.bard.adapters.SmartFragmentStatePagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
-import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.ui.fragment.BardCreateFragment;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
-import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
-import io.realm.RealmChangeListener;
-import io.realm.RealmResults;
-import org.greenrobot.eventbus.EventBus;
-import org.json.JSONException;
-import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.io.IOException;
 import java.util.*;
 
 import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
 import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
 
-public class SceneSelectActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener {
+public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener  {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
@@ -57,13 +45,11 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
     private ViewPager viewPager;
 
-    private LinearLayout sceneComboContainer;
-    private LinearLayout sceneComboListContainer;
-    private List<Scene> sceneComboList;
-    private Button clearSceneComboButton;
-    private Button enterSceneComboButton;
-    private ProgressBar sceneDownloadProgress;
+    private BottomNavigationView bottomNavigation;
     private String channelToken;
+    private FragmentManager fragmentManager;
+    private Fragment fragment;
+    private Map<Integer, Fragment> fragmentCache;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,8 +69,7 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         channelToken = Configuration.mainChannelToken();
         Locale.getDefault().getLanguage();
 
-        initPager();
-        initCombo();
+        initBottomNavigation();
 
         postInitSetup();
     }
@@ -96,75 +81,69 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         Helper.askStoragePermission(this);
     }
 
-    private void initCombo() {
-        sceneComboContainer = (LinearLayout) findViewById(R.id.scene_combo_container);
-        sceneComboContainer.setVisibility(View.GONE);
-        sceneComboListContainer = (LinearLayout) findViewById(R.id.scene_combo_list_container);
-        clearSceneComboButton = (Button) findViewById(R.id.clear_scene_combo_btn);
-        enterSceneComboButton = (Button) findViewById(R.id.enter_scene_combo_btn);
-        sceneDownloadProgress = (ProgressBar) findViewById(R.id.scene_download_progress);
+    private void initBottomNavigation() {
+        // Get the ViewPager and set it's PagerAdapter so that it can display items
+        bottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
 
-        sceneComboList = new ArrayList<Scene>();
+        fragmentCache = new HashMap<Integer, Fragment>();
 
-        clearSceneComboButton.setOnClickListener(new View.OnClickListener() {
+        fragmentManager = getSupportFragmentManager();
+        viewPager = (ViewPager) findViewById(R.id.bard_create_pager);
+        viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
+        viewPager.setOffscreenPageLimit(2);
+
+        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public void onClick(View v) {
-                sceneComboListContainer.removeAllViews();
-                sceneComboList.clear();
-                sceneComboContainer.setVisibility(View.GONE);
-            }
-        });
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                Fragment currentFragment = null;
 
-        enterSceneComboButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                List<String> sceneTokens = new ArrayList<String>();
-                for (Scene scene : sceneComboList) {
-                    if (!scene.getWordList().isEmpty()) {
-                        sceneTokens.add(scene.getToken());
-                    }
+                int id = item.getItemId();
+                switch (id){
+                    case R.id.action_channels:
+                        currentFragment = fragmentCache.get(R.id.action_channels);
+                        if (currentFragment == null) {
+                            currentFragment = ChannelFeedFragment.newInstance(Configuration.mainChannelToken());
+                            fragmentCache.put(R.id.action_channels, currentFragment);
+                        }
+                        break;
+                    case R.id.action_create:
+                        currentFragment = fragmentCache.get(R.id.action_create);
+                        if (currentFragment == null) {
+                            currentFragment = BardCreateFragment.newInstance();
+                            fragmentCache.put(R.id.action_create, currentFragment);
+                        }
+                        break;
+                    case R.id.action_profile:
+                        currentFragment = fragmentCache.get(R.id.action_create);
+                        if (currentFragment == null) {
+                            currentFragment = BardCreateFragment.newInstance();
+                            fragmentCache.put(R.id.action_create, currentFragment);
+                        }
+                        break;
                 }
 
+                final FragmentTransaction transaction = fragmentManager.beginTransaction();
+                transaction.detach(fragment); // detach old fragment
+                transaction.attach(currentFragment);
+                transaction.commit();
 
-                Intent intent = new Intent(getApplicationContext(), BardEditorActivity.class);
-                intent.putExtra("characterToken", "");
-                intent.putExtra("channelToken", channelToken);
-                intent.putExtra("sceneToken", "");
-                intent.putExtra("sceneTokens", TextUtils.join(",",sceneTokens));
-                BardLogger.trace("[multiSceneSelect] " + sceneTokens.toString());
-                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                fragment = currentFragment;   // remember current fragment
 
-            }
-        });
-    }
-
-
-    private void initPager() {
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) findViewById(R.id.scene_select_pager);
-        viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(),
-                SceneSelectActivity.this, channelToken));
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
-
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
+                return true;
             }
         });
 
 
-        // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.scene_select_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+        //Manually displaying the first fragment - one time only
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        Fragment firstFragment = ChannelFeedFragment.newInstance(Configuration.mainChannelToken());
+        transaction.replace(R.id.bard_create_main_container, firstFragment);
+        transaction.commit();
+
+        fragmentCache.put(R.id.action_channels, firstFragment);
+
+
+
     }
 
 
@@ -278,129 +257,19 @@ public class SceneSelectActivity extends BaseActivity implements SceneSelectFrag
         }
     }
 
-
-
-
     @Override
     public void onItemLongClick(Scene scene) {
-        addComboItem(scene);
+//        addComboItem(scene);
     }
 
     @Override
     public void onItemClick(Scene scene) {
-        Intent intent = new Intent(this, BardEditorActivity.class);
-        intent.putExtra("channelToken", channelToken);
-        intent.putExtra("characterToken", "");
-        intent.putExtra("sceneToken", scene.getToken());
-        BardLogger.trace("[sceneSelect] " + scene.getToken());
-        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
-    }
-
-    private void addComboItem(Scene scene) {
-        if (sceneComboList.size() >= MAX_SCENE_COMBO_LENGTH) return;
-        if (sceneComboList.contains(scene)) return;
-
-        // scene could be a remoteScene which do not contain wordList so we check local db record
-        scene = Scene.forToken(scene.getToken());
-
-        if (!sceneComboContainer.isShown()) {
-            sceneComboContainer.setVisibility(View.VISIBLE);
-        }
-
-        LayoutInflater inflater = LayoutInflater.from(this);
-        ViewGroup parent = (ViewGroup) findViewById(android.R.id.content);
-
-        View sceneComboItem = inflater.inflate(R.layout.scene_combo_item, parent, false);
-        sceneComboListContainer.addView(sceneComboItem);
-        sceneComboList.add(scene);
-
-        ImageView thumbnail = (ImageView) sceneComboItem.findViewById(R.id.scene_combo_item_thumbnail);
-        ImageButton deleteComboItemButton = (ImageButton) sceneComboItem.findViewById(R.id.scene_combo_item_delete_btn);
-
-        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(this)
-                .load(scene.getThumbnailUrl())
-                .placeholder(R.drawable.thumbnail_placeholder)
-                .crossFade()
-                .into(thumbnail);
-
-        deleteComboItemButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                View comboItem = (View) v.getParent();
-                int sceneIndex = sceneComboListContainer.indexOfChild(comboItem);
-                removeComboItem(sceneIndex);
-            }
-        });
-
-        getWordList(scene);
-    }
-
-    private void onWordListDownloadSuccess() {
-
-    }
-
-    private void onWordListDownloadFailure() {
-
-    }
-
-    private void getWordList(final Scene scene) {
-        if (!scene.getWordList().isEmpty()) {
-            onWordListDownloadSuccess();
-            return ;
-        }
-
-        sceneDownloadProgress.setVisibility(View.VISIBLE);
-        enterSceneComboButton.setEnabled(false);
-        viewPager.setEnabled(false);
-
-        Call<Scene> call = BardClient.getAuthenticatedBardService().getSceneWordList(scene.getToken());
-        call.enqueue(new Callback<Scene>() {
-            @Override
-            public void onResponse(Call<Scene> call, Response<Scene> response) {
-                sceneDownloadProgress.setVisibility(View.GONE);
-                enterSceneComboButton.setEnabled(true);
-                viewPager.setEnabled(true);
-
-                Scene remoteScene = response.body();
-
-                if (remoteScene == null) {
-                    onWordListDownloadFailure();
-                    return;
-                }
-
-                String wordList = remoteScene.getWordList();
-
-                Realm realm = Realm.getDefaultInstance();
-                realm.beginTransaction();
-                scene.setWordList(wordList);
-                realm.commitTransaction();
-
-                if (wordList.isEmpty()) {
-                    onWordListDownloadFailure();
-                } else {
-                    onWordListDownloadSuccess();
-                }
-
-            }
-
-            @Override
-            public void onFailure(Call<Scene> call, Throwable t) {
-                sceneDownloadProgress.setVisibility(View.GONE);
-                enterSceneComboButton.setEnabled(true);
-                viewPager.setEnabled(true);
-                onWordListDownloadFailure();
-            }
-        });
-    }
-
-    private void removeComboItem(int sceneIndex) {
-        sceneComboListContainer.removeViewAt(sceneIndex);
-        sceneComboList.remove(sceneIndex);
-
-        if (sceneComboList.isEmpty()) {
-            sceneComboContainer.setVisibility(View.GONE);
-        }
+//        Intent intent = new Intent(getActivity(), BardEditorActivity.class);
+//        intent.putExtra("channelToken", Configuration.mainChannelToken());
+//        intent.putExtra("characterToken", "");
+//        intent.putExtra("sceneToken", scene.getToken());
+//        BardLogger.trace("[sceneSelect] " + scene.getToken());
+//        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
     }
 
     @Override

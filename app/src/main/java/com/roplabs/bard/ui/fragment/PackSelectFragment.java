@@ -67,7 +67,7 @@ public class PackSelectFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_pack_list, container, false);
 
         recyclerView = (RecyclerView) view.findViewById(R.id.index_list);
-        progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
+        progressBar = (ProgressBar) view.findViewById(R.id.pack_progress_bar);
 
 
         initEmptyState(view);
