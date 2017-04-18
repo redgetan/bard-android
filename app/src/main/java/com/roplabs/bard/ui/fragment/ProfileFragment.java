@@ -18,11 +18,15 @@ import com.mikepenz.materialdrawer.view.BezelImageView;
 import com.roplabs.bard.BuildConfig;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.models.Like;
+import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.MainActivity;
 import com.roplabs.bard.ui.activity.RepoListActivity;
 import com.roplabs.bard.util.Helper;
+
+import java.util.List;
 
 /**
  * Created by reg on 2017-04-18.
@@ -30,7 +34,7 @@ import com.roplabs.bard.util.Helper;
 public class ProfileFragment extends Fragment {
 
     private final int LOGIN_REQUEST_CODE = 2;
-    private final int NUM_OF_ROW_ITEMS = 9;
+    private final int NUM_OF_ROW_ITEMS = 11;
 
     public static ProfileFragment newInstance() {
         Bundle args = new Bundle();
@@ -119,6 +123,11 @@ public class ProfileFragment extends Fragment {
         LinearLayout.LayoutParams params;
         assert container != null;
 
+        final List<Repo> repos = Repo.forUsername(Setting.getUsername(ClientApp.getContext()));
+        final List<Like> userLikes = Like.forUsername(Setting.getUsername(ClientApp.getContext()));
+        String bardCount = String.valueOf(repos.size());
+        String likeCount = String.valueOf(userLikes.size());
+
         int numRows = Setting.isLogined(ClientApp.getContext()) ? NUM_OF_ROW_ITEMS : NUM_OF_ROW_ITEMS - 1; // if not logged in, dont show last row (logout)
 
         for (int i = 0; i < numRows; i++) {
@@ -127,7 +136,40 @@ public class ProfileFragment extends Fragment {
 
             switch (i) {
                 case 0:
+                    // My Bards
+                    textView.setText("My Bards (" + bardCount + ")");
+
+                    profileRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
+                            intent.putExtra("repoListType","created");
+                            startActivity(intent);
+                        }
+                    });
+                    break;
+                case 1:
+                    // My Likes
+                    textView.setText("My Likes (" + likeCount + ")");
+
+                    profileRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
+                            intent.putExtra("repoListType","likes");
+                            startActivity(intent);
+                        }
+                    });
+                    break;
+                case 2:
                     textView.setText(R.string.feedback);
+                    params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0, 25, 0, 0);
+                    profileRow.setLayoutParams(params);
+
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
@@ -141,7 +183,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 1:
+                case 3:
                     textView.setText(R.string.tell_friend);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -154,7 +196,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 2:
+                case 4:
                     textView.setText("Rate this App");
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -163,7 +205,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 3:
+                case 5:
                     textView.setText(R.string.follow_facebook);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -173,46 +215,13 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 4:
+                case 6:
                     textView.setText(R.string.follow_twitter);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
                             Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://twitter.com/letsbard"));
                             startActivity(browserIntent);
-                        }
-                    });
-                    break;
-                case 5:
-                    // My Bards
-                    textView.setText("My Bards");
-
-                    params = new LinearLayout.LayoutParams(
-                            LinearLayout.LayoutParams.MATCH_PARENT,
-                            LinearLayout.LayoutParams.WRAP_CONTENT
-                    );
-                    params.setMargins(0, 25, 0, 0);
-                    profileRow.setLayoutParams(params);
-
-                    profileRow.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
-                            intent.putExtra("repoListType","created");
-                            startActivity(intent);
-                        }
-                    });
-                    break;
-                case 6:
-                    // My Likes
-                    textView.setText("My Likes");
-
-                    profileRow.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
-                            intent.putExtra("repoListType","likes");
-                            startActivity(intent);
                         }
                     });
                     break;

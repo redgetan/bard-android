@@ -43,7 +43,7 @@
     <string name="choose_character">My Packs</string>
     <string name="choose_scene">Choose Video</string>
     <string name="feedback_btn_string">Give Feedback</string>
-    <string name="bard_library">My Library</string>
+    <string name="bard_library">My Bards</string>
     <string name="compose">Compose</string>
     <string name="empty_state_repo_title"></string>
     <string name="empty_state_repo_description">You have no videos yet</string>

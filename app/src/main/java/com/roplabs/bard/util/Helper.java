@@ -315,9 +315,10 @@ public class Helper {
         ProfileDrawerItem profileDrawerItem;
         final List<Repo> repos = Repo.forUsername(Setting.getUsername(context));
         final List<Like> userLikes = Like.forUsername(Setting.getUsername(context));
-        final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
         String libraryCount = String.valueOf(repos.size());
         String likeCount = String.valueOf(userLikes.size());
+
+        final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
         String channelCount = String.valueOf(channels.size());
 
         if (username.equals("anonymous")) {

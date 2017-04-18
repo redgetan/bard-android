@@ -280,7 +280,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
                 // navigate to feed tab
-                viewPager.setCurrentItem(viewPager.getAdapter().getCount() - 1);
+                bottomNavigation.findViewById(R.id.action_channels).performClick();
 
             }
         } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
@@ -304,6 +304,6 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     @Override
     public void onCreatePostClicked() {
         // go to create tab
-        viewPager.setCurrentItem(1);
+        bottomNavigation.findViewById(R.id.action_create).performClick();
     }
 }
