@@ -21,6 +21,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.MainActivity;
+import com.roplabs.bard.ui.activity.RepoListActivity;
 import com.roplabs.bard.util.Helper;
 
 /**
@@ -115,6 +116,7 @@ public class ProfileFragment extends Fragment {
     private void initProfileDetails(View view) {
         final Context self = getActivity();
         ViewGroup container = (ViewGroup) view.findViewById(R.id.profile_details_container);
+        LinearLayout.LayoutParams params;
         assert container != null;
 
         int numRows = Setting.isLogined(ClientApp.getContext()) ? NUM_OF_ROW_ITEMS : NUM_OF_ROW_ITEMS - 1; // if not logged in, dont show last row (logout)
@@ -182,9 +184,42 @@ public class ProfileFragment extends Fragment {
                     });
                     break;
                 case 5:
+                    // My Bards
+                    textView.setText("My Bards");
+
+                    params = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    params.setMargins(0, 25, 0, 0);
+                    profileRow.setLayoutParams(params);
+
+                    profileRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
+                            intent.putExtra("repoListType","created");
+                            startActivity(intent);
+                        }
+                    });
+                    break;
+                case 6:
+                    // My Likes
+                    textView.setText("My Likes");
+
+                    profileRow.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Intent intent = new Intent(getActivity(), RepoListActivity.class);
+                            intent.putExtra("repoListType","likes");
+                            startActivity(intent);
+                        }
+                    });
+                    break;
+                case 7:
                     textView.setText(R.string.about);
 
-                    LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(
+                    params = new LinearLayout.LayoutParams(
                             LinearLayout.LayoutParams.MATCH_PARENT,
                             LinearLayout.LayoutParams.WRAP_CONTENT
                     );
@@ -199,7 +234,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 6:
+                case 8:
                     textView.setText(R.string.privacy_policy);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -209,7 +244,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 7:
+                case 9:
                     textView.setText(R.string.terms_of_use);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -219,7 +254,7 @@ public class ProfileFragment extends Fragment {
                         }
                     });
                     break;
-                case 8:
+                case 10:
                     textView.setText(R.string.logout);
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
@@ -244,8 +279,8 @@ public class ProfileFragment extends Fragment {
             TextView versionLabel = new TextView(getActivity());
             versionLabel.setText("Version " + versionName);
 
-            ViewGroup.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
-            versionLabel.setLayoutParams(params);
+            ViewGroup.LayoutParams viewGroupParams = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT, 1f);
+            versionLabel.setLayoutParams(viewGroupParams);
             versionLabel.setPadding(0, 10, 0, 0);
             versionLabel.setGravity(Gravity.CENTER_HORIZONTAL);
 

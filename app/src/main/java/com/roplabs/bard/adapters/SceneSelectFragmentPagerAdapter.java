@@ -9,8 +9,10 @@ import com.roplabs.bard.ui.activity.SceneSelectActivity;
 import com.roplabs.bard.ui.fragment.*;
 import com.roplabs.bard.util.Helper;
 
+import java.util.Arrays;
+
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
-    private String tabTitles[] = new String[] {
+    public static String tabTitles[] = new String[] {
             Helper.CHANNEL_FEED,
             Helper.BARD_CREATE,
             Helper.PROFILE
@@ -27,6 +29,10 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return tabTitles.length;
+    }
+
+    public static int getBardCreateFragmentPosition() {
+        return Arrays.asList(tabTitles).indexOf(Helper.BARD_CREATE);
     }
 
     @Override

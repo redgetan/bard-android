@@ -244,8 +244,6 @@ public class BardEditorActivity extends BaseActivity implements
         initChatText();
         updatePlayMessageBtnState();
 
-        showAutocompleteFeature();
-
     }
 
     public void showAutocompleteFeature() {
@@ -893,6 +891,8 @@ public class BardEditorActivity extends BaseActivity implements
 
         editText.setEnabled(true);
         recyclerView.setVisibility(View.VISIBLE);
+
+        showAutocompleteFeature();
 
         Helper.setKeyboardVisibilityListener(this, editorRootLayout);
     }

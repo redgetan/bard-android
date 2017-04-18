@@ -140,7 +140,7 @@ public class BardCreateFragment extends Fragment {
         });
     }
 
-    private void addComboItem(Scene scene) {
+    public void addComboItem(Scene scene) {
         if (sceneComboList.size() >= MAX_SCENE_COMBO_LENGTH) return;
         if (sceneComboList.contains(scene)) return;
 
@@ -152,7 +152,7 @@ public class BardCreateFragment extends Fragment {
         }
 
         LayoutInflater inflater = LayoutInflater.from(getActivity());
-        ViewGroup parent = (ViewGroup) fragmentView.findViewById(android.R.id.content);
+        ViewGroup parent = (ViewGroup) getView();
 
         View sceneComboItem = inflater.inflate(R.layout.scene_combo_item, parent, false);
         sceneComboListContainer.addView(sceneComboItem);
@@ -248,11 +248,7 @@ public class BardCreateFragment extends Fragment {
         }
     }
 
-    public void onItemLongClick(Scene scene) {
-        addComboItem(scene);
-    }
-
-    public void onItemClick(Scene scene) {
+    public void openScene(Scene scene) {
         Intent intent = new Intent(getActivity(), BardEditorActivity.class);
         intent.putExtra("channelToken", Configuration.mainChannelToken());
         intent.putExtra("characterToken", "");

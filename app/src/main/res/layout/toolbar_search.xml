@@ -26,7 +26,6 @@
                 android:paddingRight="10dp"
                 android:layout_marginLeft="10dp"
                 android:textSize="18sp"
-                android:textAlignment="center"
                 android:hint="Search..."
                 android:textColorHint="@color/iron"
                 android:textColor="@color/white"

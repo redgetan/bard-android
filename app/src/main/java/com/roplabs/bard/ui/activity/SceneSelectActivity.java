@@ -140,6 +140,8 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     }
 
     private void showCreateToolbar() {
+        if (activityMenu == null) return;
+
         MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
         menuItem.setVisible(true);
 
@@ -287,17 +289,16 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
     @Override
     public void onItemLongClick(Scene scene) {
-//        addComboItem(scene);
+        BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition());
+        bardCreateFragment.addComboItem(scene);
     }
 
     @Override
     public void onItemClick(Scene scene) {
-//        Intent intent = new Intent(getActivity(), BardEditorActivity.class);
-//        intent.putExtra("channelToken", Configuration.mainChannelToken());
-//        intent.putExtra("characterToken", "");
-//        intent.putExtra("sceneToken", scene.getToken());
-//        BardLogger.trace("[sceneSelect] " + scene.getToken());
-//        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+        BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition());
+        bardCreateFragment.openScene(scene);
     }
 
     @Override
