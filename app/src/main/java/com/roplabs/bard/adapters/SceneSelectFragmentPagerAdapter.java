@@ -11,8 +11,8 @@ import com.roplabs.bard.util.Helper;
 
 public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
-            Helper.ONLINE_LIBRARY,
-            Helper.PACKS,
+            Helper.PROFILE,
+            Helper.BARD_CREATE,
             Helper.CHANNEL_FEED
     };
     private Context context;
@@ -34,8 +34,8 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         String sceneType = tabTitles[position];
         if (sceneType.equals(Helper.CHANNEL_FEED)) {
             return ChannelFeedFragment.newInstance(channelToken);
-        } else if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
-            return SceneSelectFragment.newInstance(sceneType, channelToken);
+        } else if (sceneType.equals(Helper.BARD_CREATE)) {
+            return BardCreateFragment.newInstance();
         } else {
             return PackSelectFragment.newInstance();
         }

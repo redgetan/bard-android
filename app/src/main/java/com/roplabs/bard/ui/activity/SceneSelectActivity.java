@@ -23,6 +23,7 @@ import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.fragment.BardCreateFragment;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
+import com.roplabs.bard.ui.widget.NonSwipingViewPager;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
 import retrofit2.Call;
@@ -88,7 +89,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         fragmentCache = new HashMap<Integer, Fragment>();
 
         fragmentManager = getSupportFragmentManager();
-        viewPager = (ViewPager) findViewById(R.id.scene_select_pager);
+        viewPager = (NonSwipingViewPager) findViewById(R.id.scene_select_pager);
         viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
         viewPager.setOffscreenPageLimit(2);
 

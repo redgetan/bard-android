@@ -90,6 +90,7 @@ public class Helper {
     public static final String CHANNEL_VIDEOS = "channel_videos";
     public static final String PACKS = "packs";
     public static final String BARD_CREATE = "bard_create";
+    public static final String PROFILE = "profile" ;
 
 
     private static ProgressDialog progressDialog;
