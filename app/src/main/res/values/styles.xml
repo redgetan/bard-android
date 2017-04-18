@@ -63,9 +63,23 @@
         <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
     </style>
 
+    <style name="BardCreateTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabBackground">@color/ios_light_iron</item>
+        <item name="tabPaddingStart">5dp</item>
+        <item name="tabPaddingEnd">5dp</item>
+        <item name="tabTextAppearance">@style/BardCreateTextAppearance</item>
+        <item name="tabIndicatorColor">@color/ink</item>
+        <item name="tabSelectedTextColor">@color/ink</item>
+    </style>
+
     <style name="MyCustomTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textColor">@color/iron</item>
+    </style>
+
+    <style name="BardCreateTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/base</item>
     </style>
 
     <style name="MySpinnerItemStyle" parent="@android:style/Widget.Holo.DropDownItem.Spinner">

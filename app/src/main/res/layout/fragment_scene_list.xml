@@ -4,6 +4,7 @@
               android:layout_width="match_parent"
               android:layout_height="match_parent">
     <LinearLayout
+            android:visibility="gone"
             android:id="@+id/scene_search_container"
                   android:layout_width="match_parent"
                   android:layout_height="50dp"
@@ -12,6 +13,7 @@
                   android:padding="10dp"
     >
         <EditText
+                android:visibility="invisible"
                   android:id="@+id/scene_search_input"
                   android:imeOptions="actionSearch"
                   android:inputType="text"
