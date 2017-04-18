@@ -15,7 +15,7 @@
             android:ellipsize="end"
             android:singleLine="true"
             android:text="Toolbar Title"
-            android:layout_gravity="center"
+            android:layout_gravity="left"
             android:id="@+id/toolbar_title" />
 
 </android.support.v7.widget.Toolbar>

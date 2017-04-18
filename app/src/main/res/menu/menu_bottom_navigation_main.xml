@@ -3,8 +3,8 @@
     <item
             android:id="@+id/action_channels"
             android:enabled="true"
-            android:icon="@drawable/ic_favorite_border_white_18dp"
-            android:title="Channels"
+            android:icon="@drawable/ic_rss_feed_black_24dp"
+            android:title="Feed"
             app:showAsAction="ifRoom" />
     <item
             android:id="@+id/action_create"

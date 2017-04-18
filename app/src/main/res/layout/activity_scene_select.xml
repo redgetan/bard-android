@@ -13,7 +13,7 @@
             android:layout_height="wrap_content"/>
 
 
-    <android.support.v4.view.ViewPager
+    <com.roplabs.bard.ui.widget.NonSwipingViewPager
             android:id="@+id/scene_select_pager"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -25,8 +25,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:itemBackground="@color/ios_light_iron"
-            app:itemIconTint="@color/ink"
-            app:itemTextColor="@color/ink"
+            app:itemIconTint="@drawable/bottom_tab_item_foreground"
+            app:itemTextColor="@drawable/bottom_tab_item_foreground"
             app:menu="@menu/menu_bottom_navigation_main" />
 
 </LinearLayout>

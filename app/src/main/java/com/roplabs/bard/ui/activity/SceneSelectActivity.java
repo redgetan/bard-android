@@ -15,6 +15,7 @@ import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 import com.bumptech.glide.Glide;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.api.BardClient;
@@ -44,13 +45,14 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     private final static int LEFT_DRAWABLE_INDEX = 0;
     private final static int RIGHT_DRAWABLE_INDEX = 2;
     private final static int BARD_EDITOR_REQUEST_CODE = 1;
-    private ViewPager viewPager;
+    private NonSwipingViewPager viewPager;
 
     private BottomNavigationView bottomNavigation;
     private String channelToken;
     private FragmentManager fragmentManager;
     private Fragment fragment;
     private Map<Integer, Fragment> fragmentCache;
+    private Menu activityMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +63,10 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
         mContext = this;
 
-        this.getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        this.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp);
+        this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.app_name);
-        title.setTextSize(24);
+//        title.setTextSize(24);
 
         channelToken = Configuration.mainChannelToken();
         Locale.getDefault().getLanguage();
@@ -78,7 +79,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     public void postInitSetup() {
         deepLinkNavigate();
 
-        Helper.initNavigationViewDrawer(this, toolbar);
+//        Helper.initNavigationViewDrawer(this, toolbar);
         Helper.askStoragePermission(this);
     }
 
@@ -100,12 +101,18 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                 switch (id){
                     case R.id.action_channels:
                         viewPager.setCurrentItem(0);
+                        showChannelToolbar();
+
                         break;
                     case R.id.action_create:
                         viewPager.setCurrentItem(1);
+                        showCreateToolbar();
+
                         break;
                     case R.id.action_profile:
                         viewPager.setCurrentItem(2);
+                        showProfileToolbar();
+
                         break;
                 }
 
@@ -113,11 +120,50 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             }
         });
 
-        viewPager.setCurrentItem(0);
-
+        // default first tab is "create"
+        bottomNavigation.findViewById(R.id.action_create).performClick();
 
     }
 
+
+    private void showChannelToolbar() {
+        MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
+        menuItem.setVisible(false);
+
+        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
+        menuItem.setVisible(false);
+        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem.setVisible(false);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText("Feed");
+    }
+
+    private void showCreateToolbar() {
+        MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
+        menuItem.setVisible(true);
+
+        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
+        menuItem.setVisible(true);
+        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem.setVisible(true);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText("Bard");
+    }
+
+    private void showProfileToolbar() {
+        MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
+        menuItem.setVisible(false);
+
+        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
+        menuItem.setVisible(false);
+        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem.setVisible(false);
+
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText("Profile");
+    }
 
     private void deepLinkNavigate() {
         Intent intent = getIntent();
@@ -170,7 +216,10 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        activityMenu = menu;
+
         getMenuInflater().inflate(R.menu.menu_search, menu);
+        getMenuInflater().inflate(R.menu.menu_create_more, menu);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -188,6 +237,13 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                 intent.putExtra("channelToken", channelToken);
                 startActivityForResult(intent, SEARCH_REQUEST_CODE);
                 return true;
+            case R.id.menu_item_upload_video:
+                intent = new Intent(this, UploadVideoActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_item_rate_app:
+                Helper.openInAppStore(ClientApp.getContext());
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -197,7 +253,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     protected void onResume() {
         BardLogger.log("Scene Select onResume");
 
-        Helper.initNavigationViewDrawer(this, toolbar);
+//        Helper.initNavigationViewDrawer(this, toolbar);
         super.onResume();
     }
 
@@ -246,7 +302,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
     @Override
     public void onCreatePostClicked() {
-        // go to All Videos tab
-        viewPager.setCurrentItem(0);
+        // go to create tab
+        viewPager.setCurrentItem(1);
     }
 }
