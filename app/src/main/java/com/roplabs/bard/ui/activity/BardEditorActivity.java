@@ -24,6 +24,11 @@ import android.util.Log;
 import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
+import co.mobiwise.materialintro.animation.MaterialIntroListener;
+import co.mobiwise.materialintro.shape.Focus;
+import co.mobiwise.materialintro.shape.FocusGravity;
+import co.mobiwise.materialintro.shape.ShapeType;
+import co.mobiwise.materialintro.view.MaterialIntroView;
 import com.bumptech.glide.Glide;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
@@ -238,6 +243,60 @@ public class BardEditorActivity extends BaseActivity implements
         initVideoStorage();
         initChatText();
         updatePlayMessageBtnState();
+
+        showAutocompleteFeature();
+
+    }
+
+    public void showAutocompleteFeature() {
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.CENTER)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText("Type here to autocomplete words in video")
+                .setTarget(editText)
+                .setUsageId("editor_autocomplete") //THIS SHOULD BE UNIQUE ID
+                .setListener(new MaterialIntroListener() {
+                    @Override
+                    public void onUserClicked(String s) {
+                        showWordTagTapFeature();
+                    }
+                })
+                .show();
+    }
+
+    public void showWordTagTapFeature() {
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.CENTER)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(500)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText("Tap words to quickly build sentence")
+                .setTarget(recyclerView)
+                .setUsageId("editor_word_tag_tap") //THIS SHOULD BE UNIQUE ID
+                .show();
+    }
+
+    public void showVariantPaginationFeature() {
+        new MaterialIntroView.Builder(this)
+                .enableDotAnimation(true)
+                .enableIcon(false)
+                .setFocusGravity(FocusGravity.CENTER)
+                .setFocusType(Focus.MINIMUM)
+                .setDelayMillis(0)
+                .enableFadeAnimation(true)
+                .performClick(true)
+                .setInfoText("Click to use a different video clip for same word")
+                .setTarget(findNextBtn)
+                .setUsageId("editor_variant_pagination") //THIS SHOULD BE UNIQUE ID
+                .show();
     }
 
     @Override
@@ -1548,6 +1607,8 @@ public class BardEditorActivity extends BaseActivity implements
         if (getWordTagSelector().getCurrentWordTagCount() > 1) {
             findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
             findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
+
+            showVariantPaginationFeature();
         } else {
             findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));
             findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));

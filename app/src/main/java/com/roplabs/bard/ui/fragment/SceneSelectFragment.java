@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
@@ -108,7 +109,6 @@ public class SceneSelectFragment extends Fragment {
         recyclerView = (RecyclerView) view.findViewById(R.id.scene_list);
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
-
 
         sceneListCache = new HashMap<String, List<Scene>>();
         sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
