@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <LinearLayout
+            android:id="@+id/my_videos"
+            android:orientation="horizontal"
+            android:padding="15dp"
+            android:background="@color/ios_light_iron"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+        <ImageView
+                android:id="@+id/left_navigation_icon"
+                android:src="@drawable/ic_bookmark_border_black_24dp"
+                android:tint="@color/base"
+                android:visibility="visible"
+                android:layout_gravity="center_vertical"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="Show"
+        />
+
+        <TextView android:id="@+id/my_videos_label"
+                  android:layout_width="0dp"
+                  android:layout_height="wrap_content"
+                  android:layout_gravity="center_vertical"
+                  android:layout_weight="1"
+                  android:layout_marginLeft="40dp"
+                  android:text="My Videos"
+        />
+
+        <ImageView
+                android:id="@+id/right_navigation_icon"
+                android:src="@drawable/ic_keyboard_arrow_right_black_24dp"
+                android:tint="@color/base"
+                android:visibility="visible"
+                android:layout_gravity="center_vertical"
+                android:layout_width="40dp"
+                android:layout_height="wrap_content"
+                android:contentDescription="Show"
+        />
+
+
+    </LinearLayout>
+
+    <android.support.v4.view.ViewPager
+            android:id="@+id/main_scene_select_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/white" />
+
+</LinearLayout>

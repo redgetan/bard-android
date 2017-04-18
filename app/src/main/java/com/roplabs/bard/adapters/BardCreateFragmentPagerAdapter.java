@@ -5,15 +5,12 @@ import android.content.Context;
         import android.support.v4.app.FragmentManager;
         import android.support.v4.app.FragmentPagerAdapter;
         import com.roplabs.bard.config.Configuration;
-        import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
-import com.roplabs.bard.ui.fragment.PackSelectFragment;
-import com.roplabs.bard.ui.fragment.SceneSelectFragment;
-        import com.roplabs.bard.ui.fragment.SearchResultFragment;
-        import com.roplabs.bard.util.Helper;
+import com.roplabs.bard.ui.fragment.*;
+import com.roplabs.bard.util.Helper;
 
 public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
-            Helper.ONLINE_LIBRARY,
+            Helper.SCENES,
             Helper.PACKS,
     };
     private Context context;
@@ -32,8 +29,8 @@ public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
-        if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
-            return SceneSelectFragment.newInstance(sceneType);
+        if (sceneType.equals(Helper.SCENES)) {
+            return MainSceneSelectFragment.newInstance();
         } else {
             return PackSelectFragment.newInstance();
         }
