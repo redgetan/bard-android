@@ -118,15 +118,6 @@
                     android:value=".ui.activity.ChannelActivity" />
         </activity>
         <activity
-                android:name=".ui.activity.ChannelPostCreateActivity"
-                android:label="@string/app_name"
-                android:parentActivityName=".ui.activity.ChannelActivity" >
-            >
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.ChannelActivity" />
-        </activity>
-        <activity
                 android:name=".ui.activity.BardEditorActivity"
                 android:label="@string/app_name"
                 android:configChanges="orientation|screenSize"
@@ -165,15 +156,6 @@
         </activity>
         <activity
                 android:name=".ui.activity.UploadVideoActivity"
-                android:label="@string/app_name"
-                android:parentActivityName=".ui.activity.SceneSelectActivity" >
-            >
-            <meta-data
-                    android:name="android.support.PARENT_ACTIVITY"
-                    android:value=".ui.activity.SceneSelectActivity" />
-        </activity>
-        <activity
-                android:name=".ui.activity.CharacterSelectActivity"
                 android:label="@string/app_name"
                 android:parentActivityName=".ui.activity.SceneSelectActivity" >
             >

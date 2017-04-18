@@ -1,27 +1,27 @@
 package com.roplabs.bard.adapters;
 
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import com.roplabs.bard.config.Configuration;
-import com.roplabs.bard.ui.activity.SceneSelectActivity;
-import com.roplabs.bard.ui.fragment.*;
-import com.roplabs.bard.util.Helper;
+        import android.support.v4.app.Fragment;
+        import android.support.v4.app.FragmentManager;
+        import android.support.v4.app.FragmentPagerAdapter;
+        import com.roplabs.bard.config.Configuration;
+        import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
+import com.roplabs.bard.ui.fragment.PackSelectFragment;
+import com.roplabs.bard.ui.fragment.SceneSelectFragment;
+        import com.roplabs.bard.ui.fragment.SearchResultFragment;
+        import com.roplabs.bard.util.Helper;
 
-public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
+public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
             Helper.ONLINE_LIBRARY,
             Helper.PACKS,
-            Helper.CHANNEL_FEED
     };
     private Context context;
     private String channelToken;
 
-    public SceneSelectFragmentPagerAdapter(FragmentManager fm, Context context, String channelToken) {
+    public BardCreateFragmentPagerAdapter(FragmentManager fm, Context context) {
         super(fm);
         this.context = context;
-        this.channelToken = channelToken;
     }
 
     @Override
@@ -32,10 +32,8 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
-        if (sceneType.equals(Helper.CHANNEL_FEED)) {
-            return ChannelFeedFragment.newInstance(channelToken);
-        } else if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
-            return SceneSelectFragment.newInstance(sceneType, channelToken);
+        if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
+            return SceneSelectFragment.newInstance(sceneType);
         } else {
             return PackSelectFragment.newInstance();
         }
@@ -44,12 +42,12 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
-        if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
-            return "Feed";
+        if (tabTitles[position].equals(Helper.PACKS)) {
+            return "Packs";
         } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
             return "Videos";
         } else {
-            return "Packs";
+            return "Videos";
         }
     }
 
