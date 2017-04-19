@@ -46,7 +46,7 @@
 
     </LinearLayout>
 
-    <android.support.v4.view.ViewPager
+    <com.roplabs.bard.ui.widget.NonSwipingViewPager
             android:id="@+id/main_scene_select_pager"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

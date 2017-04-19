@@ -91,6 +91,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
         fragmentManager = getSupportFragmentManager();
         viewPager = (NonSwipingViewPager) findViewById(R.id.scene_select_pager);
+        viewPager.setPagingEnabled(false);
         viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
         viewPager.setOffscreenPageLimit(2);
 

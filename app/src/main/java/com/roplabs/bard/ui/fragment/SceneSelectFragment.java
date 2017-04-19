@@ -386,7 +386,22 @@ public class SceneSelectFragment extends Fragment {
             }
         };
 
-        recyclerView.addOnScrollListener(scrollListener);
+        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            loadBookmarks();
+        } else {
+            recyclerView.addOnScrollListener(scrollListener);
+        }
+    }
+
+    private void loadBookmarks() {
+        RealmResults<Scene> bookmarks = Scene.favoritesForUsername(Setting.getUsername(ClientApp.getContext()));
+        Map<String, String> options = new HashMap<String, String>();
+        if (bookmarks.isEmpty()) {
+            showEmptyBookmarkMessage();
+        } else {
+            hideEmptySearchMessage();
+            populateScenes(bookmarks, options);
+        }
     }
 
     private void getScenesNextPage(int page) {
@@ -434,8 +449,12 @@ public class SceneSelectFragment extends Fragment {
         if (timeNow > sceneListCacheExpiry) {
         }
 
-        // refresh data
-        performSearch(getSearchQuery());
+        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            loadBookmarks();
+        } else {
+            // refresh data
+            performSearch(getSearchQuery());
+        }
 
         super.onResume();
     }

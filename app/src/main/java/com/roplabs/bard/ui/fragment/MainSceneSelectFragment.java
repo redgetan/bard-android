@@ -14,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.MainSceneFragmentPagerAdapter;
+import com.roplabs.bard.ui.widget.NonSwipingViewPager;
 import org.w3c.dom.Text;
 
 /**
@@ -21,7 +22,7 @@ import org.w3c.dom.Text;
  */
 public class MainSceneSelectFragment extends Fragment{
 
-    private ViewPager viewPager;
+    private NonSwipingViewPager viewPager;
     private LinearLayout userBookmarks;
 
     public static MainSceneSelectFragment newInstance() {
@@ -49,7 +50,8 @@ public class MainSceneSelectFragment extends Fragment{
 
     private void initPager(View view) {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) view.findViewById(R.id.main_scene_select_pager);
+        viewPager = (NonSwipingViewPager) view.findViewById(R.id.main_scene_select_pager);
+        viewPager.setPagingEnabled(false);
         viewPager.setAdapter(new MainSceneFragmentPagerAdapter(getActivity().getSupportFragmentManager(),
                 getActivity()));
         viewPager.setOffscreenPageLimit(2);
