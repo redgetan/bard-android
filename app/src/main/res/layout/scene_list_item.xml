@@ -39,7 +39,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:textSize="9sp"
-                android:textColor="@color/purple"
+                android:textColor="@color/base"
                 android:layout_marginTop="2dp"
                 android:layout_marginLeft="0dp"
                 android:layout_marginRight="10dp"

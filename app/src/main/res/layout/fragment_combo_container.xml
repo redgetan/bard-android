@@ -10,7 +10,7 @@
         android:layout_height="wrap_content" xmlns:android="http://schemas.android.com/apk/res/android">
 <HorizontalScrollView android:id="@+id/scene_combo_list_scrollview"
                       android:layout_width="wrap_content"
-                      android:layout_height="100dp">
+                      android:layout_height="50dp">
     <LinearLayout
             android:id="@+id/scene_combo_list_container"
             android:orientation="horizontal"

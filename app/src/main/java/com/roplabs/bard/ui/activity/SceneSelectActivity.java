@@ -33,9 +33,7 @@ import retrofit2.Response;
 
 import java.util.*;
 
-import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
-import static com.roplabs.bard.util.Helper.REQUEST_WRITE_STORAGE;
-import static com.roplabs.bard.util.Helper.SEARCH_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.*;
 
 public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener  {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
@@ -44,7 +42,6 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
     private final static int LEFT_DRAWABLE_INDEX = 0;
     private final static int RIGHT_DRAWABLE_INDEX = 2;
-    private final static int BARD_EDITOR_REQUEST_CODE = 1;
     private NonSwipingViewPager viewPager;
 
     private BottomNavigationView bottomNavigation;

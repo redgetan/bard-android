@@ -254,7 +254,7 @@ public class BardCreateFragment extends Fragment {
         intent.putExtra("characterToken", "");
         intent.putExtra("sceneToken", scene.getToken());
         BardLogger.trace("[sceneSelect] " + scene.getToken());
-        startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+        getActivity().startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
     }
 
 
