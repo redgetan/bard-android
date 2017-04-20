@@ -35,7 +35,7 @@ import java.util.*;
 
 import static com.roplabs.bard.util.Helper.*;
 
-public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener  {
+public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener, PopupMenu.OnMenuItemClickListener {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
@@ -50,6 +50,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     private Fragment fragment;
     private Map<Integer, Fragment> fragmentCache;
     private Menu activityMenu;
+    private PopupMenu moreMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,9 +129,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
         menuItem.setVisible(false);
 
-        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
-        menuItem.setVisible(false);
-        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem = activityMenu.findItem(R.id.menu_item_create_more);
         menuItem.setVisible(false);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -143,9 +142,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
         menuItem.setVisible(true);
 
-        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
-        menuItem.setVisible(true);
-        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem = activityMenu.findItem(R.id.menu_item_create_more);
         menuItem.setVisible(true);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -156,9 +153,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         MenuItem menuItem = activityMenu.findItem(R.id.menu_item_search);
         menuItem.setVisible(false);
 
-        menuItem = activityMenu.findItem(R.id.menu_item_upload_video);
-        menuItem.setVisible(false);
-        menuItem = activityMenu.findItem(R.id.menu_item_rate_app);
+        menuItem = activityMenu.findItem(R.id.menu_item_create_more);
         menuItem.setVisible(false);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -237,16 +232,20 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                 intent.putExtra("channelToken", channelToken);
                 startActivityForResult(intent, SEARCH_REQUEST_CODE);
                 return true;
-            case R.id.menu_item_upload_video:
-                intent = new Intent(this, UploadVideoActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_item_rate_app:
-                Helper.openInAppStore(ClientApp.getContext());
+            case R.id.menu_item_create_more:
+                onSceneSelectMoreButtonClick(findViewById(R.id.menu_item_create_more));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
+    }
+
+    private void onSceneSelectMoreButtonClick(View view) {
+        moreMenu = new PopupMenu(this, view);
+        moreMenu.setOnMenuItemClickListener(this);
+        moreMenu.inflate(R.menu.menu_create_upload_video_more);
+        moreMenu.inflate(R.menu.menu_create_rate_app_more);
+        moreMenu.show();
     }
 
     @Override
@@ -303,5 +302,23 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     public void onCreatePostClicked() {
         // go to create tab
         bottomNavigation.findViewById(R.id.action_create).performClick();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        final Context self = this;
+        String url;
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.menu_item_upload_video:
+                intent = new Intent(this, UploadVideoActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_item_rate_app:
+                Helper.openInAppStore(this);
+                return true;
+            default:
+                return false;
+        }
     }
 }
