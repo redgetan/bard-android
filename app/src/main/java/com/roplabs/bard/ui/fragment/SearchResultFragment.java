@@ -7,6 +7,13 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,6 +28,7 @@ import com.roplabs.bard.adapters.SearchListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
+import com.roplabs.bard.ui.activity.UploadVideoActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
@@ -114,6 +122,15 @@ public class SearchResultFragment extends Fragment {
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
         emptyStateContainer.setVisibility(View.GONE);
+        emptyStateContainer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (emptyStateDescription.getText().toString().contains("Upload an existing")) {
+                    Intent intent = new Intent(getActivity(), UploadVideoActivity.class);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     private void initSearch() {
@@ -161,9 +178,31 @@ public class SearchResultFragment extends Fragment {
 
     private void displayEmptySearchMessage() {
         emptyStateTitle.setText("No results found");
-        emptyStateDescription.setText("Try another search or upload an existing video");
+        emptyStateDescription.setText(buildMissingSearchMessage());
+
         emptyStateContainer.setVisibility(View.VISIBLE);
     }
+
+    private SpannableStringBuilder buildMissingSearchMessage() {
+        String first = "Try another search or ";
+        String last = "Upload an existing video";
+        final SpannableStringBuilder sb = new SpannableStringBuilder(first + last);
+
+        // Span to set text color to some RGB value
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(R.color.md_blue_500);
+
+        // Span to make text bold
+        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
+
+        sb.setSpan(new UnderlineSpan(), first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        sb.setSpan(fcs, first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        sb.setSpan(bss, first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        return sb;
+    }
+
 
     private void hideEmptySearchMessage() {
         emptyStateContainer.setVisibility(View.GONE);

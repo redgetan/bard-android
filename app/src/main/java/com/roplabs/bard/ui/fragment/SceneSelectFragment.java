@@ -387,6 +387,7 @@ public class SceneSelectFragment extends Fragment {
         };
 
         if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+            sceneListCache.clear();
             loadBookmarks();
         } else {
             recyclerView.addOnScrollListener(scrollListener);
@@ -444,9 +445,9 @@ public class SceneSelectFragment extends Fragment {
     public void onResume() {
         BardLogger.log("SceneSelect onResume");
 
-        sceneListCache.clear();
         int timeNow = Calendar.getInstance().get(Calendar.SECOND);
         if (timeNow > sceneListCacheExpiry) {
+            sceneListCache.clear();
         }
 
         if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
