@@ -152,7 +152,7 @@ public class BardEditorActivity extends BaseActivity implements
     private MediaPlayer mediaPlayer;
     private boolean isVideoReady = false;
     private Surface previewSurface;
-    private View previewOverlay;
+    private ImageView previewOverlay;
     private Runnable fetchWordTagSegmentUrl;
     private SavePackDialog savePackDialog;
 
@@ -230,7 +230,7 @@ public class BardEditorActivity extends BaseActivity implements
         display_word_error = (TextView) findViewById(R.id.display_word_error);
         word_tag_status = (TextView) findViewById(R.id.word_tag_status);
         previewTagView = (TextureView) findViewById(R.id.preview_tag_view);
-        previewOverlay = findViewById(R.id.preview_video_overlay);
+        previewOverlay = (ImageView) findViewById(R.id.preview_video_overlay);
         wordTagPlayHandler = new Handler();
         word_tag_status.setText("");
         wordListByScene = new HashMap<String, String>();
@@ -2130,6 +2130,14 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void initVideoPlayer() {
+        if (scene != null && scene.getThumbnailUrl() != null) {
+            Glide.with(this)
+                    .load(scene.getThumbnailUrl().replace("default.jpg","hqdefault.jpg"))
+                    .fitCenter()
+                    .crossFade()
+                    .into(previewOverlay);
+        }
+
         // video
         previewTagView.setOpaque(false);
         previewTagView.setSurfaceTextureListener(this);
