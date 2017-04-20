@@ -25,6 +25,7 @@ import android.view.*;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.*;
 import co.mobiwise.materialintro.animation.MaterialIntroListener;
+import co.mobiwise.materialintro.prefs.PreferencesManager;
 import co.mobiwise.materialintro.shape.Focus;
 import co.mobiwise.materialintro.shape.FocusGravity;
 import co.mobiwise.materialintro.shape.ShapeType;
@@ -258,12 +259,6 @@ public class BardEditorActivity extends BaseActivity implements
                 .setInfoText("Type here to autocomplete words in video")
                 .setTarget(editText)
                 .setUsageId("editor_autocomplete") //THIS SHOULD BE UNIQUE ID
-                .setListener(new MaterialIntroListener() {
-                    @Override
-                    public void onUserClicked(String s) {
-                        showWordTagTapFeature();
-                    }
-                })
                 .show();
     }
 
@@ -1391,6 +1386,8 @@ public class BardEditorActivity extends BaseActivity implements
             skipOnTextChangeCallback = true;
             editText.format();
             skipOnTextChangeCallback = false;
+
+            showWordTagTapFeature();
         }
     }
 
@@ -1608,7 +1605,9 @@ public class BardEditorActivity extends BaseActivity implements
             findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
             findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_light_blue_500));
 
-            showVariantPaginationFeature();
+            if ((new PreferencesManager(this)).isDisplayed("editor_word_tag_tap")) {
+                showVariantPaginationFeature();
+            }
         } else {
             findPrevBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));
             findNextBtn.setColorFilter(ContextCompat.getColor(this, R.color.md_grey_500));
