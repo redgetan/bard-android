@@ -90,8 +90,8 @@ public class RepoListActivity extends BaseActivity {
             title.setText(R.string.bard_library);
         }
 
-        initRepos();
         initEmptyState();
+        initRepos();
         displayRepoList();
 
     }
@@ -99,6 +99,7 @@ public class RepoListActivity extends BaseActivity {
     private void initEmptyState() {
         emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_repo_container);
         emptyStateTitle = (TextView) findViewById(R.id.empty_state_repo_title);
+        emptyStateContainer.setVisibility(View.GONE);
     }
 
     @Override

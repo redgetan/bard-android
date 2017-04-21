@@ -682,7 +682,7 @@ public class Helper {
 
     // http://stackoverflow.com/a/10816846/803865
     public static void openInAppStore(Context context) {
-        Uri uri = Uri.parse("market://details?id=" + ClientApp.getContext().getPackageName());
+        Uri uri = Uri.parse("market://details?id=com.roplabs.bard");
         Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
         // To count with Play market backstack, After pressing back button,
         // to taken back to our application, we need to add following flags to intent.

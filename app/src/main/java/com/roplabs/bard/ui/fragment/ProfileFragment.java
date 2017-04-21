@@ -237,7 +237,7 @@ public class ProfileFragment extends Fragment {
                     profileRow.setOnClickListener(new View.OnClickListener() {
                         @Override
                         public void onClick(View v) {
-                            Helper.openInAppStore(ClientApp.getContext());
+                            Helper.openInAppStore(getActivity());
                         }
                     });
                     break;
