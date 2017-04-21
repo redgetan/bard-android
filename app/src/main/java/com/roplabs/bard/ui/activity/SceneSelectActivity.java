@@ -23,6 +23,7 @@ import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.fragment.BardCreateFragment;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
+import com.roplabs.bard.ui.fragment.ProfileFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.ui.widget.NonSwipingViewPager;
 import com.roplabs.bard.util.*;
@@ -111,6 +112,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                     case R.id.action_profile:
                         viewPager.setCurrentItem(2);
                         showProfileToolbar();
+                        refreshUserProfile();
 
                         break;
                 }
@@ -296,6 +298,12 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
                 .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition());
         bardCreateFragment.openScene(scene);
+    }
+
+    private void refreshUserProfile() {
+        ProfileFragment profileFragment = (ProfileFragment) getSupportFragmentManager()
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getProfileFragmentPosition());
+        profileFragment.refreshUserProfile();
     }
 
     @Override

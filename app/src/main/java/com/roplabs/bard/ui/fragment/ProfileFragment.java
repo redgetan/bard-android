@@ -24,6 +24,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.MainActivity;
 import com.roplabs.bard.ui.activity.RepoListActivity;
+import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.Helper;
 
 import java.util.List;
@@ -35,6 +36,10 @@ public class ProfileFragment extends Fragment {
 
     private final int LOGIN_REQUEST_CODE = 2;
     private final int NUM_OF_ROW_ITEMS = 11;
+    private final int MY_BARDS_ITEM_TAG = 5;
+    private final int MY_LIKES_ITEM_TAG = 6;
+
+    private View fragmentView;
 
     public static ProfileFragment newInstance() {
         Bundle args = new Bundle();
@@ -55,10 +60,21 @@ public class ProfileFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_profile, container, false);
 
+        fragmentView = view;
+
+
         initProfileHeader(view);
         initProfileDetails(view);
 
         return view;
+    }
+
+
+    @Override
+    public void onResume() {
+        BardLogger.log("ProfileFragment onResume");
+        refreshUserProfile();
+        super.onResume();
     }
 
     private void initProfileHeader(View view) {
@@ -117,6 +133,20 @@ public class ProfileFragment extends Fragment {
         startActivity(Intent.createChooser(Email, "Send Feedback:"));
     }
 
+    public void refreshUserProfile() {
+        final List<Repo> repos = Repo.forUsername(Setting.getUsername(ClientApp.getContext()));
+        final List<Like> userLikes = Like.forUsername(Setting.getUsername(ClientApp.getContext()));
+        String bardCount = String.valueOf(repos.size());
+        String likeCount = String.valueOf(userLikes.size());
+
+        TextView bardCountLabel = (TextView) fragmentView.findViewWithTag(MY_BARDS_ITEM_TAG).findViewById(R.id.profile_detail_text);
+        bardCountLabel.setText("My Bards (" + bardCount + ")");
+
+        TextView likeCountLabel = (TextView) fragmentView.findViewWithTag(MY_LIKES_ITEM_TAG).findViewById(R.id.profile_detail_text);
+        likeCountLabel.setText("My Likes (" + likeCount + ")");
+
+    }
+
     private void initProfileDetails(View view) {
         final Context self = getActivity();
         ViewGroup container = (ViewGroup) view.findViewById(R.id.profile_details_container);
@@ -139,6 +169,7 @@ public class ProfileFragment extends Fragment {
                     // My Bards
                     textView.setText("My Bards (" + bardCount + ")");
 
+                    profileRow.setTag(MY_BARDS_ITEM_TAG);
                     profileRow.findViewById(R.id.profile_navigation_icon).setVisibility(View.VISIBLE);
 
                     profileRow.setOnClickListener(new View.OnClickListener() {
@@ -154,6 +185,7 @@ public class ProfileFragment extends Fragment {
                     // My Likes
                     textView.setText("My Likes (" + likeCount + ")");
 
+                    profileRow.setTag(MY_LIKES_ITEM_TAG);
                     profileRow.findViewById(R.id.profile_navigation_icon).setVisibility(View.VISIBLE);
 
                     profileRow.setOnClickListener(new View.OnClickListener() {

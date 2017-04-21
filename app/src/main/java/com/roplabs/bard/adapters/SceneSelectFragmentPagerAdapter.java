@@ -35,6 +35,10 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         return Arrays.asList(tabTitles).indexOf(Helper.BARD_CREATE);
     }
 
+    public static int getProfileFragmentPosition() {
+        return Arrays.asList(tabTitles).indexOf(Helper.PROFILE);
+    }
+
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
