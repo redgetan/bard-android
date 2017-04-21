@@ -18,6 +18,7 @@ public class Repo extends RealmObject {
     private Boolean isPublished;
     private String characterToken;
     private String sceneToken;
+    private String thumbnailUrl;
     private String wordList;
     private String error;
     private Date createdAt;
@@ -93,7 +94,7 @@ public class Repo extends RealmObject {
     }
 
     public static Repo createFromOtherUser(String token, String repoUrl, String uuid, String characterToken, String sceneToken,
-                              String videoPath, String wordList, Date createdAt, String username) {
+                              String videoPath, String wordList, Date createdAt, String username, String thumbnailUrl, String sourceUrl) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
@@ -104,6 +105,8 @@ public class Repo extends RealmObject {
         repo.setUsername(username);
         repo.setCharacterToken(characterToken);
         repo.setSceneToken(sceneToken);
+        repo.setSourceUrl(sourceUrl);
+        repo.setThumbnailUrl(thumbnailUrl);
         repo.setUrl(repoUrl);
         repo.setUUID(uuid);
         repo.setFilePath(videoPath);
@@ -155,6 +158,7 @@ public class Repo extends RealmObject {
     }
 
     public String getFilePath() {
+        if (filePath == null) return "";
         return filePath;
     }
 
@@ -294,6 +298,15 @@ public class Repo extends RealmObject {
 
     public void setSourceUrl(String sourceUrl) {
         this.sourceUrl = sourceUrl;
+    }
+
+    public String getThumbnailUrl() {
+        return thumbnailUrl;
+    }
+
+    public void setThumbnailUrl(String thumbnailUrl) {
+
+        this.thumbnailUrl = thumbnailUrl;
     }
 
     public boolean equals(Object o){

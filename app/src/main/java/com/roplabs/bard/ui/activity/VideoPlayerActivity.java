@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.support.v4.content.FileProvider;
 import android.support.v7.widget.PopupMenu;
 import android.view.Menu;
@@ -18,9 +20,7 @@ import android.widget.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.models.Scene;
-import com.roplabs.bard.models.VideoDownloader;
+import com.roplabs.bard.models.*;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.CrashReporter;
 import com.roplabs.bard.util.Helper;
@@ -101,15 +101,19 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
         final String localSourcePath = Storage.getLocalSavedFilePath();
         Helper.downloadRemoteMp4ToLocalPath(this, videoLocation, localSourcePath, new Helper.OnDownloadMp4FromRemoteComplete() {
             @Override
-            public void onMp4DownlaodComplete(String remoteSourceUrl, String localSourcePath) {
-                Realm realm = Realm.getDefaultInstance();
+            public void onMp4DownlaodComplete(String remoteSourceUrl, final String localSourcePath) {
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Realm realm = Realm.getDefaultInstance();
 
-                realm.beginTransaction();
-                repo.setFilePath(localSourcePath);
+                        realm.beginTransaction();
+                        repo.setFilePath(localSourcePath);
 
-                realm.commitTransaction();
-
-                listener.onRepoMp4LocallySaved();
+                        realm.commitTransaction();
+                        listener.onRepoMp4LocallySaved();
+                    }
+                });
             }
         });
 
@@ -214,9 +218,8 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
         PopupMenu popup = new PopupMenu(this, view);
         popup.setOnMenuItemClickListener(this);
         popup.inflate(R.menu.menu_repo_more);
-        if (this.repo.getUrl() != null) {
-//            popup.getMenu().findItem(R.id.publish_repo_link_item).setTitle("Published");
-//            popup.getMenu().findItem(R.id.publish_repo_link_item).setEnabled(false);
+        if (this.repoListType.equals("likes")) {
+            popup.getMenu().findItem(R.id.delete_repo_item).setTitle("Unlike");
         }
         popup.show();
     }
@@ -283,11 +286,47 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
 //                });
 //                return true;
             case R.id.delete_repo_item:
-                deleteRepo(repo);
+                if (repoListType.equals("likes")) {
+                    doUnlikeRepo();
+                } else {
+                    deleteRepo(repo);
+                }
                 return true;
             default:
                 return false;
         }
+    }
+
+    private void doUnlikeRepo() {
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().unlikeRepo(repoToken);
+        call.enqueue(new Callback<HashMap<String, String>>() {
+            @Override
+            public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+
+                if (response.code() != 200) {
+                    displayError("Unable to unlike video");
+                    return;
+                }
+
+                Like like = Like.forRepoTokenAndUsername(repoToken, Setting.getUsername(ClientApp.getContext()));
+
+                if (like != null) {
+                    Realm realm = Realm.getDefaultInstance();
+                    realm.beginTransaction();
+                    like.deleteFromRealm();
+                    realm.commitTransaction();
+                    Intent intent = new Intent();
+                    intent.putExtra("unliked", true);
+                    setResult(RESULT_OK, intent);
+                    finish();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                displayError("Unable to unlike", t);
+            }
+        });
     }
 
     public void displayError(String message, Throwable t) {

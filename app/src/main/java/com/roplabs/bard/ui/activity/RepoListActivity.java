@@ -38,6 +38,7 @@ import com.roplabs.bard.adapters.RepoListAdapter;
 import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.EndlessRecyclerViewScrollListener;
 import com.roplabs.bard.util.Helper;
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -117,9 +118,20 @@ public class RepoListActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == VIDEO_PLAYER_REQUEST_CODE) {
             if (data != null) {
-                repoListType = data.getStringExtra("repoListType");
+                boolean isUnliked = data.getBooleanExtra("unliked", false);
+                if (isUnliked) {
+                    refreshList();
+                }
             }
         }
+    }
+
+    private void refreshList() {
+        repoList.clear();
+        recyclerView.getAdapter().notifyDataSetChanged();
+        scrollListener.resetState();
+
+        displayRepoList();
     }
 
     private void toggleEmptyState(List<Repo> repos) {
@@ -134,10 +146,14 @@ public class RepoListActivity extends BaseActivity {
     public void displayUserCreatedRepo() {
         final List<Repo> repos;
 
-        this.repoList = Repo.forUsername(Setting.getUsername(this));
-        toggleEmptyState(this.repoList);
+        repos = Repo.forUsername(Setting.getUsername(this));
 
-        recyclerView.getAdapter().notifyDataSetChanged();
+        for (Repo repo : repos) {
+            repoList.add(repo);
+        }
+        toggleEmptyState(repoList);
+
+        recyclerView.getAdapter().notifyItemRangeInserted(0, repoList.size());
     }
 
     public void initRepos() {
@@ -152,7 +168,7 @@ public class RepoListActivity extends BaseActivity {
                 intent.putExtra("title", repo.title());
                 intent.putExtra("repoUsername", repo.getUsername());
                 intent.putExtra("repoListType", repoListType);
-                if (repo.getFilePath() == null) {
+                if (repo.getFilePath().isEmpty()) {
                     intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getSourceUrl());
                 } else {
                     intent.putExtra(RepoListActivity.VIDEO_LOCATION_MESSAGE, repo.getFilePath());
@@ -220,7 +236,7 @@ public class RepoListActivity extends BaseActivity {
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Request Failed");
                 } else {
-                    if (remoteRepoList.isEmpty()) {
+                    if (remoteRepoList.isEmpty() && repoList.isEmpty()) {
                         emptyStateContainer.setVisibility(View.VISIBLE);
                     } else {
                         emptyStateContainer.setVisibility(View.GONE);
@@ -259,9 +275,14 @@ public class RepoListActivity extends BaseActivity {
             if (localRepo == null) {
                 Repo repo = Repo.createFromOtherUser(remoteRepo.getToken(), remoteRepo.getUrl(), remoteRepo.getUUID(),
                          remoteRepo.getCharacterToken(), remoteRepo.getSceneToken(), "", remoteRepo.getWordList(), remoteRepo.getCreatedAt(),
-                        remoteRepo.getUsername());
+                        remoteRepo.getUsername(), remoteRepo.getThumbnailUrl(), remoteRepo.getSourceUrl());
             }
+
+
         }
+
+        // create likes if not on device
+        Like.createOrUpdate(remoteRepoList);
 
 
         for (Repo remoteRepo : remoteRepoList) {

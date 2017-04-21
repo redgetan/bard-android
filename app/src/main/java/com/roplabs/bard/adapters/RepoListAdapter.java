@@ -54,10 +54,18 @@ public class RepoListAdapter extends
 
         ImageView thumbnail = viewHolder.repoThumbnail;
         thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
-        Glide.with(context)
-             .load(repo.getFilePath())
-             .crossFade()
-             .into(thumbnail);
+
+        if (repo.getFilePath().isEmpty()) {
+            Glide.with(context)
+                    .load(repo.getThumbnailUrl())
+                    .crossFade()
+                    .into(thumbnail);
+        } else {
+            Glide.with(context)
+                    .load(repo.getFilePath())
+                    .crossFade()
+                    .into(thumbnail);
+        }
     }
 
     // Return the total count of items

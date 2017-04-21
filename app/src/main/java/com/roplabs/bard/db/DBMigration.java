@@ -215,6 +215,15 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 18
+        if (oldVersion == 17) {
+            schema.get("Repo")
+                    .addField("thumbnailUrl", String.class);
+
+
+            oldVersion++;
+        }
+
     }
 }
 
