@@ -20,9 +20,12 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.models.VideoDownloader;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.CrashReporter;
 import com.roplabs.bard.util.Helper;
+import com.roplabs.bard.util.Storage;
+import io.realm.Realm;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
@@ -30,6 +33,8 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.util.Date;
 import java.util.HashMap;
 
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
@@ -56,13 +61,64 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
         this.repoToken     = intent.getStringExtra(RepoListActivity.REPO_TOKEN_MESSAGE);
         this.repoUrl       = intent.getStringExtra(RepoListActivity.REPO_URL_MESSAGE);
         this.repoListType = intent.getStringExtra("repoListType");
-        String repoTitle = intent.getStringExtra("title");
+        String repoUsername = intent.getStringExtra("repoUsername");
+        String repoWordList = intent.getStringExtra("wordList");
 
-        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        initVideoStorage();
+
         videoView = (VideoView) findViewById(R.id.video_view);
 
-        title.setText(repoTitle);
         this.repo = Repo.forToken(repoToken);
+
+        if (this.repo.getFilePath().isEmpty()) {
+            downloadRepoMp4(repoToken, repoUrl, videoLocation, repoWordList, repoUsername, new OnRepoMp4LocallySaved() {
+                @Override
+                public void onRepoMp4LocallySaved() {
+                    // reload repo with correct FilePath to saved mp4
+                    repo = Repo.forToken(repoToken);
+                    setupRepo();
+                }
+            });
+        } else {
+            setupRepo();
+        }
+    }
+
+    private void initVideoStorage() {
+        // where merged videos would be stored
+        File moviesDirFile = new File(Storage.getSharedMoviesDir());
+
+        if (!moviesDirFile.exists()) {
+            moviesDirFile.mkdirs();
+        }
+    }
+
+    public interface OnRepoMp4LocallySaved {
+        public void onRepoMp4LocallySaved();
+    }
+
+    private void downloadRepoMp4(final String repoToken, final String repoUrl, final String videoLocation, final String repoWordList, final String repoUsername, final OnRepoMp4LocallySaved listener) {
+        final String localSourcePath = Storage.getLocalSavedFilePath();
+        Helper.downloadRemoteMp4ToLocalPath(this, videoLocation, localSourcePath, new Helper.OnDownloadMp4FromRemoteComplete() {
+            @Override
+            public void onMp4DownlaodComplete(String remoteSourceUrl, String localSourcePath) {
+                Realm realm = Realm.getDefaultInstance();
+
+                realm.beginTransaction();
+                repo.setFilePath(localSourcePath);
+
+                realm.commitTransaction();
+
+                listener.onRepoMp4LocallySaved();
+            }
+        });
+
+    }
+
+    private void setupRepo() {
+        TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
+        title.setText(repo.title());
+
         String sceneToken = repo.getSceneToken();
         if (sceneToken != null) {
             this.scene = Scene.forToken(sceneToken);
@@ -70,7 +126,6 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
 
         initVideoPlayer();
         playLocalVideo(this.videoLocation);
-
     }
 
     private void playLocalVideo(String filePath) {

@@ -311,6 +311,10 @@ public class Helper {
         });
     }
 
+    public static boolean isPathUrl(String path) {
+        return path.startsWith("http");
+    }
+
     public static void initNavigationViewDrawer(final AppCompatActivity context, Toolbar toolbar) {
         String username = Setting.getUsername(context);
         ProfileDrawerItem profileDrawerItem;
@@ -537,6 +541,10 @@ public class Helper {
         public void onMergeRemoteComplete(String remoteSourceUrl, String localSourcePath);
     }
 
+    public interface OnDownloadMp4FromRemoteComplete {
+        public void onMp4DownlaodComplete(String remoteSourceUrl, String localSourcePath);
+    }
+
     public static boolean isFileValidMP4(Context context, File file) {
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         try {
@@ -554,6 +562,35 @@ public class Helper {
         }
     }
 
+    public static void downloadRemoteMp4ToLocalPath(Context context, final String remoteSourceUrl, final String localSourcePath, final OnDownloadMp4FromRemoteComplete listener) {
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setCancelable(false);
+        progressDialog.setMessage("Loading...");
+        progressDialog.show();
+
+        FileOutputStream fileOutput = null;
+        try {
+            fileOutput = new FileOutputStream(new File(localSourcePath));
+            VideoDownloader.downloadUrlToStream(remoteSourceUrl, fileOutput, new VideoDownloader.OnDownloadListener() {
+                @Override
+                public void onDownloadSuccess() {
+                    progressDialog.dismiss();
+                    listener.onMp4DownlaodComplete(remoteSourceUrl, localSourcePath);
+                }
+
+                @Override
+                public void onDownloadFailure() {
+                    progressDialog.dismiss();
+                    listener.onMp4DownlaodComplete("","");
+                }
+            });
+        } catch (FileNotFoundException e) {
+            progressDialog.dismiss();
+            e.printStackTrace();
+            listener.onMp4DownlaodComplete("","");
+        }
+    }
 
     public static void mergeSegmentsRemotely(Context context, String wordList, final OnMergeRemoteComplete listener) {
         progressDialog = new ProgressDialog(context);

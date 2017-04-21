@@ -7,10 +7,7 @@ import io.realm.RealmResults;
 import io.realm.Sort;
 import io.realm.annotations.Ignore;
 
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Like extends RealmObject {
 
@@ -42,6 +39,17 @@ public class Like extends RealmObject {
                 .findAllSorted("createdAt", Sort.DESCENDING);
 
         return results;
+    }
+
+    public static List<String> repoTokensForUsername(String username) {
+        RealmResults<Like> likes = forUsername(username);
+        List<String> repoTokens = new ArrayList<String>();
+
+        for (Like like : likes) {
+            repoTokens.add(like.getRepoToken());
+        }
+
+        return repoTokens;
     }
 
     public static Like forRepoTokenAndUsername(String repoToken, String username) {

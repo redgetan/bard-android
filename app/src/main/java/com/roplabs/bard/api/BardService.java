@@ -26,6 +26,9 @@ public interface BardService {
     @GET("scenes")
     Call<List<Scene>> listScenes(@QueryMap Map<String, String> options);
 
+    @GET("likes")
+    Call<List<Repo>> listLikes(@QueryMap Map<String, String> options);
+
     @GET("scenes/{sceneToken}")
     Call<Scene> getScene(@Path("sceneToken") String sceneToken);
 
