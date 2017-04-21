@@ -248,6 +248,9 @@ public class VideoPlayerActivity extends BaseActivity implements PopupMenu.OnMen
 
                     if(new File(repo.getFilePath()).delete()) {
                         repo.delete();
+                        Intent intent = new Intent();
+                        intent.putExtra("deleted", true);
+                        setResult(RESULT_OK, intent);
                         finish();
                     }
                 }

@@ -121,6 +121,12 @@ public class RepoListActivity extends BaseActivity {
                 boolean isUnliked = data.getBooleanExtra("unliked", false);
                 if (isUnliked) {
                     refreshList();
+                    return;
+                }
+
+                boolean isDeleted = data.getBooleanExtra("deleted", false);
+                if (isDeleted) {
+                    refreshList();
                 }
             }
         }
