@@ -386,12 +386,12 @@ public class SceneSelectFragment extends Fragment {
             }
         };
 
-        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            sceneListCache.clear();
-            loadBookmarks();
-        } else {
+//        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+//            sceneListCache.clear();
+//            loadBookmarks();
+//        } else {
             recyclerView.addOnScrollListener(scrollListener);
-        }
+//        }
     }
 
     private void loadBookmarks() {
@@ -450,12 +450,12 @@ public class SceneSelectFragment extends Fragment {
             sceneListCache.clear();
         }
 
-        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
-            loadBookmarks();
-        } else {
+//        if (sceneType.equals(Helper.FAVORITES_SCENE_TYPE)) {
+//            loadBookmarks();
+//        } else {
             // refresh data
             performSearch(getSearchQuery());
-        }
+//        }
 
         super.onResume();
     }

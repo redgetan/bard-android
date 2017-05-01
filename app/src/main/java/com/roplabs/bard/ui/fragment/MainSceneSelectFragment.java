@@ -73,11 +73,21 @@ public class MainSceneSelectFragment extends Fragment{
 
 
         userBookmarks = (LinearLayout) view.findViewById(R.id.my_videos);
-        final TextView label = (TextView) view.findViewById(R.id.my_videos_label);
-        final ImageView leftArrow = (ImageView) view.findViewById(R.id.left_navigation_icon);
-        final ImageView rightArrow = (ImageView) view.findViewById(R.id.right_navigation_icon);
+        TextView label = (TextView) view.findViewById(R.id.my_videos_label);
+        ImageView leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
+        ImageView rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
+        initCategory(userBookmarks, R.drawable.ic_bookmark_border_black_24dp, label, leftArrow, rightArrow);
 
-        userBookmarks.setOnClickListener(new View.OnClickListener() {
+        LinearLayout userUploads = (LinearLayout) view.findViewById(R.id.my_uploads);
+        label = (TextView) view.findViewById(R.id.my_videos_label);
+        leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
+        rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
+        initCategory(userUploads, R.drawable.ic_cloud_black_24dp, label, leftArrow, rightArrow);
+
+    }
+
+    private void initCategory(View view, final int drawableId, final TextView label, final ImageView leftArrow, final ImageView rightArrow) {
+        view.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 if (viewPager.getCurrentItem() == MainSceneFragmentPagerAdapter.getOnlineLibraryFragmentPosition()) {
@@ -91,12 +101,11 @@ public class MainSceneSelectFragment extends Fragment{
                     viewPager.setCurrentItem(MainSceneFragmentPagerAdapter.getOnlineLibraryFragmentPosition());
                     label.setText("Bookmarks");
 
-                    Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(),R.drawable.ic_bookmark_border_black_24dp);
+                    Bitmap allSceneBitmap = BitmapFactory.decodeResource(getResources(), drawableId);
                     leftArrow.setImageBitmap(allSceneBitmap);
                     rightArrow.setVisibility(View.VISIBLE);
                 }
             }
         });
-
     }
 }

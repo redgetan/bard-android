@@ -17,6 +17,7 @@ public class MainSceneFragmentPagerAdapter extends FragmentPagerAdapter {
     private static String tabTitles[] = new String[]{
             Helper.ONLINE_LIBRARY,
             Helper.FAVORITES_SCENE_TYPE,
+            Helper.UPLOADS_SCENE_TYPE
     };
     private Context context;
     private String channelToken;
@@ -34,15 +35,15 @@ public class MainSceneFragmentPagerAdapter extends FragmentPagerAdapter {
     @Override
     public Fragment getItem(int position) {
         String sceneType = tabTitles[position];
-        if (sceneType.equals(Helper.ONLINE_LIBRARY)) {
-            return SceneSelectFragment.newInstance(sceneType);
-        } else {
-            return SceneSelectFragment.newInstance(sceneType);
-        }
+        return SceneSelectFragment.newInstance(sceneType);
     }
 
     public static int getBookmarksFragmentPosition() {
         return Arrays.asList(tabTitles).indexOf(Helper.FAVORITES_SCENE_TYPE);
+    }
+
+    public static int getUploadsFragmentPosition() {
+        return Arrays.asList(tabTitles).indexOf(Helper.UPLOADS_SCENE_TYPE);
     }
 
     public static int getOnlineLibraryFragmentPosition() {
@@ -54,6 +55,8 @@ public class MainSceneFragmentPagerAdapter extends FragmentPagerAdapter {
         // Generate title based on item position
         if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
             return "All";
+        } else if (tabTitles[position].equals(Helper.UPLOADS_SCENE_TYPE)) {
+            return "Uploads";
         } else {
             return "Bookmarks";
         }
