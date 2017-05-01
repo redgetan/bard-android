@@ -86,6 +86,16 @@ public class Helper {
     public static final String FAVORITES_SCENE_TYPE = "favorites";
     public static final String UPLOADS_SCENE_TYPE = "uploads";
     public static final String ONLINE_LIBRARY = "latest";
+    public static final String POLITICS_SCENE_TYPE = "politics";
+    public static final String VIDEO_GAMES_SCENE_TYPE = "video_games";
+    public static final String CARTOON_SCENE_TYPE = "cartoon";
+    public static final String TELEVISION_SCENE_TYPE = "television";
+    public static final String MOVIES_SCENE_TYPE = "movies";
+    public static final String YOUTUBER_SCENE_TYPE = "youtuber";
+    public static final String INTERVIEW_SCENE_TYPE = "interview";
+    public static final String COMEDY_SCENE_TYPE = "comedy";
+    public static final String PUPPETS_SCENE_TYPE = "puppets";
+    public static final String OTHERS_SCENE_TYPE = "other";
 
     public static final String CHANNEL_FEED = "channel_feed";
     public static final String CHANNEL_VIDEOS = "channel_videos";

@@ -8,6 +8,11 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +30,7 @@ import com.roplabs.bard.models.Favorite;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
+import com.roplabs.bard.ui.activity.UploadVideoActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
@@ -186,14 +192,27 @@ public class SceneSelectFragment extends Fragment {
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
         emptyStateContainer.setVisibility(View.GONE);
-        emptyStateContainer.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                // tap to refresh
-                hideEmptySearchMessage();
-                getScenesNextPage(1);
-            }
-        });
+
+        if (sceneType.equals("uploads")) {
+            emptyStateContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (emptyStateDescription.getText().toString().contains("Upload an existing")) {
+                        Intent intent = new Intent(getActivity(), UploadVideoActivity.class);
+                        startActivity(intent);
+                    }
+                }
+            });
+        } else {
+            emptyStateContainer.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    // tap to refresh
+                    hideEmptySearchMessage();
+                    getScenesNextPage(1);
+                }
+            });
+        }
     }
 
     public void performSearch(String text) {
@@ -228,8 +247,13 @@ public class SceneSelectFragment extends Fragment {
     }
 
     private void displayEmptySearchMessage() {
-        emptyStateTitle.setText("No results found");
-        emptyStateDescription.setText("Try another search or upload an existing video");
+        if (sceneType.equals("uploads")) {
+            emptyStateTitle.setText("");
+            emptyStateDescription.setText(buildMissingSearchMessage());
+        } else {
+            emptyStateTitle.setText("No results found");
+            emptyStateDescription.setText("Try another search or Upload an existing video");
+        }
         emptyStateContainer.setVisibility(View.VISIBLE);
     }
 
@@ -439,6 +463,26 @@ public class SceneSelectFragment extends Fragment {
 
         return cacheKey;
 
+    }
+
+    private SpannableStringBuilder buildMissingSearchMessage() {
+        String first = "";
+        String last = "Upload an existing video";
+        final SpannableStringBuilder sb = new SpannableStringBuilder(first + last);
+
+        // Span to set text color to some RGB value
+        final ForegroundColorSpan fcs = new ForegroundColorSpan(R.color.md_blue_500);
+
+        // Span to make text bold
+        final StyleSpan bss = new StyleSpan(android.graphics.Typeface.BOLD);
+
+        sb.setSpan(new UnderlineSpan(), first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        sb.setSpan(fcs, first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        sb.setSpan(bss, first.length(), first.length() + last.length(), Spannable.SPAN_INCLUSIVE_INCLUSIVE);
+
+        return sb;
     }
 
     @Override

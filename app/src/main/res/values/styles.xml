@@ -72,9 +72,24 @@
         <item name="tabSelectedTextColor">@color/mediumaquamarine</item>
     </style>
 
+    <style name="MainSceneSelectTabLayout" parent="Widget.Design.TabLayout">
+        <item name="tabBackground">@color/ios_light_iron</item>
+        <item name="tabPaddingStart">5dp</item>
+        <item name="tabPaddingEnd">5dp</item>
+        <item name="tabTextAppearance">@style/MainSceneSelectTextAppearance</item>
+        <item name="tabIndicatorColor">@android:color/transparent</item>
+        <item name="tabSelectedTextColor">@color/black</item>
+    </style>
+
     <style name="MyCustomTabTextAppearance" parent="TextAppearance.Design.Tab">
         <item name="textAllCaps">false</item>
         <item name="android:textColor">@color/iron</item>
+    </style>
+
+    <style name="MainSceneSelectTextAppearance" parent="TextAppearance.Design.Tab">
+        <item name="textAllCaps">false</item>
+        <item name="android:textColor">@color/jumbo</item>
+        <item name="android:textSize">10sp</item>
     </style>
 
     <style name="BardCreateTextAppearance" parent="TextAppearance.Design.Tab">

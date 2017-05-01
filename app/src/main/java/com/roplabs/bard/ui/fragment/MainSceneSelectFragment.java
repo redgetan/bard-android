@@ -4,6 +4,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
@@ -52,9 +53,11 @@ public class MainSceneSelectFragment extends Fragment{
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         viewPager = (NonSwipingViewPager) view.findViewById(R.id.main_scene_select_pager);
         viewPager.setPagingEnabled(false);
-        viewPager.setAdapter(new MainSceneFragmentPagerAdapter(getActivity().getSupportFragmentManager(),
-                getActivity()));
-        viewPager.setOffscreenPageLimit(2);
+        MainSceneFragmentPagerAdapter mainSceneSelectAdapter = new MainSceneFragmentPagerAdapter(getActivity().getSupportFragmentManager(),
+                getActivity());
+        viewPager.setAdapter(mainSceneSelectAdapter);
+        viewPager.setOffscreenPageLimit(mainSceneSelectAdapter.getCount());
+        viewPager.setCurrentItem(2);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
@@ -71,18 +74,24 @@ public class MainSceneSelectFragment extends Fragment{
             }
         });
 
+        TabLayout tabLayout = (TabLayout) view.findViewById(R.id.main_scene_select_tab);
+        tabLayout.setupWithViewPager(viewPager);
+        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+            tabLayout.getTabAt(i).setIcon(mainSceneSelectAdapter.getIcon(i));
+        }
 
-        userBookmarks = (LinearLayout) view.findViewById(R.id.my_videos);
-        TextView label = (TextView) view.findViewById(R.id.my_videos_label);
-        ImageView leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
-        ImageView rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
-        initCategory(userBookmarks, R.drawable.ic_bookmark_border_black_24dp, label, leftArrow, rightArrow);
 
-        LinearLayout userUploads = (LinearLayout) view.findViewById(R.id.my_uploads);
-        label = (TextView) view.findViewById(R.id.my_videos_label);
-        leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
-        rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
-        initCategory(userUploads, R.drawable.ic_cloud_black_24dp, label, leftArrow, rightArrow);
+//        userBookmarks = (LinearLayout) view.findViewById(R.id.my_videos);
+//        TextView label = (TextView) view.findViewById(R.id.my_videos_label);
+//        ImageView leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
+//        ImageView rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
+//        initCategory(userBookmarks, R.drawable.ic_bookmark_border_black_24dp, label, leftArrow, rightArrow);
+//
+//        LinearLayout userUploads = (LinearLayout) view.findViewById(R.id.my_uploads);
+//        label = (TextView) view.findViewById(R.id.my_videos_label);
+//        leftArrow = (ImageView) view.findViewById(R.id.my_videos_left_arrow);
+//        rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
+//        initCategory(userUploads, R.drawable.ic_cloud_black_24dp, label, leftArrow, rightArrow);
 
     }
 
