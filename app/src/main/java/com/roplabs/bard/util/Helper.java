@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -23,10 +24,7 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.Toast;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferObserver;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferState;
-import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility;
+import com.amazonaws.mobileconnectors.s3.transferutility.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.mikepenz.materialdrawer.AccountHeader;
@@ -57,6 +55,9 @@ import android.support.v7.widget.Toolbar;
 import java.io.*;
 import java.util.*;
 
+import static android.content.DialogInterface.BUTTON_NEGATIVE;
+import static android.content.DialogInterface.BUTTON_POSITIVE;
+
 
 public class Helper {
 
@@ -81,6 +82,7 @@ public class Helper {
     public static final int BARD_EDITOR_REQUEST_CODE = 9;
     public static final int EDITOR_PREVIEW_REQUEST_CODE = 10;
     public static final int VIDEO_PLAYER_REQUEST_CODE = 11;
+    public static final int CHOOSE_FILE_UPLOAD_REQUEST_CODE = 12;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
@@ -535,6 +537,81 @@ public class Helper {
             public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                 int percentage = (int) (bytesCurrent/bytesTotal * 100);
                 //Display percentage transfered to user
+            }
+
+            @Override
+            public void onError(int id, Exception ex) {
+                // do something
+                progressDialog.dismiss();
+                displayError("Unable to upload to server", ex);
+            }
+
+        });
+    }
+
+    public static String getUploadS3Key(String uuid) {
+        return "uploads/" + uuid + ".mp4";
+    }
+
+    public static String generateUniqueUploadS3Key(AmazonS3 s3) {
+        String s3Key;
+        while (true) {
+            final String uuid = UUID.randomUUID().toString();
+            s3Key = getUploadS3Key(uuid);
+
+            if (!s3.doesObjectExist(Configuration.s3UserBucket(), s3Key)) {
+                break;
+
+            }
+        }
+
+        return s3Key;
+    }
+
+
+    public static void uploadToS3(Context context, File file) {
+
+        // check if exist on server
+        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
+        String s3Key = generateUniqueUploadS3Key(s3);
+
+
+        final TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
+        TransferObserver observer = transferUtility.upload(
+                Configuration.s3UserBucket(),
+                s3Key,
+                file
+        );
+
+        progressDialog = new ProgressDialog(context);
+        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+        progressDialog.setMessage("Uploading File...");
+        progressDialog.setButton(BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                transferUtility.cancelAllWithType(TransferType.UPLOAD);
+
+
+            }
+        });
+        progressDialog.show();
+
+        observer.setTransferListener(new TransferListener(){
+
+            @Override
+            public void onStateChanged(int id, TransferState state) {
+                // do something
+                if (state == TransferState.COMPLETED) {
+                    progressDialog.dismiss();
+
+                }
+            }
+
+            @Override
+            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                //Display percentage transfered to user
+                progressDialog.setProgress(percentage);
             }
 
             @Override

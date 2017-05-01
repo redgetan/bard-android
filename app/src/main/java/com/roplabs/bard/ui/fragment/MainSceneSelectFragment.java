@@ -76,9 +76,9 @@ public class MainSceneSelectFragment extends Fragment{
 
         TabLayout tabLayout = (TabLayout) view.findViewById(R.id.main_scene_select_tab);
         tabLayout.setupWithViewPager(viewPager);
-        for (int i = 0; i < tabLayout.getTabCount(); i++) {
-            tabLayout.getTabAt(i).setIcon(mainSceneSelectAdapter.getIcon(i));
-        }
+//        for (int i = 0; i < tabLayout.getTabCount(); i++) {
+//            tabLayout.getTabAt(i).setIcon(mainSceneSelectAdapter.getIcon(i));
+//        }
 
 
 //        userBookmarks = (LinearLayout) view.findViewById(R.id.my_videos);

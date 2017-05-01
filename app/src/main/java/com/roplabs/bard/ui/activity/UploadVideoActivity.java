@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -21,12 +22,14 @@ import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.CrashReporter;
+import com.roplabs.bard.util.Helper;
 import org.json.JSONException;
 import org.json.JSONObject;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import java.io.File;
 import java.util.HashMap;
 
 import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
@@ -36,6 +39,7 @@ public class UploadVideoActivity extends BaseActivity {
     private TextView uploadResultMessage;
     private EditText uploadVideoInput;
     private Button uploadVideoButton;
+    private Button chooseFileButton;
     private CustomDialog loginDialog;
 
     @Override
@@ -50,21 +54,42 @@ public class UploadVideoActivity extends BaseActivity {
         uploadResultMessage.setVisibility(View.GONE);
         uploadVideoButton    = (Button) findViewById(R.id.upload_video_button);
         uploadVideoInput    = (EditText) findViewById(R.id.upload_video_input);
+        chooseFileButton   = (Button) findViewById(R.id.choose_file_upload_button);
 
         uploadVideoInput.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (event.getAction()==KeyEvent.ACTION_DOWN && keyCode == KeyEvent.KEYCODE_ENTER) {
-                    uploadVideo(null);
+                    importFromYoutube(null);
                     return true;
                 }
                 return false;
             }
         });
 
+        chooseFileButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                uploadVideoFromFile(v);
+            }
+        });
+
     }
 
-    public void uploadVideo(View view) {
+    public void uploadVideoFromFile(View view) {
+        if (!Setting.isLogined(this)) {
+            loginDialog = new CustomDialog(this, "You must login to upload a video");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
+            return;
+        }
+
+        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+        intent.setType("video/*");
+        startActivityForResult(intent, Helper.CHOOSE_FILE_UPLOAD_REQUEST_CODE);
+    }
+
+    public void importFromYoutube(View view) {
         // cant upload unless you're loggedin
         if (!Setting.isLogined(this)) {
             loginDialog = new CustomDialog(this, "You must login to upload a video");
@@ -137,6 +162,18 @@ public class UploadVideoActivity extends BaseActivity {
                 }
             };
             handler.postDelayed(r, 200);
+        } else if (resultCode == RESULT_OK && requestCode == Helper.CHOOSE_FILE_UPLOAD_REQUEST_CODE) {
+            Uri selectedMediaUri = data.getData();
+
+            if (selectedMediaUri.toString().contains("video")) {
+                //handle video
+                File file = new File(selectedMediaUri.getPath());
+                Helper.uploadToS3(this, file);
+            } else {
+                // show alert
+                Toast.makeText(ClientApp.getContext(), "Can only upload videos with .mp4 extension", Toast.LENGTH_LONG).show();
+            }
+
         }
     }
 

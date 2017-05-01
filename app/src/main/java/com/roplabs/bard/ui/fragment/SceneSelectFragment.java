@@ -248,7 +248,7 @@ public class SceneSelectFragment extends Fragment {
 
     private void displayEmptySearchMessage() {
         if (sceneType.equals("uploads")) {
-            emptyStateTitle.setText("");
+            emptyStateTitle.setText("No results");
             emptyStateDescription.setText(buildMissingSearchMessage());
         } else {
             emptyStateTitle.setText("No results found");
