@@ -446,7 +446,7 @@ public class BardEditorActivity extends BaseActivity implements
 
     @Override
     public boolean onMenuItemClick(MenuItem item) {
-        final Context self = this;
+        final BardEditorActivity self = this;
         String url;
         Intent intent;
         switch (item.getItemId()) {
@@ -458,6 +458,9 @@ public class BardEditorActivity extends BaseActivity implements
             case R.id.copy_editor_link_item:
                 url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
                 copyEditorLinkToClipboard(url);
+                return true;
+            case R.id.update_word_list_item:
+                self.initSceneWordList(true);
                 return true;
             case R.id.view_editor_source_item:
                 String youtubeUrl = "https://www.youtube.com/watch?v=" + sceneToken;
@@ -857,7 +860,7 @@ public class BardEditorActivity extends BaseActivity implements
             }
         } else if (!sceneToken.isEmpty()) {
             if (scene != null) {
-                initSceneWordList();
+                initSceneWordList(false);
             } else {
                 createSceneWithWordList();
             }
@@ -936,8 +939,8 @@ public class BardEditorActivity extends BaseActivity implements
         });
     }
 
-    private void initSceneWordList() {
-        if (scene.getWordList().isEmpty()) {
+    private void initSceneWordList(Boolean override) {
+        if (scene.getWordList().isEmpty() || override) {
             progressBar.setVisibility(View.VISIBLE);
             debugView.setText("Downloading");
 
@@ -1168,14 +1171,9 @@ public class BardEditorActivity extends BaseActivity implements
     }
 
     private void addWordListToDictionary(String wordList) {
-        List<String> givenWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
-        if (availableWordList != null) {
-
-        } else {
-            availableWordList = givenWordList;
-            uniqueWordList = buildUniqueWordList();
-            wordTrie = buildWordTrie();
-        }
+        availableWordList = new ArrayList<String>(Arrays.asList(wordList.split(",")));
+        uniqueWordList = buildUniqueWordList();
+        wordTrie = buildWordTrie();
 
         initWordTagSelector(availableWordList);
     }
