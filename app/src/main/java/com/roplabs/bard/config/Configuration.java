@@ -77,7 +77,7 @@ public class Configuration {
         if (BuildConfig.FLAVOR.equals("dev")) {
             return "http://d3oyhzqd45hdnx.cloudfront.net";
         } else {
-            return "videos.bard.co";
+            return "https://videos.bard.co";
         }
     }
 }

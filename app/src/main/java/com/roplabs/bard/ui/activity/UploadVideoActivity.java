@@ -203,11 +203,22 @@ public class UploadVideoActivity extends BaseActivity {
             if (selectedMediaUri.toString().contains("video")) {
                 try {
                     final File file = new File(Helper.getPath(this, selectedMediaUri));
+                    final long duration = Helper.getVideoDuration(self, file);
+
+                    if (duration < 10) {
+                        Toast.makeText(ClientApp.getContext(), "Video cannot be less than 10 seconds", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
+                    if (duration > 1200) {
+                        Toast.makeText(ClientApp.getContext(), "Video cannot be more than 20 minutes", Toast.LENGTH_LONG).show();
+                        return;
+                    }
+
                     Helper.uploadToS3(this, file, new Helper.OnUploadComplete() {
                         @Override
                         public void onUploadComplete(String remoteUrl) {
                             String name = file.getName();
-                            long duration = Helper.getVideoDuration(self, file);
                             postRemoteVideoToServer(remoteUrl, name, duration);
                         }
                     });

@@ -56,7 +56,7 @@ public class MainSceneSelectFragment extends Fragment{
         MainSceneFragmentPagerAdapter mainSceneSelectAdapter = new MainSceneFragmentPagerAdapter(getActivity().getSupportFragmentManager(),
                 getActivity());
         viewPager.setAdapter(mainSceneSelectAdapter);
-        viewPager.setOffscreenPageLimit(mainSceneSelectAdapter.getCount());
+        viewPager.setOffscreenPageLimit(1);
         viewPager.setCurrentItem(2);
         viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             @Override

@@ -116,13 +116,14 @@ public class SceneSelectFragment extends Fragment {
         progressBar = (ProgressBar) view.findViewById(R.id.scene_progress_bar);
         searchBar = (EditText) view.findViewById(R.id.scene_search_input);
 
-        sceneListCache = new HashMap<String, List<Scene>>();
-        sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
+        if (sceneListCache == null) {
+            sceneListCache = new HashMap<String, List<Scene>>();
+            sceneListCacheExpiry = Calendar.getInstance().get(Calendar.SECOND) + (60 * 60); // 1 hour
+        }
 
         initEmptyState(view);
         initScenes();
         initSearch();
-
 
         return view;
     }
@@ -374,7 +375,9 @@ public class SceneSelectFragment extends Fragment {
     public void initScenes() {
         final Context self = getActivity();
 
-        this.sceneList = new ArrayList<Scene>();
+        if (this.sceneList == null) {
+            this.sceneList = new ArrayList<Scene>();
+        }
 
         // set adapter
         SceneListAdapter adapter = new SceneListAdapter(self, this.sceneList);
@@ -405,8 +408,12 @@ public class SceneSelectFragment extends Fragment {
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
-                BardLogger.log("LOAD_MORE: " + page);
-                getScenesNextPage(page);
+                if (totalItemsCount < 12) {
+
+                } else {
+                    BardLogger.log("LOAD_MORE: " + page);
+                    getScenesNextPage(page);
+                }
             }
         };
 
