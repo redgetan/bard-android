@@ -1,9 +1,11 @@
 package com.roplabs.bard.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
@@ -30,7 +32,11 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.HashMap;
+import java.util.Map;
 
 import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
 
@@ -84,8 +90,21 @@ public class UploadVideoActivity extends BaseActivity {
             return;
         }
 
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("video/*");
+        Intent intent = new Intent();
+
+        if (Build.VERSION.SDK_INT >= 19) {
+            // For Android KitKat, we use a different intent to ensure
+            // we can
+            // get the file path from the returned intent URI
+            intent.setAction(Intent.ACTION_OPEN_DOCUMENT);
+            intent.addCategory(Intent.CATEGORY_OPENABLE);
+            intent.putExtra(Intent.EXTRA_LOCAL_ONLY, true);
+            intent.setType("*/*");
+        } else {
+            intent.setAction(Intent.ACTION_GET_CONTENT);
+            intent.setType("video/*");
+        }
+
         startActivityForResult(intent, Helper.CHOOSE_FILE_UPLOAD_REQUEST_CODE);
     }
 
@@ -102,8 +121,27 @@ public class UploadVideoActivity extends BaseActivity {
 
         final String youtubeUrl = uploadVideoInput.getText().toString().trim();
 
-        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postUploadVideo(youtubeUrl);
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("youtube_url", youtubeUrl);
 
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postUploadVideo(options);
+
+        handleVideoWordMapRequest(call, new OnVideoWordMapComplete() {
+            @Override
+            public void onVideoWordMapComplete() {
+                Bundle params = new Bundle();
+                params.putString("youtubeUrl", youtubeUrl);
+                Analytics.track(ClientApp.getContext(), "uploadVideo", params);
+            }
+        });
+
+    }
+
+    public interface OnVideoWordMapComplete {
+        public void onVideoWordMapComplete();
+    }
+
+    public void handleVideoWordMapRequest(Call<HashMap<String, String>> call, final OnVideoWordMapComplete callback) {
         call.enqueue(new Callback<HashMap<String, String>>() {
             @Override
             public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
@@ -121,10 +159,7 @@ public class UploadVideoActivity extends BaseActivity {
                     uploadResultMessage.setText(result.get("result"));
                     uploadResultMessage.setTextColor(ContextCompat.getColor(ClientApp.getContext(), R.color.md_green_300));
 
-                    Bundle params = new Bundle();
-                    params.putString("youtubeUrl", youtubeUrl);
-                    Analytics.track(ClientApp.getContext(), "uploadVideo", params);
-
+                    callback.onVideoWordMapComplete();
                 }
 
                 uploadVideoButton.setEnabled(true);
@@ -139,11 +174,11 @@ public class UploadVideoActivity extends BaseActivity {
             }
 
         });
-
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        final Context self = this;
         if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
             Handler handler = new Handler();
             Runnable r = new Runnable() {
@@ -166,15 +201,45 @@ public class UploadVideoActivity extends BaseActivity {
             Uri selectedMediaUri = data.getData();
 
             if (selectedMediaUri.toString().contains("video")) {
-                //handle video
-                File file = new File(selectedMediaUri.getPath());
-                Helper.uploadToS3(this, file);
+                try {
+                    final File file = new File(Helper.getPath(this, selectedMediaUri));
+                    Helper.uploadToS3(this, file, new Helper.OnUploadComplete() {
+                        @Override
+                        public void onUploadComplete(String remoteUrl) {
+                            String name = file.getName();
+                            long duration = Helper.getVideoDuration(self, file);
+                            postRemoteVideoToServer(remoteUrl, name, duration);
+                        }
+                    });
+                } catch (URISyntaxException e) {
+                    e.printStackTrace();
+                }
             } else {
                 // show alert
                 Toast.makeText(ClientApp.getContext(), "Can only upload videos with .mp4 extension", Toast.LENGTH_LONG).show();
             }
 
         }
+    }
+
+    public void postRemoteVideoToServer(final String sourceUrl, final String name, final long duration) {
+        HashMap<String, String> options = new HashMap<String, String>();
+        options.put("source_url", sourceUrl);
+        options.put("name", name);
+        options.put("duration", String.valueOf(duration));
+
+        Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postUploadVideo(options);
+
+        handleVideoWordMapRequest(call, new OnVideoWordMapComplete() {
+            @Override
+            public void onVideoWordMapComplete() {
+                Bundle params = new Bundle();
+                params.putString("sourceUrl", sourceUrl);
+                params.putString("name", name);
+                params.putString("duration", String.valueOf(duration));
+                Analytics.track(ClientApp.getContext(), "uploadVideo", params);
+            }
+        });
     }
 
     @Override

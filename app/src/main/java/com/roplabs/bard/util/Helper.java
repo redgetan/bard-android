@@ -1,22 +1,24 @@
 package com.roplabs.bard.util;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.ActivityNotFoundException;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.*;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.media.MediaMetadataRetriever;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Bundle;
-import android.os.Handler;
+import android.os.*;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -53,6 +55,8 @@ import retrofit2.Response;
 import android.support.v7.widget.Toolbar;
 
 import java.io.*;
+import java.lang.Process;
+import java.net.URISyntaxException;
 import java.util.*;
 
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
@@ -553,76 +557,265 @@ public class Helper {
         return "uploads/" + uuid + ".mp4";
     }
 
-    public static String generateUniqueUploadS3Key(AmazonS3 s3) {
+    public interface OnUniqueUploadS3KeyGenerated  {
+        // This can be any number of events to be sent to the activity
+        public void onUniqueUploadS3KeyGenerated(String s3Key);
+    }
+
+    public static void generateUniqueUploadS3Key(final AmazonS3 s3, final OnUniqueUploadS3KeyGenerated callback) {
         String s3Key;
-        while (true) {
-            final String uuid = UUID.randomUUID().toString();
-            s3Key = getUploadS3Key(uuid);
 
-            if (!s3.doesObjectExist(Configuration.s3UserBucket(), s3Key)) {
-                break;
+        final AsyncTask<String, Integer, String> asyncTask = new AsyncTask<String, Integer, String>() {
+            @Override
+            protected String doInBackground(String... args) {
+                String s3Key;
 
+                while (true) {
+                    final String uuid = UUID.randomUUID().toString();
+                    s3Key = getUploadS3Key(uuid);
+
+                    if (!s3.doesObjectExist(Configuration.s3UserBucket(), s3Key)) {
+                        break;
+
+                    }
+                }
+
+                return s3Key;
+            }
+
+            @Override
+            protected void onPostExecute(String v) {
+                callback.onUniqueUploadS3KeyGenerated(v);
+            }
+
+        };
+
+        asyncTask.execute("");
+    }
+
+    public interface OnUploadComplete {
+        public void onUploadComplete(String remoteUrl);
+    }
+
+
+    public static void uploadToS3(final Context context, final File file, final OnUploadComplete callback) {
+        final AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
+
+        generateUniqueUploadS3Key(s3, new OnUniqueUploadS3KeyGenerated() {
+            @Override
+            public void onUniqueUploadS3KeyGenerated(final String s3Key) {
+                final TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
+                TransferObserver observer = transferUtility.upload(
+                        Configuration.s3UserBucket(),
+                        s3Key,
+                        file
+                );
+
+                progressDialog = new ProgressDialog(context);
+                progressDialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+                progressDialog.setMessage("Uploading File...");
+                progressDialog.setButton(BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        transferUtility.cancelAllWithType(TransferType.UPLOAD);
+                        progressDialog.dismiss();
+                    }
+                });
+
+                progressDialog.show();
+
+                observer.setTransferListener(new TransferListener(){
+
+                    @Override
+                    public void onStateChanged(int id, TransferState state) {
+                        // do something
+                        if (state == TransferState.COMPLETED) {
+                            progressDialog.dismiss();
+                            String remoteUrl = Configuration.s3UserBucketCdnPath() + "/" + s3Key;
+                            callback.onUploadComplete(remoteUrl);
+                        }
+                    }
+
+                    @Override
+                    public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
+                        if (bytesTotal > 0) {
+                            int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                            //Display percentage transfered to user
+                            BardLogger.log("upload progress: " + percentage);
+                            progressDialog.setProgress(percentage);
+                        } else {
+                            progressDialog.setProgress(0);
+                        }
+                    }
+
+                    @Override
+                    public void onError(int id, Exception ex) {
+                        // do something
+                        progressDialog.dismiss();
+                        displayError("Unable to upload to server", ex);
+                    }
+
+                });
+            }
+        });
+
+
+    }
+
+    /*
+    * based on https://github.com/awslabs/aws-sdk-android-samples/blob/57070662dd95d3b54a00d520857dcc97accedd5d/S3TransferUtilitySample/src/com/amazonaws/demo/s3transferutility/UploadActivity.java
+    * Gets the file path of the given Uri.
+    */
+    @SuppressLint("NewApi")
+    public static String getPath(Context context, Uri uri) throws URISyntaxException {
+        final boolean needToCheckUri = Build.VERSION.SDK_INT >= 19;
+        String selection = null;
+        String[] selectionArgs = null;
+        // Uri is different in versions after KITKAT (Android 4.4), we need to
+        // deal with different Uris.
+        if (needToCheckUri && DocumentsContract.isDocumentUri(context, uri)) {
+            if (isExternalStorageDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                return Environment.getExternalStorageDirectory() + "/" + split[1];
+            } else if (isDownloadsDocument(uri)) {
+                final String id = DocumentsContract.getDocumentId(uri);
+                uri = ContentUris.withAppendedId(
+                        Uri.parse("content://downloads/public_downloads"), Long.valueOf(id));
+            } else if (isMediaDocument(uri)) {
+                final String docId = DocumentsContract.getDocumentId(uri);
+                final String[] split = docId.split(":");
+                final String type = split[0];
+                if ("image".equals(type)) {
+                    uri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI;
+                } else if ("video".equals(type)) {
+                    uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
+                } else if ("audio".equals(type)) {
+                    uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
+                }
+                selection = "_id=?";
+                selectionArgs = new String[] {
+                        split[1]
+                };
             }
         }
-
-        return s3Key;
-    }
-
-
-    public static void uploadToS3(Context context, File file) {
-
-        // check if exist on server
-        AmazonS3 s3 = new AmazonS3Client(AmazonCognito.credentialsProvider);
-        String s3Key = generateUniqueUploadS3Key(s3);
-
-
-        final TransferUtility transferUtility = new TransferUtility(s3, context.getApplicationContext());
-        TransferObserver observer = transferUtility.upload(
-                Configuration.s3UserBucket(),
-                s3Key,
-                file
-        );
-
-        progressDialog = new ProgressDialog(context);
-        progressDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-        progressDialog.setMessage("Uploading File...");
-        progressDialog.setButton(BUTTON_NEGATIVE, "Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                transferUtility.cancelAllWithType(TransferType.UPLOAD);
-
-
-            }
-        });
-        progressDialog.show();
-
-        observer.setTransferListener(new TransferListener(){
-
-            @Override
-            public void onStateChanged(int id, TransferState state) {
-                // do something
-                if (state == TransferState.COMPLETED) {
-                    progressDialog.dismiss();
-
+        if ("content".equalsIgnoreCase(uri.getScheme())) {
+            String[] projection = {
+                    MediaStore.Images.Media.DATA
+            };
+            Cursor cursor = null;
+            try {
+                cursor = context.getContentResolver()
+                        .query(uri, projection, selection, selectionArgs, null);
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                if (cursor.moveToFirst()) {
+                    return cursor.getString(column_index);
                 }
+            } catch (Exception e) {
             }
-
-            @Override
-            public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
-                int percentage = (int) (bytesCurrent/bytesTotal * 100);
-                //Display percentage transfered to user
-                progressDialog.setProgress(percentage);
-            }
-
-            @Override
-            public void onError(int id, Exception ex) {
-                // do something
-                progressDialog.dismiss();
-                displayError("Unable to upload to server", ex);
-            }
-
-        });
+        } else if ("file".equalsIgnoreCase(uri.getScheme())) {
+            return uri.getPath();
+        }
+        return null;
     }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is ExternalStorageProvider.
+     */
+    public static boolean isExternalStorageDocument(Uri uri) {
+        return "com.android.externalstorage.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is DownloadsProvider.
+     */
+    public static boolean isDownloadsDocument(Uri uri) {
+        return "com.android.providers.downloads.documents".equals(uri.getAuthority());
+    }
+
+    /**
+     * @param uri The Uri to check.
+     * @return Whether the Uri authority is MediaProvider.
+     */
+    public static boolean isMediaDocument(Uri uri) {
+        return "com.android.providers.media.documents".equals(uri.getAuthority());
+    }
+
+    public static String getRealPathFromVideoURI(Context context, Uri contentURI) {
+        String realPath;
+        if (Build.VERSION.SDK_INT < 11) {
+            realPath = getRealPathFromURI_BelowAPI11(context, contentURI);
+
+            // SDK >= 11 && SDK < 19
+        } else if (Build.VERSION.SDK_INT < 19) {
+            realPath = getRealPathFromURI_API11to18(context, contentURI);
+
+            // SDK > 19 (Android 4.4)
+        } else {
+            realPath = getRealPathFromURI_API19(context, contentURI);
+        }
+
+        return realPath;
+    }
+
+    @SuppressLint("NewApi")
+    public static String getRealPathFromURI_API19(Context context, Uri uri){
+        String filePath = "";
+        String wholeID = DocumentsContract.getDocumentId(uri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, sel, new String[]{ id }, null);
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
+
+    @SuppressLint("NewApi")
+    public static String getRealPathFromURI_API11to18(Context context, Uri contentUri) {
+        String[] proj = { MediaStore.Images.Media.DATA };
+        String result = null;
+
+        CursorLoader cursorLoader = new CursorLoader(
+                context,
+                contentUri, proj, null, null, null);
+        Cursor cursor = cursorLoader.loadInBackground();
+
+        if(cursor != null){
+            int column_index =
+                    cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+            result = cursor.getString(column_index);
+        }
+        return result;
+    }
+
+    public static String getRealPathFromURI_BelowAPI11(Context context, Uri contentUri){
+        String[] proj = { MediaStore.Images.Media.DATA };
+        Cursor cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+        int column_index
+                = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        return cursor.getString(column_index);
+    }
+
+
+
 
     public interface OnMergeRemoteComplete {
         public void onMergeRemoteComplete(String remoteSourceUrl, String localSourcePath);
@@ -630,6 +823,21 @@ public class Helper {
 
     public interface OnDownloadMp4FromRemoteComplete {
         public void onMp4DownlaodComplete(String remoteSourceUrl, String localSourcePath);
+    }
+
+    public static long getVideoDuration(Context context, File file) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(context, Uri.fromFile(file));
+        String time = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+        long timeInmillisec = Long.parseLong( time );
+        long duration = timeInmillisec / 1000;
+
+        return duration;
+
+//        long hours = duration / 3600;
+//        long minutes = (duration - hours * 3600) / 60;
+//        long seconds = duration - (hours * 3600 + minutes * 60);
+
     }
 
     public static boolean isFileValidMP4(Context context, File file) {
