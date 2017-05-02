@@ -639,9 +639,9 @@ public class Helper {
                     @Override
                     public void onProgressChanged(int id, long bytesCurrent, long bytesTotal) {
                         if (bytesTotal > 0) {
-                            int percentage = (int) (bytesCurrent/bytesTotal * 100);
+                            int percentage = (int) ((bytesCurrent/bytesTotal) * 100);
                             //Display percentage transfered to user
-                            BardLogger.log("upload progress: " + percentage);
+                            BardLogger.log("upload progress: " + bytesCurrent + " / " + bytesTotal);
                             progressDialog.setProgress(percentage);
                         } else {
                             progressDialog.setProgress(0);

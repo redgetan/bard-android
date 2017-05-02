@@ -205,8 +205,8 @@ public class UploadVideoActivity extends BaseActivity {
                     final File file = new File(Helper.getPath(this, selectedMediaUri));
                     final long duration = Helper.getVideoDuration(self, file);
 
-                    if (duration < 10) {
-                        Toast.makeText(ClientApp.getContext(), "Video cannot be less than 10 seconds", Toast.LENGTH_LONG).show();
+                    if (duration < 60) {
+                        Toast.makeText(ClientApp.getContext(), "Video cannot be less than 1 minute", Toast.LENGTH_LONG).show();
                         return;
                     }
 
