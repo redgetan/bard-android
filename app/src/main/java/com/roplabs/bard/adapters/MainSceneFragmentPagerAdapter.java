@@ -16,8 +16,8 @@ import java.util.Arrays;
 public class MainSceneFragmentPagerAdapter extends FragmentPagerAdapter {
 
     private static String tabTitles[] = new String[]{
-            Helper.FAVORITES_SCENE_TYPE,
             Helper.UPLOADS_SCENE_TYPE,
+            Helper.FAVORITES_SCENE_TYPE,
             Helper.ONLINE_LIBRARY,
             Helper.POLITICS_SCENE_TYPE,
             Helper.VIDEO_GAMES_SCENE_TYPE,
