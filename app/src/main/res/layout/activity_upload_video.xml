@@ -48,7 +48,7 @@
 
                 <Button
                         android:id="@+id/upload_video_button"
-                        android:onClick="uploadVideo"
+                        android:onClick="importFromYoutube"
                         android:background="@drawable/selector_submit_button"
                         android:layout_width="50dp"
                         android:layout_height="30dp"
