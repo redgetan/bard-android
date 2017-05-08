@@ -73,6 +73,7 @@ public class MainActivity extends BaseActivity {
         }
 
         intent = new Intent(this, SceneSelectActivity.class);
+        intent.putExtra("mode", "default");
         intent.putExtra("sceneTokenEditorDeepLink", sceneTokenEditorDeepLink);
         intent.putExtra("packTokenEditorDeepLink", packTokenEditorDeepLink);
 

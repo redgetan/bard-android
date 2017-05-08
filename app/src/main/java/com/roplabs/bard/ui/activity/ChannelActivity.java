@@ -13,6 +13,7 @@ import com.roplabs.bard.adapters.ChannelPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.util.BardLogger;
 import io.realm.Realm;
@@ -25,11 +26,12 @@ import java.util.List;
 
 import static android.view.View.TEXT_ALIGNMENT_TEXT_START;
 import static com.roplabs.bard.util.Helper.BARD_EDITOR_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.SCENE_SELECT_REQUEST_CODE;
 
 /**
  * Created by reg on 2017-03-30.
  */
-public class ChannelActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener {
+public class ChannelActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener {
 
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private String channelToken;
@@ -54,10 +56,22 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(channel.getName());
-        title.setGravity(Gravity.LEFT);
+        title.setGravity(Gravity.CENTER_HORIZONTAL);
         initPager();
         initCombo();
 
+    }
+
+    @Override
+    public void onCreatePostClicked() {
+        Intent intent = new Intent(this, SceneSelectActivity.class);
+        intent.putExtra("mode", "channel");
+        intent.putExtra("channelToken", channelToken);
+
+        startActivityForResult(intent, SCENE_SELECT_REQUEST_CODE);
+
+        // go to create tab
+//        bottomNavigation.findViewById(R.id.action_create).performClick();
     }
 
     private void initCombo() {
@@ -269,10 +283,6 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         switch (item.getItemId()) {
             case R.id.menu_item_channel_more:
                 intent = new Intent(this, ProfileActivity.class);
-                startActivity(intent);
-                return true;
-            case R.id.menu_item_search:
-                intent = new Intent(this, SearchActivity.class);
                 startActivity(intent);
                 return true;
             default:

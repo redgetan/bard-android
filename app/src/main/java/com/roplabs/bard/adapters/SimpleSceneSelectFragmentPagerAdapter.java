@@ -11,16 +11,14 @@ import com.roplabs.bard.util.Helper;
 
 import java.util.Arrays;
 
-public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
+public class SimpleSceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     public static String tabTitles[] = new String[] {
-            Helper.CHANNEL_FEED,
-            Helper.BARD_CREATE,
-            Helper.PROFILE
+            Helper.BARD_CREATE
     };
     private Context context;
     private String channelToken;
 
-    public SceneSelectFragmentPagerAdapter(FragmentManager fm, Context context, String channelToken) {
+    public SimpleSceneSelectFragmentPagerAdapter(FragmentManager fm, Context context, String channelToken) {
         super(fm);
         this.context = context;
         this.channelToken = channelToken;
@@ -35,32 +33,14 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         return Arrays.asList(tabTitles).indexOf(Helper.BARD_CREATE);
     }
 
-    public static int getProfileFragmentPosition() {
-        return Arrays.asList(tabTitles).indexOf(Helper.PROFILE);
-    }
-
     @Override
     public Fragment getItem(int position) {
-        String sceneType = tabTitles[position];
-        if (sceneType.equals(Helper.CHANNEL_FEED)) {
-            return ChannelListFragment.newInstance();
-        } else if (sceneType.equals(Helper.BARD_CREATE)) {
-            return BardCreateFragment.newInstance();
-        } else {
-            return ProfileFragment.newInstance();
-        }
+        return BardCreateFragment.newInstance();
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
-        // Generate title based on item position
-        if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
-            return "Feed";
-        } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
-            return "Videos";
-        } else {
-            return "Packs";
-        }
+        return "Videos";
     }
 
     private String capitalize(final String text) {

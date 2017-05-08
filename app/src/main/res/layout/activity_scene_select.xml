@@ -21,6 +21,17 @@
             android:background="@android:color/white" />
 
     <android.support.design.widget.BottomNavigationView
+            android:id="@+id/simple_bottom_navigation"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/ios_light_iron"
+            app:itemBackground="@color/ios_light_iron"
+            app:itemIconTint="@drawable/bottom_tab_item_foreground"
+            app:itemTextColor="@drawable/bottom_tab_item_foreground"
+            app:menu="@menu/menu_simple_bottom_navigation_main" />
+
+    <android.support.design.widget.BottomNavigationView
             android:id="@+id/bottom_navigation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

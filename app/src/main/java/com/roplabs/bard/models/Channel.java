@@ -131,19 +131,19 @@ public class Channel extends RealmObject {
 
     public static void createOrUpdate(List<Channel> channelList) {
 
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
         for (Channel channel : channelList) {
             Channel obj = Channel.forToken(channel.getToken());
             if (obj == null) {
                 Channel.create(channel);
             } else {
+                Realm realm = Realm.getDefaultInstance();
+                realm.beginTransaction();
+
                 obj.setName(channel.getName());
                 obj.setDescription(channel.getDescription());
+
+                realm.commitTransaction();
             }
         }
-        realm.commitTransaction();
     }
 }

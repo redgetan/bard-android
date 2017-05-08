@@ -211,7 +211,7 @@ public class ChannelFeedFragment extends Fragment implements
             parentListener = (OnChannelFeedListener) context;
         } else {
             throw new ClassCastException(context.toString()
-                    + " must implement SceneSelectFragment.OnSceneListener");
+                    + " must implement ChannelFeedFragment.OnChannelFeedListener");
         }
     }
 

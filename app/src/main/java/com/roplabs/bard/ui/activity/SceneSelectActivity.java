@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
+import com.roplabs.bard.adapters.SimpleSceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Scene;
@@ -46,12 +47,12 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     private NonSwipingViewPager viewPager;
 
     private BottomNavigationView bottomNavigation;
+    private BottomNavigationView simpleBottomNavigation;
     private String channelToken;
-    private FragmentManager fragmentManager;
     private Fragment fragment;
-    private Map<Integer, Fragment> fragmentCache;
     private Menu activityMenu;
     private PopupMenu moreMenu;
+    private String sceneSelectMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,16 +63,21 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
         mContext = this;
 
-        this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(R.string.app_name);
 //        title.setTextSize(24);
 
-        channelToken = Configuration.mainChannelToken();
-        Locale.getDefault().getLanguage();
+        Intent intent = getIntent();
+        sceneSelectMode = intent.getStringExtra("mode");
+
+        if (sceneSelectMode.equals("channel")) {
+            channelToken = intent.getStringExtra("channelToken");
+        } else {
+            this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            channelToken = Configuration.mainChannelToken();
+        }
 
         initBottomNavigation();
-
         postInitSetup();
     }
 
@@ -85,44 +91,51 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     private void initBottomNavigation() {
         // Get the ViewPager and set it's PagerAdapter so that it can display items
         bottomNavigation = (BottomNavigationView) findViewById(R.id.bottom_navigation);
+        simpleBottomNavigation = (BottomNavigationView) findViewById(R.id.simple_bottom_navigation);
 
-        fragmentCache = new HashMap<Integer, Fragment>();
-
-        fragmentManager = getSupportFragmentManager();
         viewPager = (NonSwipingViewPager) findViewById(R.id.scene_select_pager);
         viewPager.setPagingEnabled(false);
-        viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
         viewPager.setOffscreenPageLimit(2);
 
-        bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                int id = item.getItemId();
-                switch (id){
-                    case R.id.action_channels:
-                        viewPager.setCurrentItem(0);
-                        showChannelToolbar();
+        if (sceneSelectMode.equals("channel")) {
+            bottomNavigation.setVisibility(View.GONE);
+            simpleBottomNavigation.setVisibility(View.VISIBLE);
+            viewPager.setAdapter(new SimpleSceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, channelToken));
+        } else {
+            simpleBottomNavigation.setVisibility(View.GONE);
+            viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
 
-                        break;
-                    case R.id.action_create:
-                        viewPager.setCurrentItem(1);
-                        showCreateToolbar();
+            bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+                    int id = item.getItemId();
+                    switch (id){
+                        case R.id.action_channels:
+                            viewPager.setCurrentItem(0);
+                            showChannelToolbar();
 
-                        break;
-                    case R.id.action_profile:
-                        viewPager.setCurrentItem(2);
-                        showProfileToolbar();
-                        refreshUserProfile();
+                            break;
+                        case R.id.action_create:
+                            viewPager.setCurrentItem(1);
+                            showCreateToolbar();
 
-                        break;
+                            break;
+                        case R.id.action_profile:
+                            viewPager.setCurrentItem(2);
+                            showProfileToolbar();
+                            refreshUserProfile();
+
+                            break;
+                    }
+
+                    return true;
                 }
+            });
 
-                return true;
-            }
-        });
+            // default first tab is "create"
+            bottomNavigation.findViewById(R.id.action_create).performClick();
+        }
 
-        // default first tab is "create"
-        bottomNavigation.findViewById(R.id.action_create).performClick();
 
     }
 
@@ -225,6 +238,9 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
+            case android.R.id.home:
+                finish();
+                return true;
             case R.id.menu_item_settings:
                 intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);
@@ -266,10 +282,14 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     @Override
     public void onBackPressed() {
         // go to home
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        startActivity(intent);
+        if (sceneSelectMode.equals("channel")) {
+            finish();
+        } else {
+            Intent intent = new Intent(Intent.ACTION_MAIN);
+            intent.addCategory(Intent.CATEGORY_HOME);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -279,7 +299,12 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
                 // navigate to feed tab
-                bottomNavigation.findViewById(R.id.action_channels).performClick();
+                if (sceneSelectMode.equals("channel")) {
+                    setResult(RESULT_OK);
+                    finish();
+                } else {
+                    bottomNavigation.findViewById(R.id.action_channels).performClick();
+                }
 
             }
         } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
