@@ -88,6 +88,9 @@ public class Helper {
     public static final int VIDEO_PLAYER_REQUEST_CODE = 11;
     public static final int CHOOSE_FILE_UPLOAD_REQUEST_CODE = 12;
     public static final int SCENE_SELECT_REQUEST_CODE = 13;
+    public static final int SEARCH_USERNAME_REQUEST_CODE = 14;
+    public static final int INVITE_CONTACT_REQUEST_CODE = 15;
+    public static final int NEW_MESSAGE_REQUEST_CODE = 16;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";

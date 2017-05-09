@@ -35,7 +35,7 @@ public class SimpleSceneSelectFragmentPagerAdapter extends FragmentPagerAdapter 
 
     @Override
     public Fragment getItem(int position) {
-        return BardCreateFragment.newInstance();
+        return BardCreateFragment.newInstance(channelToken);
     }
 
     @Override

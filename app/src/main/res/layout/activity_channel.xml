@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               xmlns:app="http://schemas.android.com/apk/res-auto"
-              android:orientation="vertical"
+              xmlns:tools="http://schemas.android.com/tools" android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
@@ -10,81 +10,13 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <android.support.design.widget.TabLayout
-            android:id="@+id/channel_tabs"
-            style="@style/ChannelTabLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            app:tabMode="fixed" />
 
+    <FrameLayout
+            android:id="@+id/channel_fragment_container"
+            android:layout_width="match_parent" android:layout_height="match_parent">
 
-    <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent">
-        <android.support.v4.view.ViewPager
-                android:id="@+id/channel_pager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/white" />
-
-        <ProgressBar
-                android:id="@+id/scene_download_progress"
-                android:layout_marginTop="100dp"
-                android:layout_gravity = "center_horizontal"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:visibility="gone"
-        />
-
-        <LinearLayout
-                android:id="@+id/scene_combo_container"
-                android:clickable="true"
-                android:background="@color/medium_iron"
-                android:padding="10dp"
-                android:layout_width="match_parent"
-                android:layout_gravity="bottom"
-                android:orientation="vertical"
-                android:layout_height="wrap_content">
-            <HorizontalScrollView android:id="@+id/scene_combo_list_scrollview"
-                                  android:layout_width="wrap_content"
-                                  android:layout_height="100dp">
-                <LinearLayout
-                        android:id="@+id/scene_combo_list_container"
-                        android:orientation="horizontal"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent">
-
-                </LinearLayout>
-
-            </HorizontalScrollView>
-            <RelativeLayout android:id="@+id/scene_combine_action_container"
-                            android:layout_width="match_parent"
-                            android:paddingTop="10dp"
-                            android:paddingBottom="10dp"
-                            android:layout_height="50dp">
-                <Button
-                        android:id="@+id/clear_scene_combo_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentLeft="true"
-                        android:text="Clear List"
-                        android:textAllCaps="false"
-                        android:textColor="@color/md_blue_400"
-                        android:background="?android:attr/selectableItemBackground"
-                />
-
-                <Button
-                        android:id="@+id/enter_scene_combo_btn"
-                        android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
-                        android:layout_alignParentRight="true"
-                        android:text="Go"
-                        android:textAllCaps="false"
-                        android:textColor="@color/white"
-                        android:background="@drawable/selector_enter_combo_button"
-                />
-
-            </RelativeLayout>
-
-        </LinearLayout>
     </FrameLayout>
+
+
 
 </LinearLayout>

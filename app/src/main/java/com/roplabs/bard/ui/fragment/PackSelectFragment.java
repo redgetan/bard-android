@@ -115,7 +115,10 @@ public class PackSelectFragment extends Fragment {
             @Override
             public void onResponse(Call<List<Character>> call, Response<List<Character>> response) {
                 List<Character> characterList = response.body();
-                Character.createOrUpdate(characterList);
+
+                if (characterList != null) {
+                    Character.createOrUpdate(characterList);
+                }
 
                 Realm realm = Realm.getDefaultInstance();
                 realm.beginTransaction();

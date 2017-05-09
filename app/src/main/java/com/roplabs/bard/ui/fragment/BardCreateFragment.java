@@ -27,6 +27,7 @@ import retrofit2.Response;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.roplabs.bard.ui.fragment.SceneSelectFragment.CHANNEL_TOKEN;
 import static com.roplabs.bard.util.Helper.BARD_EDITOR_REQUEST_CODE;
 
 /**
@@ -43,9 +44,11 @@ public class BardCreateFragment extends Fragment {
     private Button enterSceneComboButton;
     private ProgressBar sceneDownloadProgress;
     private View fragmentView;
+    private String channelToken;
 
-    public static BardCreateFragment newInstance() {
+    public static BardCreateFragment newInstance(String channelToken) {
         Bundle args = new Bundle();
+        args.putString(CHANNEL_TOKEN, channelToken);
         BardCreateFragment fragment = new BardCreateFragment();
         fragment.setArguments(args);
         return fragment;
@@ -54,6 +57,7 @@ public class BardCreateFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        channelToken = getArguments().getString(CHANNEL_TOKEN);
     }
 
     @Nullable
@@ -130,7 +134,7 @@ public class BardCreateFragment extends Fragment {
 
                 Intent intent = new Intent(getActivity(), BardEditorActivity.class);
                 intent.putExtra("characterToken", "");
-                intent.putExtra("channelToken", Configuration.mainChannelToken());
+                intent.putExtra("channelToken", channelToken);
                 intent.putExtra("sceneToken", "");
                 intent.putExtra("sceneTokens", TextUtils.join(",",sceneTokens));
                 BardLogger.trace("[multiSceneSelect] " + sceneTokens.toString());
@@ -250,7 +254,7 @@ public class BardCreateFragment extends Fragment {
 
     public void openScene(Scene scene) {
         Intent intent = new Intent(getActivity(), BardEditorActivity.class);
-        intent.putExtra("channelToken", Configuration.mainChannelToken());
+        intent.putExtra("channelToken", channelToken);
         intent.putExtra("characterToken", "");
         intent.putExtra("sceneToken", scene.getToken());
         BardLogger.trace("[sceneSelect] " + scene.getToken());

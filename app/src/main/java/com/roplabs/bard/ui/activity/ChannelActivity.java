@@ -3,6 +3,9 @@ package com.roplabs.bard.ui.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.text.TextUtils;
 import android.view.*;
@@ -57,8 +60,8 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText(channel.getName());
         title.setGravity(Gravity.CENTER_HORIZONTAL);
-        initPager();
-        initCombo();
+        initChannel();
+//        initCombo();
 
     }
 
@@ -116,32 +119,16 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         });
     }
 
-    private void initPager() {
-        // Get the ViewPager and set it's PagerAdapter so that it can display items
-        viewPager = (ViewPager) findViewById(R.id.channel_pager);
-        viewPager.setAdapter(new ChannelPagerAdapter(getSupportFragmentManager(),
-                ChannelActivity.this, channelToken));
-        viewPager.setOffscreenPageLimit(2);
-        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
-            @Override
-            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+    private void initChannel() {
+        setFragment(ChannelFeedFragment.newInstance(channelToken));
+    }
 
-            }
-
-            @Override
-            public void onPageSelected(int position) {
-            }
-
-            @Override
-            public void onPageScrollStateChanged(int state) {
-
-            }
-        });
-
-
-        // Give the TabLayout the ViewPager
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.channel_tabs);
-        tabLayout.setupWithViewPager(viewPager);
+    protected void setFragment(Fragment fragment) {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction =
+                fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.channel_fragment_container, fragment);
+        fragmentTransaction.commit();
     }
 
     @Override

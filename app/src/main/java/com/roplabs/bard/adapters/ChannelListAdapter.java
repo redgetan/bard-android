@@ -57,11 +57,11 @@ public class ChannelListAdapter extends
         TextView textView = viewHolder.channelTitleView;
         textView.setText(channel.getName());
 
-        ImageView thumbnail = viewHolder.channelThumbnail;
-        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };
-        int color = colors[position % colors.length];
-        LetterAvatar avatar = new LetterAvatar(context, ContextCompat.getColor(this.context, color), channel.getName().toUpperCase().substring(0,1), 20);
-        thumbnail.setImageDrawable(avatar);
+//        ImageView thumbnail = viewHolder.channelThumbnail;
+//        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };
+//        int color = colors[position % colors.length];
+//        LetterAvatar avatar = new LetterAvatar(context, ContextCompat.getColor(this.context, color), channel.getName().toUpperCase().substring(0,1), 20);
+//        thumbnail.setImageDrawable(avatar);
     }
 
     // Return the total count of items

@@ -1,0 +1,57 @@
+<android.support.v7.widget.Toolbar
+xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto"
+android:id="@+id/toolbar"
+android:layout_width="match_parent"
+android:layout_gravity="center"
+android:layout_height="wrap_content"
+android:theme="@style/SearchUsernameToolbarTheme">
+
+<LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content">
+    <ImageView
+            android:id="@+id/cancel_search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_arrow_back_white_18dp"
+            android:tint="@color/oil"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_margin="10dp"
+    />
+    <EditText
+            android:id="@+id/video_search_input"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:layout_weight="1"
+            android:background="@android:color/transparent"
+            android:paddingLeft="10dp"
+            android:paddingRight="10dp"
+            android:layout_marginLeft="10dp"
+            android:textSize="12sp"
+            android:hint="Search by Username..."
+            android:textColorHint="@color/base"
+            android:textColor="@color/oil"
+            android:drawablePadding="5dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:visibility="visible"
+            android:imeOptions="actionSearch"
+            android:inputType="text"/>
+
+    <ImageView
+            android:id="@+id/clear_search_btn"
+            android:layout_width="wrap_content"
+            android:layout_weight="0"
+            android:text="Cancel"
+            android:visibility="gone"
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"
+            android:gravity="center_vertical"
+            android:layout_margin="10dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_clear_white_18dp"
+            android:contentDescription="clear search"/>
+</LinearLayout>
+
+
+
+</android.support.v7.widget.Toolbar>

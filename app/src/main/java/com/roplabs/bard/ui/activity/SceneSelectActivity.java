@@ -64,17 +64,18 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         mContext = this;
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(R.string.app_name);
 //        title.setTextSize(24);
 
         Intent intent = getIntent();
         sceneSelectMode = intent.getStringExtra("mode");
 
-        if (sceneSelectMode.equals("channel")) {
+        if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
             channelToken = intent.getStringExtra("channelToken");
+            title.setText("Create Post");
         } else {
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             channelToken = Configuration.mainChannelToken();
+            title.setText(R.string.app_name);
         }
 
         initBottomNavigation();
@@ -147,8 +148,11 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         menuItem = activityMenu.findItem(R.id.menu_item_create_more);
         menuItem.setVisible(false);
 
+        menuItem = activityMenu.findItem(R.id.menu_item_channel_add);
+        menuItem.setVisible(true);
+
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("Feed");
+        title.setText("Chat");
     }
 
     private void showCreateToolbar() {
@@ -160,6 +164,9 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         menuItem = activityMenu.findItem(R.id.menu_item_create_more);
         menuItem.setVisible(true);
 
+        menuItem = activityMenu.findItem(R.id.menu_item_channel_add);
+        menuItem.setVisible(false);
+
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText("Bard");
     }
@@ -169,6 +176,9 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         menuItem.setVisible(false);
 
         menuItem = activityMenu.findItem(R.id.menu_item_create_more);
+        menuItem.setVisible(false);
+
+        menuItem = activityMenu.findItem(R.id.menu_item_channel_add);
         menuItem.setVisible(false);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -228,8 +238,11 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     public boolean onCreateOptionsMenu(Menu menu) {
         activityMenu = menu;
 
+        getMenuInflater().inflate(R.menu.menu_channel_list, menu);
         getMenuInflater().inflate(R.menu.menu_search, menu);
         getMenuInflater().inflate(R.menu.menu_create_more, menu);
+
+        activityMenu.findItem(R.id.menu_item_channel_add).setVisible(false);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }
@@ -240,6 +253,10 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         switch (item.getItemId()) {
             case android.R.id.home:
                 finish();
+                return true;
+            case R.id.menu_item_channel_add:
+                intent = new Intent(this, MessageNewActivity.class);
+                startActivityForResult(intent, NEW_MESSAGE_REQUEST_CODE);
                 return true;
             case R.id.menu_item_settings:
                 intent = new Intent(this, ProfileActivity.class);
@@ -313,15 +330,27 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
     @Override
     public void onItemLongClick(Scene scene) {
+        int fragmentPosition;
+        if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
+            fragmentPosition = SimpleSceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        } else {
+            fragmentPosition = SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        }
         BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
-                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition());
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + fragmentPosition);
         bardCreateFragment.addComboItem(scene);
     }
 
     @Override
     public void onItemClick(Scene scene) {
+        int fragmentPosition;
+        if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
+            fragmentPosition = SimpleSceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        } else {
+            fragmentPosition = SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        }
         BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
-                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition());
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + fragmentPosition);
         bardCreateFragment.openScene(scene);
     }
 

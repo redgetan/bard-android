@@ -23,6 +23,15 @@ public interface BardService {
     @GET("users/{username}/channels")
     Call<List<Channel>> listChannels(@Path("username") String username);
 
+    @GET("users/{username}/friends")
+    Call<List<User>> listFriends(@Path("username") String username);
+
+    @POST("users/add_friend")
+    Call<User> addFriend(@Query("username") String username);
+
+    @GET("users/search")
+    Call<List<User>> searchUsername(@Query("search") String search);
+
     @GET("scenes")
     Call<List<Scene>> listScenes(@QueryMap Map<String, String> options);
 

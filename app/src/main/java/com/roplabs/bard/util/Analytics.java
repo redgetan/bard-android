@@ -19,7 +19,7 @@ public class Analytics {
 
 
     public static void identify(Context context) {
-        mFirebaseAnalytics.setUserProperty("username", Setting.getUsername(ClientApp.getContext()));
+        getFirebaseInstance(context).setUserProperty("username", Setting.getUsername(ClientApp.getContext()));
     }
 
     public static void identify(Context context, Date createdAt) {

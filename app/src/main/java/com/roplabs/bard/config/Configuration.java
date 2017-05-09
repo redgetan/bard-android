@@ -7,7 +7,7 @@ import java.util.Locale;
 public class Configuration {
     public static String bardAPIBaseURL() {
         if (BuildConfig.FLAVOR.equals("dev")) {
-            return "http://192.168.2.84:3000";
+            return "http://10.242.174.121:3000";
         } else {
             return "https://bard.co";
         }
@@ -15,7 +15,7 @@ public class Configuration {
 
     public static String bardLambdaBaseURL() {
         if (BuildConfig.FLAVOR.equals("dev")) {
-            return "http://192.168.2.84:9000";
+            return "http://10.242.174.121:9000";
         } else {
             return "https://api.bard.co";
         }

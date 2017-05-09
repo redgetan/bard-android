@@ -8,19 +8,37 @@
 
 <ImageView
         android:id="@+id/channel_thumbnail"
-        android:layout_width="50dp"
+        android:layout_width="10dp"
         android:layout_height="50dp"
         android:layout_marginLeft="10dp"
         android:layout_marginRight="10dp"
 />
 
-<TextView
-        android:id="@+id/channel_title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:layout_marginLeft="10dp"
-        android:layout_marginRight="10dp"
-/>
+    <LinearLayout
+            android:orientation="vertical"
+                  android:layout_width="match_parent"
+                  android:layout_height="wrap_content">
+        <TextView
+                android:id="@+id/channel_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+        />
+
+        <TextView
+                android:id="@+id/channel_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="@color/base"
+                android:textSize="10dp"
+                android:text="Tap to chat"
+                android:layout_weight="1"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+        />
+
+    </LinearLayout>
 
 </LinearLayout>

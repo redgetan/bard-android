@@ -224,6 +224,20 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 19
+        if (oldVersion == 18) {
+            if (!schema.contains("Friend")) {
+                schema.create("Friend")
+                        .addField("thumbnailUrl", String.class)
+                        .addField("friendname", String.class)
+                        .addField("username", String.class)
+                        .addField("createdAt", Date.class);
+            }
+
+
+            oldVersion++;
+        }
+
     }
 }
 

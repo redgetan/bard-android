@@ -1,3 +1,74 @@
+[ ] Taurus Silver
+  [ ] ChannelListActivity
+    [x] plus button
+      [ ] NewChannelActivity
+        [ ] Friends:
+        [x] Add by Username
+        [ ] Add from addressbook
+      [ ] InviteFriendActivity
+        [ ] list contacts with invite button
+        [ ] search on top
+  [ ] ChannelActivity
+    [ ] if not empty, videoplayer should load thumbnail of most recent video
+    [ ] top center (show username that im chatting with)
+    [ ] better ui
+    [ ] should not show video at first
+    [ ] show edittext
+      what are you doing
+
+
+
+[ ] Channel
+  [ ] private 1-one-1
+    [ ] users "redgetan,kuror_23" (unlisted)
+    [ ] when i create a new chat with a new user (channel row is created in db with users)
+    [ ] on channelList (show username that's not me)
+  [ ] private group (unlisted)
+  [ ] remove channel section
+  [ ] bard.co/channels only accessible by admin
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 [ ] android
   [x] migrate realm db from old schema to new schema
   [x] should list character/scenes

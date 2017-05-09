@@ -45,7 +45,7 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
         if (sceneType.equals(Helper.CHANNEL_FEED)) {
             return ChannelListFragment.newInstance();
         } else if (sceneType.equals(Helper.BARD_CREATE)) {
-            return BardCreateFragment.newInstance();
+            return BardCreateFragment.newInstance(channelToken);
         } else {
             return ProfileFragment.newInstance();
         }
@@ -55,7 +55,7 @@ public class SceneSelectFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
         if (tabTitles[position].equals(Helper.CHANNEL_FEED)) {
-            return "Feed";
+            return "Chat";
         } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
             return "Videos";
         } else {
