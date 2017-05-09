@@ -58,7 +58,13 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText(channel.getName());
+
+        if (channel.getType().equals("pair")) {
+            title.setText(channel.getReceiver());
+        } else {
+            title.setText(channel.getName());
+        }
+
         title.setGravity(Gravity.CENTER_HORIZONTAL);
         initChannel();
 //        initCombo();
@@ -75,6 +81,11 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
         // go to create tab
 //        bottomNavigation.findViewById(R.id.action_create).performClick();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
     }
 
     private void initCombo() {
@@ -268,6 +279,10 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
         switch (item.getItemId()) {
+            case android.R.id.home:
+                // click on 'up' button in the action bar, handle it here
+                finish();
+                return true;
             case R.id.menu_item_channel_more:
                 intent = new Intent(this, ProfileActivity.class);
                 startActivity(intent);

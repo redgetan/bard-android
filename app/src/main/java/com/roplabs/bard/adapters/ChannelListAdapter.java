@@ -55,7 +55,11 @@ public class ChannelListAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.channelTitleView;
-        textView.setText(channel.getName());
+        if (channel.getType().equals("pair")) {
+            textView.setText(channel.getReceiver());
+        } else {
+            textView.setText(channel.getName());
+        }
 
 //        ImageView thumbnail = viewHolder.channelThumbnail;
 //        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };

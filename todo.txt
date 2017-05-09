@@ -19,13 +19,14 @@
 
 
 [ ] Channel
+  [ ] can only chat if logged-in
   [ ] private 1-one-1
     [ ] users "redgetan,kuror_23" (unlisted)
     [ ] when i create a new chat with a new user (channel row is created in db with users)
     [ ] on channelList (show username that's not me)
-  [ ] private group (unlisted)
-  [ ] remove channel section
-  [ ] bard.co/channels only accessible by admin
+  [x] private group (unlisted)
+  [x] remove channel section
+  [x] bard.co/channels only accessible by admin
 
 
 

@@ -15,7 +15,10 @@ public class Channel extends RealmObject {
     private String token;
     private String name;
     private String description;
+    private String type;
+    private String participants;
     private String username;
+    private Date updatedAt;
     private Date createdAt;
 
     @Ignore
@@ -50,11 +53,17 @@ public class Channel extends RealmObject {
         return realm.where(Channel.class).equalTo("token", token).findFirst();
     }
 
-    public static void create(Channel remoteChannel) {
-        create(remoteChannel.getToken(), remoteChannel.getName(), remoteChannel.getDescription(), remoteChannel.getCreatedAt());
+    public static Channel create(Channel remoteChannel) {
+        return create(remoteChannel.getToken(),
+                remoteChannel.getName(),
+                remoteChannel.getDescription(),
+                remoteChannel.getType(),
+                remoteChannel.getParticipants(),
+                remoteChannel.getCreatedAt(),
+                remoteChannel.getUpdatedAt());
     }
 
-    public static Channel create(String token, String name, String description, Date createdAt) {
+    public static Channel create(String token, String name, String description, String type, String participants, Date createdAt, Date updatedAt) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
@@ -64,6 +73,9 @@ public class Channel extends RealmObject {
         channel.setToken(token);
         channel.setName(name);
         channel.setDescription(description);
+        channel.setType(type);
+        channel.setParticipants(participants);
+        channel.setUpdatedAt(updatedAt);
         channel.setUsername(Setting.getUsername(ClientApp.getContext()));
 
         realm.commitTransaction();
@@ -119,6 +131,23 @@ public class Channel extends RealmObject {
         this.username = username;
     }
 
+    public String getType() {
+        if (this.type == null) return "";
+        return this.type;
+    }
+
+    public void setType(String type) {
+        this.type = type;
+    }
+
+    public String getParticipants() {
+        return this.participants;
+    }
+
+    public void setParticipants(String participants) {
+        this.participants = participants;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -128,6 +157,31 @@ public class Channel extends RealmObject {
         this.createdAt = createdAt;
     }
 
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+
+        this.updatedAt = updatedAt;
+    }
+
+    public String getReceiver() {
+        String[] participants = getParticipants().split(",");
+        if (participants.length == 2) {
+            String receiver = "";
+            for (int i = 0; i < participants.length; i++) {
+                if (!participants[i].equals(Setting.getUsername(ClientApp.getContext()))) {
+                    receiver = participants[i];
+                    break;
+                }
+            }
+
+            return receiver;
+        } else {
+            return "";
+        }
+    }
 
     public static void createOrUpdate(List<Channel> channelList) {
 
