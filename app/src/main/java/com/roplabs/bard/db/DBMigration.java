@@ -248,6 +248,14 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 21
+        if (oldVersion == 20) {
+            schema.get("Channel")
+                    .renameField("type","mode");
+
+            oldVersion++;
+        }
+
     }
 }
 

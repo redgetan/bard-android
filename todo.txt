@@ -2,32 +2,34 @@
   [ ] ChannelListActivity
     [x] plus button
       [ ] NewChannelActivity
-        [ ] Friends:
+        [x] Friends:
         [x] Add by Username
         [ ] Add from addressbook
       [ ] InviteFriendActivity
         [ ] list contacts with invite button
         [ ] search on top
-  [ ] ChannelActivity
-    [ ] if not empty, videoplayer should load thumbnail of most recent video
-    [ ] top center (show username that im chatting with)
-    [ ] better ui
-    [ ] should not show video at first
-    [ ] show edittext
-      what are you doing
 
-
+[ ] ChannelActivity
+  [x] if not empty, videoplayer should load thumbnail of most recent video
+  [x] top center (show username that im chatting with)
+  [ ] better ui
+  [ ] should not show video at first
+  [ ] show edittext
+    what are you doing
 
 [ ] Channel
   [ ] can only chat if logged-in
-  [ ] private 1-one-1
-    [ ] users "redgetan,kuror_23" (unlisted)
-    [ ] when i create a new chat with a new user (channel row is created in db with users)
-    [ ] on channelList (show username that's not me)
+  [x] private 1-one-1
+    [x] users "redgetan,kuror_23" (unlisted)
+    [x] when i create a new chat with a new user (channel row is created in db with users)
+    [x] on channelList (show username that's not me)
   [x] private group (unlisted)
   [x] remove channel section
   [x] bard.co/channels only accessible by admin
 
+[ ] direct text input
+[ ] make "save" -> "save to gallery"
+[ ] add "save to gallery" in shareactivity
 
 
 

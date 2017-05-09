@@ -28,6 +28,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -66,7 +67,7 @@ public class MessageNewActivity extends BaseActivity {
         String participants = TextUtils.join(",", new String[] { sender, receiver });
         options.put("name", participants);
         options.put("participants", participants);
-        options.put("type", "pair");
+        options.put("mode", "pair");
 
         final Context self = this;
 
@@ -109,6 +110,8 @@ public class MessageNewActivity extends BaseActivity {
     private void initMessageNew() {
         friendList = Friend.friendsForUser(Setting.getUsername(this));
 
+        final Context self = this;
+
         // set adapter
         FriendListAdapter friendListAdapter = new FriendListAdapter(this, friendList);
         friendListAdapter.setOnItemClickListener(new FriendListAdapter.OnItemClickListener() {
@@ -116,7 +119,19 @@ public class MessageNewActivity extends BaseActivity {
             public void onItemClick(View itemView, int position, Friend user) {
                 // create 1-1 channel with friend on server
                 // exit activity and open ChannelActivity with newtoken
-                createChannel(user.getUsername(), Setting.getUsername(ClientApp.getContext()));
+                String receiver = user.getFriendname();
+                String sender = Setting.getUsername(ClientApp.getContext());
+                String[] participants = new String[] { sender, receiver };
+                Arrays.sort(participants);
+
+                Channel localChannel = Channel.forParticipants(TextUtils.join(",", participants));
+                if (localChannel != null) {
+                    Intent intent = new Intent(self, ChannelActivity.class);
+                    intent.putExtra("channelToken", localChannel.getToken());
+                    startActivityForResult(intent, CHANNEL_REQUEST_CODE);
+                } else {
+                    createChannel(receiver, sender);
+                }
             }
 
         });

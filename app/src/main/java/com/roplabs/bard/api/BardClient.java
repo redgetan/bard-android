@@ -81,7 +81,9 @@ public class BardClient {
 
         // Add the interceptor to OkHttpClient
         OkHttpClient.Builder builder = new OkHttpClient.Builder();
-        builder.readTimeout(30,TimeUnit.SECONDS);
+        builder.connectTimeout(20, TimeUnit.SECONDS);
+        builder.writeTimeout(30, TimeUnit.SECONDS);
+        builder.readTimeout(60,TimeUnit.SECONDS);
         builder.interceptors().add(interceptor);
         return builder.build();
     }

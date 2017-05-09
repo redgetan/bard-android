@@ -11,6 +11,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Layout;
 import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
@@ -71,7 +72,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
         if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
             channelToken = intent.getStringExtra("channelToken");
-            title.setText("Create Post");
+            title.setText("New Post");
         } else {
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
             channelToken = Configuration.mainChannelToken();
@@ -240,7 +241,12 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
         getMenuInflater().inflate(R.menu.menu_channel_list, menu);
         getMenuInflater().inflate(R.menu.menu_search, menu);
-        getMenuInflater().inflate(R.menu.menu_create_more, menu);
+
+        if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
+
+        } else {
+            getMenuInflater().inflate(R.menu.menu_create_more, menu);
+        }
 
         activityMenu.findItem(R.id.menu_item_channel_add).setVisible(false);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);

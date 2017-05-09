@@ -1,6 +1,7 @@
 package com.roplabs.bard.adapters;
 
 import android.content.Context;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,6 +12,7 @@ import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.models.Friend;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.ui.widget.LetterAvatar;
 
 import java.util.List;
 
@@ -48,10 +50,10 @@ public class FriendListAdapter extends
 
         // Set item views based on the data model
         TextView textView = viewHolder.userUsername;
-        textView.setText(user.getUsername());
+        textView.setText(user.getFriendname());
 
-        ImageView thumbnail = viewHolder.userThumbnail;
-//        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
+        TextView thumbnail = viewHolder.userThumbnail;
+        thumbnail.setText(user.getFriendname().substring(0,1).toUpperCase());
 
         textView = viewHolder.userAction;
         textView.setVisibility(View.GONE);
@@ -80,7 +82,7 @@ public class FriendListAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView userUsername;
-        public ImageView userThumbnail;
+        public TextView userThumbnail;
         public TextView userAction;
         private Context context;
 
@@ -92,7 +94,7 @@ public class FriendListAdapter extends
             super(itemView);
 
             userUsername = (TextView) itemView.findViewById(R.id.user_username);
-            userThumbnail = (ImageView) itemView.findViewById(R.id.user_thumbnail);
+            userThumbnail = (TextView) itemView.findViewById(R.id.user_thumbnail);
             userAction = (TextView) itemView.findViewById(R.id.user_action);
 
             this.context = context;

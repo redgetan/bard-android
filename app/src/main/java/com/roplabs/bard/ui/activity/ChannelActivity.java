@@ -59,7 +59,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
 
-        if (channel.getType().equals("pair")) {
+        if (channel.getMode().equals("pair")) {
             title.setText(channel.getReceiver());
         } else {
             title.setText(channel.getName());
@@ -270,7 +270,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_channel, menu);
+//        getMenuInflater().inflate(R.menu.menu_channel, menu);
 //        getMenuInflater().inflate(R.menu.menu_settings, menu);
         return super.onCreateOptionsMenu(menu);
     }

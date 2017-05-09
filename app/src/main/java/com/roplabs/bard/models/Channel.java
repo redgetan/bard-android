@@ -15,7 +15,7 @@ public class Channel extends RealmObject {
     private String token;
     private String name;
     private String description;
-    private String type;
+    private String mode;
     private String participants;
     private String username;
     private Date updatedAt;
@@ -53,17 +53,22 @@ public class Channel extends RealmObject {
         return realm.where(Channel.class).equalTo("token", token).findFirst();
     }
 
+    public static Channel forParticipants(String participants) {
+        Realm realm = Realm.getDefaultInstance();
+        return realm.where(Channel.class).equalTo("participants", participants).findFirst();
+    }
+
     public static Channel create(Channel remoteChannel) {
         return create(remoteChannel.getToken(),
                 remoteChannel.getName(),
                 remoteChannel.getDescription(),
-                remoteChannel.getType(),
+                remoteChannel.getMode(),
                 remoteChannel.getParticipants(),
                 remoteChannel.getCreatedAt(),
                 remoteChannel.getUpdatedAt());
     }
 
-    public static Channel create(String token, String name, String description, String type, String participants, Date createdAt, Date updatedAt) {
+    public static Channel create(String token, String name, String description, String mode, String participants, Date createdAt, Date updatedAt) {
         Realm realm = Realm.getDefaultInstance();
 
         realm.beginTransaction();
@@ -73,7 +78,7 @@ public class Channel extends RealmObject {
         channel.setToken(token);
         channel.setName(name);
         channel.setDescription(description);
-        channel.setType(type);
+        channel.setMode(mode);
         channel.setParticipants(participants);
         channel.setUpdatedAt(updatedAt);
         channel.setUsername(Setting.getUsername(ClientApp.getContext()));
@@ -131,13 +136,13 @@ public class Channel extends RealmObject {
         this.username = username;
     }
 
-    public String getType() {
-        if (this.type == null) return "";
-        return this.type;
+    public String getMode() {
+        if (this.mode == null) return "";
+        return this.mode;
     }
 
-    public void setType(String type) {
-        this.type = type;
+    public void setMode(String mode) {
+        this.mode = mode;
     }
 
     public String getParticipants() {

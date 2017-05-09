@@ -73,6 +73,7 @@ public class ChannelFeedFragment extends Fragment implements
     private LinearLayout shareChannelPostButton;
     private LinearLayout reuseChannelPostButton;
     private LinearLayout channelFeedControls;
+    private FrameLayout channelFeedVideoContainer;
     private boolean isPostDownloadInProgress;
     private OnChannelFeedListener parentListener;
     private boolean isFirstItemLoading = false;
@@ -104,6 +105,7 @@ public class ChannelFeedFragment extends Fragment implements
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_feed_list);
         progressBar = (ProgressBar) view.findViewById(R.id.channel_feed_progress_bar);
+        channelFeedVideoContainer = (FrameLayout) view.findViewById(R.id.channel_feed_video_container);
         channelFeedVideo = (TextureView) view.findViewById(R.id.channel_feed_video);
         channelFeedVideoProgress = (ProgressBar) view.findViewById(R.id.channel_feed_video_progress);
         debugView = (TextView) view.findViewById(R.id.channel_feed_video_debug);
@@ -120,6 +122,9 @@ public class ChannelFeedFragment extends Fragment implements
         initFeed();
         initEmptyState(view);
         initVideoPlayer();
+
+        // fetch most recent posts
+        getChannelFeedsNextPage(1);
 
         return view;
     }
@@ -360,15 +365,9 @@ public class ChannelFeedFragment extends Fragment implements
                     emptyStateDescription.setText("No one has posted in this channel yet");
                 } else {
                     emptyStateContainer.setVisibility(View.GONE);
-                    populateFeed(remotePostList);
+                    channelFeedVideoContainer.setVisibility(View.VISIBLE);
 
-                    // play first item if first page loaded
-                    if (!postList.isEmpty() && page == 1) {
-                        int firstItemPosition = 0;
-                        isFirstItemLoading = true;
-                        playPost(postList.get(0));
-                        ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(firstItemPosition);
-                    }
+                    populateFeed(remotePostList);
                 }
 
             }
@@ -412,6 +411,7 @@ public class ChannelFeedFragment extends Fragment implements
 
     private void initVideoPlayer() {
         // video
+        channelFeedVideoContainer.setVisibility(View.GONE);
         channelFeedVideo.setOpaque(false);
         channelFeedVideo.setSurfaceTextureListener(this);
 
@@ -482,8 +482,14 @@ public class ChannelFeedFragment extends Fragment implements
 
         isVideoReady = false;
 
-        // only here do we call get feed as mediaplayer already initialized
-        refreshFeed();
+
+        // play first item if first page loaded
+        if (!postList.isEmpty()) {
+            int firstItemPosition = 0;
+            isFirstItemLoading = true;
+            playPost(postList.get(0));
+            ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(firstItemPosition);
+        }
     }
 
     @Override

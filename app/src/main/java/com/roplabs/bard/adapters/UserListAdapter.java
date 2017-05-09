@@ -54,7 +54,8 @@ public class UserListAdapter extends
         TextView textView = viewHolder.userUsername;
         textView.setText(user.getUsername());
 
-        ImageView thumbnail = viewHolder.userThumbnail;
+        TextView thumbnail = viewHolder.userThumbnail;
+        thumbnail.setText(user.getUsername().substring(0,1).toUpperCase());
 //        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         textView = viewHolder.userAction;
@@ -104,7 +105,7 @@ public class UserListAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView userUsername;
-        public ImageView userThumbnail;
+        public TextView userThumbnail;
         public TextView userAction;
         private Context context;
 
@@ -116,7 +117,7 @@ public class UserListAdapter extends
             super(itemView);
 
             userUsername = (TextView) itemView.findViewById(R.id.user_username);
-            userThumbnail = (ImageView) itemView.findViewById(R.id.user_thumbnail);
+            userThumbnail = (TextView) itemView.findViewById(R.id.user_thumbnail);
             userAction = (TextView) itemView.findViewById(R.id.user_action);
 
             this.context = context;
