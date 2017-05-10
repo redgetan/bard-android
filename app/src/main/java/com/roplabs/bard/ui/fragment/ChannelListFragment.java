@@ -11,29 +11,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
 import android.widget.TextView;
+import com.google.firebase.database.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelListAdapter;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.api.GsonUTCDateAdapter;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.ChannelActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
+import io.realm.Realm;
 import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 import static com.roplabs.bard.util.Helper.CHANNEL_REQUEST_CODE;
 
-/**
- * Created by reg on 2017-05-06.
- */
+/*
+"channels": {
+    "one": {
+        "title": "Historical Tech Pioneers",
+        "lastMessage": "ghopper: Relay malfunction found. Cause: moth.",
+        "timestamp": 1459361875666,
+        users: {
+            uid_1: true,
+            uid_3: true
+        }
+    },
+    "two": { ... },
+*/
 public class ChannelListFragment extends Fragment {
 
     private String defaultChannelToken;
@@ -68,24 +80,21 @@ public class ChannelListFragment extends Fragment {
         channelList = new ArrayList<Channel>();
 
         initEmptyState(view);
-
-        displayChannelList(view);
-        if (Setting.isLogined(ClientApp.getContext())) {
-            syncRemoteData();
-        }
+        initChannelList(view);
 
         return view;
     }
 
-    public void displayChannelList(View view) {
+    private void initChannelList(View view) {
         final Context self = getActivity();
+        channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
 
-        final List<Channel> channels = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
+        if (!channelList.isEmpty()) emptyStateContainer.setVisibility(View.GONE);
 
-        BardLogger.log("displaying channels count: " + channels.size());
+        BardLogger.log("displaying channels count: " + channelList.size());
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_list);
-        ChannelListAdapter adapter = new ChannelListAdapter(self, channels);
+        ChannelListAdapter adapter = new ChannelListAdapter(self, channelList);
         adapter.setOnItemClickListener(new ChannelListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Channel channel) {
@@ -101,17 +110,64 @@ public class ChannelListFragment extends Fragment {
         recyclerView.addItemDecoration(itemDecoration);
     }
 
+    public void updateLocalChannels(String channelToken, HashMap<String, Object> channelResult) {
+        Channel channel = Channel.forToken(channelToken);
+        if (channel == null) {
+            // create channel
+            channel = Channel.createFromFirebase(channelToken, channelResult);
+        } else {
+            channel.updateFromFirebase(channelResult);
+        }
+    }
+
+    public void fetchChannelList() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference channelsRef = database.getReference("channels");
+        Query query = channelsRef.orderByChild("participants/" + Setting.getUsername(ClientApp.getContext())).equalTo(true);
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+
+                // there is data, remove empty state
+                emptyStateContainer.setVisibility(View.GONE);
+
+                // list channels that belong to curr user
+                String channelToken = dataSnapshot.getKey();
+                HashMap<String, Object> channelResult = (HashMap<String, Object>) dataSnapshot.getValue();
+
+                updateLocalChannels(channelToken, channelResult);
+                channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
+    }
+
     @Override
     public void onResume() {
-        // fetch from local db
-        RealmResults<Channel> channels = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
-        ((ChannelListAdapter) recyclerView.getAdapter()).swap(channels);
-        recyclerView.getAdapter().notifyDataSetChanged();
-
-        if (channels.isEmpty()) {
-            emptyStateContainer.setVisibility(View.VISIBLE);
-        } else {
-            emptyStateContainer.setVisibility(View.GONE);
+        if (Setting.isLogined(ClientApp.getContext())) {
+            fetchChannelList();
         }
 
         super.onResume();
@@ -125,47 +181,13 @@ public class ChannelListFragment extends Fragment {
         emptyStateTitle.setText("Party Time");
         emptyStateDescription.setText("Create funny videos with friends or other users ");
 
-        emptyStateContainer.setVisibility(View.GONE);
+        emptyStateContainer.setVisibility(View.VISIBLE);
         emptyStateContainer.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                emptyStateContainer.setVisibility(View.GONE);
-                getChannelListNextPage(1);
+                fetchChannelList();
             }
         });
     }
 
-    private void syncRemoteData() {
-
-        final String username = Setting.getUsername(ClientApp.getContext());
-        Call<List<Channel>> call = BardClient.getAuthenticatedBardService().listChannels(username);
-        call.enqueue(new Callback<List<Channel>>() {
-            @Override
-            public void onResponse(Call<List<Channel>> call, Response<List<Channel>> response) {
-                List<Channel> channelList = response.body();
-
-                if (channelList == null) {
-                    return;
-                }
-
-
-                Channel.createOrUpdate(channelList);
-
-                if (channelList.isEmpty()) {
-                    emptyStateContainer.setVisibility(View.VISIBLE);
-                }
-
-                ((ChannelListAdapter) recyclerView.getAdapter()).swap(channelList);
-            }
-
-            @Override
-            public void onFailure(Call<List<Channel>> call, Throwable t) {
-            }
-        });
-    }
-
-    private void getChannelListNextPage(int page) {
-        syncRemoteData();
-
-    }
 }

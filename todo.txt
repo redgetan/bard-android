@@ -1,5 +1,21 @@
 [x] show video duration
 [ ] ChannelActivity
+  [ ] channellistfragment
+    [ ] keeps a firebase reference to "channels"
+    [ ] check firebase for messages
+[ ] when channel is created in rails, create channel entry in firebase
+[ ] welcome email - auto
+
+
+
+
+
+
+
+
+
+
+
   [ ] can only chat if logged-in
     [ ] also post to firebase (other user subscribes to it)
     [ ] push notification on other user

@@ -14,6 +14,17 @@ public class GsonUTCDateAdapter implements JsonSerializer<Date>,JsonDeserializer
 
     private final DateFormat dateFormat;
 
+    public static Date parseDate(String dateString) {
+        DateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);      //This is the format I need
+        dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));                               //This is the key line which converts the date to UTC which cannot be accessed with the default serializer
+        try {
+            return dateFormat.parse(dateString);
+        } catch (ParseException e) {
+            return new Date(System.currentTimeMillis());
+        }
+    }
+
+
     public GsonUTCDateAdapter() {
         dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.US);      //This is the format I need
         dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));                               //This is the key line which converts the date to UTC which cannot be accessed with the default serializer

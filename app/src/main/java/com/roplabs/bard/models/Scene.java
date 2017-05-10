@@ -9,7 +9,7 @@ import io.realm.annotations.Required;
 import java.io.Serializable;
 import java.util.*;
 
-public class Scene extends RealmObject {
+public class Scene extends RealmObject  {
 
     @PrimaryKey
     @Required
@@ -248,6 +248,8 @@ public class Scene extends RealmObject {
         }
         return false;
     }
+
+
 
 
 }

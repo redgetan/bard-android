@@ -2,7 +2,8 @@ package com.roplabs.bard.models;
 
 import android.text.TextUtils;
         import com.roplabs.bard.ClientApp;
-        import io.realm.Realm;
+import com.roplabs.bard.api.GsonUTCDateAdapter;
+import io.realm.Realm;
         import io.realm.RealmObject;
         import io.realm.RealmResults;
         import io.realm.Sort;
@@ -10,11 +11,12 @@ import android.text.TextUtils;
 
         import java.util.*;
 
-public class Channel extends RealmObject {
+public class Channel extends RealmObject  implements Comparable<Channel> {
 
     private String token;
     private String name;
     private String description;
+    private String lastMessage;
     private String mode;
     private String participants;
     private String username;
@@ -153,6 +155,14 @@ public class Channel extends RealmObject {
         this.participants = participants;
     }
 
+    public String getLastMessage() {
+        return this.lastMessage;
+    }
+
+    public void setLastMessage(String lastMessage) {
+        this.lastMessage = lastMessage;
+    }
+
     public Date getCreatedAt() {
         return createdAt;
     }
@@ -204,5 +214,51 @@ public class Channel extends RealmObject {
                 realm.commitTransaction();
             }
         }
+    }
+
+    public static Channel createFromFirebase(String channelToken, HashMap<String, Object> channelResult) {
+        String lastMessage = (String) channelResult.get("lastMessage");
+        String name = (String) channelResult.get("name");
+        String mode = (String) channelResult.get("mode");
+        Date updatedAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("updatedAt"));
+        Date createdAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("createdAt"));
+        HashMap<String, Object> participants = (HashMap<String, Object>) channelResult.get("participants");
+
+        List<String> participantNames = new ArrayList<String>();
+        for (String participantName : participants.keySet()) {
+            participantNames.add(participantName);
+        }
+
+
+        return create(channelToken, name, "", mode, TextUtils.join(",", participantNames), createdAt, updatedAt);
+    }
+
+    public void updateFromFirebase(HashMap<String, Object> channelResult) {
+        Date updatedAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("updatedAt"));
+        String lastMessage = (String) channelResult.get("lastMessage");
+
+        // update channel info
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+        this.setUpdatedAt(updatedAt);
+        this.setLastMessage(lastMessage);
+        realm.commitTransaction();
+    }
+
+
+    public boolean equals(Object o){
+        if(o instanceof Channel){
+            Channel toCompare = (Channel) o;
+            return this.getToken().equals(toCompare.getToken());
+        }
+        return false;
+    }
+
+    @Override
+    public int compareTo(Channel o) {
+        if (o.getUpdatedAt() == null) return 0;
+        if (this.getUpdatedAt() == null) return 0;
+
+        return o.getUpdatedAt().compareTo(this.getUpdatedAt());
     }
 }
