@@ -3,8 +3,6 @@
   [ ] can only chat if logged-in
     [ ] also post to firebase (other user subscribes to it)
     [ ] push notification on other user
-    [ ] firebase (show when user is online)
-      [ ] green circle
   [ ] new group
     [ ] share link
   [ ] new chat

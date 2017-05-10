@@ -20,7 +20,7 @@ public class Scene extends RealmObject {
     private String tagList;
     private String owner;
     private String labeler;
-    private int duration;
+    private Integer duration;
     private String thumbnailUrl;
     private Date createdAt;
 

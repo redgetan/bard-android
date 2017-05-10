@@ -6,24 +6,29 @@
               android:background="@drawable/selector_grid"
 >
 
-    <FrameLayout android:layout_width="wrap_content" android:layout_height="wrap_content">
+    <FrameLayout
+                 android:layout_width="70dp"
+                 android:layout_height="50dp"
+                 android:layout_marginRight="10dp"
+    >
         <ImageView
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"
                 android:id="@+id/scene_thumbnail"
-                android:layout_width="70dp"
-                android:layout_height="50dp"
                 android:layout_marginLeft="0dp"
-                android:layout_marginRight="10dp"
         />
         <TextView
                   android:id="@+id/scene_duration"
                   android:layout_width="wrap_content"
-                  android:layout_height="20dp"
+                  android:layout_height="16dp"
                   android:text="0:45"
+                  android:textSize="10dp"
                   android:textColor="@color/white"
                   android:layout_gravity="bottom|right"
                   android:background="@color/black"
                   android:alpha="0.7"
                   android:padding="3dp"
+                  android:layout_marginBottom="5dp"
         />
     </FrameLayout>
 

@@ -15,6 +15,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.util.Helper;
 
 import java.util.List;
 
@@ -77,7 +78,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         }
 
         TextView sceneDurationView = viewHolder.sceneDuration;
-        sceneDurationView.setText(scene.getDuration());
+        sceneDurationView.setText(Helper.stringifyTimeShort(scene.getDuration()));
 
         TextView sceneProducerView = viewHolder.sceneProducer;
         sceneProducerView.setVisibility(View.VISIBLE);
