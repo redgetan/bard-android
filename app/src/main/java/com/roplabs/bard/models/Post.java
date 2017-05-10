@@ -2,6 +2,7 @@ package com.roplabs.bard.models;
 
 import android.text.TextUtils;
 import com.roplabs.bard.ClientApp;
+import com.roplabs.bard.api.GsonUTCDateAdapter;
 import com.roplabs.bard.util.Storage;
 import io.realm.Realm;
 import io.realm.RealmObject;
@@ -23,6 +24,7 @@ public class Post extends RealmObject {
     private String repoWordList;
     private String username;
     private Date createdAt;
+    private Date updatedAt;
 
     @Ignore
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
@@ -63,6 +65,37 @@ public class Post extends RealmObject {
 
     public static void create(Post remotePost) {
         create(remotePost.getId(), remotePost.getRepoToken(), remotePost.getRepoWordList(), remotePost.getRepoSourceUrl(), remotePost.getSceneToken(), remotePost.getPackToken(), remotePost.getThumbnailUrl(), remotePost.getCreatedAt());
+    }
+
+    public HashMap<String, Object> toMap() {
+        HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("repoSourceUrl", repoSourceUrl);
+        result.put("repoTitle", repoTitle);
+        result.put("repoToken", repoToken);
+        result.put("sceneToken", sceneToken);
+        result.put("packToken", packToken);
+        result.put("thumbnailUrl", thumbnailUrl);
+        result.put("repoWordList", repoWordList);
+        result.put("username", username);
+        result.put("createdAt", createdAt);
+        result.put("updatedAt", updatedAt);
+
+        return result;
+    }
+
+    public static Post fromResult(HashMap<String, String> result) {
+        Post post = new Post();
+        post.setRepoSourceUrl(result.get("repoSourceUrl"));
+        post.setRepoToken(result.get("repoToken"));
+        post.setSceneToken(result.get("sceneToken"));
+        post.setPackToken(result.get("packToken"));
+        post.setThumbnailUrl(result.get("thumbnailUrl"));
+        post.setRepoWordList(result.get("repoWordList"));
+        post.setUsername(result.get("username"));
+        post.setCreatedAt(GsonUTCDateAdapter.parseDate(result.get("createdAt")));
+        post.setUpdatedAt(GsonUTCDateAdapter.parseDate(result.get("updatedAt")));
+
+        return post;
     }
 
     public static Post create(int id, String repoToken, String repoWordList, String repoSourceUrl, String sceneToken, String packToken, String thumbnailUrl,  Date createdAt) {
@@ -143,6 +176,15 @@ public class Post extends RealmObject {
         this.createdAt = createdAt;
     }
 
+
+    public Date getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(Date updatedAt) {
+
+        this.updatedAt = updatedAt;
+    }
 
     public static void createOrUpdate(List<Post> postList) {
 

@@ -272,6 +272,14 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 24
+        if (oldVersion == 23) {
+            schema.get("Post")
+                    .addField("updatedAt",Date.class);
+
+            oldVersion++;
+        }
+
     }
 }
 

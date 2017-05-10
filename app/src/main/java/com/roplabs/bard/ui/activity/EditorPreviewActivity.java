@@ -27,13 +27,13 @@ import com.google.android.exoplayer2.upstream.DataSource;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory;
 import com.google.android.exoplayer2.util.Util;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
-import com.roplabs.bard.models.Channel;
-import com.roplabs.bard.models.Repo;
-import com.roplabs.bard.models.Segment;
-import com.roplabs.bard.models.VideoDownloader;
+import com.roplabs.bard.api.GsonUTCDateAdapter;
+import com.roplabs.bard.models.*;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
@@ -359,16 +359,18 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
 
     }
 
-    private void onPostSuccess() {
-        Realm realm = Realm.getDefaultInstance();
+    // need thumbnailUrl, repoToken, sceneToken, packToken, username, title, sourceUrl, updatedAt
+    private void onPostSuccess(Post post) {
 
-        Channel channel = Channel.forToken(channelToken);
+        // must update firebase lastMessage, updatedAt
+        // must push firebase messages
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database.getReference("channels/" + channelToken + "/updatedAt").setValue(post.getUpdatedAt().getTime()/1000);
+        database.getReference("channels/" + channelToken + "/lastMessage").setValue(post.getTitle());
 
-        if (channel != null) {
-            realm.beginTransaction();
-            channel.setUpdatedAt(new Date(System.currentTimeMillis()));
-            realm.commitTransaction();
-        }
+        DatabaseReference messagesRef = database.getReference("messages/" + channelToken);
+        String firebasePostId = messagesRef.push().getKey();
+        messagesRef.child(firebasePostId).setValue(post.toMap());
 
         Intent intent = new Intent();
         intent.putExtra("backToChannel", true);
@@ -396,8 +398,9 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                         Repo repo = Repo.forToken(repoToken);
                         Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                             @Override
-                            public void onPublished(Repo publishedRepo) {
-                                onPostSuccess();
+                            public void onPublished(HashMap<String, String> result) {
+                                Post post = Post.fromResult(result);
+                                onPostSuccess(post);
                             }
                         });
                     }
@@ -408,8 +411,9 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
 
                 Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                     @Override
-                    public void onPublished(Repo publishedRepo) {
-                        onPostSuccess();
+                    public void onPublished(HashMap<String, String> result) {
+                        Post post = Post.fromResult(result);
+                        onPostSuccess(post);
                     }
                 });
             } else if (repo.getIsPublished()){
@@ -421,7 +425,11 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                 call.enqueue(new Callback<HashMap<String, String>>() {
                     @Override
                     public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                        onPostSuccess();
+                        HashMap<String, String> result = response.body();
+                        if (result != null) {
+                            Post post = Post.fromResult(result);
+                            onPostSuccess(post);
+                        }
                     }
 
                     @Override

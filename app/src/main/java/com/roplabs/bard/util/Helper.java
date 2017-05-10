@@ -476,7 +476,7 @@ public class Helper {
     }
 
     public interface OnRepoPublished  {
-        void onPublished(Repo repo);
+        void onPublished(HashMap<String, String> result);
     }
 
     public static void saveRemoteRepo(final Repo repo, String uuid, String channelToken, final OnRepoPublished listener) {
@@ -500,7 +500,7 @@ public class Helper {
                     // uuid, token, url
                     repo.setTokenAndUrl(result.get("token"), result.get("url"));
                     progressDialog.dismiss();
-                    listener.onPublished(repo);
+                    listener.onPublished(result);
                 }
             }
 

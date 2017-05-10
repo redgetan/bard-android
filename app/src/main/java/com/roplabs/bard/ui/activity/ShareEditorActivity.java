@@ -297,8 +297,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
         } else {
             Helper.saveRemoteRepo(repo, repo.getUUID(), null, new Helper.OnRepoPublished() {
                 @Override
-                public void onPublished(Repo publishedRepo) {
-                    copyRepoLinkToClipboard(publishedRepo.getUrl());
+                public void onPublished(HashMap<String, String> result) {
+                    copyRepoLinkToClipboard(result.get("url"));
                 }
             });
         }
@@ -348,8 +348,8 @@ public class ShareEditorActivity extends BaseActivity implements AdapterView.OnI
             // repo exists but not yet published
             Helper.saveRemoteRepo(repo, repo.getUUID(), null, new Helper.OnRepoPublished() {
                 @Override
-                public void onPublished(Repo publishedRepo) {
-                    sendText(publishedRepo.getUrl());
+                public void onPublished(HashMap<String, String> result) {
+                    sendText(result.get("url"));
                 }
             });
         }
