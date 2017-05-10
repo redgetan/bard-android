@@ -55,6 +55,8 @@ public class RepoListActivity extends BaseActivity {
 
     private FrameLayout emptyStateContainer;
     private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
+
     private Button emptyStartBtn;
     private RepoListAdapter adapter;
     public static final String VIDEO_LOCATION_MESSAGE = "com.roplabs.bard.VIDEO_URL";

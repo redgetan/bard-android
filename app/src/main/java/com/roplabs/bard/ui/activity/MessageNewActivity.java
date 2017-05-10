@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.roplabs.bard.ClientApp;
@@ -42,6 +43,10 @@ public class MessageNewActivity extends BaseActivity {
     private RecyclerView recyclerView;
     private List<Friend> friendList;
 
+    private FrameLayout emptyStateContainer;
+    private TextView emptyStateTitle;
+    private TextView emptyStateDescription;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         BardLogger.log("MessageNew onCreate");
@@ -50,7 +55,7 @@ public class MessageNewActivity extends BaseActivity {
         setContentView(R.layout.activity_message_new);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("New Message");
+        title.setText("New Chat");
 
         recyclerView = (RecyclerView) findViewById(R.id.friend_list);
 
@@ -58,8 +63,20 @@ public class MessageNewActivity extends BaseActivity {
 //        channelNameDescription = (EditText) findViewById(R.id.input_channel_description);
 //        createChannelButton = (Button) findViewById(R.id.btn_create_channel);
 
+        initEmptyState();
         initMessageNew();
 
+    }
+
+    private void initEmptyState() {
+        emptyStateContainer = (FrameLayout) findViewById(R.id.empty_state_no_internet_container);
+        emptyStateTitle = (TextView) findViewById(R.id.empty_state_title);
+        emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
+
+        emptyStateTitle.setText("");
+        emptyStateDescription.setText("No friends yet.");
+
+        emptyStateContainer.setVisibility(View.GONE);
     }
 
     private void createChannel(final String receiver, String sender) {
@@ -109,6 +126,10 @@ public class MessageNewActivity extends BaseActivity {
 
     private void initMessageNew() {
         friendList = Friend.friendsForUser(Setting.getUsername(this));
+
+        if (friendList.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+        }
 
         final Context self = this;
 
@@ -163,6 +184,10 @@ public class MessageNewActivity extends BaseActivity {
     protected void onResume() {
         friendList = Friend.friendsForUser(Setting.getUsername(this));
         recyclerView.getAdapter().notifyDataSetChanged();
+
+        if (friendList.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+        }
 
         super.onResume();
     }

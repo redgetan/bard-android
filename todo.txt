@@ -1,3 +1,16 @@
+[ ] show video duration
+[ ] ChannelActivity
+  [ ] can only chat if logged-in
+    [ ] also post to firebase (other user subscribes to it)
+    [ ] push notification on other user
+    [ ] firebase (show when user is online)
+      [ ] green circle
+  [ ] new group
+    [ ] share link
+  [ ] new chat
+
+[ ] better main page (too many things going on)
+
 [ ] Taurus Silver
   [ ] ChannelListActivity
     [x] plus button
@@ -9,29 +22,24 @@
         [ ] list contacts with invite button
         [ ] search on top
 
+[ ] direct text input
 [ ] ChannelActivity
   [x] if not empty, videoplayer should load thumbnail of most recent video
   [x] top center (show username that im chatting with)
-  [ ] better ui
+  [x] better ui
   [x] should not show video at first
-  [ ] show edittext
-    what are you doing
 
-[ ] make "save" -> "save to gallery"
 [x] forgot password link in login
-[ ] direct text input
-[ ] add "save to gallery" in shareactivity
-[ ] better main page (too many things going on)
 
-[ ] empty state for channellistactivity
+[x] empty state for channellistactivity
+[ ] editorPreview send should bring up SendToActivity (no channel)
+  [ ] friends list
+  [ ] group list
+  [ ] public groups
 
 [ ] Channel
-  [ ] can only chat if logged-in
-  [ ] after channelpost, should refresh feed... in chat with user
+  [x] after channelpost, should refresh feed... in chat with user
     [x] localChannel updatedAt should be touched (and channelList should sort according to latest)
-    [ ] also post to firebase (other user subscribes to it)
-    [ ] push notification on other user
-    [ ] firebase (show when user is online)
   [x] private 1-one-1
     [x] users "redgetan,kuror_23" (unlisted)
     [x] when i create a new chat with a new user (channel row is created in db with users)

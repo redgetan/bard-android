@@ -79,6 +79,12 @@
               android:text="Friends: "
     />
 
+    <include
+            layout="@layout/empty_no_internet"
+            android:visibility="visible"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"/>
+
     <android.support.v7.widget.RecyclerView
             android:id="@+id/friend_list"
             android:layout_width="match_parent"

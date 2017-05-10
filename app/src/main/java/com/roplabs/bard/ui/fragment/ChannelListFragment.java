@@ -21,6 +21,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.ChannelActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
+import io.realm.RealmResults;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -100,14 +101,29 @@ public class ChannelListFragment extends Fragment {
         recyclerView.addItemDecoration(itemDecoration);
     }
 
+    @Override
+    public void onResume() {
+        // fetch from local db
+        RealmResults<Channel> channels = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
+        ((ChannelListAdapter) recyclerView.getAdapter()).swap(channels);
+        recyclerView.getAdapter().notifyDataSetChanged();
+
+        if (channels.isEmpty()) {
+            emptyStateContainer.setVisibility(View.VISIBLE);
+        } else {
+            emptyStateContainer.setVisibility(View.GONE);
+        }
+
+        super.onResume();
+    }
 
     private void initEmptyState(View view) {
         emptyStateContainer = (FrameLayout) view.findViewById(R.id.empty_state_no_internet_container);
         emptyStateTitle = (TextView) view.findViewById(R.id.empty_state_title);
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
-        emptyStateTitle.setText("Create or Join Channels");
-        emptyStateDescription.setText("Channels let you make funny videos with your friends");
+        emptyStateTitle.setText("Party Time");
+        emptyStateDescription.setText("Create funny videos with friends or other users ");
 
         emptyStateContainer.setVisibility(View.GONE);
         emptyStateContainer.setOnClickListener(new View.OnClickListener() {
@@ -149,6 +165,7 @@ public class ChannelListFragment extends Fragment {
     }
 
     private void getChannelListNextPage(int page) {
+        syncRemoteData();
 
     }
 }

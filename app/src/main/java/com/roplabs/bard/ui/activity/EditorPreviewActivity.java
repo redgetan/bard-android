@@ -362,10 +362,13 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     private void onPostSuccess() {
         Realm realm = Realm.getDefaultInstance();
 
-        realm.beginTransaction();
         Channel channel = Channel.forToken(channelToken);
-        channel.setUpdatedAt(new Date(System.currentTimeMillis()));
-        realm.commitTransaction();
+
+        if (channel != null) {
+            realm.beginTransaction();
+            channel.setUpdatedAt(new Date(System.currentTimeMillis()));
+            realm.commitTransaction();
+        }
 
         Intent intent = new Intent();
         intent.putExtra("backToChannel", true);
