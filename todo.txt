@@ -1,4 +1,4 @@
-[ ] show video duration
+[x] show video duration
 [ ] ChannelActivity
   [ ] can only chat if logged-in
     [ ] also post to firebase (other user subscribes to it)

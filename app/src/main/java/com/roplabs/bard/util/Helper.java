@@ -558,6 +558,32 @@ public class Helper {
         });
     }
 
+    public static String stringifyTimeShort(int time) {
+        int hours = (time / 3600) % 24;
+        int minutes = ( time / 60 ) % 60;
+        int seconds = time % 60;
+
+        StringBuilder builder = new StringBuilder();
+        boolean zeroPrependCheck = false;
+
+        if (hours != 0) {
+            builder.append(hours);
+            zeroPrependCheck = true;
+            builder.append(":");
+        }
+
+        if (zeroPrependCheck) {
+            builder.append(minutes < 10 ? "0" + minutes : minutes);
+        } else {
+            builder.append(minutes);
+        }
+        builder.append(":");
+
+        builder.append(seconds < 10 ? "0" + seconds : seconds);
+
+        return builder.toString();
+    }
+
     public static String getUploadS3Key(String uuid) {
         return "uploads/" + uuid + ".mp4";
     }

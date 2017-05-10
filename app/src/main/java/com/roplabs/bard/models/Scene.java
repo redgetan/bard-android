@@ -20,6 +20,7 @@ public class Scene extends RealmObject {
     private String tagList;
     private String owner;
     private String labeler;
+    private int duration;
     private String thumbnailUrl;
     private Date createdAt;
 
@@ -81,7 +82,7 @@ public class Scene extends RealmObject {
         for (Scene scene : scenes) {
             Scene obj = Scene.forToken(scene.getToken());
             if (obj == null) {
-                Scene.create(realm, scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl(), scene.getOwner(), scene.getLabeler(), scene.getTagList());
+                Scene.create(realm, scene.getToken(), scene.getCharacterToken(), scene.getName(), scene.getThumbnailUrl(), scene.getOwner(), scene.getLabeler(), scene.getTagList(), scene.getDuration());
             }
         }
 
@@ -120,7 +121,7 @@ public class Scene extends RealmObject {
         realm.commitTransaction();
     }
 
-    public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl, String owner, String labeler, String tagList) {
+    public static Scene create(Realm realm, String token, String characterToken, String name, String thumbnailUrl, String owner, String labeler, String tagList, int duration) {
         Scene scene = realm.createObject(Scene.class, token);
         scene.setName(name);
         scene.setCharacterToken(characterToken);
@@ -128,6 +129,7 @@ public class Scene extends RealmObject {
         scene.setOwner(owner);
         scene.setLabeler(labeler);
         scene.setTagList(tagList);
+        scene.setDuration(duration);
         scene.setCreatedAt(new Date(System.currentTimeMillis()));
         return scene;
     }
@@ -138,6 +140,14 @@ public class Scene extends RealmObject {
 
     public String getName() {
         return name;
+    }
+
+    public void setDuration(int duration) {
+        this.duration = duration;
+    }
+
+    public int getDuration() {
+        return duration;
     }
 
     public void setCharacterToken(String characterToken) {

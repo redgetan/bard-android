@@ -76,6 +76,9 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
             tagListView.setText(tagResultBuilder.toString());
         }
 
+        TextView sceneDurationView = viewHolder.sceneDuration;
+        sceneDurationView.setText(scene.getDuration());
+
         TextView sceneProducerView = viewHolder.sceneProducer;
         sceneProducerView.setVisibility(View.VISIBLE);
         if (!scene.getLabeler().isEmpty()) {
@@ -122,6 +125,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
         public ImageView sceneThumbnail;
         public TextView sceneProducer;
         public TextView sceneTagList;
+        public TextView sceneDuration;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -134,6 +138,7 @@ public class SceneListAdapter extends RecyclerView.Adapter<SceneListAdapter.View
             sceneThumbnail = (ImageView) itemView.findViewById(R.id.scene_thumbnail);
             sceneProducer = (TextView) itemView.findViewById(R.id.scene_producer);
             sceneTagList = (TextView) itemView.findViewById(R.id.scene_tag_list);
+            sceneDuration = (TextView) itemView.findViewById(R.id.scene_duration);
 
             this.context = context;
             itemView.setOnClickListener(this);

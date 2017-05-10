@@ -256,6 +256,14 @@ public class DBMigration implements RealmMigration {
             oldVersion++;
         }
 
+        // migrate to version 22
+        if (oldVersion == 21) {
+            schema.get("Scene")
+                    .addField("duration",Integer.class);
+
+            oldVersion++;
+        }
+
     }
 }
 
