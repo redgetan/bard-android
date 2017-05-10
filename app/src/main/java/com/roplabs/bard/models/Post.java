@@ -69,16 +69,15 @@ public class Post extends RealmObject {
 
     public HashMap<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<String, Object>();
-        result.put("repoSourceUrl", repoSourceUrl);
-        result.put("repoTitle", repoTitle);
-        result.put("repoToken", repoToken);
-        result.put("sceneToken", sceneToken);
-        result.put("packToken", packToken);
-        result.put("thumbnailUrl", thumbnailUrl);
-        result.put("repoWordList", repoWordList);
-        result.put("username", username);
-        result.put("createdAt", createdAt);
-        result.put("updatedAt", updatedAt);
+        result.put("repoSourceUrl", getRepoSourceUrl());
+        result.put("repoToken", getRepoToken());
+        result.put("sceneToken", getSceneToken());
+        result.put("packToken", getPackToken());
+        result.put("thumbnailUrl", getThumbnailUrl());
+        result.put("repoWordList", getRepoWordList());
+        result.put("username", getUsername());
+        result.put("createdAt", getCreatedAt().getTime() / 1000);
+        result.put("updatedAt", getUpdatedAt().getTime() / 1000);
 
         return result;
     }

@@ -408,8 +408,55 @@ public class ChannelFeedFragment extends Fragment implements
             }
         }
         recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
+        fetchRealTimeFeed();
     }
 
+
+    private void fetchRealTimeFeed() {
+        // find most recent updatedAt of postlist
+
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference messagesRef = database.getReference("messages/" + channelToken);
+
+        Query query;
+        if (postList.isEmpty()) {
+            query = messagesRef.orderByChild("updatedAt");
+        } else {
+            long updatedAt = postList.get(0).getUpdatedAt().getTime() / 1000;
+            query = messagesRef.orderByChild("updatedAt").startAt(updatedAt);
+        }
+
+        query.addChildEventListener(new ChildEventListener() {
+            @Override
+            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+                Post post = dataSnapshot.getValue(Post.class);
+                postList.add(0, post); // insert at beginning
+                recyclerView.getAdapter().notifyDataSetChanged();
+
+            }
+
+            @Override
+            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+            }
+
+            @Override
+            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+    }
 
     private void initVideoPlayer() {
         // video
