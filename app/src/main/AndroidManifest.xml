@@ -108,6 +108,17 @@
                     android:value=".ui.activity.MessageNewActivity" />
         </activity>
         <activity
+                android:name=".ui.activity.ForgotPasswordActivity"
+                android:label="@string/app_name"
+                android:configChanges="orientation|screenSize"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustResize"
+                android:parentActivityName=".ui.activity.LoginActivity" >
+            <meta-data
+                    android:name="android.support.PARENT_ACTIVITY"
+                    android:value=".ui.activity.LoginActivity" />
+        </activity>
+        <activity
                 android:name=".ui.activity.ChannelListActivity"
                 android:label="@string/app_name"
                 android:configChanges="orientation|screenSize"

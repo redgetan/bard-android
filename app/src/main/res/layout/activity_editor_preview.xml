@@ -50,7 +50,7 @@
                 android:textAllCaps="false"
                 android:layout_gravity="right|center_vertical"
                 android:background="@drawable/transparent_background_rounded_border"
-                android:text="Post"
+                android:text="Send"
                 android:textColor="@color/white"
                 android:paddingLeft="10dp"
                 android:paddingRight="10dp"

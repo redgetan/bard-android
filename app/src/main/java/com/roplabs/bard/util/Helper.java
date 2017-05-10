@@ -91,6 +91,7 @@ public class Helper {
     public static final int SEARCH_USERNAME_REQUEST_CODE = 14;
     public static final int INVITE_CONTACT_REQUEST_CODE = 15;
     public static final int NEW_MESSAGE_REQUEST_CODE = 16;
+    public static final int FORGOT_PASSWORD_REQUEST_CODE = 17;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";

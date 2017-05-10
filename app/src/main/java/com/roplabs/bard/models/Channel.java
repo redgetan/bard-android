@@ -44,7 +44,7 @@ public class Channel extends RealmObject {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Channel> results = realm.where(Channel.class)
                 .equalTo("username", username)
-                .findAllSorted("createdAt", Sort.DESCENDING);
+                .findAllSorted("updatedAt", Sort.DESCENDING);
         return results;
     }
 

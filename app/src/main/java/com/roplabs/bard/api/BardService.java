@@ -14,6 +14,9 @@ public interface BardService {
     @POST("users/sign_in")
     Call<User> login(@Body User user);
 
+    @POST("users/password")
+    Call<HashMap<String, String>> resetPassword(@Query("email") String email);
+
     @POST("users")
     Call<User> signUp(@Body User user);
 

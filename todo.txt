@@ -13,12 +13,25 @@
   [x] if not empty, videoplayer should load thumbnail of most recent video
   [x] top center (show username that im chatting with)
   [ ] better ui
-  [ ] should not show video at first
+  [x] should not show video at first
   [ ] show edittext
     what are you doing
 
+[ ] make "save" -> "save to gallery"
+[x] forgot password link in login
+[ ] direct text input
+[ ] add "save to gallery" in shareactivity
+[ ] better main page (too many things going on)
+
+[ ] empty state for channellistactivity
+
 [ ] Channel
   [ ] can only chat if logged-in
+  [ ] after channelpost, should refresh feed... in chat with user
+    [x] localChannel updatedAt should be touched (and channelList should sort according to latest)
+    [ ] also post to firebase (other user subscribes to it)
+    [ ] push notification on other user
+    [ ] firebase (show when user is online)
   [x] private 1-one-1
     [x] users "redgetan,kuror_23" (unlisted)
     [x] when i create a new chat with a new user (channel row is created in db with users)
@@ -27,9 +40,7 @@
   [x] remove channel section
   [x] bard.co/channels only accessible by admin
 
-[ ] direct text input
-[ ] make "save" -> "save to gallery"
-[ ] add "save to gallery" in shareactivity
+[ ] upload avatar
 
 
 

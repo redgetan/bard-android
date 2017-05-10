@@ -30,21 +30,20 @@ import com.google.android.exoplayer2.util.Util;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
+import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Segment;
 import com.roplabs.bard.models.VideoDownloader;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.Helper;
 import com.roplabs.bard.util.Storage;
+import io.realm.Realm;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
@@ -360,6 +359,19 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
 
     }
 
+    private void onPostSuccess() {
+        Realm realm = Realm.getDefaultInstance();
+
+        realm.beginTransaction();
+        Channel channel = Channel.forToken(channelToken);
+        channel.setUpdatedAt(new Date(System.currentTimeMillis()));
+        realm.commitTransaction();
+
+        Intent intent = new Intent();
+        intent.putExtra("backToChannel", true);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
 
 
     /* repo can be either of 4 states
@@ -382,10 +394,7 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                         Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                             @Override
                             public void onPublished(Repo publishedRepo) {
-                                Intent intent = new Intent();
-                                intent.putExtra("backToChannel", true);
-                                setResult(RESULT_OK, intent);
-                                finish();
+                                onPostSuccess();
                             }
                         });
                     }
@@ -397,10 +406,7 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                 Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
                     @Override
                     public void onPublished(Repo publishedRepo) {
-                        Intent intent = new Intent();
-                        intent.putExtra("backToChannel", true);
-                        setResult(RESULT_OK, intent);
-                        finish();
+                        onPostSuccess();
                     }
                 });
             } else if (repo.getIsPublished()){
@@ -412,10 +418,7 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
                 call.enqueue(new Callback<HashMap<String, String>>() {
                     @Override
                     public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                        Intent intent = new Intent();
-                        intent.putExtra("backToChannel", true);
-                        setResult(RESULT_OK, intent);
-                        finish();
+                        onPostSuccess();
                     }
 
                     @Override

@@ -26,6 +26,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.roplabs.bard.util.Helper.FORGOT_PASSWORD_REQUEST_CODE;
+
 public class LoginActivity extends AppCompatActivity {
     private static final String TAG = "LoginActivity";
     private static final int REQUEST_SIGNUP = 0;
@@ -36,6 +38,7 @@ public class LoginActivity extends AppCompatActivity {
     @Bind(R.id.input_password) EditText _passwordText;
     @Bind(R.id.btn_login) Button _loginButton;
     @Bind(R.id.link_signup) TextView _signupLink;
+    @Bind(R.id.link_forgot_password) TextView _forgotPasswordLink;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -58,6 +61,16 @@ public class LoginActivity extends AppCompatActivity {
                 // Start the Signup activity
                 Intent intent = new Intent(getApplicationContext(), SignupActivity.class);
                 startActivityForResult(intent, REQUEST_SIGNUP);
+            }
+        });
+
+        _forgotPasswordLink.setOnClickListener(new View.OnClickListener() {
+
+            @Override
+            public void onClick(View v) {
+                // Start the Signup activity
+                Intent intent = new Intent(getApplicationContext(), ForgotPasswordActivity.class);
+                startActivityForResult(intent, FORGOT_PASSWORD_REQUEST_CODE);
             }
         });
     }
