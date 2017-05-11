@@ -45,6 +45,15 @@ import static com.roplabs.bard.util.Helper.CHANNEL_REQUEST_CODE;
         }
     },
     "two": { ... },
+
+"users": {
+    "rsenov": {
+      "channels": {
+        "one": true,
+        "two": true
+      }
+    }
+  }
 */
 public class ChannelListFragment extends Fragment {
 
@@ -123,6 +132,7 @@ public class ChannelListFragment extends Fragment {
     public void fetchChannelList() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference channelsRef = database.getReference("channels");
+//        DatabaseReference usersRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()));
         Query query = channelsRef.orderByChild("participants/" + Setting.getUsername(ClientApp.getContext())).equalTo(true);
         query.addChildEventListener(new ChildEventListener() {
             @Override

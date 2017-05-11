@@ -1053,6 +1053,17 @@ public class Helper {
             context.startActivity(new Intent(Intent.ACTION_VIEW,
                     Uri.parse("http://play.google.com/store/apps/details?id=" + ClientApp.getContext().getPackageName())));
         }
+
+
+    }
+
+
+    public static String truncate(String str, int len) {
+        if (str.length() > len) {
+            return str.substring(0, len) + "...";
+        } else {
+            return str;
+        }
     }
 
 

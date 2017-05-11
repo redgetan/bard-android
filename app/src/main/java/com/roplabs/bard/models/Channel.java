@@ -156,6 +156,7 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
     }
 
     public String getLastMessage() {
+        if (this.lastMessage == null) return "";
         return this.lastMessage;
     }
 

@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
         import com.roplabs.bard.R;
 import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.ui.widget.LetterAvatar;
+import com.roplabs.bard.util.Helper;
 
 import java.util.List;
 
@@ -61,6 +62,11 @@ public class ChannelListAdapter extends
             textView.setText(channel.getName());
         }
 
+        textView = viewHolder.channelTitleView;
+        if (!channel.getLastMessage().isEmpty()) {
+            textView.setText(Helper.truncate(channel.getLastMessage(), 30));
+        }
+
 //        ImageView thumbnail = viewHolder.channelThumbnail;
 //        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };
 //        int color = colors[position % colors.length];
@@ -90,6 +96,7 @@ public class ChannelListAdapter extends
         // Your holder should contain a member variable
         // for any view that will be set as you render a row
         public TextView channelTitleView;
+        public TextView channelDescriptionView;
         public ImageView channelThumbnail;
         private Context context;
 
@@ -101,6 +108,7 @@ public class ChannelListAdapter extends
             super(itemView);
 
             channelTitleView = (TextView) itemView.findViewById(R.id.channel_title);
+            channelDescriptionView = (TextView) itemView.findViewById(R.id.channel_description);
             channelThumbnail = (ImageView) itemView.findViewById(R.id.channel_thumbnail);
 
             this.context = context;

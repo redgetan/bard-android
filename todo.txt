@@ -7,10 +7,13 @@
 [x] can only chat if logged-in
 [x] also post to firebase (other user subscribes to it)
 [x] invite link should be "Add me on Bard. Username: simpleyuji. Download app on https://bard.co"
-[ ] Add from addressbook
-[ ] InviteFriendActivity
-  [ ] list contacts with invite button
-  [ ] search on top
+[x] Add from addressbook
+[x] InviteFriendActivity
+  [x] list contacts with invite button
+[ ] better main page (too many things going on)
+  [ ] direct text input
+[ ] welcome email - auto
+
 [ ] new group
   [ ] share link
   [ ] add "find group" in "new message" (paste code) ala discord
@@ -21,9 +24,6 @@
 [ ] /library in web (share links aint working)
   [ ] must list repos created via mobile
 
-[ ] better main page (too many things going on)
-  [ ] direct text input
-[ ] welcome email - auto
 
 [ ] Taurus Silver
   [ ] ChannelListActivity
