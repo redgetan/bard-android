@@ -92,6 +92,7 @@ public class Helper {
     public static final int INVITE_CONTACT_REQUEST_CODE = 15;
     public static final int NEW_MESSAGE_REQUEST_CODE = 16;
     public static final int FORGOT_PASSWORD_REQUEST_CODE = 17;
+    public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 18;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
@@ -464,6 +465,34 @@ public class Helper {
             // app-defined int constant. The callback method gets the
             // result of the request.
 //            }
+        }
+    }
+
+    public static void askContactsPermission(final AppCompatActivity context) {
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(context,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(context,
+                    Manifest.permission.READ_CONTACTS)) {
+
+                // Show an explanation to the user *asynchronously* -- don't block
+                // this thread waiting for the user's response! After the user
+                // sees the explanation, try again to request the permission.
+            } else {
+
+                // No explanation needed, we can request the permission.
+
+                ActivityCompat.requestPermissions(context,
+                        new String[]{Manifest.permission.READ_CONTACTS},
+                        MY_PERMISSIONS_REQUEST_READ_CONTACTS);
+
+                // MY_PERMISSIONS_REQUEST_READ_CONTACTS is an
+                // app-defined int constant. The callback method gets the
+                // result of the request.
+            }
         }
     }
 

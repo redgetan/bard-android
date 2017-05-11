@@ -6,17 +6,23 @@
 [x] when channel is created in rails, create channel entry in firebase
 [x] can only chat if logged-in
 [x] also post to firebase (other user subscribes to it)
-[ ] invite link should be "Add me on Bard. Username: simpleyuji. Download app on https://bard.co"
-[ ] /library in web (share links aint working)
-  [ ] must list repos created via mobile
+[x] invite link should be "Add me on Bard. Username: simpleyuji. Download app on https://bard.co"
+[ ] Add from addressbook
+[ ] InviteFriendActivity
+  [ ] list contacts with invite button
+  [ ] search on top
 [ ] new group
   [ ] share link
   [ ] add "find group" in "new message" (paste code) ala discord
+  [ ] join channel (add username to participants hash of channel)
+  [ ] leave channel (remove username from participants hash)
+[ ] upload profile pic
 
-[ ] new chat
-
+[ ] /library in web (share links aint working)
+  [ ] must list repos created via mobile
 
 [ ] better main page (too many things going on)
+  [ ] direct text input
 [ ] welcome email - auto
 
 [ ] Taurus Silver
@@ -25,10 +31,6 @@
       [ ] NewChannelActivity
         [x] Friends:
         [x] Add by Username
-        [ ] Add from addressbook
-      [ ] InviteFriendActivity
-        [ ] list contacts with invite button
-        [ ] search on top
 
 [ ] direct text input
 [ ] ChannelActivity

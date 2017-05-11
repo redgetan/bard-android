@@ -1,8 +1,11 @@
 package com.roplabs.bard.ui.activity;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -24,6 +27,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.Helper;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -33,8 +37,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
-import static com.roplabs.bard.util.Helper.CHANNEL_REQUEST_CODE;
-import static com.roplabs.bard.util.Helper.SEARCH_USERNAME_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.*;
 
 /**
  * Created by reg on 2017-05-08.
@@ -168,6 +171,44 @@ public class MessageNewActivity extends BaseActivity {
     }
 
     public void onInviteContact(View view) {
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.READ_CONTACTS)
+                == PackageManager.PERMISSION_GRANTED) {
+            Intent intent = new Intent(this, InviteContactsActivity.class);
+            startActivityForResult(intent, INVITE_CONTACT_REQUEST_CODE);
+        } else if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_CONTACTS) == PackageManager.PERMISSION_DENIED) {
+            Toast.makeText(this, "The app was not allowed to read your contacts. Hence, it cannot function properly. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+        } else {
+            Helper.askContactsPermission(this);
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_READ_CONTACTS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+                    Intent intent = new Intent(this, InviteContactsActivity.class);
+                    startActivityForResult(intent, INVITE_CONTACT_REQUEST_CODE);
+
+                } else {
+
+                    Toast.makeText(this, "The app was not allowed to read your contacts. Hence, it cannot function properly. Please consider granting it this permission", Toast.LENGTH_LONG).show();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+
+            // other 'case' lines to check for other
+            // permissions this app might request
+        }
     }
 
     public void onSearchUsername(View view) {

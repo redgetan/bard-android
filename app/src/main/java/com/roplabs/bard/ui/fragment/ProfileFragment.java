@@ -28,6 +28,7 @@ import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.Helper;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Created by reg on 2017-04-18.
@@ -226,7 +227,11 @@ public class ProfileFragment extends Fragment {
                         public void onClick(View v) {
                             Intent shareIntent = new Intent();
                             shareIntent.setAction(Intent.ACTION_SEND);
-                            shareIntent.putExtra(Intent.EXTRA_TEXT, "Hey, you should check out https://bard.co");
+                            if (Setting.isLogined(ClientApp.getContext())) {
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, "Add me on Bard. Username: " + Setting.getUsername(ClientApp.getContext()) + " . Download app at https://bard.co");
+                            } else {
+                                shareIntent.putExtra(Intent.EXTRA_TEXT, "You should check out this new app https://bard.co");
+                            }
                             shareIntent.setType("text/plain");
                             startActivity(shareIntent);
                         }

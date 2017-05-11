@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:id="@+id/contacts_list_item"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
+    android:padding="10dp"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:background="@drawable/selector_grid"
+>
+    <TextView xmlns:android="http://schemas.android.com/apk/res/android"
+          android:id="@+id/contacts_list_item_name"
+              android:layout_weight="1"
+          android:layout_width="match_parent"
+          android:layout_height="wrap_content"
+          />
+
+    <Button
+            android:id="@+id/contacts_list_item_button"
+            android:layout_width="80dp"
+            android:layout_height="30dp"
+            android:textAllCaps="false"
+            android:text="Invite"
+            android:background="@drawable/invite_button_background"
+            android:textColor="@color/white"
+    />
+
+</LinearLayout>
