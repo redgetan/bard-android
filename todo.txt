@@ -10,20 +10,20 @@
 [x] Add from addressbook
 [x] InviteFriendActivity
   [x] list contacts with invite button
+[ ] upload profile pic
 [ ] better main page (too many things going on)
   [ ] direct text input
 [ ] welcome email - auto
+
 
 [ ] new group
   [ ] share link
   [ ] add "find group" in "new message" (paste code) ala discord
   [ ] join channel (add username to participants hash of channel)
   [ ] leave channel (remove username from participants hash)
-[ ] upload profile pic
 
 [ ] /library in web (share links aint working)
   [ ] must list repos created via mobile
-
 
 [ ] Taurus Silver
   [ ] ChannelListActivity
@@ -32,7 +32,6 @@
         [x] Friends:
         [x] Add by Username
 
-[ ] direct text input
 [ ] ChannelActivity
   [x] if not empty, videoplayer should load thumbnail of most recent video
   [x] top center (show username that im chatting with)

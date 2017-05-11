@@ -129,25 +129,37 @@ public class ChannelListFragment extends Fragment {
         }
     }
 
+    private void listenToNewChannelMessage(final String channelToken) {
+
+        DatabaseReference channelRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken + "");
+        channelRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                HashMap<String, Object> channelResult = (HashMap<String, Object>) dataSnapshot.getValue();
+                updateLocalChannels(channelToken, channelResult);
+
+                channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
+                recyclerView.getAdapter().notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+    }
+
     public void fetchChannelList() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference channelsRef = database.getReference("channels");
-//        DatabaseReference usersRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()));
-        Query query = channelsRef.orderByChild("participants/" + Setting.getUsername(ClientApp.getContext())).equalTo(true);
-        query.addChildEventListener(new ChildEventListener() {
+        DatabaseReference userChannelsRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels");
+        userChannelsRef.addChildEventListener(new ChildEventListener() {
             @Override
             public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-
                 // there is data, remove empty state
                 emptyStateContainer.setVisibility(View.GONE);
 
-                // list channels that belong to curr user
                 String channelToken = dataSnapshot.getKey();
-                HashMap<String, Object> channelResult = (HashMap<String, Object>) dataSnapshot.getValue();
-
-                updateLocalChannels(channelToken, channelResult);
-                channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
-                recyclerView.getAdapter().notifyDataSetChanged();
+                listenToNewChannelMessage(channelToken);
             }
 
             @Override
