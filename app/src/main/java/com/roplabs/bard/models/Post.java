@@ -97,6 +97,23 @@ public class Post extends RealmObject {
         return post;
     }
 
+    public static Post fromFirebase(HashMap<String, Object> result) {
+        Post post = new Post();
+        post.setRepoSourceUrl((String) result.get("repoSourceUrl"));
+        post.setRepoToken((String) result.get("repoToken"));
+        post.setSceneToken((String) result.get("sceneToken"));
+        post.setPackToken((String) result.get("packToken"));
+        post.setThumbnailUrl((String) result.get("thumbnailUrl"));
+        post.setRepoWordList((String) result.get("repoWordList"));
+        post.setUsername((String) result.get("username"));
+        Date createdAt = new Date((Long) result.get("createdAt") * 1000);
+        Date updatedAt = new Date((Long) result.get("updatedAt") * 1000);
+        post.setCreatedAt(createdAt);
+        post.setUpdatedAt(updatedAt);
+
+        return post;
+    }
+
     public static Post create(int id, String repoToken, String repoWordList, String repoSourceUrl, String sceneToken, String packToken, String thumbnailUrl,  Date createdAt) {
         Realm realm = Realm.getDefaultInstance();
 

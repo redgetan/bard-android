@@ -47,7 +47,8 @@ import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 public class ChannelFeedFragment extends Fragment implements
         TextureView.SurfaceTextureListener,
         MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnCompletionListener
+        MediaPlayer.OnCompletionListener,
+        ChildEventListener
 {
 
     private List<Post> postList;
@@ -80,7 +81,9 @@ public class ChannelFeedFragment extends Fragment implements
     private OnChannelFeedListener parentListener;
     private boolean isFirstItemLoading = false;
     private ImageView playBtn;
+    private boolean isPostRequested = false;
 
+    private Query feedQuery;
     private int MAX_PROGRESS_SHOWN_TIME = 10000;
 
     public static ChannelFeedFragment newInstance(String channelToken) {
@@ -203,6 +206,35 @@ public class ChannelFeedFragment extends Fragment implements
                 Toast.makeText(getContext(),"Failed to download post", Toast.LENGTH_LONG).show();
             }
         });
+    }
+
+    @Override
+    public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        HashMap<String, Object> result = (HashMap<String, Object>) dataSnapshot.getValue();
+        Post post = Post.fromFirebase(result);
+        postList.add(0, post); // insert at beginning
+        recyclerView.getAdapter().notifyDataSetChanged();
+
+    }
+
+    @Override
+    public void onChildChanged(DataSnapshot dataSnapshot, String s) {
+
+    }
+
+    @Override
+    public void onChildRemoved(DataSnapshot dataSnapshot) {
+
+    }
+
+    @Override
+    public void onChildMoved(DataSnapshot dataSnapshot, String s) {
+
+    }
+
+    @Override
+    public void onCancelled(DatabaseError databaseError) {
+
     }
 
     public interface OnChannelFeedListener  {
@@ -330,12 +362,19 @@ public class ChannelFeedFragment extends Fragment implements
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 // Triggered only when new data needs to be appended to the list
                 // Add whatever code is needed to append new items to the bottom of the list
-                BardLogger.log("LOAD_MORE: " + page);
-                getChannelFeedsNextPage(page);
+                if (totalItemsCount < 12) {
+                } else {
+                    BardLogger.log("LOAD_MORE: " + page);
+                    getChannelFeedsNextPage(page);
+                }
             }
         };
 
         recyclerView.addOnScrollListener(scrollListener);
+    }
+
+    private void onPostInitialLoad() {
+        fetchRealTimeFeed();
     }
 
     @Override
@@ -365,11 +404,21 @@ public class ChannelFeedFragment extends Fragment implements
                     emptyStateContainer.setVisibility(View.VISIBLE);
                     emptyStateTitle.setText("Make your first Post");
                     emptyStateDescription.setText("No one has posted in this channel yet");
+
+                    if (!isPostRequested) {
+                        isPostRequested = true;
+                        onPostInitialLoad();
+                    }
                 } else {
                     emptyStateContainer.setVisibility(View.GONE);
                     channelFeedVideoContainer.setVisibility(View.VISIBLE);
 
                     populateFeed(remotePostList);
+
+                    if (!isPostRequested) {
+                        isPostRequested = true;
+                        onPostInitialLoad();
+                    }
                 }
 
             }
@@ -407,8 +456,8 @@ public class ChannelFeedFragment extends Fragment implements
                 itemAdded++;
             }
         }
+
         recyclerView.getAdapter().notifyItemRangeInserted(oldPosition, itemAdded);
-        fetchRealTimeFeed();
     }
 
 
@@ -418,44 +467,20 @@ public class ChannelFeedFragment extends Fragment implements
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference messagesRef = database.getReference("messages/" + channelToken);
 
-        Query query;
-        if (postList.isEmpty()) {
-            query = messagesRef.orderByChild("updatedAt");
-        } else {
-            long updatedAt = postList.get(0).getUpdatedAt().getTime() / 1000;
-            query = messagesRef.orderByChild("updatedAt").startAt(updatedAt);
+        // reset any previous listeners
+        if (feedQuery != null) {
+            feedQuery.removeEventListener(this);
         }
 
-        query.addChildEventListener(new ChildEventListener() {
-            @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                Post post = dataSnapshot.getValue(Post.class);
-                postList.add(0, post); // insert at beginning
-                recyclerView.getAdapter().notifyDataSetChanged();
 
-            }
+        if (postList.isEmpty()) {
+            feedQuery = messagesRef.orderByChild("updatedAt");
+        } else {
+            long updatedAt = postList.get(0).getUpdatedAt().getTime() / 1000;
+            feedQuery = messagesRef.orderByChild("updatedAt").startAt(updatedAt + 1); // plus 1 (dont include current one)
+        }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onCancelled(DatabaseError databaseError) {
-
-            }
-        });
-
+        feedQuery.addChildEventListener(this);
     }
 
     private void initVideoPlayer() {
@@ -515,32 +540,6 @@ public class ChannelFeedFragment extends Fragment implements
         }
 
     }
-
-    public void initRealtime() {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference myRef = database.getReference("channels/" + channelToken + "/last_updated_at");
-
-        myRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(DataSnapshot dataSnapshot) {
-                // This method is called once with the initial value and again
-                // whenever data at this location is updated.
-                String value = dataSnapshot.getValue(String.class);
-                BardLogger.log("last_update_at is: " + value);
-            }
-
-            @Override
-            public void onCancelled(DatabaseError error) {
-                // Failed to read value
-                BardLogger.log("failed to read value in firebase");
-            }
-        });
-
-
-    }
-
-
-
 
     @Override
     public void onSurfaceTextureAvailable(SurfaceTexture surface, int width, int height) {

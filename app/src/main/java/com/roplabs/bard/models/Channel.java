@@ -234,7 +234,7 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
     }
 
     public void updateFromFirebase(HashMap<String, Object> channelResult) {
-        Date updatedAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("updatedAt"));
+        Date updatedAt = new Date(((Long) (channelResult.get("updatedAt")) * 1000));
         String lastMessage = (String) channelResult.get("lastMessage");
 
         // update channel info

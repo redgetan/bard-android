@@ -3,7 +3,10 @@ package com.roplabs.bard.ui.activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.Fragment;
@@ -23,10 +26,12 @@ import com.roplabs.bard.adapters.SimpleSceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.fragment.BardCreateFragment;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.ProfileFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
+import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.NonSwipingViewPager;
 import com.roplabs.bard.util.*;
 import io.realm.Realm;
@@ -54,6 +59,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     private Menu activityMenu;
     private PopupMenu moreMenu;
     private String sceneSelectMode;
+    private CustomDialog loginDialog;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -261,8 +267,14 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                 finish();
                 return true;
             case R.id.menu_item_channel_add:
-                intent = new Intent(this, MessageNewActivity.class);
-                startActivityForResult(intent, NEW_MESSAGE_REQUEST_CODE);
+                if (Setting.isLogined(this)) {
+                    intent = new Intent(this, MessageNewActivity.class);
+                    startActivityForResult(intent, NEW_MESSAGE_REQUEST_CODE);
+                } else {
+                    loginDialog = new CustomDialog(this, "You must login to chat with other users");
+                    loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                    loginDialog.show();
+                }
                 return true;
             case R.id.menu_item_settings:
                 intent = new Intent(this, ProfileActivity.class);
@@ -318,7 +330,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK &&
-                (requestCode == BARD_EDITOR_REQUEST_CODE || requestCode == SEARCH_REQUEST_CODE) ) {
+                (requestCode == BARD_EDITOR_REQUEST_CODE || requestCode == SEARCH_REQUEST_CODE)) {
             boolean shouldBackToChannel = data.getBooleanExtra("backToChannel", false);
             if (shouldBackToChannel) {
                 // navigate to feed tab
@@ -330,7 +342,24 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                 }
 
             }
-        } else if (resultCode == RESULT_OK && requestCode == LOGIN_REQUEST_CODE) {
+        } else if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
+        } else if (resultCode == RESULT_OK && requestCode == CustomDialog.SIGNUP_REQUEST_CODE) {
+            Handler handler = new Handler();
+            Runnable r = new Runnable() {
+                public void run() {
+                    loginDialog.dismiss();
+                    Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
+                }
+            };
+            handler.postDelayed(r, 200);
         }
     }
 

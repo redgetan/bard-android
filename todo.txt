@@ -1,29 +1,23 @@
 [x] show video duration
-[ ] ChannelActivity
-  [ ] channellistfragment
-    [ ] keeps a firebase reference to "channels"
-    [ ] check firebase for messages
-[ ] when channel is created in rails, create channel entry in firebase
-[ ] welcome email - auto
+[x] ChannelActivity
+  [x] channellistfragment
+    [x] keeps a firebase reference to "channels"
+    [x] check firebase for messages
+[x] when channel is created in rails, create channel entry in firebase
+[x] can only chat if logged-in
+[x] also post to firebase (other user subscribes to it)
+[ ] invite link should be "Add me on Bard. Username: simpleyuji. Download app on https://bard.co"
+[ ] /library in web (share links aint working)
+  [ ] must list repos created via mobile
+[ ] new group
+  [ ] share link
+  [ ] add "find group" in "new message" (paste code) ala discord
 
+[ ] new chat
 
-
-
-
-
-
-
-
-
-
-  [ ] can only chat if logged-in
-    [ ] also post to firebase (other user subscribes to it)
-    [ ] push notification on other user
-  [ ] new group
-    [ ] share link
-  [ ] new chat
 
 [ ] better main page (too many things going on)
+[ ] welcome email - auto
 
 [ ] Taurus Silver
   [ ] ChannelListActivity
