@@ -62,9 +62,14 @@ public class ChannelListAdapter extends
             textView.setText(channel.getName());
         }
 
-        textView = viewHolder.channelTitleView;
+        textView = viewHolder.channelDescriptionView;
         if (!channel.getLastMessage().isEmpty()) {
             textView.setText(Helper.truncate(channel.getLastMessage(), 30));
+        }
+
+        textView = viewHolder.channelLastUpdatedAt;
+        if (channel.getUpdatedAt() != null) {
+            textView.setText(Helper.formatDate(channel.getUpdatedAt()));
         }
 
 //        ImageView thumbnail = viewHolder.channelThumbnail;
@@ -97,6 +102,7 @@ public class ChannelListAdapter extends
         // for any view that will be set as you render a row
         public TextView channelTitleView;
         public TextView channelDescriptionView;
+        public TextView channelLastUpdatedAt;
         public ImageView channelThumbnail;
         private Context context;
 
@@ -110,6 +116,7 @@ public class ChannelListAdapter extends
             channelTitleView = (TextView) itemView.findViewById(R.id.channel_title);
             channelDescriptionView = (TextView) itemView.findViewById(R.id.channel_description);
             channelThumbnail = (ImageView) itemView.findViewById(R.id.channel_thumbnail);
+            channelLastUpdatedAt = (TextView) itemView.findViewById(R.id.channel_last_updated_at);
 
             this.context = context;
             itemView.setOnClickListener(this);

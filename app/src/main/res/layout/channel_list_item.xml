@@ -16,13 +16,18 @@
 
     <LinearLayout
             android:orientation="vertical"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content">
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+                  android:layout_width="0dp"
+                  android:layout_height="match_parent">
         <TextView
                 android:id="@+id/channel_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:gravity="center_vertical"
+                android:textStyle="bold"
+                android:text="Username"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
         />
@@ -32,13 +37,32 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textColor="@color/base"
-                android:textSize="10dp"
+                android:textSize="12dp"
                 android:text="Tap to chat"
                 android:layout_weight="1"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
         />
 
+    </LinearLayout>
+    <LinearLayout
+            android:orientation="vertical"
+            android:layout_gravity="center_vertical"
+            android:layout_width="100dp"
+            android:layout_height="match_parent">
+        <TextView
+                android:id="@+id/channel_last_updated_at"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:textColor="@color/base"
+                android:textSize="12dp"
+                android:text=""
+                android:layout_gravity="end"
+                android:gravity="center_vertical|end"
+                android:paddingRight="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+        />
     </LinearLayout>
 
 </LinearLayout>

@@ -57,6 +57,8 @@ import android.support.v7.widget.Toolbar;
 import java.io.*;
 import java.lang.Process;
 import java.net.URISyntaxException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
@@ -1066,6 +1068,21 @@ public class Helper {
         }
     }
 
+    public static String formatDate(Date date)  {
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(date);
+        Calendar today = Calendar.getInstance();
+        Calendar yesterday = Calendar.getInstance();
+        yesterday.add(Calendar.DATE, -1);
+        DateFormat timeFormatter = new SimpleDateFormat("hh:mma");
+        DateFormat dateFormatter = new SimpleDateFormat("MM-dd-yy");
+
+        if (calendar.get(Calendar.YEAR) == today.get(Calendar.YEAR) && calendar.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+            return timeFormatter.format(date);
+        } else {
+            return dateFormatter.format(date);
+        }
+    }
 
 
 }

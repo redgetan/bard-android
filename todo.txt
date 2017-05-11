@@ -10,10 +10,12 @@
 [x] Add from addressbook
 [x] InviteFriendActivity
   [x] list contacts with invite button
-[ ] upload profile pic
+[ ] show presence of friends
+
 [ ] better main page (too many things going on)
   [ ] direct text input
 [ ] welcome email - auto
+[ ] upload profile pic
 
 
 [ ] new group
