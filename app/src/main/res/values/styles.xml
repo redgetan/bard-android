@@ -21,6 +21,12 @@
         -->
     </style>
 
+    <style name="searchTextHiglight">
+        <item name="android:textColor">@color/md_blue_500</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+
+
     <style name="SearchUsernameToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <!-- This would set the toolbar's background color -->
         <item name="android:background">@color/white</item>

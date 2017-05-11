@@ -1,6 +1,7 @@
 package com.roplabs.bard.ui.fragment;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Build;
@@ -10,13 +11,19 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
+import android.support.v4.widget.CursorAdapter;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
+import com.roplabs.bard.adapters.ContactCursorAdapter;
+import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.util.Analytics;
+import com.roplabs.bard.util.BardLogger;
 
 public class ContactsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -46,42 +53,11 @@ public class ContactsFragment extends Fragment implements
 
             };
 
-    // The column index for the _ID column
-    private static final int CONTACT_ID_INDEX = 0;
-    // The column index for the LOOKUP_KEY column
-    private static final int LOOKUP_KEY_INDEX = 1;
-
-    // Defines the text expression
-    @SuppressLint("InlinedApi")
-    private static final String SELECTION =
-            Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ?
-                    ContactsContract.Contacts.DISPLAY_NAME_PRIMARY + " LIKE ?" :
-                    ContactsContract.Contacts.DISPLAY_NAME + " LIKE ?";
-    // Defines a variable for the search string
     private String mSearchString = "";
-    // Defines the array to hold values that replace the ?
-    private String[] mSelectionArgs = { mSearchString };
 
-    /*
-     * Defines an array that contains resource ids for the layout views
-     * that get the Cursor column contents. The id is pre-defined in
-     * the Android framework, so it is prefaced with "android.R.id"
-     */
-    private final static int[] TO_IDS = {
-            R.id.contacts_list_item
-    };
-    // Define global mutable variables
     // Define a ListView object
     ListView mContactsList;
-    // Define variables for the contact the user selects
-    // The contact's _ID value
-    long mContactId;
-    // The contact's LOOKUP_KEY
-    String mContactKey;
-    // A content URI for the selected contact
-    Uri mContactUri;
-    // An adapter that binds the result Cursor to the ListView
-    private SimpleCursorAdapter mCursorAdapter;
+    private ContactCursorAdapter mCursorAdapter;
 
     // Empty public constructor, required by the system
     public ContactsFragment() {}
@@ -97,14 +73,18 @@ public class ContactsFragment extends Fragment implements
         mContactsList =
                 (ListView) view.findViewById(R.id.contacts_list);
         // Gets a CursorAdapter
-        mCursorAdapter = new SimpleCursorAdapter(
-                getActivity(),
-                R.layout.contacts_list_item,
-                null,
-                FROM_COLUMNS, TO_IDS,
-                0);
+//        mCursorAdapter = new SimpleCursorAdapter(
+//                getActivity(),
+//                R.layout.contacts_list_item,
+//                null,
+//                FROM_COLUMNS, TO_IDS,
+//                0);
+        mCursorAdapter = new ContactCursorAdapter(getActivity());
+
         // Sets the adapter for the ListView
         mContactsList.setAdapter(mCursorAdapter);
+        mContactsList.setDivider(null);
+
 
         mContactsList.setOnItemClickListener(this);
         getLoaderManager().initLoader(0, null, this);
@@ -114,24 +94,26 @@ public class ContactsFragment extends Fragment implements
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        /*
-         * Makes search string into pattern and
-         * stores it in the selection array
-         */
-        if (mSearchString.isEmpty()) {
-            mSelectionArgs[0] = "";
+        Uri contentUri;
+
+        if (mCursorAdapter.getSearchTerm().isEmpty()) {
+            // Since there's no search string, use the content URI that searches the entire
+            // Contacts table
+            contentUri = ContactCursorAdapter.ContactsQuery.CONTENT_URI;
         } else {
-            mSelectionArgs[0] = "%" + mSearchString + "%";
+            // Since there's a search string, use the special content Uri that searches the
+            // Contacts table. The URI consists of a base Uri and the search string.
+            contentUri =
+                    Uri.withAppendedPath(ContactCursorAdapter.ContactsQuery.FILTER_URI, Uri.encode(mCursorAdapter.getSearchTerm()));
         }
-        // Starts the query
-        return new CursorLoader(
-                getActivity(),
-                ContactsContract.Contacts.CONTENT_URI,
-                PROJECTION,
+
+        return new CursorLoader(getActivity(),
+                contentUri,
+                ContactCursorAdapter.ContactsQuery.PROJECTION,
+                ContactCursorAdapter.ContactsQuery.SELECTION,
                 null,
-                null,
-                null
-        );
+                ContactCursorAdapter.ContactsQuery.SORT_ORDER);
+
     }
 
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
@@ -154,16 +136,45 @@ public class ContactsFragment extends Fragment implements
         Cursor cursor = mCursorAdapter.getCursor();
         // Move to the selected contact
         cursor.moveToPosition(position);
+
+//        final Uri uri = ContactsContract.Contacts.getLookupUri(
+//                cursor.getLong(ContactCursorAdapter.ContactsQuery.ID),
+//                cursor.getString(ContactCursorAdapter.ContactsQuery.LOOKUP_KEY));
+
+//        Long phoneNumber = cursor.getLong(cursor.getColumnIndex(ContactsContract.Data.CONTACT_ID));
+
+        Long contactId = cursor.getLong(ContactCursorAdapter.ContactsQuery.ID);
+
+//        String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+        String phoneNumber = "";
+        Cursor phones = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId, null, null);
+        while (phones.moveToNext())
+        {
+            phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
+            if (phoneNumber != null) break;
+        }
+
+        BardLogger.log("contact invite: " + phoneNumber);
+        String clearPhoneNumber = phoneNumber.replaceAll("[^\\d]","");
+        sendText(clearPhoneNumber, "Add me on Bard. Username: " + Setting.getUsername(ClientApp.getContext()) + " . Download app at https://bard.co");
+
+
         // Get the _ID value
-        mContactId = cursor.getLong(CONTACT_ID_INDEX);
-        // Get the selected LOOKUP KEY
-        mContactKey = cursor.getString(LOOKUP_KEY_INDEX);
-        // Create the contact's content Uri
-        mContactUri = ContactsContract.Contacts.getLookupUri(mContactId, mContactKey);
         /*
          * You can use mContactUri as the content URI for retrieving
          * the details for a contact.
          */
+    }
+
+    private void sendText(String phoneNumber, String body) {
+        Uri uri = Uri.parse("smsto:" + phoneNumber);
+        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+        it.putExtra("sms_body", body);
+        startActivity(it);
+
+        Bundle params = new Bundle();
+        params.putString("medium", "invite_contacts");
+        Analytics.track(getActivity(), "inviteFriend", params);
     }
 
 

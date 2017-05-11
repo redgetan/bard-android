@@ -24,6 +24,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.MainActivity;
 import com.roplabs.bard.ui.activity.RepoListActivity;
+import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.BardLogger;
 import com.roplabs.bard.util.Helper;
 
@@ -234,6 +235,9 @@ public class ProfileFragment extends Fragment {
                             }
                             shareIntent.setType("text/plain");
                             startActivity(shareIntent);
+                            Bundle params = new Bundle();
+                            params.putString("medium", "profile");
+                            Analytics.track(getActivity(), "inviteFriend", params);
                         }
                     });
                     break;

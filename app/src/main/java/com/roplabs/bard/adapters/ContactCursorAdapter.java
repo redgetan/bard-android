@@ -18,6 +18,9 @@ import android.widget.SectionIndexer;
 import android.widget.TextView;
 import com.roplabs.bard.R;
 
+import java.util.Locale;
+
+
 /**
  * This is a subclass of CursorAdapter that supports binding Cursor columns to a view layout.
  * If those items are part of search results, the search string is marked by highlighting the
@@ -28,6 +31,7 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
     private LayoutInflater mInflater; // Stores the layout inflater
     private AlphabetIndexer mAlphabetIndexer; // Stores the AlphabetIndexer instance
     private TextAppearanceSpan highlightTextSpan; // Stores the highlight text appearance style
+    private String mSearchTerm = "";
 
     /**
      * This interface defines constants for the Cursor and CursorLoader, based on constants defined
@@ -80,12 +84,7 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
                 // instead.
                 Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? ContactsContract.Contacts.DISPLAY_NAME_PRIMARY : ContactsContract.Contacts.DISPLAY_NAME,
 
-                // In Android 3.0 and later, the thumbnail image is pointed to by
-                // PHOTO_THUMBNAIL_URI. In earlier versions, there is no direct pointer; instead,
-                // you generate the pointer from the contact's ID value and constants defined in
-                // android.provider.ContactsContract.Contacts.
-                Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB ? ContactsContract.Contacts.PHOTO_THUMBNAIL_URI : ContactsContract.Contacts._ID,
-
+                ContactsContract.Contacts.HAS_PHONE_NUMBER,
                 // The sort order column for the returned Cursor, used by the AlphabetIndexer
                 SORT_ORDER,
         };
@@ -94,7 +93,7 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         final static int ID = 0;
         final static int LOOKUP_KEY = 1;
         final static int DISPLAY_NAME = 2;
-        final static int PHOTO_THUMBNAIL_DATA = 3;
+        final static int CONTACT_ID_COLUMN = 3;
         final static int SORT_KEY = 4;
     }
 
@@ -123,6 +122,10 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         // Defines a span for highlighting the part of a display name that matches the search
         // string
         highlightTextSpan = new TextAppearanceSpan(context, R.style.searchTextHiglight);
+    }
+
+    public String getSearchTerm() {
+        return mSearchTerm;
     }
 
     /**
@@ -156,9 +159,8 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         // allows bindView() to retrieve stored references instead of calling findViewById for
         // each instance of the layout.
         final ViewHolder holder = new ViewHolder();
-        holder.text1 = (TextView) itemLayout.findViewById(android.R.id.text1);
-        holder.text2 = (TextView) itemLayout.findViewById(android.R.id.text2);
-        holder.icon = (QuickContactBadge) itemLayout.findViewById(android.R.id.icon);
+        holder.text1 = (TextView) itemLayout.findViewById(R.id.contacts_list_item_name);
+        holder.text2 = (TextView) itemLayout.findViewById(R.id.contacts_list_item_search_match);
 
         // Stores the resourceHolder instance in itemLayout. This makes resourceHolder
         // available to bindView and other methods that receive a handle to the item view.
@@ -179,8 +181,6 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         // For Android 3.0 and later, gets the thumbnail image Uri from the current Cursor row.
         // For platforms earlier than 3.0, this isn't necessary, because the thumbnail is
         // generated from the other fields in the row.
-        final String photoUri = cursor.getString(ContactsQuery.PHOTO_THUMBNAIL_DATA);
-
         final String displayName = cursor.getString(ContactsQuery.DISPLAY_NAME);
 
         final int startIndex = indexOfSearchQuery(displayName);
@@ -224,16 +224,9 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         // each detail type.
 
         // Generates the contact lookup Uri
-        final Uri contactUri = Contacts.getLookupUri(
+        final Uri contactUri = ContactsContract.Contacts.getLookupUri(
                 cursor.getLong(ContactsQuery.ID),
                 cursor.getString(ContactsQuery.LOOKUP_KEY));
-
-        // Binds the contact's lookup Uri to the QuickContactBadge
-        holder.icon.assignContactUri(contactUri);
-
-        // Loads the thumbnail image pointed to by photoUri into the QuickContactBadge in a
-        // background worker thread
-        mImageLoader.loadImage(photoUri, holder.icon);
     }
 
     /**
@@ -297,7 +290,6 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
     private class ViewHolder {
         TextView text1;
         TextView text2;
-        QuickContactBadge icon;
     }
 }
 

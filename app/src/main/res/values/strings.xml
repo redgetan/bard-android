@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Bard</string>
 
+    <string name="alphabet">ABCDEFGHIJKLMNOPQRSTUVWXYZ</string>
     <string name="hello_world">Hello world!</string>
     <string name="action_save">Save</string>
     <string name="edit_message">Type or click word</string>
