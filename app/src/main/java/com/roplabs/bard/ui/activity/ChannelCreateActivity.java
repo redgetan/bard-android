@@ -7,9 +7,11 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.util.BardLogger;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -33,7 +35,7 @@ public class ChannelCreateActivity extends BaseActivity{
         setContentView(R.layout.activity_channel_create);
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("Create your Channel");
+        title.setText("New Group");
 
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
@@ -49,7 +51,9 @@ public class ChannelCreateActivity extends BaseActivity{
 
         HashMap<String, String> map = new HashMap<String, String>();
         map.put("name", channelNameInput.getText().toString());
-        map.put("description", channelNameDescription.getText().toString());
+        map.put("participants", Setting.getUsername(ClientApp.getContext()));
+        map.put("is_private", "true");
+        map.put("mode", "group");
 
         Call<Channel> call = BardClient.getAuthenticatedBardService().createChannel(map);
         call.enqueue(new Callback<Channel>() {

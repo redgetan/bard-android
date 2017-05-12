@@ -218,6 +218,11 @@ public class MessageNewActivity extends BaseActivity {
         startActivityForResult(intent, SEARCH_USERNAME_REQUEST_CODE);
     }
 
+    public void onCreateGroup(View view) {
+        Intent intent = new Intent(this, ChannelCreateActivity.class);
+        startActivityForResult(intent, CHANNEL_CREATE_REQUEST_CODE);
+    }
+
     @Override
     public void onBackPressed() {
         finish();
