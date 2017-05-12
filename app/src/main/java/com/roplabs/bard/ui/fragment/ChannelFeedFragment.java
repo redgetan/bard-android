@@ -587,12 +587,13 @@ public class ChannelFeedFragment extends Fragment implements
         channelFeedControls.setVisibility(View.VISIBLE);
 
         // if its first video, dont play it (just load it)
-//        if (isFirstItemLoading) {
-//            isFirstItemLoading = false;
-//        } else {
+        if (isFirstItemLoading) {
+            isFirstItemLoading = false;
+            mp.seekTo(10);
+        } else {
             playBtn.setVisibility(View.GONE);
             mp.start();
-//        }
+        }
     }
 
     @Override

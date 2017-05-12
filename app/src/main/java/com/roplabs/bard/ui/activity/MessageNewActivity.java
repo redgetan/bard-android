@@ -132,6 +132,8 @@ public class MessageNewActivity extends BaseActivity {
 
         if (friendList.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);
+        } else {
+            emptyStateContainer.setVisibility(View.GONE);
         }
 
         final Context self = this;
@@ -228,6 +230,8 @@ public class MessageNewActivity extends BaseActivity {
 
         if (friendList.isEmpty()) {
             emptyStateContainer.setVisibility(View.VISIBLE);
+        } else {
+            emptyStateContainer.setVisibility(View.GONE);
         }
 
         super.onResume();
