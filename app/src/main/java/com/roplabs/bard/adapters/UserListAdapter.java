@@ -14,6 +14,7 @@ import com.roplabs.bard.models.Friend;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class UserListAdapter extends
@@ -23,12 +24,21 @@ public class UserListAdapter extends
     private List<User> users;
     private List<Friend> friends;
     private Context context;
+    private String mode = "defaul";
 
     // Pass in the contact array into the constructor
     public UserListAdapter(Context context, List<User> userList, List<Friend> friendList) {
         this.users = userList;
         this.friends = friendList;
         this.context = context;
+    }
+
+    // Pass in the contact array into the constructor
+    public UserListAdapter(Context context, List<User> userList, String mode) {
+        this.users = userList;
+        this.friends = new ArrayList<Friend>();
+        this.context = context;
+        this.mode = mode;
     }
 
     // Usually involves inflating a layout from XML and returning the holder
@@ -55,12 +65,14 @@ public class UserListAdapter extends
         textView.setText(user.getUsername());
 
         TextView thumbnail = viewHolder.userThumbnail;
-        thumbnail.setText(user.getUsername().substring(0,1).toUpperCase());
+        thumbnail.setText(user.getUsername().substring(0, 1).toUpperCase());
 //        thumbnail.setScaleType(ImageView.ScaleType.CENTER_CROP);
 
         textView = viewHolder.userAction;
 
-        if (isFriendsAlready(user)) {
+        if (mode.equals("group_members")) {
+            textView.setVisibility(View.GONE);
+        } else if (isFriendsAlready(user)) {
             textView.setVisibility(View.GONE);
         } else {
             textView.setVisibility(View.VISIBLE);

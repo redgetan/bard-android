@@ -1,5 +1,6 @@
 package com.roplabs.bard.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.TabLayout;
@@ -11,11 +12,15 @@ import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Channel;
 import com.roplabs.bard.models.Scene;
+import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
 import com.roplabs.bard.ui.fragment.SceneSelectFragment;
 import com.roplabs.bard.util.BardLogger;
@@ -34,7 +39,7 @@ import static com.roplabs.bard.util.Helper.SCENE_SELECT_REQUEST_CODE;
 /**
  * Created by reg on 2017-03-30.
  */
-public class ChannelActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener {
+public class ChannelActivity extends BaseActivity implements SceneSelectFragment.OnSceneListener, ChannelFeedFragment.OnChannelFeedListener, PopupMenu.OnMenuItemClickListener {
 
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private String channelToken;
@@ -46,6 +51,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
     private Button clearSceneComboButton;
     private Button enterSceneComboButton;
     private ProgressBar sceneDownloadProgress;
+    private PopupMenu moreMenu;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,8 +276,9 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_channel, menu);
-//        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        if (channel.getMode().equals("group")) {
+            getMenuInflater().inflate(R.menu.menu_channel, menu);
+        }
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -284,11 +291,48 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
                 finish();
                 return true;
             case R.id.menu_item_channel_more:
-                intent = new Intent(this, ProfileActivity.class);
-                startActivity(intent);
+                onChannelMoreButtonClick(findViewById(R.id.menu_item_channel_more));
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
+        }
+    }
+
+    private void onChannelMoreButtonClick(View view) {
+        moreMenu = new PopupMenu(this, view);
+        moreMenu.setOnMenuItemClickListener(this);
+        moreMenu.inflate(R.menu.menu_create_upload_video_more);
+        moreMenu.inflate(R.menu.menu_create_rate_app_more);
+        moreMenu.show();
+    }
+
+    private void leaveChannel(String channelToken) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userChannelRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
+        userChannelRef.removeValue();
+
+        DatabaseReference channelMemberRef = database.getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
+        channelMemberRef.removeValue();
+    }
+
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        final Context self = this;
+        String url;
+        Intent intent;
+        switch (item.getItemId()) {
+            case R.id.menu_item_channel_details:
+                intent = new Intent(this, ChannelDetailsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_item_add_channel_member:
+                intent = new Intent(this, ChannelMemberInviteActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.menu_item_channel_leave:
+                return true;
+            default:
+                return false;
         }
     }
 }

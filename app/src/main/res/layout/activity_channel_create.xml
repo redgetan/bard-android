@@ -3,6 +3,7 @@
         android:layout_width="match_parent"
         android:orientation="vertical"
         android:layout_height="match_parent"
+        android:background="@color/ios_light_iron"
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <include
@@ -54,6 +55,7 @@
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:textColor="@color/jet"
+                        android:textAllCaps="false"
                         android:padding="12dp"
                         android:text="Create"/>
 

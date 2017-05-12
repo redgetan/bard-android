@@ -40,9 +40,6 @@ public class ChannelCreateActivity extends BaseActivity{
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText("New Group");
 
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) { actionBar.setHomeAsUpIndicator(R.drawable.ic_clear_white_24dp); }
-
         channelNameInput = (EditText) findViewById(R.id.input_channel_name);
         channelNameDescription = (EditText) findViewById(R.id.input_channel_description);
         createChannelButton = (Button) findViewById(R.id.btn_create_channel);
@@ -70,9 +67,10 @@ public class ChannelCreateActivity extends BaseActivity{
                 }
 
                 Channel remoteChannel = response.body();
-                Channel.create(remoteChannel);
+                Channel localChannel = Channel.create(remoteChannel);
 
                 Intent intent = new Intent(self, ChannelMemberInviteActivity.class);
+                intent.putExtra("channelToken", localChannel.getToken());
                 startActivityForResult(intent, CHANNEL_MEMBER_INVITE_REQUEST_CODE);
             }
 

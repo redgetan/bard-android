@@ -16,18 +16,32 @@
 [x] after login, profile is not refreshed...same for chat
 [ ] new group
   [ ] after create, should show "invite link", add members
-  [ ] Invite link: people can only join this channel by following this link
+    [ ] add member functionality should work
+  [x] Invite link: people can only join this channel by following this link
   [x] join channel (add username to participants hash of channel)
     [x] deeplink (can only join via link)
   [ ] edit channel
-    [ ] add member
-    [ ] share link
-      [ ] options menu in channelfeedfragment if mode is "group"
-    [ ] change group avatar (only if admin)
-    [ ] leave channel (remove username from participants hash)
+    [ ] options
+      [x] details
+        [x] show/change avatar (if admin), invite link, members
+      [ ] add member
+        [ ] add member functionality should work
+      [x] leave channel (remove username from participants hash)
+
+[ ] check pagination doesnt get screwed up when realtime chat
+  [ ] scenario:
+    time @1: page1 - 10 items
+    time @2: page1 - 15 items, firebase added 5 to client (endless scroll doesnt get triggered)
+    time @3: page1 - 23 items, firebase added 8 to client (endless scroll gets triggered, fetches 3 items from page 2, when in fact its already available)
+  [ ] does (lastVisibleItemPosition + visibleThreshold) get updated ???
+  [ ] does onScrolled get called on firebase add ??
+  [ ] if page 2 fetched, before adding, check if already exist on list
+    [ ] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
+
+
+
+
 [ ] show presence of friends
-
-
 [ ] packs
   [ ] combo container (show 0/10)
 [ ] upload profile pic

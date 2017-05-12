@@ -16,6 +16,10 @@ public class User {
     private RealmList<Character> characters;
     private Map<String, Object> additionalProperties = new HashMap<String, Object>();
 
+    public User(String username) {
+        this.username = username;
+    }
+
     public User(String username, String email, String password) {
         this.username = username;
         this.email = email;

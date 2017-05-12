@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
-              android:layout_width="match_parent"
               android:background="@color/ios_light_iron"
+              android:layout_width="match_parent"
               android:layout_height="match_parent">
 
     <include
@@ -20,10 +20,10 @@
 
     <TextView
             android:id="@+id/channel_invite_link"
-              android:layout_width="match_parent"
-              android:layout_height="50dp"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
             android:textIsSelectable="true"
-              android:background="@color/white"
+            android:background="@color/white"
             android:layout_marginTop="10dp"
             android:textColor="@color/ink"
             android:text="https://bard.co/channels/234kljalkdsf"
@@ -37,28 +37,13 @@
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"
               android:paddingLeft="15dp"
-              android:paddingTop="5dp"
-              android:paddingBottom="5dp"
-              android:text="People can join this channel by following this link.  "
-              android:textColor="@color/base"
-    />
-
-    <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingLeft="15dp"
               android:paddingTop="20dp"
               android:paddingBottom="5dp"
-              android:text="Friends: "
+              android:text="Members: "
     />
 
-    <include
-            layout="@layout/empty_no_internet"
-            android:visibility="visible"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
     <android.support.v7.widget.RecyclerView
-            android:id="@+id/friend_list"
+            android:id="@+id/member_list"
             android:layout_width="match_parent"
             android:background="@color/ios_light_iron"
             android:padding="15dp"

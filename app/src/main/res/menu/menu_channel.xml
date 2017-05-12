@@ -4,6 +4,6 @@
 
 <item android:id="@+id/menu_item_channel_more"
       android:title="More"
-      android:icon="@drawable/ic_settings_white_24dp"
+      android:icon="@drawable/ic_more_vert_white_24dp"
       app:showAsAction="ifRoom"/>
 </menu>
