@@ -11,7 +11,6 @@ import com.roplabs.bard.util.Helper;
 public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
             Helper.SCENES,
-            Helper.TYPE_TEXT,
             Helper.PACKS
     };
     private Context context;

@@ -3,6 +3,7 @@ package com.roplabs.bard.ui.activity;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -79,5 +80,23 @@ public class ForgotPasswordActivity extends BaseActivity {
 
     public void onSendLinkBtnClick(View view) {
         sendPasswordResetLink();
+    }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // click on 'up' button in the action bar, handle it here
+                finish();
+                return true;
+
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

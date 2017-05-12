@@ -271,6 +271,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                     intent = new Intent(this, MessageNewActivity.class);
                     startActivityForResult(intent, NEW_MESSAGE_REQUEST_CODE);
                 } else {
+                    boolean shouldRefresh = true;
                     loginDialog = new CustomDialog(this, "You must login to chat with other users");
                     loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     loginDialog.show();
@@ -343,23 +344,13 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
 
             }
         } else if (resultCode == RESULT_OK && requestCode == CustomDialog.LOGIN_REQUEST_CODE) {
-            Handler handler = new Handler();
-            Runnable r = new Runnable() {
-                public void run() {
-                    loginDialog.dismiss();
-                    Toast.makeText(ClientApp.getContext(), "Login successful", Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.postDelayed(r, 200);
+            Intent intent = new Intent(ClientApp.getContext(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         } else if (resultCode == RESULT_OK && requestCode == CustomDialog.SIGNUP_REQUEST_CODE) {
-            Handler handler = new Handler();
-            Runnable r = new Runnable() {
-                public void run() {
-                    loginDialog.dismiss();
-                    Toast.makeText(ClientApp.getContext(), "Account successfully created", Toast.LENGTH_LONG).show();
-                }
-            };
-            handler.postDelayed(r, 200);
+            Intent intent = new Intent(ClientApp.getContext(), MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
         }
     }
 

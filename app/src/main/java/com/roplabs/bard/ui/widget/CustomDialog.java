@@ -15,6 +15,7 @@ import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.ui.activity.LoginActivity;
 import com.roplabs.bard.ui.activity.SignupActivity;
+import com.roplabs.bard.util.Helper;
 
 // http://stackoverflow.com/a/13342157
 public class CustomDialog extends Dialog implements
@@ -25,10 +26,16 @@ public class CustomDialog extends Dialog implements
         public ImageView cancelBtn;
         String message;
 
-        public static final int LOGIN_REQUEST_CODE = 3;
-        public static final int SIGNUP_REQUEST_CODE = 4;
+        public static final int LOGIN_REQUEST_CODE = Helper.LOGIN_REQUEST_CODE;
+        public static final int SIGNUP_REQUEST_CODE = Helper.SIGNUP_REQUEST_CODE;
 
         public CustomDialog(Activity activity, String message) {
+            super(activity);
+            this.activity = activity;
+            this.message = message;
+        }
+
+        public CustomDialog(Activity activity, String message, boolean shouldRefresh) {
             super(activity);
             this.activity = activity;
             this.message = message;

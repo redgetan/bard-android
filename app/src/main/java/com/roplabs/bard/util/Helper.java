@@ -16,6 +16,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.*;
+import android.provider.ContactsContract;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
@@ -95,6 +96,7 @@ public class Helper {
     public static final int NEW_MESSAGE_REQUEST_CODE = 16;
     public static final int FORGOT_PASSWORD_REQUEST_CODE = 17;
     public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 18;
+    public static final int SIGNUP_REQUEST_CODE = 19;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
@@ -1085,5 +1087,29 @@ public class Helper {
         }
     }
 
+    public static void sendSMSInvite(Context context, Long contactId) {
+        String phoneNumber = "";
+        Cursor phones = context.getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId, null, null);
+        while (phones.moveToNext())
+        {
+            phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
+            if (phoneNumber != null) break;
+        }
+
+        BardLogger.log("contact invite: " + phoneNumber);
+        String clearPhoneNumber = phoneNumber.replaceAll("[^\\d]","");
+        sendText(context, clearPhoneNumber, "Add me on Bard. Username: " + Setting.getUsername(ClientApp.getContext()) + " . Download app at https://bard.co");
+    }
+
+    private static void sendText(Context context, String phoneNumber, String body) {
+        Uri uri = Uri.parse("smsto:" + phoneNumber);
+        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
+        it.putExtra("sms_body", body);
+        context.startActivity(it);
+
+        Bundle params = new Bundle();
+        params.putString("medium", "invite_contacts");
+        Analytics.track(context, "inviteFriend", params);
+    }
 
 }

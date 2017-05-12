@@ -10,29 +10,43 @@
 [x] Add from addressbook
 [x] InviteFriendActivity
   [x] list contacts with invite button
-[ ] on channelFeed, just seek to point where thumbnail shown, but dont play it
-[ ] show presence of friends
-[ ] after "friend add", should show up on "new chat" friends list
-[ ] contacts should show loading indicator (ios_light_iron_background)
-[ ] instagram share replace kik
-[ ] text-input (replace - you're gonna be late for school man) - with (you are gone a be late for school man)
-[ ] fix crash when going back from bard to choosing a video
-
-[ ] better main page (too many things going on)
-  [ ] direct text input
-[ ] welcome email - auto
-[ ] upload profile pic
-
-
+[x] on channelFeed, just seek to point where thumbnail shown, but dont play it
+[x] after "friend add", should show up on "new chat" friends list
+[x] contacts should show loading indicator (ios_light_iron_background)
+[x] after login, profile is not refreshed...same for chat
+[ ] packs
+  [ ] combo container (show 0/10)
 [ ] new group
   [ ] share link
   [ ] add "find group" in "new message" (paste code) ala discord
   [ ] join channel (add username to participants hash of channel)
   [ ] leave channel (remove username from participants hash)
+[ ] show presence of friends
+[ ] upload profile pic
+[ ] show profile pic in chats
+
+[ ] ask user to rate app
+  [ ] saved a bard
+  [ ] uploaded a video
+[ ] fix crash when going back from bard to choosing a video
+[ ] text-input (replace - you're gonna be late for school man) - with (you are gone a be late for school man)
+  [ ] 5 word limit
+  [ ] dont allow punctuation
+  [ ] TextInputActivity
+    [ ] MainSceneSelectFragment
+    [ ] bottom
+      [ ] edit
+        [ ] would bring up BardEditor with suggested wordTags
+      [ ] shuffle (choose another variation)
+
+[ ] better main page (too many things going on)
+  [ ] direct text input
+[ ] welcome email - auto
 
 [ ] /library in web (share links aint working)
   [ ] must list repos created via mobile
 
+[ ] instagram share replace kik
 [ ] Taurus Silver
   [ ] ChannelListActivity
     [x] plus button

@@ -65,6 +65,9 @@ public class ChannelListAdapter extends
         textView = viewHolder.channelDescriptionView;
         if (!channel.getLastMessage().isEmpty()) {
             textView.setText(Helper.truncate(channel.getLastMessage(), 30));
+        } else {
+            textView.setText("Tap to chat"); // necessary in order to reset what was previously set in that row (as its recycled)
+
         }
 
         textView = viewHolder.channelLastUpdatedAt;

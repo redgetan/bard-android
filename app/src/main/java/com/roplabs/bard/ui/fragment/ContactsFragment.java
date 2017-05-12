@@ -24,6 +24,7 @@ import com.roplabs.bard.adapters.ContactCursorAdapter;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.util.Analytics;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.Helper;
 
 public class ContactsFragment extends Fragment implements
         LoaderManager.LoaderCallbacks<Cursor>,
@@ -146,17 +147,7 @@ public class ContactsFragment extends Fragment implements
         Long contactId = cursor.getLong(ContactCursorAdapter.ContactsQuery.ID);
 
 //        String phoneNumber = cursor.getString(cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
-        String phoneNumber = "";
-        Cursor phones = getActivity().getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID +" = "+ contactId, null, null);
-        while (phones.moveToNext())
-        {
-            phoneNumber = phones.getString(phones.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DATA));
-            if (phoneNumber != null) break;
-        }
-
-        BardLogger.log("contact invite: " + phoneNumber);
-        String clearPhoneNumber = phoneNumber.replaceAll("[^\\d]","");
-        sendText(clearPhoneNumber, "Add me on Bard. Username: " + Setting.getUsername(ClientApp.getContext()) + " . Download app at https://bard.co");
+        Helper.sendSMSInvite(getActivity(), contactId);
 
 
         // Get the _ID value
@@ -166,16 +157,6 @@ public class ContactsFragment extends Fragment implements
          */
     }
 
-    private void sendText(String phoneNumber, String body) {
-        Uri uri = Uri.parse("smsto:" + phoneNumber);
-        Intent it = new Intent(Intent.ACTION_SENDTO, uri);
-        it.putExtra("sms_body", body);
-        startActivity(it);
-
-        Bundle params = new Bundle();
-        params.putString("medium", "invite_contacts");
-        Analytics.track(getActivity(), "inviteFriend", params);
-    }
 
 
 }

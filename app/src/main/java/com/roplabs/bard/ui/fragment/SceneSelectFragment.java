@@ -201,6 +201,10 @@ public class SceneSelectFragment extends Fragment {
                     if (emptyStateDescription.getText().toString().contains("Upload an existing")) {
                         Intent intent = new Intent(getActivity(), UploadVideoActivity.class);
                         startActivity(intent);
+                    } else {
+                        // tap to refresh
+                        hideEmptySearchMessage();
+                        getScenesNextPage(1);
                     }
                 }
             });

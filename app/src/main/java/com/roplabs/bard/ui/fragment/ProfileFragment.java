@@ -31,12 +31,13 @@ import com.roplabs.bard.util.Helper;
 import java.util.List;
 import java.util.Set;
 
+import static com.roplabs.bard.util.Helper.LOGIN_REQUEST_CODE;
+
 /**
  * Created by reg on 2017-04-18.
  */
 public class ProfileFragment extends Fragment {
 
-    private final int LOGIN_REQUEST_CODE = 2;
     private final int NUM_OF_ROW_ITEMS = 11;
     private final int MY_BARDS_ITEM_TAG = 5;
     private final int MY_LIKES_ITEM_TAG = 6;
@@ -110,12 +111,11 @@ public class ProfileFragment extends Fragment {
             public void onClick(View v) {
                 if (!Setting.isLogined(ClientApp.getContext())) {
                     Intent intent = new Intent(context, LoginActivity.class);
-                    startActivityForResult(intent, LOGIN_REQUEST_CODE);
+                    context.startActivityForResult(intent, LOGIN_REQUEST_CODE);
                 }
             }
         });
     }
-
 
     public void sendGmail() {
         Intent email = new Intent();

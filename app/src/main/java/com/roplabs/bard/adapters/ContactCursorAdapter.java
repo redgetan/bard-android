@@ -14,9 +14,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AlphabetIndexer;
+import android.widget.Button;
 import android.widget.SectionIndexer;
 import android.widget.TextView;
 import com.roplabs.bard.R;
+import com.roplabs.bard.util.Helper;
 
 import java.util.Locale;
 
@@ -161,6 +163,7 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         final ViewHolder holder = new ViewHolder();
         holder.text1 = (TextView) itemLayout.findViewById(R.id.contacts_list_item_name);
         holder.text2 = (TextView) itemLayout.findViewById(R.id.contacts_list_item_search_match);
+        holder.button = (Button) itemLayout.findViewById(R.id.contacts_list_item_button);
 
         // Stores the resourceHolder instance in itemLayout. This makes resourceHolder
         // available to bindView and other methods that receive a handle to the item view.
@@ -170,11 +173,16 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
         return itemLayout;
     }
 
+    public interface OnContactClickedListener {
+        void onContactClicked(Long contactId);
+    }
+
+
     /**
      * Binds data from the Cursor to the provided view.
      */
     @Override
-    public void bindView(View view, Context context, Cursor cursor) {
+    public void bindView(View view, final Context context, Cursor cursor) {
         // Gets handles to individual view resources
         final ViewHolder holder = (ViewHolder) view.getTag();
 
@@ -216,6 +224,15 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
             // Since the search string matched the name, this hides the secondary message
             holder.text2.setVisibility(View.GONE);
         }
+
+        final Long contactId = cursor.getLong(ContactCursorAdapter.ContactsQuery.ID);
+
+        holder.button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Helper.sendSMSInvite(context, contactId);
+            }
+        });
 
         // Processes the QuickContactBadge. A QuickContactBadge first appears as a contact's
         // thumbnail image with styling that indicates it can be touched for additional
@@ -290,6 +307,7 @@ public class ContactCursorAdapter extends CursorAdapter implements SectionIndexe
     private class ViewHolder {
         TextView text1;
         TextView text2;
+        Button button;
     }
 }
 
