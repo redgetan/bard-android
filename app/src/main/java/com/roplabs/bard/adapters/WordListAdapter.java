@@ -88,7 +88,7 @@ public class WordListAdapter extends
         this.isWordTagged = isWordTagged;
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, WordTag wordTag);

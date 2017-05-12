@@ -103,7 +103,7 @@ public class ChannelFeedAdapter extends
         return posts.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Post post);

@@ -89,7 +89,7 @@ public class UserListAdapter extends
         return users.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, User user);

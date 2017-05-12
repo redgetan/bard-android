@@ -510,7 +510,7 @@ public class SceneSelectFragment extends Fragment {
 
     @Override
     public void onResume() {
-        BardLogger.log("SceneSelect onResume");
+        BardLogger.log("SceneSelectFragment onResume");
 
         int timeNow = Calendar.getInstance().get(Calendar.SECOND);
         if (timeNow > sceneListCacheExpiry) {

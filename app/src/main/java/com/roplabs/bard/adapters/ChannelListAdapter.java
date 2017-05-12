@@ -88,7 +88,7 @@ public class ChannelListAdapter extends
         return channels.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Channel channel);

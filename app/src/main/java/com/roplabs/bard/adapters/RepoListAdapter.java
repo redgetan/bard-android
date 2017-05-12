@@ -74,7 +74,7 @@ public class RepoListAdapter extends
         return repos.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Repo repo);

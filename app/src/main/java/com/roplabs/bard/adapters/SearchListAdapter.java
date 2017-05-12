@@ -103,7 +103,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
         return sceneList.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Scene scene);

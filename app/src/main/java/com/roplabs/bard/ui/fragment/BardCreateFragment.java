@@ -73,6 +73,11 @@ public class BardCreateFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onDestroyView() {
+        BardLogger.log("destroyview: BardCreateFragment");
+        super.onDestroyView();
+    }
 
     private void initPager(View view) {
         // Get the ViewPager and set it's PagerAdapter so that it can display items

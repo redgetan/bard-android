@@ -66,7 +66,7 @@ public class FriendListAdapter extends
         return friends.size();
     }
 
-    private static OnItemClickListener listener;
+    private OnItemClickListener listener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Friend user);

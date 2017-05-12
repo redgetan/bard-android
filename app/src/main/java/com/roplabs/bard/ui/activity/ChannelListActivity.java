@@ -144,7 +144,7 @@ public class ChannelListActivity extends BaseActivity {
                 Intent intent = new Intent(self, ChannelActivity.class);
                 intent.putExtra("channelToken", channel.getToken());
                 BardLogger.trace("[view channel] " + channel.getToken());
-                startActivityForResult(intent, CHANNEL_REQUEST_CODE);
+                startActivity(intent);
             }
         });
         recyclerView.setAdapter(adapter);
