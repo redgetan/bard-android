@@ -98,6 +98,7 @@ public class Helper {
     public static final int MY_PERMISSIONS_REQUEST_READ_CONTACTS = 18;
     public static final int SIGNUP_REQUEST_CODE = 19;
     public static final int CHANNEL_CREATE_REQUEST_CODE = 20;
+    public static final int CHANNEL_MEMBER_INVITE_REQUEST_CODE = 21;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";

@@ -6,6 +6,10 @@
         <item name="colorPrimaryDark">@color/black</item>
     </style>
 
+    <style name="MyMenuTextAppearance" parent="android:TextAppearance.Holo.Widget.ActionBar.Menu">
+        <item name="android:textAllCaps">false</item>
+    </style>
+
     <style name="ToolbarTheme" parent="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
         <!-- This would set the toolbar's background color -->
         <item name="android:background">@color/purple</item>
@@ -13,6 +17,7 @@
         <item name="android:textColorPrimary">@color/white</item>
         <!-- android:actionMenuTextColor is the color of the text of action (menu) items  -->
         <item name="actionMenuTextColor">@color/white</item>
+        <item name="android:actionMenuTextAppearance">@style/MyMenuTextAppearance</item>
         <item name="actionModeShareDrawable">@drawable/ic_share_white_24dp</item>
         <!-- Enable these below if you want clicking icons to trigger a ripple effect -->
         <!--

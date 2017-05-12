@@ -123,6 +123,10 @@ public class MessageNewActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == CHANNEL_REQUEST_CODE) {
             // if just finished chatting, go back to channel list
+            setResult(RESULT_OK);
+            finish();
+        } else if (resultCode == RESULT_OK && requestCode == CHANNEL_CREATE_REQUEST_CODE) {
+            setResult(RESULT_OK);
             finish();
         }
     }

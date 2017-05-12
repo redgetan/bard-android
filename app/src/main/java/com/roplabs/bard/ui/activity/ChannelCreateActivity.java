@@ -1,5 +1,7 @@
 package com.roplabs.bard.ui.activity;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.view.View;
@@ -20,6 +22,7 @@ import retrofit2.Response;
 import java.util.HashMap;
 
 import static com.roplabs.bard.ClientApp.getContext;
+import static com.roplabs.bard.util.Helper.CHANNEL_MEMBER_INVITE_REQUEST_CODE;
 
 public class ChannelCreateActivity extends BaseActivity{
 
@@ -55,6 +58,8 @@ public class ChannelCreateActivity extends BaseActivity{
         map.put("is_private", "true");
         map.put("mode", "group");
 
+        final Context self = this;
+
         Call<Channel> call = BardClient.getAuthenticatedBardService().createChannel(map);
         call.enqueue(new Callback<Channel>() {
             @Override
@@ -67,8 +72,8 @@ public class ChannelCreateActivity extends BaseActivity{
                 Channel remoteChannel = response.body();
                 Channel.create(remoteChannel);
 
-                setResult(RESULT_OK);
-                finish();
+                Intent intent = new Intent(self, ChannelMemberInviteActivity.class);
+                startActivityForResult(intent, CHANNEL_MEMBER_INVITE_REQUEST_CODE);
             }
 
             @Override
@@ -77,5 +82,14 @@ public class ChannelCreateActivity extends BaseActivity{
             }
         });
 
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK &&
+                (requestCode == CHANNEL_MEMBER_INVITE_REQUEST_CODE)) {
+            setResult(RESULT_OK);
+            finish();
+        }
     }
 }
