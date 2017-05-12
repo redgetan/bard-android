@@ -15,12 +15,14 @@
 [x] contacts should show loading indicator (ios_light_iron_background)
 [x] after login, profile is not refreshed...same for chat
 [ ] new group
-  [ ] share link
-    [ ] options menu in channelfeedfragment if mode is "group"
-  [ ] change group avatar
-  [ ] join channel (add username to participants hash of channel)
-    [ ] deeplink (can only join via link)
-  [ ] leave channel (remove username from participants hash)
+  [ ] Invite link: people can only join this channel by following this link
+  [x] join channel (add username to participants hash of channel)
+    [x] deeplink (can only join via link)
+  [ ] edit channel
+    [ ] share link
+      [ ] options menu in channelfeedfragment if mode is "group"
+    [ ] change group avatar (only if admin)
+    [ ] leave channel (remove username from participants hash)
 [ ] show presence of friends
 
 

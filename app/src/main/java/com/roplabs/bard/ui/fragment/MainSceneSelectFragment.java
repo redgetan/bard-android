@@ -16,6 +16,7 @@ import android.widget.TextView;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.MainSceneFragmentPagerAdapter;
 import com.roplabs.bard.ui.widget.NonSwipingViewPager;
+import com.roplabs.bard.util.BardLogger;
 import org.w3c.dom.Text;
 
 /**
@@ -93,6 +94,12 @@ public class MainSceneSelectFragment extends Fragment{
 //        rightArrow = (ImageView) view.findViewById(R.id.my_videos_right_arrow);
 //        initCategory(userUploads, R.drawable.ic_cloud_black_24dp, label, leftArrow, rightArrow);
 
+    }
+
+    @Override
+    public void onDestroy() {
+        BardLogger.log("destroy: MainSceneSelectFragment");
+        super.onDestroy();
     }
 
     private void initCategory(View view, final int drawableId, final TextView label, final ImageView leftArrow, final ImageView rightArrow) {

@@ -19,6 +19,8 @@ import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 import com.bumptech.glide.Glide;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
@@ -196,6 +198,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         Intent intent = getIntent();
         String sceneToken;
         String characterToken;
+        String channelTokenFromDeepLink;
 
         if ((sceneToken = intent.getStringExtra("sceneTokenEditorDeepLink")) != null) {
             Intent newIntent = new Intent(this, BardEditorActivity.class);
@@ -211,6 +214,22 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             newIntent.putExtra("sceneToken", "");
             BardLogger.trace("[packDeepLink] " + characterToken);
             startActivityForResult(newIntent, BARD_EDITOR_REQUEST_CODE);
+        } else if ((channelTokenFromDeepLink = intent.getStringExtra("channelTokenDeepLink")) != null) {
+            joinChannel(channelTokenFromDeepLink);
+        }
+    }
+
+    private void joinChannel(String channelToken) {
+        if (Setting.isLogined(this)) {
+            DatabaseReference channelParticipantsRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
+            channelParticipantsRef.setValue(true);
+
+            DatabaseReference userChannelsRef = FirebaseDatabase.getInstance().getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
+            userChannelsRef.setValue(true);
+        } else {
+            loginDialog = new CustomDialog(this, "You must login to join group chat");
+            loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+            loginDialog.show();
         }
     }
 
@@ -271,7 +290,6 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
                     intent = new Intent(this, MessageNewActivity.class);
                     startActivityForResult(intent, NEW_MESSAGE_REQUEST_CODE);
                 } else {
-                    boolean shouldRefresh = true;
                     loginDialog = new CustomDialog(this, "You must login to chat with other users");
                     loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
                     loginDialog.show();
@@ -326,6 +344,12 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             startActivity(intent);
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        BardLogger.log("sceneselect is destroyed");
+        super.onDestroy();
     }
 
     @Override

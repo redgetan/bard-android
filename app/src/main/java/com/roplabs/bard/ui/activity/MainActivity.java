@@ -29,6 +29,7 @@ public class MainActivity extends BaseActivity {
     private String ffmpegPath;
     private String sceneTokenEditorDeepLink;
     private String packTokenEditorDeepLink;
+    private String channelTokenDeepLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +38,7 @@ public class MainActivity extends BaseActivity {
         applicationDir = getApplicationInfo().dataDir;
         ffmpegPath = applicationDir + "/" + Helper.ffmpegBinaryName();
         initFFmpeg();
+
     }
 
     private void handleDeepLink(Intent intent) {
@@ -51,6 +53,10 @@ public class MainActivity extends BaseActivity {
             // extract sceneToken from https://bard.co/packs/:token
             String result = uri.toString().split("/packs/")[1];
             packTokenEditorDeepLink = result;
+        } else if (uri != null && uri.toString().contains("/channels/")) {
+            // extract sceneToken from https://bard.co/channels/:token
+            String result = uri.toString().split("/packs/")[1];
+            channelTokenDeepLink = result;
         }
 
     }
@@ -76,6 +82,7 @@ public class MainActivity extends BaseActivity {
         intent.putExtra("mode", "default");
         intent.putExtra("sceneTokenEditorDeepLink", sceneTokenEditorDeepLink);
         intent.putExtra("packTokenEditorDeepLink", packTokenEditorDeepLink);
+        intent.putExtra("channelTokenDeepLink", channelTokenDeepLink);
 
         startActivity(intent);
     }

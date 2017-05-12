@@ -344,6 +344,18 @@ public class SceneSelectFragment extends Fragment {
         });
     }
 
+    @Override
+    public void onDestroyView() {
+        BardLogger.log("destroyview: sceneselectfragment " + channelToken + ":" + sceneType );
+        super.onDestroyView();
+    }
+
+    @Override
+    public void onDestroy() {
+        BardLogger.log("destroy: sceneselectfragment" + channelToken + ":" + sceneType);
+        super.onDestroy();
+    }
+
     private void syncRemoteFavoritesToLocal(List<Scene> remoteSceneList) {
         Favorite.createOrUpdate(remoteSceneList);
     }
