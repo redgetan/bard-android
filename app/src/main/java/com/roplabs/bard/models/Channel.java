@@ -221,8 +221,8 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         String lastMessage = (String) channelResult.get("lastMessage");
         String name = (String) channelResult.get("name");
         String mode = (String) channelResult.get("mode");
-        Date updatedAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("updatedAt"));
-        Date createdAt = GsonUTCDateAdapter.parseDate((String) channelResult.get("createdAt"));
+        Date updatedAt = new Date(((Long) (channelResult.get("updatedAt")) * 1000));
+        Date createdAt = new Date(((Long) (channelResult.get("createdAt")) * 1000));
         HashMap<String, Object> participants = (HashMap<String, Object>) channelResult.get("participants");
 
         List<String> participantNames = new ArrayList<String>();

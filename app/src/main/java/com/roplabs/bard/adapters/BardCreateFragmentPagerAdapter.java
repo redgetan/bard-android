@@ -11,6 +11,7 @@ import com.roplabs.bard.util.Helper;
 public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     private String tabTitles[] = new String[] {
             Helper.SCENES,
+            Helper.TYPE_TEXT,
             Helper.PACKS
     };
     private Context context;
@@ -40,11 +41,11 @@ public class BardCreateFragmentPagerAdapter extends FragmentPagerAdapter {
     public CharSequence getPageTitle(int position) {
         // Generate title based on item position
         if (tabTitles[position].equals(Helper.PACKS)) {
-            return "Packs";
-        } else if (tabTitles[position].equals(Helper.ONLINE_LIBRARY)) {
-            return "Videos";
+            return "Use Pack";
+        } else if (tabTitles[position].equals(Helper.SCENES)) {
+            return "Pick Video";
         } else {
-            return "Videos";
+            return "Type Text";
         }
     }
 

@@ -10,7 +10,13 @@
 [x] Add from addressbook
 [x] InviteFriendActivity
   [x] list contacts with invite button
+[ ] on channelFeed, just seek to point where thumbnail shown, but dont play it
 [ ] show presence of friends
+[ ] after "friend add", should show up on "new chat" friends list
+[ ] contacts should show loading indicator (ios_light_iron_background)
+[ ] instagram share replace kik
+[ ] text-input (replace - you're gonna be late for school man) - with (you are gone a be late for school man)
+[ ] fix crash when going back from bard to choosing a video
 
 [ ] better main page (too many things going on)
   [ ] direct text input

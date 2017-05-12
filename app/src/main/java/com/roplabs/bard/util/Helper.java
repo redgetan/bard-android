@@ -117,6 +117,7 @@ public class Helper {
     public static final String BARD_CREATE = "bard_create";
     public static final String PROFILE = "profile" ;
     public static final String SCENES = "scenes" ;
+    public static final String TYPE_TEXT = "type_text" ;
 
 
     private static ProgressDialog progressDialog;
