@@ -16,6 +16,8 @@ import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.FriendListAdapter;
@@ -97,14 +99,8 @@ public class MessageNewActivity extends BaseActivity {
             public void onResponse(Call<Channel> call, Response<Channel> response) {
                 Channel channel = response.body();
                 if (channel != null) {
-                    Channel localChannel = Channel.forToken(channel.getToken());
-                    if (localChannel == null) {
-                        // create local one
-                        localChannel = Channel.create(channel);
-                    }
-
                     Intent intent = new Intent(self, ChannelActivity.class);
-                    intent.putExtra("channelToken", localChannel.getToken());
+                    intent.putExtra("channel", channel);
                     startActivityForResult(intent, CHANNEL_REQUEST_CODE);
                 } else {
                     Toast.makeText(ClientApp.getContext(), "Unable to chat with " + receiver, Toast.LENGTH_LONG).show();
@@ -154,14 +150,7 @@ public class MessageNewActivity extends BaseActivity {
                 String[] participants = new String[] { sender, receiver };
                 Arrays.sort(participants);
 
-                Channel localChannel = Channel.forParticipants(TextUtils.join(",", participants));
-                if (localChannel != null) {
-                    Intent intent = new Intent(self, ChannelActivity.class);
-                    intent.putExtra("channelToken", localChannel.getToken());
-                    startActivityForResult(intent, CHANNEL_REQUEST_CODE);
-                } else {
-                    createChannel(receiver, sender);
-                }
+                createChannel(receiver, sender);
             }
 
         });

@@ -1,5 +1,7 @@
 package com.roplabs.bard.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
 import android.text.TextUtils;
         import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.api.GsonUTCDateAdapter;
@@ -11,7 +13,7 @@ import io.realm.Realm;
 
         import java.util.*;
 
-public class Channel extends RealmObject  implements Comparable<Channel> {
+public class Channel implements Comparable<Channel>, Parcelable {
 
     private String token;
     private String name;
@@ -38,29 +40,41 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         this.createdAt = createdAt;
     }
 
-    public static int getCount() {
-        Realm realm = Realm.getDefaultInstance();
-        return (int) realm.where(Channel.class).count();
-    }
+//    public static int getCount() {
+//        Realm realm = Realm.getDefaultInstance();
+//        return (int) realm.where(Channel.class).count();
+//    }
+//
+//    public static RealmResults<Channel> forUsername(String username) {
+//        Realm realm = Realm.getDefaultInstance();
+//        RealmResults<Channel> results = realm.where(Channel.class)
+//                .equalTo("username", username)
+//                .equalTo("joined", true)
+//                .findAllSorted("updatedAt", Sort.DESCENDING);
+//        return results;
+//    }
+//
+//    public static Channel forToken(String token) {
+//        Realm realm = Realm.getDefaultInstance();
+//        return realm.where(Channel.class).equalTo("token", token).findFirst();
+//    }
+//
+//    public static Channel forParticipants(String participants) {
+//        Realm realm = Realm.getDefaultInstance();
+//        return realm.where(Channel.class).equalTo("participants", participants).findFirst();
+//    }
 
-    public static RealmResults<Channel> forUsername(String username) {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Channel> results = realm.where(Channel.class)
-                .equalTo("username", username)
-                .equalTo("joined", true)
-                .findAllSorted("updatedAt", Sort.DESCENDING);
-        return results;
-    }
+    public static final Creator<Channel> CREATOR = new Creator<Channel>() {
+        @Override
+        public Channel createFromParcel(Parcel in) {
+            return new Channel(in);
+        }
 
-    public static Channel forToken(String token) {
-        Realm realm = Realm.getDefaultInstance();
-        return realm.where(Channel.class).equalTo("token", token).findFirst();
-    }
-
-    public static Channel forParticipants(String participants) {
-        Realm realm = Realm.getDefaultInstance();
-        return realm.where(Channel.class).equalTo("participants", participants).findFirst();
-    }
+        @Override
+        public Channel[] newArray(int size) {
+            return new Channel[size];
+        }
+    };
 
     public static Channel create(Channel remoteChannel) {
         return create(remoteChannel.getToken(),
@@ -71,22 +85,18 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
                 remoteChannel.getCreatedAt(),
                 remoteChannel.getUpdatedAt());
     }
-
-    public void leave() {
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
-
-        setJoined(false);
-
-        realm.commitTransaction();
-    }
-
+//
+//    public void leave() {
+//        Realm realm = Realm.getDefaultInstance();
+//        realm.beginTransaction();
+//
+//        setJoined(false);
+//
+//        realm.commitTransaction();
+//    }
+//
     public static Channel create(String token, String name, String description, String mode, String participants, Date createdAt, Date updatedAt) {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
-        Channel channel = realm.createObject(Channel.class);
+        Channel channel = new Channel();
 
         channel.setToken(token);
         channel.setName(name);
@@ -95,20 +105,17 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         channel.setParticipants(participants);
         channel.setUpdatedAt(updatedAt);
         channel.setJoined(true);
-        channel.setUsername(Setting.getUsername(ClientApp.getContext()));
-
-        realm.commitTransaction();
 
         return channel;
     }
-
-    public void delete() {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-        this.deleteFromRealm();
-        realm.commitTransaction();
-    }
+//
+//    public void delete() {
+//        Realm realm = Realm.getDefaultInstance();
+//
+//        realm.beginTransaction();
+//        this.deleteFromRealm();
+//        realm.commitTransaction();
+//    }
 
     public Map<String, Object> getAdditionalProperties() {
         return this.additionalProperties;
@@ -219,23 +226,23 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         }
     }
 
-    public static void createOrUpdate(List<Channel> channelList) {
-
-        for (Channel channel : channelList) {
-            Channel obj = Channel.forToken(channel.getToken());
-            if (obj == null) {
-                Channel.create(channel);
-            } else {
-                Realm realm = Realm.getDefaultInstance();
-                realm.beginTransaction();
-
-                obj.setName(channel.getName());
-                obj.setDescription(channel.getDescription());
-
-                realm.commitTransaction();
-            }
-        }
-    }
+//    public static void createOrUpdate(List<Channel> channelList) {
+//
+//        for (Channel channel : channelList) {
+//            Channel obj = Channel.forToken(channel.getToken());
+//            if (obj == null) {
+//                Channel.create(channel);
+//            } else {
+//                Realm realm = Realm.getDefaultInstance();
+//                realm.beginTransaction();
+//
+//                obj.setName(channel.getName());
+//                obj.setDescription(channel.getDescription());
+//
+//                realm.commitTransaction();
+//            }
+//        }
+//    }
 
     public static Channel createFromFirebase(String channelToken, HashMap<String, Object> channelResult) {
         String lastMessage = (String) channelResult.get("lastMessage");
@@ -259,11 +266,8 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         String lastMessage = (String) channelResult.get("lastMessage");
 
         // update channel info
-        Realm realm = Realm.getDefaultInstance();
-        realm.beginTransaction();
         this.setUpdatedAt(updatedAt);
         this.setLastMessage(lastMessage);
-        realm.commitTransaction();
     }
 
 
@@ -281,5 +285,32 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         if (this.getUpdatedAt() == null) return 0;
 
         return o.getUpdatedAt().compareTo(this.getUpdatedAt());
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(token);
+        dest.writeString(name);
+        dest.writeString(description);
+        dest.writeString(lastMessage);
+        dest.writeString(mode);
+        dest.writeString(participants);
+        dest.writeString(username);
+    }
+
+    private Channel(Parcel in) {
+
+        token = in.readString();
+        name = in.readString();
+        description = in.readString();
+        lastMessage = in.readString();
+        mode = in.readString();
+        participants = in.readString();
+        username = in.readString();
     }
 }

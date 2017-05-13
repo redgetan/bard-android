@@ -353,9 +353,6 @@ public class Helper {
         String libraryCount = String.valueOf(repos.size());
         String likeCount = String.valueOf(userLikes.size());
 
-        final List<Channel> channels = Channel.forUsername(Setting.getUsername(context));
-        String channelCount = String.valueOf(channels.size());
-
         if (username.equals("anonymous")) {
             profileDrawerItem = new ProfileDrawerItem().withName("Click Avatar to Login"); // .withIcon(getResources().getDrawable(R.drawable.profile))
         } else {
@@ -411,10 +408,6 @@ public class Helper {
                             case MY_LIKES_DRAWER_ITEM_IDENTIFIER:
                                 intent = new Intent(context.getApplicationContext(), RepoListActivity.class);
                                 intent.putExtra("repoListType","likes");
-                                context.startActivity(intent);
-                                break;
-                            case MY_CHANNELS_DRAWER_ITEM_IDENTIFIER:
-                                intent = new Intent(context.getApplicationContext(), ChannelListActivity.class);
                                 context.startActivity(intent);
                                 break;
                             case UPLOAD_VIDEO_DRAWER_ITEM_IDENTIFIER:

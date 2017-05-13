@@ -66,11 +66,10 @@ public class ChannelCreateActivity extends BaseActivity{
                     return;
                 }
 
-                Channel remoteChannel = response.body();
-                Channel localChannel = Channel.create(remoteChannel);
+                Channel channel = response.body();
 
                 Intent intent = new Intent(self, ChannelMemberInviteActivity.class);
-                intent.putExtra("channelToken", localChannel.getToken());
+                intent.putExtra("channelToken", channel.getToken());
                 startActivityForResult(intent, CHANNEL_MEMBER_INVITE_REQUEST_CODE);
             }
 

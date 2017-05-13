@@ -60,6 +60,7 @@ public class ChannelListFragment extends Fragment {
     private String defaultChannelToken;
     private RecyclerView recyclerView;
     private List<Channel> channelList;
+    private Map<String, Map<DatabaseReference,  ValueEventListener>> channelListenerMap;
 
     private FrameLayout emptyStateContainer;
     private TextView emptyStateTitle;
@@ -95,8 +96,8 @@ public class ChannelListFragment extends Fragment {
 
     private void initChannelList(View view) {
         final Context self = getActivity();
-        channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
-        if (!channelList.isEmpty()) emptyStateContainer.setVisibility(View.GONE);
+        channelList = new ArrayList<Channel>();
+        channelListenerMap = new HashMap<String, Map<DatabaseReference, ValueEventListener>>();
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_list);
         ChannelListAdapter adapter = new ChannelListAdapter(self, channelList);
@@ -104,7 +105,7 @@ public class ChannelListFragment extends Fragment {
             @Override
             public void onItemClick(View itemView, int position, Channel channel) {
                 Intent intent = new Intent(self, ChannelActivity.class);
-                intent.putExtra("channelToken", channel.getToken());
+                intent.putExtra("channel", channel);
                 BardLogger.trace("[view channel] " + channel.getToken());
                 startActivityForResult(intent, CHANNEL_REQUEST_CODE);
             }
@@ -115,11 +116,26 @@ public class ChannelListFragment extends Fragment {
         recyclerView.addItemDecoration(itemDecoration);
     }
 
-    public void updateLocalChannels(String channelToken, HashMap<String, Object> channelResult) {
-        Channel channel = Channel.forToken(channelToken);
+    private Channel getChannelFromToken(String channelToken) {
+        Channel targetChannel = null;
+
+        for (Channel channel : channelList) {
+            if (channel.getToken().equals(channelToken)) {
+                targetChannel = channel;
+                break;
+            }
+        }
+
+        return targetChannel;
+    }
+
+    public void updateChannels(String channelToken, HashMap<String, Object> channelResult) {
+        Channel channel = getChannelFromToken(channelToken);
+
         if (channel == null) {
             // create channel
             channel = Channel.createFromFirebase(channelToken, channelResult);
+            channelList.add(channel);
         } else {
             channel.updateFromFirebase(channelResult);
         }
@@ -128,13 +144,12 @@ public class ChannelListFragment extends Fragment {
     private void listenToNewChannelMessage(final String channelToken) {
 
         DatabaseReference channelRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken + "");
-        channelRef.addValueEventListener(new ValueEventListener() {
+        ValueEventListener valueEventListener = new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 HashMap<String, Object> channelResult = (HashMap<String, Object>) dataSnapshot.getValue();
-                updateLocalChannels(channelToken, channelResult);
-
-                channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
+                updateChannels(channelToken, channelResult);
+                Collections.sort(channelList);
                 recyclerView.getAdapter().notifyDataSetChanged();
             }
 
@@ -142,7 +157,14 @@ public class ChannelListFragment extends Fragment {
             public void onCancelled(DatabaseError databaseError) {
 
             }
-        });
+        };
+
+        Map<DatabaseReference, ValueEventListener> map = new HashMap<DatabaseReference, ValueEventListener>();
+        map.put(channelRef, valueEventListener);
+
+        channelListenerMap.put(channelToken, map);
+        channelRef.addValueEventListener(valueEventListener);
+
     }
 
     public void fetchChannelList() {
@@ -165,6 +187,24 @@ public class ChannelListFragment extends Fragment {
 
             @Override
             public void onChildRemoved(DataSnapshot dataSnapshot) {
+                String channelToken = dataSnapshot.getKey();
+
+                for (Channel channel : channelList) {
+                    if (channel.getToken().equals(channelToken)) {
+                        Map<DatabaseReference, ValueEventListener> referenceMap = channelListenerMap.get(channelToken);
+                        if (referenceMap != null) {
+                            for (DatabaseReference dbRef : referenceMap.keySet()) {
+                                ValueEventListener valueEventListener = referenceMap.get(dbRef);
+                                dbRef.removeEventListener(valueEventListener);
+                            }
+
+                        }
+                        channelList.remove(channel);
+                        break;
+                    }
+                }
+
+                recyclerView.getAdapter().notifyDataSetChanged();
 
             }
 
@@ -184,9 +224,9 @@ public class ChannelListFragment extends Fragment {
 
     @Override
     public void onResume() {
-        if (Setting.isLogined(ClientApp.getContext())) {
-            fetchChannelList();
-        }
+//        if (Setting.isLogined(ClientApp.getContext())) {
+//            fetchChannelList();
+//        }
         super.onResume();
     }
 

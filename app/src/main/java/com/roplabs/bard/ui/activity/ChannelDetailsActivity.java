@@ -36,8 +36,8 @@ public class ChannelDetailsActivity extends BaseActivity {
         setContentView(R.layout.activity_channel_details);
 
         Intent intent = getIntent();
-        channelToken = intent.getStringExtra("channelToken");
-        channel = Channel.forToken(channelToken);
+        channel = (Channel) intent.getParcelableExtra("channel");
+        channelToken = channel.getToken();
 
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -141,8 +141,6 @@ public class ChannelDetailsActivity extends BaseActivity {
 
         DatabaseReference channelMemberRef = database.getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
         channelMemberRef.removeValue();
-
-        channel.leave();
     }
 
     @Override

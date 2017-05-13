@@ -19,6 +19,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.ChannelPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.Repo;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
@@ -58,8 +59,8 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         setContentView(R.layout.activity_channel);
 
         Intent intent = getIntent();
-        channelToken = intent.getStringExtra("channelToken");
-        channel = Channel.forToken(channelToken);
+        channel = (Channel) intent.getParcelableExtra("channel");
+        channelToken = channel.getToken();
 
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
@@ -291,7 +292,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
                 return true;
             case R.id.menu_item_channel_settings:
                 intent = new Intent(this, ChannelDetailsActivity.class);
-                intent.putExtra("channelToken", channelToken);
+                intent.putExtra("channel", channel);
                 startActivityForResult(intent, CHANNEL_DETAILS_REQUEST_CODE);
                 return true;
             default:

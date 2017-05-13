@@ -15,8 +15,8 @@
 [x] contacts should show loading indicator (ios_light_iron_background)
 [x] after login, profile is not refreshed...same for chat
 [x] new group
-  [ ] after create, should show "invite link", add members
-    [ ] add member functionality should work
+  [x] after create, should show "invite link", add members
+    [x] add member functionality should work
   [x] Invite link: people can only join this channel by following this link
   [x] join channel (add username to participants hash of channel)
     [x] deeplink (can only join via link)
@@ -27,6 +27,8 @@
       [x] add member
         [x] add member functionality should work
       [x] leave channel (remove username from participants hash)
+
+[ ] if i clear every word, can no longer type
 
 [ ] check pagination doesnt get screwed up when realtime chat
   [ ] scenario:
@@ -46,6 +48,11 @@
     [ ] just need username to know where to fetch it
   [ ] upload to "https://assets.bard.co/avatar/group/znalkj234asdf.png"
     [ ] just need channelToken to know where to fetch it
+
+[ ] Bard
+
+    Bard lets you create funny video memes with your friends.
+
 
 
 [ ] show presence of friends
