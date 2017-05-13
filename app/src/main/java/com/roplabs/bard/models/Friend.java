@@ -74,18 +74,4 @@ public class Friend extends RealmObject {
         this.additionalProperties.put(name, value);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Friend friend = (Friend) o;
-
-        return friendname.equals(friend.friendname);
-    }
-
-    @Override
-    public int hashCode() {
-        return friendname.hashCode();
-    }
 }

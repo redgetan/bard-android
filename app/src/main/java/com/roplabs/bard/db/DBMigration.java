@@ -268,14 +268,22 @@ public class DBMigration implements RealmMigration {
         if (oldVersion == 22) {
             schema.get("Channel")
                     .addField("lastMessage",String.class);
+            schema.get("Post")
+                    .addField("updatedAt",Date.class);
 
             oldVersion++;
         }
 
         // migrate to version 24
         if (oldVersion == 23) {
-            schema.get("Post")
-                    .addField("updatedAt",Date.class);
+
+            oldVersion++;
+        }
+
+        // migrate to version 25
+        if (oldVersion == 24) {
+            schema.get("Channel")
+                    .addField("joined",Boolean.class);
 
             oldVersion++;
         }

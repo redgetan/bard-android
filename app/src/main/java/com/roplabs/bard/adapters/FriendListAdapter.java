@@ -140,11 +140,11 @@ public class FriendListAdapter extends
             }
 
             if (listener != null) {
-                if (userCheckbox.isShown()) {
-                    checkListener.onItemCheckClick(v, position, user, userCheckbox.isChecked());
-                } else {
-                    listener.onItemClick(v, position, user);
-                }
+                listener.onItemClick(v, position, user);
+            }
+
+            if (checkListener != null) {
+                checkListener.onItemCheckClick(v, position, user, userCheckbox.isChecked());
             }
 
         }

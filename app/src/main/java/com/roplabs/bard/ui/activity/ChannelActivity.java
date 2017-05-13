@@ -334,7 +334,7 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (resultCode == RESULT_OK && requestCode == CHANNEL_DETAILS_REQUEST_CODE) {
-            boolean shouldLeaveGroup = data.getBooleanExtra("leaveGroup", false);
+            boolean shouldLeaveGroup = data.getBooleanExtra("leaveChannel", false);
             if (shouldLeaveGroup) {
                 setResult(RESULT_OK);
                 finish();

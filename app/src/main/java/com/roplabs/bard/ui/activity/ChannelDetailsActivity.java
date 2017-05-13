@@ -41,7 +41,7 @@ public class ChannelDetailsActivity extends BaseActivity {
 
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
-        title.setText("Info");
+        title.setText("Group Info");
 
         recyclerView = (RecyclerView) findViewById(R.id.member_list);
         memberCount = (TextView) findViewById(R.id.member_count);
@@ -75,6 +75,8 @@ public class ChannelDetailsActivity extends BaseActivity {
 
 
     private void fetchMemberList() {
+        memberList.clear();
+
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference channelMembersRef = database.getReference("channels/" + channelToken + "/participants");
         channelMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
@@ -86,8 +88,8 @@ public class ChannelDetailsActivity extends BaseActivity {
                     memberList.add(user);
                 }
 
-                memberCount.setText(memberList.size());
-                recyclerView.getAdapter().notifyItemRangeInserted(0,memberList.size());
+                memberCount.setText(String.valueOf(memberList.size()));
+                recyclerView.getAdapter().notifyDataSetChanged();
             }
 
             @Override
@@ -139,6 +141,14 @@ public class ChannelDetailsActivity extends BaseActivity {
 
         DatabaseReference channelMemberRef = database.getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
         channelMemberRef.removeValue();
+
+        channel.leave();
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == CHANNEL_MEMBER_INVITE_REQUEST_CODE) {
+            fetchMemberList();
+        }
+    }
 }

@@ -35,7 +35,7 @@ public class ChannelMemberInviteActivity extends BaseActivity {
     private TextView emptyStateDescription;
     private RecyclerView recyclerView;
     private List<Friend> friendList;
-    private List<Friend> friendsToAddInGroup;
+    private List<Friend> selectedFriends;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,7 +69,7 @@ public class ChannelMemberInviteActivity extends BaseActivity {
         emptyStateDescription = (TextView) findViewById(R.id.empty_state_description);
 
         emptyStateTitle.setText("");
-        emptyStateDescription.setText("No friends yet");
+        emptyStateDescription.setText("No friends to add");
 
         emptyStateContainer.setVisibility(View.GONE);
     }
@@ -80,22 +80,28 @@ public class ChannelMemberInviteActivity extends BaseActivity {
 
 
     private void removeMembersFromFriendList(final OnFriendListValidated callback) {
+        final List<Friend> localFriends = Friend.friendsForUser(Setting.getUsername(this));
+
         // only show friends that are not member yet
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference channelMembersRef = database.getReference("channels/" + channelToken + "/participants");
         channelMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
+                List<String> memberUsernameList = new ArrayList<String>();
 
                 for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
-                    String username = memberSnapshot.getKey();
-                    Friend member = new Friend(username, Setting.getUsername(ClientApp.getContext()));
-                    int memberIndex = friendList.indexOf(member);
-                    if (memberIndex != -1) {
-                        friendList.remove(memberIndex);
-                    }
-
+                    String memberUsername = memberSnapshot.getKey();
+                    memberUsernameList.add(memberUsername);
                 }
+
+                for (Friend friend : localFriends) {
+                    if (!memberUsernameList.contains(friend.getFriendname())) {
+                        // if friend is not member of group yet, add it to list of invitable friends
+                        friendList.add(friend);
+                    }
+                }
+
 
                 callback.onFriendListValidated();
             }
@@ -110,7 +116,8 @@ public class ChannelMemberInviteActivity extends BaseActivity {
     private void initFriendList() {
         final Context self = this;
 
-        friendList = Friend.friendsForUser(Setting.getUsername(this));
+        friendList = new ArrayList<Friend>();
+        selectedFriends = new ArrayList<Friend>();
 
         removeMembersFromFriendList(new OnFriendListValidated() {
             @Override
@@ -128,9 +135,9 @@ public class ChannelMemberInviteActivity extends BaseActivity {
                     public void onItemCheckClick(View itemView, int position, Friend user, boolean isChecked) {
                         // add to list of members
                         if (isChecked) {
-                            friendsToAddInGroup.add(user);
+                            selectedFriends.add(user);
                         } else {
-                            friendsToAddInGroup.remove(user);
+                            selectedFriends.remove(user);
                         }
                     }
 
@@ -166,7 +173,7 @@ public class ChannelMemberInviteActivity extends BaseActivity {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference channelMembersRef;
         DatabaseReference userChannelsRef;
-        for (Friend user : friendsToAddInGroup) {
+        for (Friend user : selectedFriends) {
             channelMembersRef = database.getReference("channels/" + channelToken + "/participants/" + user.getFriendname());
             userChannelsRef   = database.getReference("users/" + user.getFriendname() + "/channels/" + channelToken);
             channelMembersRef.setValue(true);
@@ -179,7 +186,6 @@ public class ChannelMemberInviteActivity extends BaseActivity {
         Intent intent;
         switch (item.getItemId()) {
             case android.R.id.home:
-                setResult(RESULT_OK);
                 finish();
                 return true;
             case R.id.menu_item_channel_invite_finish:

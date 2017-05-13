@@ -20,6 +20,7 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
     private String mode;
     private String participants;
     private String username;
+    private Boolean joined;
     private Date updatedAt;
     private Date createdAt;
 
@@ -46,6 +47,7 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         Realm realm = Realm.getDefaultInstance();
         RealmResults<Channel> results = realm.where(Channel.class)
                 .equalTo("username", username)
+                .equalTo("joined", true)
                 .findAllSorted("updatedAt", Sort.DESCENDING);
         return results;
     }
@@ -70,6 +72,15 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
                 remoteChannel.getUpdatedAt());
     }
 
+    public void leave() {
+        Realm realm = Realm.getDefaultInstance();
+        realm.beginTransaction();
+
+        setJoined(false);
+
+        realm.commitTransaction();
+    }
+
     public static Channel create(String token, String name, String description, String mode, String participants, Date createdAt, Date updatedAt) {
         Realm realm = Realm.getDefaultInstance();
 
@@ -83,6 +94,7 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
         channel.setMode(mode);
         channel.setParticipants(participants);
         channel.setUpdatedAt(updatedAt);
+        channel.setJoined(true);
         channel.setUsername(Setting.getUsername(ClientApp.getContext()));
 
         realm.commitTransaction();
@@ -120,6 +132,14 @@ public class Channel extends RealmObject  implements Comparable<Channel> {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public Boolean getJoined() {
+        return this.joined;
+    }
+
+    public void setJoined(Boolean joined) {
+        this.joined = joined;
     }
 
     public String getDescription() {

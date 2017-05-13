@@ -86,10 +86,9 @@ public class ChannelListFragment extends Fragment {
 
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_list);
-        channelList = new ArrayList<Channel>();
-
         initEmptyState(view);
         initChannelList(view);
+        fetchChannelList();
 
         return view;
     }
@@ -97,10 +96,7 @@ public class ChannelListFragment extends Fragment {
     private void initChannelList(View view) {
         final Context self = getActivity();
         channelList = Channel.forUsername(Setting.getUsername(ClientApp.getContext()));
-
         if (!channelList.isEmpty()) emptyStateContainer.setVisibility(View.GONE);
-
-        BardLogger.log("displaying channels count: " + channelList.size());
 
         recyclerView = (RecyclerView) view.findViewById(R.id.channel_list);
         ChannelListAdapter adapter = new ChannelListAdapter(self, channelList);
@@ -191,7 +187,6 @@ public class ChannelListFragment extends Fragment {
         if (Setting.isLogined(ClientApp.getContext())) {
             fetchChannelList();
         }
-
         super.onResume();
     }
 

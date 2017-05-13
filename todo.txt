@@ -14,18 +14,18 @@
 [x] after "friend add", should show up on "new chat" friends list
 [x] contacts should show loading indicator (ios_light_iron_background)
 [x] after login, profile is not refreshed...same for chat
-[ ] new group
+[x] new group
   [ ] after create, should show "invite link", add members
     [ ] add member functionality should work
   [x] Invite link: people can only join this channel by following this link
   [x] join channel (add username to participants hash of channel)
     [x] deeplink (can only join via link)
-  [ ] edit channel
-    [ ] options
+  [x] edit channel
+    [x] options
       [x] details
         [x] show/change avatar (if admin), invite link, members
-      [ ] add member
-        [ ] add member functionality should work
+      [x] add member
+        [x] add member functionality should work
       [x] leave channel (remove username from participants hash)
 
 [ ] check pagination doesnt get screwed up when realtime chat
@@ -37,7 +37,6 @@
   [ ] does onScrolled get called on firebase add ??
   [ ] if page 2 fetched, before adding, check if already exist on list
     [ ] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
-
 
 [ ] upload profile pic
   [ ] profile fragment
