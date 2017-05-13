@@ -12,7 +12,7 @@ import io.realm.annotations.Ignore;
 
 import java.util.*;
 
-public class Post extends RealmObject {
+public class Post {
 
     private int id;
     private String repoSourceUrl;
@@ -38,33 +38,6 @@ public class Post extends RealmObject {
         this.repoWordList = repoWordList;
         this.repoSourceUrl = repoSourceUrl;
         this.createdAt = createdAt;
-    }
-
-    public static RealmResults<Post> findAll() {
-        Realm realm = Realm.getDefaultInstance();
-        return realm.where(Post.class).findAll();
-    }
-
-    public static int getCount() {
-        Realm realm = Realm.getDefaultInstance();
-        return (int) realm.where(Post.class).count();
-    }
-
-    public static RealmResults<Post> forUsername(String username) {
-        Realm realm = Realm.getDefaultInstance();
-        RealmResults<Post> results = realm.where(Post.class)
-                .equalTo("username", username)
-                .findAllSorted("createdAt", Sort.DESCENDING);
-        return results;
-    }
-
-    public static Post forId(int id) {
-        Realm realm = Realm.getDefaultInstance();
-        return realm.where(Post.class).equalTo("id", id).findFirst();
-    }
-
-    public static void create(Post remotePost) {
-        create(remotePost.getId(), remotePost.getRepoToken(), remotePost.getRepoWordList(), remotePost.getRepoSourceUrl(), remotePost.getSceneToken(), remotePost.getPackToken(), remotePost.getThumbnailUrl(), remotePost.getCreatedAt());
     }
 
     public HashMap<String, Object> toMap() {
@@ -115,35 +88,6 @@ public class Post extends RealmObject {
         post.setUpdatedAt(updatedAt);
 
         return post;
-    }
-
-    public static Post create(int id, String repoToken, String repoWordList, String repoSourceUrl, String sceneToken, String packToken, String thumbnailUrl,  Date createdAt) {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
-        Post post = realm.createObject(Post.class);
-
-        post.setId(id);
-        post.setRepoToken(repoToken);
-        post.setRepoWordList(repoWordList);
-        post.setRepoSourceUrl(repoSourceUrl);
-        post.setSceneToken(sceneToken);
-        post.setPackToken(packToken);
-        post.setThumbnailUrl(thumbnailUrl);
-        post.setUsername(Setting.getUsername(ClientApp.getContext()));
-
-        realm.commitTransaction();
-
-        return post;
-    }
-
-    public void delete() {
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-        this.deleteFromRealm();
-        realm.commitTransaction();
     }
 
     public Map<String, Object> getAdditionalProperties() {
@@ -205,24 +149,6 @@ public class Post extends RealmObject {
         this.updatedAt = updatedAt;
     }
 
-    public static void createOrUpdate(List<Post> postList) {
-
-        Realm realm = Realm.getDefaultInstance();
-
-        realm.beginTransaction();
-
-        for (Post post : postList) {
-            Post obj = Post.forId(post.getId());
-            if (obj == null) {
-                Post.create(post);
-            } else {
-                obj.setRepoWordList(post.getRepoWordList());
-                obj.setRepoSourceUrl(post.getRepoSourceUrl());
-            }
-        }
-        realm.commitTransaction();
-    }
-
     public String getRepoToken() {
         return repoToken;
     }
@@ -281,5 +207,21 @@ public class Post extends RealmObject {
 
         return TextUtils.join(" ",phrase);
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Post post = (Post) o;
+
+        return getId() == post.getId();
+    }
+
+    @Override
+    public int hashCode() {
+        return getId();
+    }
+
 
 }
