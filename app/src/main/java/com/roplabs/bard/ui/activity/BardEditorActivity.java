@@ -65,7 +65,8 @@ public class BardEditorActivity extends BaseActivity implements
         TextureView.SurfaceTextureListener,
         MediaPlayer.OnPreparedListener,
         MediaPlayer.OnCompletionListener,
-        Helper.KeyboardVisibilityListener, PopupMenu.OnMenuItemClickListener, SavePackDialog.OnPackDialogEvent {
+        Helper.KeyboardVisibilityListener, PopupMenu.OnMenuItemClickListener, SavePackDialog.OnPackDialogEvent,
+        WordListAdapter.OnItemClickListener {
 
     public static final String EXTRA_MESSAGE = "com.roplabs.bard.MESSAGE";
     public static final String EXTRA_REPO_TOKEN = "com.roplabs.bard.REPO_TOKEN";
@@ -200,6 +201,7 @@ public class BardEditorActivity extends BaseActivity implements
         editText = (WordsAutoCompleteTextView) findViewById(R.id.edit_message);
         editText.setEnableAutocomplete(false);
         editText.setRecyclerView(recyclerView);
+        editText.setContext(this);
         editText.setEnabled(false);
         editText.setPrivateImeOptions("com.google.android.inputmethod.latin.noMicrophoneKey");
 
@@ -787,29 +789,29 @@ public class BardEditorActivity extends BaseActivity implements
 
         WordListAdapter adapter = new WordListAdapter(this, wordTagStringList);
         adapter.setIsWordTagged(true);
-        adapter.setOnItemClickListener(new WordListAdapter.OnItemClickListener() {
-            @Override
-            public void onItemClick(View itemView, int position, WordTag wordTag) {
-                // if its a different view, set previous one to true first to avoid getting stucked at disabled state
-                if (lastClickedWordTagView != null && lastClickedWordTagView != itemView) {
-                    lastClickedWordTagView.setEnabled(true);
-                }
-                lastClickedWordTagView = itemView;
-                lastClickedWordTagView.setEnabled(false);
-
-                if (!wordTag.isFilled()) {
-                    // this will happen if we are on filtered mode, where wordTags in adapter is not tagged (to avoid duplicate results in recyclerview)
-                    WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
-
-                    // if filtered wordTag is chosen, we want to show user original list
-                    editText.displayOriginalWordList();
-                    onWordTagClick(targetWordTag);
-                } else {
-                    onWordTagClick(wordTag);
-                }
-            }
-        });
+        adapter.setOnItemClickListener(this);
         recyclerView.setAdapter(adapter);
+    }
+
+    @Override
+    public void onItemClick(View itemView, int position, WordTag wordTag) {
+        // if its a different view, set previous one to true first to avoid getting stucked at disabled state
+        if (lastClickedWordTagView != null && lastClickedWordTagView != itemView) {
+            lastClickedWordTagView.setEnabled(true);
+        }
+        lastClickedWordTagView = itemView;
+        lastClickedWordTagView.setEnabled(false);
+
+        if (!wordTag.isFilled()) {
+            // this will happen if we are on filtered mode, where wordTags in adapter is not tagged (to avoid duplicate results in recyclerview)
+            WordTag targetWordTag = getWordTagSelector().findNextWord(wordTag.word);
+
+            // if filtered wordTag is chosen, we want to show user original list
+            editText.displayOriginalWordList();
+            onWordTagClick(targetWordTag);
+        } else {
+            onWordTagClick(wordTag);
+        }
     }
 
     private void initWordTagViewListeners() {

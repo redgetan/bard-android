@@ -26,6 +26,7 @@ import com.roplabs.bard.adapters.WordListAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.events.PreviewWordEvent;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.ui.activity.BardEditorActivity;
 import com.roplabs.bard.util.BardLogger;
 import org.apache.commons.collections4.MapIterator;
 import org.apache.commons.collections4.Trie;
@@ -52,6 +53,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
     private boolean isFormattingLocked = false;
     private List<String> filteredResults;
     private List<String> originalWordTagStringList;
+    private WordListAdapter.OnItemClickListener listener;
 
     public WordsAutoCompleteTextView(Context context) {
         super(context);
@@ -367,10 +369,8 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
         return this.isAutocompleteEnabled;
     }
 
-    public void setSentenceWords(List<String> words) {
-        WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), words);
-        adapter.setIsWordTagged(true);
-//        recyclerView.setAdapter(adapter);
+    public void setContext(WordListAdapter.OnItemClickListener listener) {
+        this.listener = listener;
     }
 
     public void setAutoCompleteWords(Trie<String, String> wordTrie) {
@@ -549,6 +549,7 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
     public void displayOriginalWordList() {
         WordListAdapter adapter = new WordListAdapter(ClientApp.getContext(), originalWordTagStringList);
+        adapter.setOnItemClickListener(listener);
         adapter.setIsWordTagged(true);
         recyclerView.setAdapter(adapter);
     }
@@ -654,9 +655,11 @@ public class WordsAutoCompleteTextView extends EditText implements Filterable, F
 
                 if (actualResults.size() == mWordTrie.size()) {
                     adapter = new WordListAdapter(ClientApp.getContext(), originalWordTagStringList);
+                    adapter.setOnItemClickListener(listener);
                     adapter.setIsWordTagged(true);
                 } else {
                     adapter = new WordListAdapter(ClientApp.getContext(), actualResults);
+                    adapter.setOnItemClickListener(listener);
                 }
 
                 recyclerView.setAdapter(adapter);
