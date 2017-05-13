@@ -83,7 +83,8 @@ public class Channel implements Comparable<Channel>, Parcelable {
                 remoteChannel.getMode(),
                 remoteChannel.getParticipants(),
                 remoteChannel.getCreatedAt(),
-                remoteChannel.getUpdatedAt());
+                remoteChannel.getUpdatedAt(),
+                "");
     }
 //
 //    public void leave() {
@@ -95,7 +96,7 @@ public class Channel implements Comparable<Channel>, Parcelable {
 //        realm.commitTransaction();
 //    }
 //
-    public static Channel create(String token, String name, String description, String mode, String participants, Date createdAt, Date updatedAt) {
+    public static Channel create(String token, String name, String description, String mode, String participants, Date createdAt, Date updatedAt, String lastMessage) {
         Channel channel = new Channel();
 
         channel.setToken(token);
@@ -104,6 +105,7 @@ public class Channel implements Comparable<Channel>, Parcelable {
         channel.setMode(mode);
         channel.setParticipants(participants);
         channel.setUpdatedAt(updatedAt);
+        channel.setLastMessage(lastMessage);
         channel.setJoined(true);
 
         return channel;
@@ -258,7 +260,7 @@ public class Channel implements Comparable<Channel>, Parcelable {
         }
 
 
-        return create(channelToken, name, "", mode, TextUtils.join(",", participantNames), createdAt, updatedAt);
+        return create(channelToken, name, "", mode, TextUtils.join(",", participantNames), createdAt, updatedAt, lastMessage);
     }
 
     public void updateFromFirebase(HashMap<String, Object> channelResult) {

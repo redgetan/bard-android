@@ -14,7 +14,7 @@ import java.util.*;
 
 public class Post {
 
-    private int id;
+    private Long id;
     private String repoSourceUrl;
     private String repoTitle;
     private String repoToken;
@@ -31,13 +31,6 @@ public class Post {
 
     public Post(){
 
-    }
-
-    public Post(int id, String repoWordList, String repoSourceUrl, Date createdAt){
-        this.id = id;
-        this.repoWordList = repoWordList;
-        this.repoSourceUrl = repoSourceUrl;
-        this.createdAt = createdAt;
     }
 
     public HashMap<String, Object> toMap() {
@@ -58,7 +51,7 @@ public class Post {
 
     public static Post fromResult(HashMap<String, String> result) {
         Post post = new Post();
-        post.setId(Integer.parseInt(result.get("id")));
+        post.setId(Long.valueOf(result.get("id")));
         post.setRepoSourceUrl(result.get("repoSourceUrl"));
         post.setRepoToken(result.get("repoToken"));
         post.setSceneToken(result.get("sceneToken"));
@@ -74,7 +67,7 @@ public class Post {
 
     public static Post fromFirebase(HashMap<String, Object> result) {
         Post post = new Post();
-        post.setId((Integer) result.get("id"));
+        post.setId((Long) result.get("id"));
         post.setRepoSourceUrl((String) result.get("repoSourceUrl"));
         post.setRepoToken((String) result.get("repoToken"));
         post.setSceneToken((String) result.get("sceneToken"));
@@ -98,11 +91,11 @@ public class Post {
         this.additionalProperties.put(name, value);
     }
 
-    public int getId() {
+    public Long getId() {
         return this.id;
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -215,12 +208,12 @@ public class Post {
 
         Post post = (Post) o;
 
-        return getId() == post.getId();
+        return getId().equals(post.getId());
     }
 
     @Override
     public int hashCode() {
-        return getId();
+        return getId().hashCode();
     }
 
 
