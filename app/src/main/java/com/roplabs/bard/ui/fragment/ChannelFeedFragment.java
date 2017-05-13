@@ -215,6 +215,9 @@ public class ChannelFeedFragment extends Fragment implements
         postList.add(0, post); // insert at beginning
         recyclerView.getAdapter().notifyDataSetChanged();
 
+        // since were adding new item, adjust selected position
+        int oldPosition = ((ChannelFeedAdapter) recyclerView.getAdapter()).getSelected();
+        ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(oldPosition + 1);
     }
 
     @Override

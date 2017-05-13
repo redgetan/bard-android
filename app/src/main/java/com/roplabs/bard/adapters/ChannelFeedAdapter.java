@@ -156,4 +156,9 @@ public class ChannelFeedAdapter extends
         selectedPosition = targetPosition;
         notifyItemChanged(selectedPosition);
     }
+
+    public int getSelected() {
+        return selectedPosition;
+    }
+
 }

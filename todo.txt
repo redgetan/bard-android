@@ -28,7 +28,7 @@
         [x] add member functionality should work
       [x] leave channel (remove username from participants hash)
 
-[ ] if i clear every word, can no longer type
+[x] if i clear every word, can no longer type
 
 [ ] check pagination doesnt get screwed up when realtime chat
   [ ] scenario:
@@ -37,8 +37,13 @@
     time @3: page1 - 23 items, firebase added 8 to client (endless scroll gets triggered, fetches 3 items from page 2, when in fact its already available)
   [ ] does (lastVisibleItemPosition + visibleThreshold) get updated ???
   [ ] does onScrolled get called on firebase add ??
-  [ ] if page 2 fetched, before adding, check if already exist on list
-    [ ] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
+  [x] if page 2 fetched, before adding, check if already exist on list
+    [x] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
+
+
+[ ] implement 'send' in homepage video select
+
+
 
 [ ] upload profile pic
   [ ] profile fragment
