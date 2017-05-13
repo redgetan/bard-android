@@ -69,6 +69,7 @@ public class Post extends RealmObject {
 
     public HashMap<String, Object> toMap() {
         HashMap<String, Object> result = new HashMap<String, Object>();
+        result.put("id", getId());
         result.put("repoSourceUrl", getRepoSourceUrl());
         result.put("repoToken", getRepoToken());
         result.put("sceneToken", getSceneToken());
@@ -84,6 +85,7 @@ public class Post extends RealmObject {
 
     public static Post fromResult(HashMap<String, String> result) {
         Post post = new Post();
+        post.setId(Integer.parseInt(result.get("id")));
         post.setRepoSourceUrl(result.get("repoSourceUrl"));
         post.setRepoToken(result.get("repoToken"));
         post.setSceneToken(result.get("sceneToken"));
@@ -99,6 +101,7 @@ public class Post extends RealmObject {
 
     public static Post fromFirebase(HashMap<String, Object> result) {
         Post post = new Post();
+        post.setId((Integer) result.get("id"));
         post.setRepoSourceUrl((String) result.get("repoSourceUrl"));
         post.setRepoToken((String) result.get("repoToken"));
         post.setSceneToken((String) result.get("sceneToken"));
@@ -277,5 +280,20 @@ public class Post extends RealmObject {
         }
 
         return TextUtils.join(" ",phrase);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        Post post = (Post) o;
+
+        return id == post.id;
+    }
+
+    @Override
+    public int hashCode() {
+        return id;
     }
 }

@@ -33,8 +33,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static android.view.View.TEXT_ALIGNMENT_TEXT_START;
-import static com.roplabs.bard.util.Helper.BARD_EDITOR_REQUEST_CODE;
-import static com.roplabs.bard.util.Helper.SCENE_SELECT_REQUEST_CODE;
+import static com.roplabs.bard.util.Helper.*;
 
 /**
  * Created by reg on 2017-03-30.
@@ -290,8 +289,10 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
                 // click on 'up' button in the action bar, handle it here
                 finish();
                 return true;
-            case R.id.menu_item_channel_more:
-                onChannelMoreButtonClick(findViewById(R.id.menu_item_channel_more));
+            case R.id.menu_item_channel_settings:
+                intent = new Intent(this, ChannelDetailsActivity.class);
+                intent.putExtra("channelToken", channelToken);
+                startActivityForResult(intent, CHANNEL_DETAILS_REQUEST_CODE);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -301,18 +302,10 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
     private void onChannelMoreButtonClick(View view) {
         moreMenu = new PopupMenu(this, view);
         moreMenu.setOnMenuItemClickListener(this);
-        moreMenu.inflate(R.menu.menu_create_upload_video_more);
-        moreMenu.inflate(R.menu.menu_create_rate_app_more);
+        moreMenu.inflate(R.menu.menu_channel_more_details);
+        moreMenu.inflate(R.menu.menu_channel_more_add_members);
+        moreMenu.inflate(R.menu.menu_channel_more_leave);
         moreMenu.show();
-    }
-
-    private void leaveChannel(String channelToken) {
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        DatabaseReference userChannelRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
-        userChannelRef.removeValue();
-
-        DatabaseReference channelMemberRef = database.getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
-        channelMemberRef.removeValue();
     }
 
     @Override
@@ -323,16 +316,29 @@ public class ChannelActivity extends BaseActivity implements SceneSelectFragment
         switch (item.getItemId()) {
             case R.id.menu_item_channel_details:
                 intent = new Intent(this, ChannelDetailsActivity.class);
-                startActivity(intent);
+                intent.putExtra("channelToken", channelToken);
+                startActivityForResult(intent, CHANNEL_DETAILS_REQUEST_CODE);
                 return true;
             case R.id.menu_item_add_channel_member:
                 intent = new Intent(this, ChannelMemberInviteActivity.class);
-                startActivity(intent);
+                intent.putExtra("channelToken", channelToken);
+                startActivityForResult(intent, CHANNEL_MEMBER_INVITE_REQUEST_CODE);
                 return true;
             case R.id.menu_item_channel_leave:
                 return true;
             default:
                 return false;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == CHANNEL_DETAILS_REQUEST_CODE) {
+            boolean shouldLeaveGroup = data.getBooleanExtra("leaveGroup", false);
+            if (shouldLeaveGroup) {
+                setResult(RESULT_OK);
+                finish();
+            }
         }
     }
 }

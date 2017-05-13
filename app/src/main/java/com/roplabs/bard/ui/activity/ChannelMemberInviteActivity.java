@@ -9,7 +9,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import com.google.firebase.database.*;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.FriendListAdapter;
 import com.roplabs.bard.config.Configuration;
@@ -18,6 +21,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -31,6 +35,7 @@ public class ChannelMemberInviteActivity extends BaseActivity {
     private TextView emptyStateDescription;
     private RecyclerView recyclerView;
     private List<Friend> friendList;
+    private List<Friend> friendsToAddInGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,9 +47,15 @@ public class ChannelMemberInviteActivity extends BaseActivity {
 
         Intent intent = getIntent();
         channelToken = intent.getStringExtra("channelToken");
+        boolean hideInviteLink = intent.getBooleanExtra("hideInviteLink", false);
 
-        channelInviteLink = (TextView) findViewById(R.id.channel_invite_link);
-        channelInviteLink.setText(Configuration.bardAPIBaseURL() + "/channels/" + channelToken);
+        if (hideInviteLink) {
+            LinearLayout channelInviteLinkContainer = (LinearLayout) findViewById(R.id.channel_invite_link_container);
+            channelInviteLinkContainer.setVisibility(View.GONE);
+        } else {
+            channelInviteLink = (TextView) findViewById(R.id.channel_invite_link);
+            channelInviteLink.setText(Configuration.bardAPIBaseURL() + "/channels/" + channelToken);
+        }
 
         recyclerView = (RecyclerView) findViewById(R.id.friend_list);
 
@@ -63,36 +74,79 @@ public class ChannelMemberInviteActivity extends BaseActivity {
         emptyStateContainer.setVisibility(View.GONE);
     }
 
-    private void initFriendList() {
-        friendList = Friend.friendsForUser(Setting.getUsername(this));
+    interface OnFriendListValidated {
+        void onFriendListValidated();
+    }
 
-        if (friendList.isEmpty()) {
-            emptyStateContainer.setVisibility(View.VISIBLE);
-        } else {
-            emptyStateContainer.setVisibility(View.GONE);
-        }
 
-        final Context self = this;
-
-        // set adapter
-        FriendListAdapter friendListAdapter = new FriendListAdapter(this, friendList);
-        friendListAdapter.setOnItemClickListener(new FriendListAdapter.OnItemClickListener() {
+    private void removeMembersFromFriendList(final OnFriendListValidated callback) {
+        // only show friends that are not member yet
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference channelMembersRef = database.getReference("channels/" + channelToken + "/participants");
+        channelMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onItemClick(View itemView, int position, Friend user) {
-                // add to list of members
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String username = memberSnapshot.getKey();
+                    Friend member = new Friend(username, Setting.getUsername(ClientApp.getContext()));
+                    int memberIndex = friendList.indexOf(member);
+                    if (memberIndex != -1) {
+                        friendList.remove(memberIndex);
+                    }
+
+                }
+
+                callback.onFriendListValidated();
             }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                callback.onFriendListValidated();
+            }
         });
-        recyclerView.setAdapter(friendListAdapter);
+    }
 
-        // set layout manager
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(layoutManager);
+    private void initFriendList() {
+        final Context self = this;
 
-        // set decorator
-        ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(this, R.dimen.scene_item_offset);
-        recyclerView.addItemDecoration(itemDecoration);
+        friendList = Friend.friendsForUser(Setting.getUsername(this));
+
+        removeMembersFromFriendList(new OnFriendListValidated() {
+            @Override
+            public void onFriendListValidated() {
+                if (friendList.isEmpty()) {
+                    emptyStateContainer.setVisibility(View.VISIBLE);
+                } else {
+                    emptyStateContainer.setVisibility(View.GONE);
+                }
+
+                // set adapter
+                FriendListAdapter friendListAdapter = new FriendListAdapter(self, friendList, "add_to_group");
+                friendListAdapter.setOnItemCheckClickListener(new FriendListAdapter.OnItemCheckClickListener() {
+                    @Override
+                    public void onItemCheckClick(View itemView, int position, Friend user, boolean isChecked) {
+                        // add to list of members
+                        if (isChecked) {
+                            friendsToAddInGroup.add(user);
+                        } else {
+                            friendsToAddInGroup.remove(user);
+                        }
+                    }
+
+                });
+                recyclerView.setAdapter(friendListAdapter);
+
+                // set layout manager
+                LinearLayoutManager layoutManager = new LinearLayoutManager(self);
+                recyclerView.setLayoutManager(layoutManager);
+
+                // set decorator
+                ItemOffsetDecoration itemDecoration = new ItemOffsetDecoration(self, R.dimen.scene_item_offset);
+                recyclerView.addItemDecoration(itemDecoration);
+            }
+        });
+
     }
 
     @Override
@@ -108,6 +162,18 @@ public class ChannelMemberInviteActivity extends BaseActivity {
         return super.onCreateOptionsMenu(menu);
     }
 
+    private void addFriendsToGroup() {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference channelMembersRef;
+        DatabaseReference userChannelsRef;
+        for (Friend user : friendsToAddInGroup) {
+            channelMembersRef = database.getReference("channels/" + channelToken + "/participants/" + user.getFriendname());
+            userChannelsRef   = database.getReference("users/" + user.getFriendname() + "/channels/" + channelToken);
+            channelMembersRef.setValue(true);
+            userChannelsRef.setValue(true);
+        }
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         Intent intent;
@@ -117,7 +183,7 @@ public class ChannelMemberInviteActivity extends BaseActivity {
                 finish();
                 return true;
             case R.id.menu_item_channel_invite_finish:
-                // must set usernames on intent to let these people join
+                addFriendsToGroup();
                 setResult(RESULT_OK);
                 finish();
                 return true;

@@ -5,6 +5,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 import com.bumptech.glide.Glide;
@@ -119,6 +120,7 @@ public class UserListAdapter extends
         public TextView userUsername;
         public TextView userThumbnail;
         public TextView userAction;
+        public CheckBox userCheckbox;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -131,6 +133,7 @@ public class UserListAdapter extends
             userUsername = (TextView) itemView.findViewById(R.id.user_username);
             userThumbnail = (TextView) itemView.findViewById(R.id.user_thumbnail);
             userAction = (TextView) itemView.findViewById(R.id.user_action);
+            userCheckbox = (CheckBox) itemView.findViewById(R.id.user_checkbox);
 
             this.context = context;
             itemView.setOnClickListener(this);

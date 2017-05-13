@@ -39,12 +39,19 @@
     [ ] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
 
 
+[ ] upload profile pic
+  [ ] profile fragment
+  [ ] channel details activity
+  [ ] channel create activity
+  [ ] upload to "https://assets.bard.co/avatar/user/kuroro.png"
+    [ ] just need username to know where to fetch it
+  [ ] upload to "https://assets.bard.co/avatar/group/znalkj234asdf.png"
+    [ ] just need channelToken to know where to fetch it
 
 
 [ ] show presence of friends
 [ ] packs
   [ ] combo container (show 0/10)
-[ ] upload profile pic
 [ ] show profile pic in chats
 [ ] ask user to rate app
   [ ] saved a bard

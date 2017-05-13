@@ -10,38 +10,44 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
 
-    <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingLeft="15dp"
-              android:paddingTop="20dp"
-              android:paddingBottom="5dp"
-              android:text="Invite Link: "
-    />
+    <LinearLayout
+            android:id="@+id/channel_invite_link_container"
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="15dp"
+                  android:paddingTop="20dp"
+                  android:paddingBottom="5dp"
+                  android:text="Invite Link: "
+        />
 
-    <TextView
-            android:id="@+id/channel_invite_link"
-              android:layout_width="match_parent"
-              android:layout_height="50dp"
-            android:textIsSelectable="true"
-              android:background="@color/white"
-            android:layout_marginTop="10dp"
-            android:textColor="@color/ink"
-            android:text="https://bard.co/channels/234kljalkdsf"
-            android:layout_gravity="center_vertical"
-            android:gravity="center_vertical"
-            android:padding="10dp"
-            android:paddingLeft="15dp"
-            android:paddingStart="15dp"
-    />
+        <TextView
+                android:id="@+id/channel_invite_link"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:textIsSelectable="true"
+                android:background="@color/white"
+                android:layout_marginTop="10dp"
+                android:textColor="@color/ink"
+                android:text="https://bard.co/channels/234kljalkdsf"
+                android:layout_gravity="center_vertical"
+                android:gravity="center_vertical"
+                android:padding="10dp"
+                android:paddingLeft="15dp"
+                android:paddingStart="15dp"
+        />
 
-    <TextView android:layout_width="match_parent"
-              android:layout_height="wrap_content"
-              android:paddingLeft="15dp"
-              android:paddingTop="5dp"
-              android:paddingBottom="5dp"
-              android:text="People can join this channel by following this link.  "
-              android:textColor="@color/base"
-    />
+        <TextView android:layout_width="match_parent"
+                  android:layout_height="wrap_content"
+                  android:paddingLeft="15dp"
+                  android:paddingTop="5dp"
+                  android:paddingBottom="5dp"
+                  android:text="People can join this channel by following this link.  "
+                  android:textColor="@color/base"
+        />
+    </LinearLayout>
 
     <TextView android:layout_width="match_parent"
               android:layout_height="wrap_content"

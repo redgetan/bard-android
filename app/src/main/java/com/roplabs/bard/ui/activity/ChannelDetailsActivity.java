@@ -5,22 +5,30 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.view.MenuItem;
+import android.view.View;
 import android.widget.TextView;
 import com.google.firebase.database.*;
+import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.UserListAdapter;
+import com.roplabs.bard.config.Configuration;
 import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.models.User;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.roplabs.bard.util.Helper.CHANNEL_MEMBER_INVITE_REQUEST_CODE;
+
 public class ChannelDetailsActivity extends BaseActivity {
     private String channelToken;
     private Channel channel;
     private RecyclerView recyclerView;
     private List<User> memberList;
+    private TextView memberCount;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +44,12 @@ public class ChannelDetailsActivity extends BaseActivity {
         title.setText("Info");
 
         recyclerView = (RecyclerView) findViewById(R.id.member_list);
+        memberCount = (TextView) findViewById(R.id.member_count);
+        TextView groupName = (TextView) findViewById(R.id.group_name);
+        groupName.setText(channel.getName());
+
+        TextView channelInviteLink = (TextView) findViewById(R.id.channel_invite_link);
+        channelInviteLink.setText(Configuration.bardAPIBaseURL() + "/" +  channelToken);
 
         initMembers();
         fetchMemberList();
@@ -59,32 +73,21 @@ public class ChannelDetailsActivity extends BaseActivity {
         recyclerView.addItemDecoration(itemDecoration);
     }
 
+
     private void fetchMemberList() {
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         DatabaseReference channelMembersRef = database.getReference("channels/" + channelToken + "/participants");
-        channelMembersRef.addChildEventListener(new ChildEventListener() {
+        channelMembersRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onChildAdded(DataSnapshot dataSnapshot, String s) {
-                String username = dataSnapshot.getKey();
-                User user = new User(username);
-                int oldPosition = memberList.size();
-                memberList.add(user);
-                recyclerView.getAdapter().notifyItemRangeInserted(oldPosition,1);
-            }
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot memberSnapshot : dataSnapshot.getChildren()) {
+                    String username = memberSnapshot.getKey();
+                    User user = new User(username);
+                    memberList.add(user);
+                }
 
-            @Override
-            public void onChildChanged(DataSnapshot dataSnapshot, String s) {
-
-            }
-
-            @Override
-            public void onChildRemoved(DataSnapshot dataSnapshot) {
-
-            }
-
-            @Override
-            public void onChildMoved(DataSnapshot dataSnapshot, String s) {
-
+                memberCount.setText(memberList.size());
+                recyclerView.getAdapter().notifyItemRangeInserted(0,memberList.size());
             }
 
             @Override
@@ -94,4 +97,48 @@ public class ChannelDetailsActivity extends BaseActivity {
         });
 
     }
+
+    @Override
+    public void onBackPressed() {
+        finish();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        Intent intent;
+        switch (item.getItemId()) {
+            case android.R.id.home:
+                // click on 'up' button in the action bar, handle it here
+                finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
+    }
+
+    public void onAddMembers(View view) {
+        Intent intent = new Intent(this, ChannelMemberInviteActivity.class);
+        intent.putExtra("channelToken", channelToken);
+        intent.putExtra("hideInviteLink", true);
+        startActivityForResult(intent, CHANNEL_MEMBER_INVITE_REQUEST_CODE);
+    }
+
+    public void onLeaveGroup(View view) {
+        leaveChannel(channelToken);
+
+        Intent intent = new Intent();
+        intent.putExtra("leaveChannel", true);
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void leaveChannel(String channelToken) {
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        DatabaseReference userChannelRef = database.getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
+        userChannelRef.removeValue();
+
+        DatabaseReference channelMemberRef = database.getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
+        channelMemberRef.removeValue();
+    }
+
 }
