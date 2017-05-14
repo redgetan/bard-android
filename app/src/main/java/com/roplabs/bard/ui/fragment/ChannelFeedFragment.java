@@ -218,6 +218,9 @@ public class ChannelFeedFragment extends Fragment implements
         // since were adding new item, adjust selected position
         int oldPosition = ((ChannelFeedAdapter) recyclerView.getAdapter()).getSelected();
         ((ChannelFeedAdapter) recyclerView.getAdapter()).setSelected(oldPosition + 1);
+
+        // also adjust scrolllistener itemcount to prevent pagination from triggering
+        scrollListener.previousTotalItemCount++;
     }
 
     @Override
