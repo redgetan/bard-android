@@ -30,18 +30,19 @@
 
 [x] if i clear every word, can no longer type
 
-[ ] check pagination doesnt get screwed up when realtime chat
-  [ ] scenario:
+[x] check pagination doesnt get screwed up when realtime chat
+  [x] scenario:
     time @1: page1 - 10 items
     time @2: page1 - 15 items, firebase added 5 to client (endless scroll doesnt get triggered)
     time @3: page1 - 23 items, firebase added 8 to client (endless scroll gets triggered, fetches 3 items from page 2, when in fact its already available)
-  [ ] does (lastVisibleItemPosition + visibleThreshold) get updated ???
-  [ ] does onScrolled get called on firebase add ??
+  [x] does (lastVisibleItemPosition + visibleThreshold) get updated ???
+  [x] does onScrolled get called on firebase add ??
   [x] if page 2 fetched, before adding, check if already exist on list
     [x] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
 
 
 [ ] implement 'send' in homepage video select
+  [ ] list chats
 
 
 

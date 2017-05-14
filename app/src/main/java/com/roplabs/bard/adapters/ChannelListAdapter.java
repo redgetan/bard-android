@@ -7,7 +7,8 @@ import android.support.v7.widget.RecyclerView;
         import android.view.LayoutInflater;
         import android.view.View;
         import android.view.ViewGroup;
-        import android.widget.ImageView;
+import android.widget.CheckBox;
+import android.widget.ImageView;
         import android.widget.TextView;
         import com.bumptech.glide.Glide;
         import com.roplabs.bard.R;
@@ -23,11 +24,20 @@ public class ChannelListAdapter extends
     // Store a member variable for the contacts
     private List<Channel> channels;
     private Context context;
+    private boolean checkable;
 
     // Pass in the contact array into the constructor
     public ChannelListAdapter(Context context, List<Channel> channeList) {
         this.channels = channeList;
         this.context = context;
+        this.checkable = false;
+    }
+
+    // Pass in the contact array into the constructor
+    public ChannelListAdapter(Context context, List<Channel> channeList, boolean checkable) {
+        this.channels = channeList;
+        this.context = context;
+        this.checkable = checkable;
     }
 
     public void swap(List<Channel> channels){
@@ -75,6 +85,14 @@ public class ChannelListAdapter extends
             textView.setText(Helper.formatDate(channel.getUpdatedAt()));
         }
 
+        CheckBox checkBox = viewHolder.channelCheckbox;
+
+        if (this.checkable) {
+            checkBox.setVisibility(View.VISIBLE);
+        } else {
+            checkBox.setVisibility(View.GONE);
+        }
+
 //        ImageView thumbnail = viewHolder.channelThumbnail;
 //        int[] colors = new int[] { R.color.md_red_300, R.color.md_blue_300, R.color.md_amber_200, R.color.md_green_200, R.color.md_purple_100 };
 //        int color = colors[position % colors.length];
@@ -89,13 +107,22 @@ public class ChannelListAdapter extends
     }
 
     private OnItemClickListener listener;
+    private OnItemCheckListener checkListener;
 
     public interface OnItemClickListener {
         void onItemClick(View itemView, int position, Channel channel);
     }
 
+    public interface OnItemCheckListener {
+        void onItemCheck(View itemView, int position, Channel channel, boolean isChecked);
+    }
+
     public void setOnItemClickListener(OnItemClickListener listener) {
         this.listener = listener;
+    }
+
+    public void setOnItemCheckListener(OnItemCheckListener listener) {
+        this.checkListener = listener;
     }
 
     // Provide a direct reference to each of the views within a data item
@@ -107,6 +134,7 @@ public class ChannelListAdapter extends
         public TextView channelDescriptionView;
         public TextView channelLastUpdatedAt;
         public ImageView channelThumbnail;
+        public CheckBox channelCheckbox;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -120,6 +148,7 @@ public class ChannelListAdapter extends
             channelDescriptionView = (TextView) itemView.findViewById(R.id.channel_description);
             channelThumbnail = (ImageView) itemView.findViewById(R.id.channel_thumbnail);
             channelLastUpdatedAt = (TextView) itemView.findViewById(R.id.channel_last_updated_at);
+            channelCheckbox = (CheckBox) itemView.findViewById(R.id.channel_item_checkbox);
 
             this.context = context;
             itemView.setOnClickListener(this);
@@ -131,8 +160,20 @@ public class ChannelListAdapter extends
             int position = getLayoutPosition();
             Channel channel = channels.get(position);
 
+            if (channelCheckbox.isShown()) {
+                if (this.channelCheckbox.isChecked()) {
+                    this.channelCheckbox.setChecked(false);
+                } else {
+                    this.channelCheckbox.setChecked(true);
+                }
+            }
+
             if (listener != null) {
                 listener.onItemClick(v, position, channel);
+            }
+
+            if (checkListener != null) {
+                checkListener.onItemCheck(v, position, channel, channelCheckbox.isChecked());
             }
         }
 

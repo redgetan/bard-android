@@ -83,7 +83,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             title.setText("New Post");
         } else {
             this.getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-            channelToken = Configuration.mainChannelToken();
+            channelToken = "";
             title.setText(R.string.app_name);
         }
 

@@ -45,6 +45,7 @@ import retrofit2.Response;
 import java.io.File;
 import java.util.*;
 
+import static com.roplabs.bard.util.Helper.SEND_TO_CHANNEL_REQUEST_CODE;
 import static com.roplabs.bard.util.Helper.SHARE_REPO_REQUEST_CODE;
 
 public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.EventListener {
@@ -388,6 +389,13 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     public void postRepoToChannel(View view) {
         final EditorPreviewActivity self = this;
         Repo repo = Repo.forToken(repoToken);
+
+        if (channelToken.isEmpty()) {
+            Intent intent = new Intent(this, SendToChannelActivity.class);
+            intent.putExtra("repoToken", repoToken);
+            startActivityForResult(intent, SEND_TO_CHANNEL_REQUEST_CODE);
+            return;
+        }
 
         if (!channelToken.isEmpty()) {
             if (repo == null) {

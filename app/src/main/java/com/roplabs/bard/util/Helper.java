@@ -100,6 +100,7 @@ public class Helper {
     public static final int CHANNEL_CREATE_REQUEST_CODE = 20;
     public static final int CHANNEL_MEMBER_INVITE_REQUEST_CODE = 21;
     public static final int CHANNEL_DETAILS_REQUEST_CODE = 22;
+    public static final int SEND_TO_CHANNEL_REQUEST_CODE = 23;
 
     public static final String POPULAR_SCENE_TYPE = "top";
     public static final String FAVORITES_SCENE_TYPE = "favorites";
