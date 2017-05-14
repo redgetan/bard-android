@@ -457,13 +457,13 @@ public class BardEditorActivity extends BaseActivity implements
                 intent.putExtra("sceneToken", sceneToken);
                 startActivityForResult(intent, SHARE_SCENE_REQUEST_CODE);
                 return true;
-            case R.id.copy_editor_link_item:
-                url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
-                copyEditorLinkToClipboard(url);
-                return true;
-            case R.id.update_word_list_item:
-                self.initSceneWordList(true);
-                return true;
+//            case R.id.copy_editor_link_item:
+//                url = Configuration.bardAPIBaseURL() + "/scenes/" + sceneToken + "/editor";
+//                copyEditorLinkToClipboard(url);
+//                return true;
+//            case R.id.update_word_list_item:
+//                self.initSceneWordList(true);
+//                return true;
             case R.id.view_editor_source_item:
                 String youtubeUrl = "https://www.youtube.com/watch?v=" + sceneToken;
                 startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(youtubeUrl)));
