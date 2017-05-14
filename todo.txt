@@ -41,9 +41,8 @@
     [x] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
 
 
-[ ] implement 'send' in homepage video select
-  [ ] list chats
-
+[x] implement 'send' in homepage video select
+  [x] list chats
 
 
 [ ] upload profile pic

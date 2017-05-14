@@ -23,6 +23,7 @@ import com.roplabs.bard.models.Setting;
 import com.roplabs.bard.ui.activity.ChannelActivity;
 import com.roplabs.bard.ui.widget.ItemOffsetDecoration;
 import com.roplabs.bard.util.BardLogger;
+import com.roplabs.bard.util.Helper;
 import io.realm.Realm;
 import io.realm.RealmResults;
 import retrofit2.Call;
@@ -235,8 +236,12 @@ public class ChannelListFragment extends Fragment {
         emptyStateTitle = (TextView) view.findViewById(R.id.empty_state_title);
         emptyStateDescription = (TextView) view.findViewById(R.id.empty_state_description);
 
-        emptyStateTitle.setText("Party Time");
-        emptyStateDescription.setText("Create funny videos with friends or other users ");
+        if (!Helper.isConnectedToInternet()) {
+            emptyStateTitle.setText(R.string.no_network_connection);
+        } else {
+            emptyStateTitle.setText("Party Time");
+            emptyStateDescription.setText("Create funny videos with friends or other users ");
+        }
 
         emptyStateContainer.setVisibility(View.VISIBLE);
         emptyStateContainer.setOnClickListener(new View.OnClickListener() {
