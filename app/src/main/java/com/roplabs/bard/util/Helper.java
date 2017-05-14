@@ -30,6 +30,8 @@ import android.widget.Toast;
 import com.amazonaws.mobileconnectors.s3.transferutility.*;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.mikepenz.materialdrawer.AccountHeader;
 import com.mikepenz.materialdrawer.AccountHeaderBuilder;
 import com.mikepenz.materialdrawer.Drawer;
@@ -62,6 +64,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
+import static android.app.Activity.RESULT_OK;
 import static android.content.DialogInterface.BUTTON_NEGATIVE;
 import static android.content.DialogInterface.BUTTON_POSITIVE;
 
@@ -127,6 +130,134 @@ public class Helper {
 
 
     private static ProgressDialog progressDialog;
+
+    private static void trackRemoteMergeSave(Context context, String wordTagListString, String sceneToken, String characterToken) {
+
+        Bundle params = new Bundle();
+
+        params.putString("wordTags", wordTagListString);
+        params.putString("sceneToken", sceneToken);
+        params.putString("packToken", characterToken);
+
+        Analytics.track(context, "remoteMergeSave", params);
+    }
+
+
+
+    public static void mergeVideosAndSaveLocalRepo(final AppCompatActivity context, final String wordTagListString, final String sceneToken, final String sceneName, final String characterToken, final OnMergeSuccess listener) {
+        final Context self = context;
+        Analytics.timeEvent(context, "remoteMergeSave");
+
+        Helper.mergeSegmentsRemotely(context, wordTagListString.replace(","," "), new Helper.OnMergeRemoteComplete() {
+            @Override
+            public void onMergeRemoteComplete(final String remoteSourceUrl, final String localSourcePath) {
+                if (remoteSourceUrl.isEmpty()) {
+                    Toast.makeText(self, "Unable to process video", Toast.LENGTH_LONG).show();
+                } else {
+                    String[] sourceUrlTokens = remoteSourceUrl.split("/");
+                    String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replaceAll(".mp4$","");
+                    Helper.saveLocalRepo(null, null, uuid, localSourcePath, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
+                        @Override
+                        public void onSaved(final Repo createdRepo) {
+                            final String repoToken = createdRepo.getToken();
+
+                            trackRemoteMergeSave(context, wordTagListString, sceneToken, characterToken);
+
+                            context.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (listener != null) {
+                                        listener.onMergeAndSaveComplete(repoToken);
+                                    }
+                                }
+                            });
+
+                        }
+                    });
+                }
+            }
+        });
+
+    }
+
+    public interface OnMergeSuccess {
+        public void onMergeAndSaveComplete(String repoToken);
+    }
+
+    private static void onPostSuccess(AppCompatActivity context, Post post, String channelToken) {
+
+        // must update firebase lastMessage, updatedAt
+        // must push firebase messages
+        FirebaseDatabase database = FirebaseDatabase.getInstance();
+        database.getReference("channels/" + channelToken + "/updatedAt").setValue(post.getUpdatedAt().getTime()/1000);
+        database.getReference("channels/" + channelToken + "/lastMessage").setValue(post.getTitle());
+
+        DatabaseReference messagesRef = database.getReference("messages/" + channelToken);
+        String firebasePostId = messagesRef.push().getKey();
+        messagesRef.child(firebasePostId).setValue(post.toMap());
+
+        Intent intent = new Intent();
+        intent.putExtra("backToChannel", true);
+        context.setResult(RESULT_OK, intent);
+        context.finish();
+    }
+
+
+    public static void postToChannel(final AppCompatActivity context, String repoToken, final String wordTagListString, final String sceneToken, final String sceneName, final String characterToken , final String channelToken) {
+
+        Repo repo = Repo.forToken(repoToken);
+
+        if (repo == null) {
+            // 1. not saved                                 (must save local + repos#create w/ channelToken)
+            mergeVideosAndSaveLocalRepo(context, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnMergeSuccess() {
+                @Override
+                public void onMergeAndSaveComplete(String repoToken) {
+                    Repo repo = Repo.forToken(repoToken);
+                    Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
+                        @Override
+                        public void onPublished(HashMap<String, String> result) {
+                            Post post = Post.fromResult(result);
+                            onPostSuccess(context, post, channelToken);
+                        }
+                    });
+                }
+            });
+
+        } else if (!repo.getIsPublished()) {
+            // 2. saved locally                             (repos#create w/ channelToken)
+
+            Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
+                @Override
+                public void onPublished(HashMap<String, String> result) {
+                    Post post = Post.fromResult(result);
+                    onPostSuccess(context, post, channelToken);
+                }
+            });
+        } else if (repo.getIsPublished()){
+            // 3. saved locally + remotely                  (post_to_channel)
+
+            HashMap<String, String> map = new HashMap<String, String>();
+            map.put("channel_token", channelToken);
+            Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepoToChannel(repo.getToken(), map);
+            call.enqueue(new Callback<HashMap<String, String>>() {
+                @Override
+                public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
+                    HashMap<String, String> result = response.body();
+                    if (result != null) {
+                        Post post = Post.fromResult(result);
+                        onPostSuccess(context, post, channelToken);
+                    }
+                }
+
+                @Override
+                public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
+                    Toast.makeText(context,"Unable to post to channel", Toast.LENGTH_LONG).show();
+                }
+            });
+        }
+
+    }
+
 
     public static String parseError(Response<?> response) {
         if (response.errorBody() != null) {

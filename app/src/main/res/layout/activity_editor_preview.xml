@@ -40,6 +40,7 @@
         </LinearLayout>
 
         <Button
+                android:id="@+id/send_to_channel_btn"
                 android:visibility="visible"
                 android:onClick="postRepoToChannel"
                 android:layout_width="wrap_content"

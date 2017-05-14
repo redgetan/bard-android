@@ -3,10 +3,6 @@
       android:title="Add to Bookmarks" />
 <item android:id="@+id/share_editor_item"
       android:title="Share to Friend" />
-<item android:id="@+id/copy_editor_link_item"
-      android:title="Copy Link" />
-    <item android:id="@+id/update_word_list_item"
-          android:title="Update Word List" />
 <item android:id="@+id/view_editor_source_item"
       android:title="View Source" />
 </menu>

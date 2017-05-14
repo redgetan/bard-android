@@ -168,6 +168,14 @@
                 >
         </activity>
         <activity
+                android:name=".ui.activity.SendToChannelActivity"
+                android:label="@string/app_name"
+                android:configChanges="orientation|screenSize"
+                android:screenOrientation="portrait"
+                android:windowSoftInputMode="adjustResize"
+        >
+        </activity>
+        <activity
                 android:name=".ui.activity.EditorPreviewActivity"
                 android:label="@string/app_name"
                 android:screenOrientation="portrait"

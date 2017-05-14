@@ -43,6 +43,9 @@ public class SendToChannelActivity  extends BaseActivity {
 
         TextView title = (TextView) toolbar.findViewById(R.id.toolbar_title);
         title.setText("Send To");
+
+        Intent intent = getIntent();
+        intent.getStringExtra("repoToken");
         initEmptyState();
         initChannelList();
         fetchChannelList();

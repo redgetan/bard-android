@@ -85,6 +85,11 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
         previewSaveButtonLabel = (TextView) findViewById(R.id.preview_save_repo_label);
         playBtn = (ImageView) findViewById(R.id.editor_preview_play_button);
 
+        Button sendToChannelBtn = (Button) findViewById(R.id.send_to_channel_btn);
+        if (channelToken.isEmpty()) {
+           sendToChannelBtn.setVisibility(View.GONE);
+        }
+
     }
 
     private void playLocalVideo() {
@@ -286,9 +291,10 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
             intent.putExtra("repoToken", repoToken);
             startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
         } else {
-            mergeVideosAndSaveLocalRepo(new OnMergeSuccess() {
+            Helper.mergeVideosAndSaveLocalRepo(this, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnMergeSuccess() {
                 @Override
                 public void onMergeAndSaveComplete(String repoToken) {
+                    markAsSaved();
                     intent.putExtra("repoToken", repoToken);
                     startActivityForResult(intent, SHARE_REPO_REQUEST_CODE);
                 }
@@ -303,82 +309,15 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
             return;
         }
 
-        mergeVideosAndSaveLocalRepo(null);
-    }
-
-    public interface OnMergeSuccess {
-        public void onMergeAndSaveComplete(String repoToken);
-    }
-
-    private void trackRemoteMergeSave() {
-
-        Bundle params = new Bundle();
-
-        params.putString("wordTags", wordTagListString);
-        params.putString("sceneToken", sceneToken);
-        params.putString("packToken", characterToken);
-
-        Analytics.track(this, "remoteMergeSave", params);
-    }
-
-    public void mergeVideosAndSaveLocalRepo(final OnMergeSuccess listener) {
-        final Context self = this;
-        Analytics.timeEvent(this, "remoteMergeSave");
-
-        Helper.mergeSegmentsRemotely(this, wordTagListString.replace(","," "), new Helper.OnMergeRemoteComplete() {
+        Helper.mergeVideosAndSaveLocalRepo(this, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnMergeSuccess() {
             @Override
-            public void onMergeRemoteComplete(final String remoteSourceUrl, final String localSourcePath) {
-                if (remoteSourceUrl.isEmpty()) {
-                    Toast.makeText(self, "Unable to process video", Toast.LENGTH_LONG).show();
-                } else {
-                    String[] sourceUrlTokens = remoteSourceUrl.split("/");
-                    String uuid = sourceUrlTokens[sourceUrlTokens.length - 1].replaceAll(".mp4$","");
-                    Helper.saveLocalRepo(null, null, uuid, localSourcePath, wordTagListString, sceneToken, sceneName, characterToken, new Helper.OnRepoSaved() {
-                        @Override
-                        public void onSaved(final Repo createdRepo) {
-                            repoToken = createdRepo.getToken();
-
-                            trackRemoteMergeSave();
-
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    markAsSaved();
-                                    if (listener != null) {
-                                        listener.onMergeAndSaveComplete(repoToken);
-                                    }
-                                }
-                            });
-
-                        }
-                    });
-                }
+            public void onMergeAndSaveComplete(String repoToken) {
+                markAsSaved();
             }
         });
-
-
-
     }
 
     // need thumbnailUrl, repoToken, sceneToken, packToken, username, title, sourceUrl, updatedAt
-    private void onPostSuccess(Post post) {
-
-        // must update firebase lastMessage, updatedAt
-        // must push firebase messages
-        FirebaseDatabase database = FirebaseDatabase.getInstance();
-        database.getReference("channels/" + channelToken + "/updatedAt").setValue(post.getUpdatedAt().getTime()/1000);
-        database.getReference("channels/" + channelToken + "/lastMessage").setValue(post.getTitle());
-
-        DatabaseReference messagesRef = database.getReference("messages/" + channelToken);
-        String firebasePostId = messagesRef.push().getKey();
-        messagesRef.child(firebasePostId).setValue(post.toMap());
-
-        Intent intent = new Intent();
-        intent.putExtra("backToChannel", true);
-        setResult(RESULT_OK, intent);
-        finish();
-    }
-
 
     /* repo can be either of 4 states
       1. not saved                                 (must save local + repos#create w/ channelToken)
@@ -388,65 +327,13 @@ public class EditorPreviewActivity extends BaseActivity implements ExoPlayer.Eve
     */
     public void postRepoToChannel(View view) {
         final EditorPreviewActivity self = this;
-        Repo repo = Repo.forToken(repoToken);
 
         if (channelToken.isEmpty()) {
             Intent intent = new Intent(this, SendToChannelActivity.class);
             intent.putExtra("repoToken", repoToken);
             startActivityForResult(intent, SEND_TO_CHANNEL_REQUEST_CODE);
-            return;
-        }
-
-        if (!channelToken.isEmpty()) {
-            if (repo == null) {
-                // 1. not saved                                 (must save local + repos#create w/ channelToken)
-                mergeVideosAndSaveLocalRepo(new OnMergeSuccess() {
-                    @Override
-                    public void onMergeAndSaveComplete(String repoToken) {
-                        Repo repo = Repo.forToken(repoToken);
-                        Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
-                            @Override
-                            public void onPublished(HashMap<String, String> result) {
-                                Post post = Post.fromResult(result);
-                                onPostSuccess(post);
-                            }
-                        });
-                    }
-                });
-
-            } else if (!repo.getIsPublished()) {
-                // 2. saved locally                             (repos#create w/ channelToken)
-
-                Helper.saveRemoteRepo(repo, repo.getUUID(), channelToken, new Helper.OnRepoPublished() {
-                    @Override
-                    public void onPublished(HashMap<String, String> result) {
-                        Post post = Post.fromResult(result);
-                        onPostSuccess(post);
-                    }
-                });
-            } else if (repo.getIsPublished()){
-                // 3. saved locally + remotely                  (post_to_channel)
-
-                HashMap<String, String> map = new HashMap<String, String>();
-                map.put("channel_token", channelToken);
-                Call<HashMap<String, String>> call = BardClient.getAuthenticatedBardService().postRepoToChannel(repo.getToken(), map);
-                call.enqueue(new Callback<HashMap<String, String>>() {
-                    @Override
-                    public void onResponse(Call<HashMap<String, String>> call, Response<HashMap<String, String>> response) {
-                        HashMap<String, String> result = response.body();
-                        if (result != null) {
-                            Post post = Post.fromResult(result);
-                            onPostSuccess(post);
-                        }
-                    }
-
-                    @Override
-                    public void onFailure(Call<HashMap<String, String>> call, Throwable t) {
-                        Toast.makeText(self,"Unable to post to channel", Toast.LENGTH_LONG).show();
-                    }
-                });
-            }
-
+        } else {
+            Helper.postToChannel(this, repoToken, wordTagListString, sceneToken, sceneName, characterToken, channelToken);
         }
     }
 

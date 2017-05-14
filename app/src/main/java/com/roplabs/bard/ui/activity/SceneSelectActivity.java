@@ -113,7 +113,7 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             viewPager.setAdapter(new SimpleSceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, channelToken));
         } else {
             simpleBottomNavigation.setVisibility(View.GONE);
-            viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, Configuration.mainChannelToken()));
+            viewPager.setAdapter(new SceneSelectFragmentPagerAdapter(getSupportFragmentManager(), this, channelToken));
 
             bottomNavigation.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
                 @Override
