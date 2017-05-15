@@ -15,6 +15,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
+import com.roplabs.bard.util.Helper;
 
 import java.util.List;
 
@@ -76,6 +77,8 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
             tagListView.setText(tagResultBuilder.toString());
         }
 
+        TextView sceneDurationView = viewHolder.sceneDuration;
+        sceneDurationView.setText(Helper.stringifyTimeShort(scene.getDuration()));
 
         TextView sceneProducerView = viewHolder.sceneProducer;
         sceneProducerView.setVisibility(View.VISIBLE);
@@ -123,6 +126,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
         public ImageView sceneThumbnail;
         public TextView sceneProducer;
         public TextView sceneTagList;
+        public TextView sceneDuration;
         private Context context;
 
         // We also create a constructor that accepts the entire item row
@@ -135,6 +139,7 @@ public class SearchListAdapter extends RecyclerView.Adapter<SearchListAdapter.Vi
             sceneThumbnail = (ImageView) itemView.findViewById(R.id.scene_thumbnail);
             sceneProducer = (TextView) itemView.findViewById(R.id.scene_producer);
             sceneTagList = (TextView) itemView.findViewById(R.id.scene_tag_list);
+            sceneDuration = (TextView) itemView.findViewById(R.id.scene_duration);
 
 
             this.context = context;
