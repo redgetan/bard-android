@@ -210,6 +210,9 @@ public class ChannelFeedFragment extends Fragment implements
 
     @Override
     public void onChildAdded(DataSnapshot dataSnapshot, String s) {
+        emptyStateContainer.setVisibility(View.GONE);
+        channelFeedVideoContainer.setVisibility(View.VISIBLE);
+
         HashMap<String, Object> result = (HashMap<String, Object>) dataSnapshot.getValue();
         Post post = Post.fromFirebase(result);
         postList.add(0, post); // insert at beginning

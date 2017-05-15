@@ -19,20 +19,18 @@ import android.text.TextUtils;
 import android.view.*;
 import android.widget.*;
 import com.bumptech.glide.Glide;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.*;
 import com.roplabs.bard.ClientApp;
 import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.SceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.adapters.SimpleSceneSelectFragmentPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
+import com.roplabs.bard.models.Channel;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.models.Setting;
-import com.roplabs.bard.ui.fragment.BardCreateFragment;
-import com.roplabs.bard.ui.fragment.ChannelFeedFragment;
-import com.roplabs.bard.ui.fragment.ProfileFragment;
-import com.roplabs.bard.ui.fragment.SceneSelectFragment;
+import com.roplabs.bard.ui.fragment.*;
 import com.roplabs.bard.ui.widget.CustomDialog;
 import com.roplabs.bard.ui.widget.NonSwipingViewPager;
 import com.roplabs.bard.util.*;
@@ -45,7 +43,7 @@ import java.util.*;
 
 import static com.roplabs.bard.util.Helper.*;
 
-public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener, PopupMenu.OnMenuItemClickListener {
+public class SceneSelectActivity extends BaseActivity implements ChannelFeedFragment.OnChannelFeedListener, SceneSelectFragment.OnSceneListener, PopupMenu.OnMenuItemClickListener, PackSelectFragment.OnPackListener {
     private static final int MAX_SCENE_COMBO_LENGTH = 10;
     private Context mContext;
     private DrawerLayout mDrawerLayout;
@@ -219,13 +217,48 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
         }
     }
 
-    private void joinChannel(String channelToken) {
+    private void joinChannel(final String channelToken) {
+        final Context self = this;
         if (Setting.isLogined(this)) {
-            DatabaseReference channelParticipantsRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
-            channelParticipantsRef.setValue(true);
+            DatabaseReference channelRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken);
+            channelRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    // only join channel if it exist
+                    if (dataSnapshot.getValue() != null) {
+                        DatabaseReference channelParticipantsRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken + "/participants/" + Setting.getUsername(ClientApp.getContext()));
+                        channelParticipantsRef.setValue(true);
 
-            DatabaseReference userChannelsRef = FirebaseDatabase.getInstance().getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
-            userChannelsRef.setValue(true);
+                        DatabaseReference userChannelsRef = FirebaseDatabase.getInstance().getReference("users/" + Setting.getUsername(ClientApp.getContext()) + "/channels/" + channelToken);
+                        userChannelsRef.setValue(true);
+
+                        DatabaseReference channelsRef = FirebaseDatabase.getInstance().getReference("channels/" + channelToken);
+                        channelsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+                                dataSnapshot.getValue();
+                                HashMap<String, Object> channelResult = (HashMap<String, Object>) dataSnapshot.getValue();
+                                Channel channel = Channel.createFromFirebase(channelToken, channelResult);
+                                Intent intent = new Intent(self, ChannelActivity.class);
+                                intent.putExtra("channel", channel);
+                                startActivityForResult(intent, CHANNEL_REQUEST_CODE);
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+                    }
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+
+                }
+            });
+
+
         } else {
             loginDialog = new CustomDialog(this, "You must login to join group chat");
             loginDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
@@ -432,5 +465,18 @@ public class SceneSelectActivity extends BaseActivity implements ChannelFeedFrag
             default:
                 return false;
         }
+    }
+
+    @Override
+    public void onPackItemClick(Character pack) {
+        int fragmentPosition;
+        if (sceneSelectMode != null && sceneSelectMode.equals("channel")) {
+            fragmentPosition = SimpleSceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        } else {
+            fragmentPosition = SceneSelectFragmentPagerAdapter.getBardCreateFragmentPosition();
+        }
+        BardCreateFragment bardCreateFragment = (BardCreateFragment) getSupportFragmentManager()
+                .findFragmentByTag("android:switcher:" + R.id.scene_select_pager + ":" + fragmentPosition);
+        bardCreateFragment.openPack(pack);
     }
 }

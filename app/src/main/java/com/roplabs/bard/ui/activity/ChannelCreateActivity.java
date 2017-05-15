@@ -48,9 +48,15 @@ public class ChannelCreateActivity extends BaseActivity{
 
 
     public void onChannelCreate(View view) {
+        String channelName = channelNameInput.getText().toString();
+
+        if (channelName.isEmpty()) {
+            Toast.makeText(getContext(), "Group Name cant be blank", Toast.LENGTH_LONG).show();
+            return;
+        }
 
         HashMap<String, String> map = new HashMap<String, String>();
-        map.put("name", channelNameInput.getText().toString());
+        map.put("name", channelName);
         map.put("participants", Setting.getUsername(ClientApp.getContext()));
         map.put("is_private", "true");
         map.put("mode", "group");

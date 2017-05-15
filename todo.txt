@@ -40,9 +40,10 @@
   [x] if page 2 fetched, before adding, check if already exist on list
     [x] populateFeed - postList.contains(remoteRepo) - does it actually work?? dont we need to implement equals in Post
 
-
 [x] implement 'send' in homepage video select
   [x] list chats
+
+[ ] channel invite link (similar to telegram - button - click to join)
 
 
 [ ] upload profile pic

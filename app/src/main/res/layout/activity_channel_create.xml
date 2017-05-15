@@ -47,7 +47,7 @@
                           android:padding="15dp"
                           android:hint="Description (Optional)"/>
 
-                <android.support.v7.widget.AppCompatButton
+                <Button
                         android:id="@+id/btn_create_channel"
                         android:onClick="onChannelCreate"
                         android:layout_width="fill_parent"

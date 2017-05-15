@@ -46,7 +46,7 @@ public class PackSelectFragment extends Fragment {
 
 
     public interface OnPackListener {
-        public void onItemClick(Character pack);
+        public void onPackItemClick(Character pack);
     }
 
     public static PackSelectFragment newInstance() {
@@ -163,11 +163,7 @@ public class PackSelectFragment extends Fragment {
         adapter.setOnItemClickListener(new CharacterListAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(View itemView, int position, Character character) {
-                Intent intent = new Intent(self, BardEditorActivity.class);
-                intent.putExtra("characterToken", character.getToken());
-                intent.putExtra("sceneToken", "");
-                BardLogger.trace("[characterSelect] " + character.getToken());
-                startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+                parentListener.onPackItemClick(character);
             }
         });
         recyclerView.setAdapter(adapter);
@@ -197,11 +193,11 @@ public class PackSelectFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
 
-//        if (context instanceof OnPackListener) {
-//            parentListener = (OnPackListener) context;
-//        } else {
-//            throw new ClassCastException(context.toString()
-//                    + " must implement SceneSelectFragment.OnSceneListener");
-//        }
+        if (context instanceof OnPackListener) {
+            parentListener = (OnPackListener) context;
+        } else {
+            throw new ClassCastException(context.toString()
+                    + " must implement PackSelectFragment.OnPackListener");
+        }
     }
 }

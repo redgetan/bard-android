@@ -55,7 +55,11 @@ public class MainActivity extends BaseActivity {
             packTokenEditorDeepLink = result;
         } else if (uri != null && uri.toString().contains("/channels/")) {
             // extract sceneToken from https://bard.co/channels/:token
-            String result = uri.toString().split("/packs/")[1];
+            String result = uri.toString().split("/channels/")[1];
+            if (result.charAt(result.length() - 1) == '/') {
+                // opened via intent: uri scheme -> remove trailing slash
+                result = result.substring(0, result.length() - 1);
+            }
             channelTokenDeepLink = result;
         }
 

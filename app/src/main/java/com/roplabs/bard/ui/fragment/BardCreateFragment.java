@@ -16,6 +16,7 @@ import com.roplabs.bard.R;
 import com.roplabs.bard.adapters.BardCreateFragmentPagerAdapter;
 import com.roplabs.bard.api.BardClient;
 import com.roplabs.bard.config.Configuration;
+import com.roplabs.bard.models.Character;
 import com.roplabs.bard.models.Scene;
 import com.roplabs.bard.ui.activity.BardEditorActivity;
 import com.roplabs.bard.util.BardLogger;
@@ -266,6 +267,13 @@ public class BardCreateFragment extends Fragment {
         getActivity().startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
     }
 
+    public void openPack(Character pack) {
+        Intent intent = new Intent(getActivity(), BardEditorActivity.class);
+        intent.putExtra("channelToken", channelToken);
+        intent.putExtra("characterToken", pack.getToken());
+        intent.putExtra("sceneToken", "");
+        getActivity().startActivityForResult(intent, BARD_EDITOR_REQUEST_CODE);
+    }
 
 
 

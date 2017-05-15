@@ -49,7 +49,7 @@ public class ChannelDetailsActivity extends BaseActivity {
         groupName.setText(channel.getName());
 
         TextView channelInviteLink = (TextView) findViewById(R.id.channel_invite_link);
-        channelInviteLink.setText(Configuration.bardAPIBaseURL() + "/" +  channelToken);
+        channelInviteLink.setText(Configuration.bardAPIBaseURL() + "/channels/" +  channelToken);
 
         initMembers();
         fetchMemberList();
