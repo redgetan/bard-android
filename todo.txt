@@ -43,9 +43,10 @@
 [x] implement 'send' in homepage video select
   [x] list chats
 
-[ ] channel invite link (similar to telegram - button - click to join)
+[x] channel invite link (similar to telegram - button - click to join)
 
-
+[ ] cache channel in realmdb
+[ ] show number if new message
 [ ] upload profile pic
   [ ] profile fragment
   [ ] channel details activity
