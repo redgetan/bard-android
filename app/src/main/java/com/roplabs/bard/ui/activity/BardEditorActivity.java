@@ -1239,7 +1239,13 @@ public class BardEditorActivity extends BaseActivity implements
                     BardLogger.trace("[findNext] " + targetWordTag.toString());
                     focusOnWordTag(targetWordTag);
                     skipOnTextChangeCallback = true;
-                    editText.replaceLastText(targetWordTag.toString());
+                    if (editText.getLastChar().equals(" ")) {
+                        editText.replaceLastText(targetWordTag.toString());
+                    } else {
+                        // insert space if missing
+                        editText.replaceLastText(targetWordTag.toString() + " ");
+                        editText.displayOriginalWordList();
+                    }
                     editText.format();
                     skipOnTextChangeCallback = false;
                     setWordTagWithDelay(targetWordTag, 500);
@@ -1255,7 +1261,13 @@ public class BardEditorActivity extends BaseActivity implements
                     BardLogger.trace("[findPrev] " + targetWordTag.toString());
                     focusOnWordTag(targetWordTag);
                     skipOnTextChangeCallback = true;
-                    editText.replaceLastText(targetWordTag.toString());
+                    if (editText.getLastChar().equals(" ")) {
+                        editText.replaceLastText(targetWordTag.toString());
+                    } else {
+                        // insert space if missing
+                        editText.replaceLastText(targetWordTag.toString() + " ");
+                        editText.displayOriginalWordList();
+                    }
                     editText.format();
                     skipOnTextChangeCallback = false;
                     setWordTagWithDelay(targetWordTag, 500);

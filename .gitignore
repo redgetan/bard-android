@@ -13,3 +13,4 @@ uitest/screenshots/*
 __pycache__/
 *.py[cod]
 .irb-history
+./app/google-services.json
